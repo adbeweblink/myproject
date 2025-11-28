@@ -1,206 +1,239 @@
-import React, { useState } from 'react';
-import { 
-  Monitor, Cpu, HardDrive, Layers, Video, Image as ImageIcon, 
-  FileText, CheckCircle, Copy, AlertTriangle, PenTool, Grid, 
-  School, Building2, ShieldAlert, Users, User, Clapperboard, 
-  Code, Brush, Mic, Info, ChevronRight, CloudOff, Cloud, Sparkles, 
-  Layout, Globe, Tablet, ExternalLink, Zap, Settings, Type,
-  ClipboardCheck, Eye, CalendarClock, Filter
-} from 'lucide-react';
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adobe CC 2026 政府採購規格產生器</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
 
-// --- Types ---
-type LicenseType = 'commercial' | 'edu_named' | 'k12_named' | 'edu_device' | 'k12_device' | 'gov_frl';
-type TenderLevel = 'flagship' | 'essential'; // New: Spec Level
-type AppCategory = 'desktop' | 'mobile' | 'cloud';
+    <style>
+        /* 自定義淡入動畫 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        /* 隱藏滾動條但保持滾動功能 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        body { font-family: "Microsoft JhengHei", "Heiti TC", sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col md:flex-row">
 
-type AppSpec = {
-  id: string;
-  name: string;
-  category: AppCategory;
-  icon: React.ElementType;
-  version: string;
-  desc: string;
-  // Specs
-  min_os_win: string;
-  min_os_mac: string;
-  rec_ram: string;
-  rec_gpu: string;
-  level: number; // 1-100 Intensity
-  is_heavy: boolean; // True for Video/3D apps
-  alert?: string;
-  url: string; 
-};
+    <div class="md:w-72 bg-white border-r border-slate-200 flex-shrink-0 flex flex-col md:h-screen sticky top-0 z-30">
+        <div class="p-4 border-b border-slate-100">
+            <div class="flex items-center gap-2 text-red-600 font-black text-lg">
+                <i data-lucide="globe" class="fill-current w-5 h-5"></i>
+                <span>ADOBE SPEC <span class="text-slate-400 font-normal">Level</span></span>
+            </div>
+            <div class="text-[10px] text-slate-400 font-medium mt-1">
+                政府/教育 採購規格輔助系統
+            </div>
+        </div>
 
-// --- Data Source ---
-const adobeApps: AppSpec[] = [
-  // --- Core Design Apps (Essential) ---
-  {
-    id: 'ps', name: 'Photoshop', category: 'desktop', icon: ImageIcon, version: '2025 (v26)', desc: '影像編輯',
-    min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13', 
-    rec_ram: '16GB+', rec_gpu: '4GB VRAM', level: 60, is_heavy: false,
-    alert: '建議 macOS 14 最佳',
-    url: 'https://helpx.adobe.com/photoshop/system-requirements.html'
-  },
-  {
-    id: 'ai', name: 'Illustrator', category: 'desktop', icon: PenTool, version: '2025 (v29)', desc: '向量繪圖',
-    min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
-    rec_ram: '16GB+', rec_gpu: '4GB VRAM', level: 50, is_heavy: false,
-    url: 'https://helpx.adobe.com/illustrator/system-requirements.html'
-  },
-  {
-    id: 'id', name: 'InDesign', category: 'desktop', icon: FileText, version: '2025 (v20)', desc: '排版設計',
-    min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
-    rec_ram: '16GB', rec_gpu: '4GB VRAM', level: 40, is_heavy: false,
-    url: 'https://helpx.adobe.com/indesign/system-requirements.html'
-  },
-  {
-    id: 'ic', name: 'InCopy', category: 'desktop', icon: Type, version: '2025 (v20)', desc: '文稿編輯',
-    min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
-    rec_ram: '16GB', rec_gpu: '4GB VRAM', level: 30, is_heavy: false,
-    url: 'https://helpx.adobe.com/incopy/system-requirements.html'
-  },
-  {
-    id: 'lrc', name: 'Lightroom Classic', category: 'desktop', icon: ImageIcon, version: '2025 (v14)', desc: '相片管理',
-    min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
-    rec_ram: '16GB+', rec_gpu: '8GB VRAM', level: 60, is_heavy: false,
-    url: 'https://helpx.adobe.com/lightroom-classic/system-requirements.html'
-  },
-  {
-    id: 'ac', name: 'Acrobat Pro', category: 'desktop', icon: FileText, version: 'DC', desc: 'PDF文件',
-    min_os_win: 'Win 10 (1809)', min_os_mac: 'macOS 12',
-    rec_ram: '8GB', rec_gpu: '選用', level: 10, is_heavy: false,
-    url: 'https://helpx.adobe.com/acrobat/system-requirements.html'
-  },
-  {
-    id: 'dw', name: 'Dreamweaver', category: 'desktop', icon: Code, version: '2021 (v21)', desc: '網頁設計',
-    min_os_win: 'Win 10 (1903)', min_os_mac: 'macOS 11',
-    rec_ram: '4GB', rec_gpu: '1GB VRAM', level: 20, is_heavy: false,
-    url: 'https://helpx.adobe.com/dreamweaver/system-requirements.html'
-  },
+        <div id="sidebar-buttons" class="flex md:flex-col overflow-x-auto md:overflow-visible gap-2 p-2 md:p-4 no-scrollbar">
+            </div>
 
-  // --- Heavy Video Apps (Flagship Only) ---
-  {
-    id: 'pr', name: 'Premiere Pro', category: 'desktop', icon: Video, version: '2025 (v25)', desc: '影片剪輯',
-    min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
-    rec_ram: '32GB (4K)', rec_gpu: '6GB+ VRAM', level: 85, is_heavy: true,
-    alert: 'CPU 需支援 AVX2 指令集',
-    url: 'https://helpx.adobe.com/premiere-pro/system-requirements.html'
-  },
-  {
-    id: 'ae', name: 'After Effects', category: 'desktop', icon: Layers, version: '2025 (v25)', desc: '特效合成',
-    min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
-    rec_ram: '32GB / 64GB', rec_gpu: '8GB+ VRAM', level: 100, is_heavy: true,
-    alert: '4K專案強烈建議 64GB RAM',
-    url: 'https://helpx.adobe.com/after-effects/system-requirements.html'
-  },
-  {
-    id: 'au', name: 'Audition', category: 'desktop', icon: Mic, version: '2025 (v25)', desc: '音訊編輯',
-    min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
-    rec_ram: '16GB', rec_gpu: '2GB VRAM', level: 40, is_heavy: true, // Audio can be heavy
-    url: 'https://helpx.adobe.com/audition/system-requirements.html'
-  },
-  {
-    id: 'me', name: 'Media Encoder', category: 'desktop', icon: Settings, version: '2025 (v25)', desc: '影音轉檔',
-    min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
-    rec_ram: '16GB', rec_gpu: '4GB VRAM', level: 40, is_heavy: true,
-    url: 'https://helpx.adobe.com/media-encoder/system-requirements.html'
-  },
-  {
-    id: 'an', name: 'Animate', category: 'desktop', icon: Clapperboard, version: '2025 (v25)', desc: '2D動畫',
-    min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 12',
-    rec_ram: '16GB', rec_gpu: '4GB VRAM', level: 40, is_heavy: true,
-    url: 'https://helpx.adobe.com/animate/system-requirements.html'
-  },
+        <div class="mt-auto p-4 hidden md:block">
+            <div class="bg-slate-100 rounded-lg p-3 text-xs text-slate-500 leading-relaxed border border-slate-200">
+                <div class="font-bold text-slate-700 mb-1 flex items-center gap-1">
+                    <i data-lucide="clipboard-check" class="w-3 h-3"></i> 資料品質聲明
+                </div>
+                本系統數據皆索引自 Adobe 官方 HelpX 支援頁面 (v2025 Release)。
+            </div>
+        </div>
+    </div>
 
-  // --- Mobile Apps ---
-  {
-    id: 'ps_ipad', name: 'Photoshop for iPad', category: 'mobile', icon: Tablet, version: 'iOS', desc: '平板修圖',
-    min_os_win: '-', min_os_mac: 'iPadOS 16+', rec_ram: '-', rec_gpu: '-', level: 30, is_heavy: false,
-    url: 'https://helpx.adobe.com/photoshop/system-requirements-ios.html'
-  },
-  {
-    id: 'ai_ipad', name: 'Illustrator for iPad', category: 'mobile', icon: Tablet, version: 'iOS', desc: '平板繪圖',
-    min_os_win: '-', min_os_mac: 'iPadOS 16+', rec_ram: '-', rec_gpu: '-', level: 30, is_heavy: false,
-    url: 'https://helpx.adobe.com/illustrator/system-requirements-ios.html'
-  },
+    <div class="flex-1 p-4 md:p-8 md:overflow-y-auto md:h-screen">
+        <div class="max-w-7xl mx-auto space-y-8" id="main-content">
+            </div>
+    </div>
 
-  // --- Cloud Services ---
-  {
-    id: 'firefly', name: 'Adobe Firefly', category: 'cloud', icon: Sparkles, version: 'Web', desc: '生成式 AI',
-    min_os_win: 'Edge/Chrome', min_os_mac: 'Safari/Chrome', rec_ram: '-', rec_gpu: '雲端運算', level: 10, is_heavy: false,
-    url: 'https://firefly.adobe.com/'
-  },
-  {
-    id: 'express', name: 'Adobe Express', category: 'cloud', icon: Layout, version: 'Web', desc: '線上排版',
-    min_os_win: 'Edge/Chrome', min_os_mac: 'Safari/Chrome', rec_ram: '4GB+', rec_gpu: 'WebGL', level: 15, is_heavy: false,
-    url: 'https://helpx.adobe.com/express/system-requirements.html'
-  },
-  {
-    id: 'lr_web', name: 'Lightroom Web', category: 'cloud', icon: Cloud, version: 'Web', desc: '雲端相簿',
-    min_os_win: 'Browser', min_os_mac: 'Browser', rec_ram: '-', rec_gpu: '-', level: 10, is_heavy: false,
-    url: 'https://lightroom.adobe.com/'
-  },
-];
+    <script>
+        // --- Data Definitions ---
+        const adobeApps = [
+            // --- Core Design Apps (Essential) ---
+            {
+                id: 'ps', name: 'Photoshop', category: 'desktop', icon: 'image', version: '2025 (v26)', desc: '影像編輯',
+                min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13', 
+                rec_ram: '16GB+', rec_gpu: '4GB VRAM', level: 60, is_heavy: false,
+                alert: '建議 macOS 14 最佳',
+                url: 'https://helpx.adobe.com/photoshop/system-requirements.html'
+            },
+            {
+                id: 'ai', name: 'Illustrator', category: 'desktop', icon: 'pen-tool', version: '2025 (v29)', desc: '向量繪圖',
+                min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
+                rec_ram: '16GB+', rec_gpu: '4GB VRAM', level: 50, is_heavy: false,
+                url: 'https://helpx.adobe.com/illustrator/system-requirements.html'
+            },
+            {
+                id: 'id', name: 'InDesign', category: 'desktop', icon: 'file-text', version: '2025 (v20)', desc: '排版設計',
+                min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
+                rec_ram: '16GB', rec_gpu: '4GB VRAM', level: 40, is_heavy: false,
+                url: 'https://helpx.adobe.com/indesign/system-requirements.html'
+            },
+            {
+                id: 'ic', name: 'InCopy', category: 'desktop', icon: 'type', version: '2025 (v20)', desc: '文稿編輯',
+                min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
+                rec_ram: '16GB', rec_gpu: '4GB VRAM', level: 30, is_heavy: false,
+                url: 'https://helpx.adobe.com/incopy/system-requirements.html'
+            },
+            {
+                id: 'lrc', name: 'Lightroom Classic', category: 'desktop', icon: 'image', version: '2025 (v14)', desc: '相片管理',
+                min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
+                rec_ram: '16GB+', rec_gpu: '8GB VRAM', level: 60, is_heavy: false,
+                url: 'https://helpx.adobe.com/lightroom-classic/system-requirements.html'
+            },
+            {
+                id: 'ac', name: 'Acrobat Pro', category: 'desktop', icon: 'file-text', version: 'DC', desc: 'PDF文件',
+                min_os_win: 'Win 10 (1809)', min_os_mac: 'macOS 12',
+                rec_ram: '8GB', rec_gpu: '選用', level: 10, is_heavy: false,
+                url: 'https://helpx.adobe.com/acrobat/system-requirements.html'
+            },
+            {
+                id: 'dw', name: 'Dreamweaver', category: 'desktop', icon: 'code', version: '2021 (v21)', desc: '網頁設計',
+                min_os_win: 'Win 10 (1903)', min_os_mac: 'macOS 11',
+                rec_ram: '4GB', rec_gpu: '1GB VRAM', level: 20, is_heavy: false,
+                url: 'https://helpx.adobe.com/dreamweaver/system-requirements.html'
+            },
+            // --- Heavy Video Apps (Flagship Only) ---
+            {
+                id: 'pr', name: 'Premiere Pro', category: 'desktop', icon: 'video', version: '2025 (v25)', desc: '影片剪輯',
+                min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
+                rec_ram: '32GB (4K)', rec_gpu: '6GB+ VRAM', level: 85, is_heavy: true,
+                alert: 'CPU 需支援 AVX2 指令集',
+                url: 'https://helpx.adobe.com/premiere-pro/system-requirements.html'
+            },
+            {
+                id: 'ae', name: 'After Effects', category: 'desktop', icon: 'layers', version: '2025 (v25)', desc: '特效合成',
+                min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
+                rec_ram: '32GB / 64GB', rec_gpu: '8GB+ VRAM', level: 100, is_heavy: true,
+                alert: '4K專案強烈建議 64GB RAM',
+                url: 'https://helpx.adobe.com/after-effects/system-requirements.html'
+            },
+            {
+                id: 'au', name: 'Audition', category: 'desktop', icon: 'mic', version: '2025 (v25)', desc: '音訊編輯',
+                min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
+                rec_ram: '16GB', rec_gpu: '2GB VRAM', level: 40, is_heavy: true,
+                url: 'https://helpx.adobe.com/audition/system-requirements.html'
+            },
+            {
+                id: 'me', name: 'Media Encoder', category: 'desktop', icon: 'settings', version: '2025 (v25)', desc: '影音轉檔',
+                min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 13',
+                rec_ram: '16GB', rec_gpu: '4GB VRAM', level: 40, is_heavy: true,
+                url: 'https://helpx.adobe.com/media-encoder/system-requirements.html'
+            },
+            {
+                id: 'an', name: 'Animate', category: 'desktop', icon: 'clapperboard', version: '2025 (v25)', desc: '2D動畫',
+                min_os_win: 'Win 10 (22H2)', min_os_mac: 'macOS 12',
+                rec_ram: '16GB', rec_gpu: '4GB VRAM', level: 40, is_heavy: true,
+                url: 'https://helpx.adobe.com/animate/system-requirements.html'
+            },
+            // --- Mobile Apps ---
+            {
+                id: 'ps_ipad', name: 'Photoshop for iPad', category: 'mobile', icon: 'tablet', version: 'iOS', desc: '平板修圖',
+                min_os_win: '-', min_os_mac: 'iPadOS 16+', rec_ram: '-', rec_gpu: '-', level: 30, is_heavy: false,
+                url: 'https://helpx.adobe.com/photoshop/system-requirements-ios.html'
+            },
+            {
+                id: 'ai_ipad', name: 'Illustrator for iPad', category: 'mobile', icon: 'tablet', version: 'iOS', desc: '平板繪圖',
+                min_os_win: '-', min_os_mac: 'iPadOS 16+', rec_ram: '-', rec_gpu: '-', level: 30, is_heavy: false,
+                url: 'https://helpx.adobe.com/illustrator/system-requirements-ios.html'
+            },
+            // --- Cloud Services ---
+            {
+                id: 'firefly', name: 'Adobe Firefly', category: 'cloud', icon: 'sparkles', version: 'Web', desc: '生成式 AI',
+                min_os_win: 'Edge/Chrome', min_os_mac: 'Safari/Chrome', rec_ram: '-', rec_gpu: '雲端運算', level: 10, is_heavy: false,
+                url: 'https://firefly.adobe.com/'
+            },
+            {
+                id: 'express', name: 'Adobe Express', category: 'cloud', icon: 'layout', version: 'Web', desc: '線上排版',
+                min_os_win: 'Edge/Chrome', min_os_mac: 'Safari/Chrome', rec_ram: '4GB+', rec_gpu: 'WebGL', level: 15, is_heavy: false,
+                url: 'https://helpx.adobe.com/express/system-requirements.html'
+            },
+            {
+                id: 'lr_web', name: 'Lightroom Web', category: 'cloud', icon: 'cloud', version: 'Web', desc: '雲端相簿',
+                min_os_win: 'Browser', min_os_mac: 'Browser', rec_ram: '-', rec_gpu: '-', level: 10, is_heavy: false,
+                url: 'https://lightroom.adobe.com/'
+            },
+        ];
 
-const licenses: { id: LicenseType; name: string; short: string; color: string; icon: any; summaryFlagship: any; summaryEssential: any; type: 'full' | 'restricted' }[] = [
-  { 
-    id: 'commercial', name: '指名授權-商業', short: '商業指名', color: 'blue', icon: Building2,
-    summaryFlagship: { cpu: 'i7/i9 (14th)', ram: '64 GB', gpu: 'RTX 4070', os: 'Win 11 / Mac 14' },
-    summaryEssential: { cpu: 'i5 (13th)', ram: '16 GB', gpu: 'RTX 3050', os: 'Win 11 / Mac 13' },
-    type: 'full'
-  },
-  { 
-    id: 'edu_named', name: '指名授權-教育大專院校', short: '大專指名', color: 'indigo', icon: User,
-    summaryFlagship: { cpu: 'i7 (13th)', ram: '32 GB', gpu: 'RTX 4060', os: 'Win 11 / Mac 14' },
-    summaryEssential: { cpu: 'i5 (13th)', ram: '16 GB', gpu: '內顯/入門獨顯', os: 'Win 11 / Mac 13' },
-    type: 'full'
-  },
-  { 
-    id: 'k12_named', name: '指名授權-教育K12', short: 'K12 指名', color: 'emerald', icon: User,
-    summaryFlagship: { cpu: 'i5 (13th)', ram: '16 GB', gpu: 'RTX 3050', os: 'Win 10 / Mac 13' },
-    summaryEssential: { cpu: 'i5 (12th)', ram: '8 GB', gpu: '內顯', os: 'Win 10 / Mac 13' },
-    type: 'full'
-  },
-  { 
-    id: 'edu_device', name: '裝置授權-教育大專院校 SDL', short: '大專 SDL', color: 'purple', icon: School,
-    summaryFlagship: { cpu: 'i7 (12th)', ram: '32 GB', gpu: 'RTX 3060', os: 'Win 10 / Mac 13' },
-    summaryEssential: { cpu: 'i5 (12th)', ram: '16 GB', gpu: 'RTX 3050', os: 'Win 10 / Mac 13' },
-    type: 'restricted'
-  },
-  { 
-    id: 'k12_device', name: '裝置授權-教育K12 SDL', short: 'K12 SDL', color: 'teal', icon: Users,
-    summaryFlagship: { cpu: 'i5 (12th)', ram: '16 GB', gpu: 'GTX 1650', os: 'Win 10 / Mac 13' },
-    summaryEssential: { cpu: 'i5 (11th)', ram: '8 GB', gpu: '內顯', os: 'Win 10 / Mac 13' },
-    type: 'restricted'
-  },
-  { 
-    id: 'gov_frl', name: '離線授權-政府FRL', short: '政府 FRL', color: 'rose', icon: ShieldAlert,
-    summaryFlagship: { cpu: 'Xeon W', ram: '64 GB+', gpu: 'RTX 4080', os: 'Win 11 (離線)' },
-    summaryEssential: { cpu: 'i7', ram: '32 GB', gpu: 'RTX 3060', os: 'Win 11 (離線)' },
-    type: 'restricted'
-  },
-];
+        const licenses = [
+            { 
+                id: 'commercial', name: '指名授權-商業', short: '商業指名', color: 'blue', icon: 'building-2',
+                summaryFlagship: { cpu: 'i7/i9 (14th)', ram: '64 GB', gpu: 'RTX 4070', os: 'Win 11 / Mac 14' },
+                summaryEssential: { cpu: 'i5 (13th)', ram: '16 GB', gpu: 'RTX 3050', os: 'Win 11 / Mac 13' },
+                type: 'full'
+            },
+            { 
+                id: 'edu_named', name: '指名授權-教育大專院校', short: '大專指名', color: 'indigo', icon: 'user',
+                summaryFlagship: { cpu: 'i7 (13th)', ram: '32 GB', gpu: 'RTX 4060', os: 'Win 11 / Mac 14' },
+                summaryEssential: { cpu: 'i5 (13th)', ram: '16 GB', gpu: '內顯/入門獨顯', os: 'Win 11 / Mac 13' },
+                type: 'full'
+            },
+            { 
+                id: 'k12_named', name: '指名授權-教育K12', short: 'K12 指名', color: 'emerald', icon: 'user',
+                summaryFlagship: { cpu: 'i5 (13th)', ram: '16 GB', gpu: 'RTX 3050', os: 'Win 10 / Mac 13' },
+                summaryEssential: { cpu: 'i5 (12th)', ram: '8 GB', gpu: '內顯', os: 'Win 10 / Mac 13' },
+                type: 'full'
+            },
+            { 
+                id: 'edu_device', name: '裝置授權-教育大專院校 SDL', short: '大專 SDL', color: 'purple', icon: 'school',
+                summaryFlagship: { cpu: 'i7 (12th)', ram: '32 GB', gpu: 'RTX 3060', os: 'Win 10 / Mac 13' },
+                summaryEssential: { cpu: 'i5 (12th)', ram: '16 GB', gpu: 'RTX 3050', os: 'Win 10 / Mac 13' },
+                type: 'restricted'
+            },
+            { 
+                id: 'k12_device', name: '裝置授權-教育K12 SDL', short: 'K12 SDL', color: 'teal', icon: 'users',
+                summaryFlagship: { cpu: 'i5 (12th)', ram: '16 GB', gpu: 'GTX 1650', os: 'Win 10 / Mac 13' },
+                summaryEssential: { cpu: 'i5 (11th)', ram: '8 GB', gpu: '內顯', os: 'Win 10 / Mac 13' },
+                type: 'restricted'
+            },
+            { 
+                id: 'gov_frl', name: '離線授權-政府FRL', short: '政府 FRL', color: 'rose', icon: 'shield-alert',
+                summaryFlagship: { cpu: 'Xeon W', ram: '64 GB+', gpu: 'RTX 4080', os: 'Win 11 (離線)' },
+                summaryEssential: { cpu: 'i7', ram: '32 GB', gpu: 'RTX 3060', os: 'Win 11 (離線)' },
+                type: 'restricted'
+            },
+        ];
 
-// --- Helper: Filter Logic ---
-const getFilteredApps = (licType: 'full' | 'restricted') => {
-  if (licType === 'restricted') {
-    return adobeApps.filter(app => app.category === 'desktop');
-  }
-  return adobeApps;
-};
+        // --- State Management ---
+        const state = {
+            activeLicId: 'commercial',
+            tenderLevel: 'flagship',
+            isAuditMode: false,
+            showCopyFeedback: false
+        };
 
-// --- Tender Text Generator ---
-const getTenderText = (lic: typeof licenses[0], level: TenderLevel) => {
-  const isRestricted = lic.type === 'restricted';
-  const apps = getFilteredApps(lic.type);
-  const summary = level === 'flagship' ? lic.summaryFlagship : lic.summaryEssential;
-  
-  // Filter for text list: If essential, emphasize we only guarantee essential apps performance
-  const desktopApps = apps.filter(a => a.category === 'desktop').map(a => a.name).join(', ');
-  const mobileApps = apps.filter(a => a.category === 'mobile').map(a => a.name).join(', ');
-  const cloudApps = apps.filter(a => a.category === 'cloud').map(a => a.name).join(', ');
+        // --- Helper Functions ---
+        function getFilteredApps(licType) {
+            if (licType === 'restricted') {
+                return adobeApps.filter(app => app.category === 'desktop');
+            }
+            return adobeApps;
+        }
 
-  let text = `【Adobe CC 2026 (v26) 硬體採購規格書 - ${lic.name}】
+        function getTenderText(lic, level) {
+            const isRestricted = lic.type === 'restricted';
+            const apps = getFilteredApps(lic.type);
+            const summary = level === 'flagship' ? lic.summaryFlagship : lic.summaryEssential;
+            
+            const desktopApps = apps.filter(a => a.category === 'desktop').map(a => a.name).join(', ');
+            const mobileApps = apps.filter(a => a.category === 'mobile').map(a => a.name).join(', ');
+            const cloudApps = apps.filter(a => a.category === 'cloud').map(a => a.name).join(', ');
+
+            let text = `【Adobe CC 2026 (v26) 硬體採購規格書 - ${lic.name}】
 採購等級：${level === 'flagship' ? '全套旗艦規格 (適用多媒體/影視剪輯)' : '基礎平面規格 (適用平面設計/文書處理)'}
 資料來源：Adobe 官方網站 (System Requirements) - 2025/2026 Release
 
@@ -223,376 +256,313 @@ ${level === 'flagship'
 ${desktopApps}
 `;
 
-  if (!isRestricted) {
-    text += `
+            if (!isRestricted) {
+                text += `
 [包含行動裝置 App]
 ${mobileApps}
 
 [包含雲端服務]
 ${cloudApps}
-    `;
-  } else {
-    text += `
+                `;
+            } else {
+                text += `
 ★ 排除項目宣告 (SDL/FRL 限制):
 - 本案採購之授權為【${lic.name}】，不包含行動裝置 App 與雲端服務。
-    `;
-  }
+                `;
+            }
+            return text;
+        }
 
-  return text;
-};
-
-// --- Summary Banner Component ---
-const SummaryBanner = ({ lic, level }: { lic: typeof licenses[0], level: TenderLevel }) => {
-  const summary = level === 'flagship' ? lic.summaryFlagship : lic.summaryEssential;
-  
-  return (
-    <div className={`mb-6 rounded-xl p-6 text-white shadow-lg animate-fade-in relative overflow-hidden transition-colors duration-500 ${
-      level === 'flagship' 
-        ? 'bg-gradient-to-r from-violet-600 to-indigo-600' 
-        : 'bg-gradient-to-r from-emerald-600 to-teal-600'
-    }`}>
-      <div className="absolute top-0 right-0 p-4 opacity-10">
-        <Zap size={100} />
-      </div>
-      <div className="relative z-10">
-        {/* Title */}
-        <h2 className="text-xl font-bold flex items-center gap-2 mb-4">
-          <CheckCircle className="text-white/90" size={24} />
-          {level === 'flagship' ? '全套旗艦安裝・高階影視門檻' : '基礎平面安裝・一般設計門檻'}
-        </h2>
-
-        {/* Security Warning Block */}
-        <div className="mb-6 bg-black/20 border border-white/20 rounded-lg p-4 flex gap-4 backdrop-blur-md">
-          <div className="bg-rose-500 text-white p-2 rounded-full h-fit flex-shrink-0">
-            <CalendarClock size={20} />
-          </div>
-          <div>
-            <div className="font-bold text-white text-base mb-1">
-              資安風險聲明 (Security Advisory)
-            </div>
-            <p className="text-sm text-white/90 leading-relaxed opacity-90">
-              微軟將於 **2025 年 10 月 14 日** 終止 Windows 10 支援。
-              雖然 Adobe 2025 最低支援 Win 10 22H2，但為資安合規，**強烈建議採購 Windows 11**。
-            </p>
-          </div>
-        </div>
-        
-        {/* Specs Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white/10 rounded-lg p-3 border border-white/20 backdrop-blur-sm">
-            <div className="text-xs text-white/70 mb-1 flex items-center gap-1"><HardDrive size={12}/> OS 系統</div>
-            <div className="font-bold text-lg leading-tight">{summary.os}</div>
-          </div>
-          <div className="bg-white/10 rounded-lg p-3 border border-white/20 backdrop-blur-sm">
-            <div className="text-xs text-white/70 mb-1 flex items-center gap-1"><Cpu size={12}/> 處理器 CPU</div>
-            <div className="font-bold text-lg">{summary.cpu}</div>
-            <div className="text-[10px] text-white/60">支援 AVX2</div>
-          </div>
-          <div className="bg-white/10 rounded-lg p-3 border border-white/20 backdrop-blur-sm">
-            <div className="text-xs text-white/70 mb-1 flex items-center gap-1"><Layers size={12}/> 記憶體 RAM</div>
-            <div className="font-bold text-lg">{summary.ram}</div>
-            <div className="text-[10px] text-white/60">{level === 'flagship' ? 'AE/PR 建議' : 'PS/AI 足夠'}</div>
-          </div>
-          <div className="bg-white/10 rounded-lg p-3 border border-white/20 backdrop-blur-sm">
-            <div className="text-xs text-white/70 mb-1 flex items-center gap-1"><Monitor size={12}/> 顯示卡 GPU</div>
-            <div className="font-bold text-lg">{summary.gpu}</div>
-            <div className="text-[10px] text-white/60">{level === 'flagship' ? '支援硬體加速' : '基本顯示'}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// --- App Table ---
-const AppTable = ({ title, icon: Icon, apps, colorClass, isAuditMode, level }: { title: string, icon: any, apps: AppSpec[], colorClass: string, isAuditMode: boolean, level: TenderLevel }) => {
-  if (apps.length === 0) return null;
-
-  return (
-    <div className="mb-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm animate-fade-in transition-all">
-      <div className={`flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-6 py-4 font-bold text-slate-800 ${colorClass}`}>
-        <Icon size={20} />
-        {title}
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm text-slate-600">
-          <thead className="bg-slate-50 text-xs uppercase text-slate-500">
-            <tr>
-              <th className="px-6 py-3 min-w-[200px]">軟體名稱 / 版本</th>
-              <th className="px-6 py-3 min-w-[150px]">Windows 需求</th>
-              <th className="px-6 py-3 min-w-[150px]">macOS 需求</th>
-              <th className="px-6 py-3 min-w-[200px]">硬體建議 (RAM / GPU)</th>
-              {isAuditMode && <th className="px-6 py-3 min-w-[120px] bg-amber-50 text-amber-800 border-l border-amber-100">官方溯源稽核</th>}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-             {apps.map(app => {
-               // Dim heavy apps in essential mode
-               const isDimmed = level === 'essential' && app.is_heavy;
-               return (
-                 <tr key={app.id} className={`group hover:bg-slate-50 transition-colors ${isDimmed ? 'opacity-40 bg-slate-50 grayscale' : ''}`}>
-                   <td className="px-6 py-4 align-top">
-                     <div className="flex items-center gap-3">
-                       <div className="flex-shrink-0 p-2 rounded-lg bg-slate-100 text-slate-600">
-                         <app.icon size={20} />
-                       </div>
-                       <div>
-                         <div className="font-bold text-slate-900">{app.name}</div>
-                         <div className="text-xs text-slate-400">{app.version}</div>
-                         {isDimmed && <div className="text-[10px] font-bold text-slate-500 mt-1">[非基礎安裝核心軟體]</div>}
-                         {app.alert && !isDimmed && (
-                           <div className="mt-1 flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded w-fit">
-                             <AlertTriangle size={10} />
-                             {app.alert}
-                           </div>
-                         )}
-                       </div>
-                     </div>
-                   </td>
-                   <td className="px-6 py-4 align-top">
-                     <div className="font-medium text-slate-700">{app.min_os_win}</div>
-                     <div className="text-xs text-slate-400">最低支援版本</div>
-                   </td>
-                   <td className="px-6 py-4 align-top">
-                     <div className={`font-medium ${app.min_os_mac.includes('不支援') ? 'text-red-500' : 'text-slate-700'}`}>
-                       {app.min_os_mac}
-                     </div>
-                     {app.min_os_mac.includes('14') && !isDimmed && (
-                       <div className="text-[10px] text-amber-600">建議 Sonoma 最佳</div>
-                     )}
-                   </td>
-                   <td className="px-6 py-4 align-top">
-                     <div className="space-y-1">
-                       <div className="flex justify-between gap-4">
-                         <span className="text-slate-400 text-xs">RAM</span>
-                         <span className="font-medium text-slate-800">{app.rec_ram}</span>
-                       </div>
-                       <div className="flex justify-between gap-4">
-                         <span className="text-slate-400 text-xs">GPU</span>
-                         <span className="font-medium text-slate-800">{app.rec_gpu}</span>
-                       </div>
-                     </div>
-                   </td>
-                   {isAuditMode && (
-                     <td className="px-6 py-4 align-middle bg-amber-50/30 border-l border-amber-100">
-                       <div className="flex flex-col gap-2">
-                         <a 
-                           href={app.url} 
-                           target="_blank" 
-                           rel="noopener noreferrer"
-                           className="flex items-center gap-1.5 text-xs text-blue-600 hover:underline font-medium"
-                         >
-                           <ExternalLink size={12} /> 開啟官網查證
-                         </a>
-                         <label className="flex items-center gap-2 text-xs text-slate-500 cursor-pointer select-none">
-                           <input type="checkbox" className="rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
-                           已確認
-                         </label>
-                       </div>
-                     </td>
-                   )}
-                 </tr>
-               );
-             })}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-};
-
-export default function AdobeGovDashboard_Level() {
-  const [activeLicId, setActiveLicId] = useState<LicenseType>('commercial');
-  const [tenderLevel, setTenderLevel] = useState<TenderLevel>('flagship');
-  const [showCopyFeedback, setShowCopyFeedback] = useState(false);
-  const [isAuditMode, setIsAuditMode] = useState(false);
-
-  const activeLic = licenses.find(l => l.id === activeLicId)!;
-  const isRestricted = activeLic.type === 'restricted';
-  const displayApps = getFilteredApps(activeLic.type);
-  
-  const desktopApps = displayApps.filter(a => a.category === 'desktop');
-  const mobileApps = displayApps.filter(a => a.category === 'mobile');
-  const cloudApps = displayApps.filter(a => a.category === 'cloud');
-
-  const handleCopy = () => {
-    const text = getTenderText(activeLic, tenderLevel);
-    const textArea = document.createElement("textarea");
-    textArea.value = text;
-    document.body.appendChild(textArea);
-    textArea.select();
-    try {
-      document.execCommand('copy');
-      setShowCopyFeedback(true);
-      setTimeout(() => setShowCopyFeedback(false), 2000);
-    } catch (e) {}
-    document.body.removeChild(textArea);
-  };
-
-  return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-24 md:pb-0 md:flex">
-      
-      {/* Sidebar */}
-      <div className="md:w-64 lg:w-72 bg-white border-r border-slate-200 flex-shrink-0 flex flex-col md:h-screen sticky top-0 z-30">
-        <div className="p-4 border-b border-slate-100">
-          <div className="flex items-center gap-2 text-red-600 font-black text-lg">
-            <Globe className="fill-current" size={20} />
-            <span>ADOBE SPEC <span className="text-slate-400 font-normal">Level</span></span>
-          </div>
-          <div className="text-[10px] text-slate-400 font-medium mt-1">
-            政府/教育 採購規格輔助系統
-          </div>
-        </div>
-
-        <div className="flex md:flex-col overflow-x-auto md:overflow-visible gap-2 p-2 md:p-4 no-scrollbar">
-          {licenses.map(lic => (
-            <button
-              key={lic.id}
-              onClick={() => setActiveLicId(lic.id)}
-              className={`
-                flex items-center gap-3 p-3 rounded-lg transition-all whitespace-nowrap md:whitespace-normal
-                flex-shrink-0 md:w-full border text-left
-                ${activeLicId === lic.id 
-                  ? `bg-${lic.color}-50 border-${lic.color}-200 text-${lic.color}-800 shadow-sm` 
-                  : 'bg-white border-transparent text-slate-500 hover:bg-slate-50'}
-              `}
-            >
-              <lic.icon size={18} className={activeLicId === lic.id ? `text-${lic.color}-600` : 'opacity-50'} />
-              <div>
-                <div className="text-sm font-bold">{lic.short}</div>
-                {activeLicId === lic.id && <div className="text-[10px] opacity-70 hidden md:block">{lic.name}</div>}
-              </div>
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-auto p-4 hidden md:block">
-          <div className="bg-slate-100 rounded-lg p-3 text-xs text-slate-500 leading-relaxed border border-slate-200">
-            <div className="font-bold text-slate-700 mb-1 flex items-center gap-1">
-              <ClipboardCheck size={12} /> 資料品質聲明
-            </div>
-            本系統數據皆索引自 Adobe 官方 HelpX 支援頁面 (v2025 Release)。
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 p-4 md:p-8 md:overflow-y-auto md:h-screen">
-        <div className="max-w-7xl mx-auto space-y-8">
-
-          {/* Header */}
-          <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-                {activeLic.name}
-              </h1>
-              <p className="text-slate-500 text-sm mt-1">
-                {isRestricted 
-                  ? '⚠️ 限制型授權：僅包含桌面端軟體，已自動過濾不適用項目。' 
-                  : '✅ 完整型授權：包含桌面、行動裝置與雲端服務。'}
-              </p>
-            </div>
+        function copyToClipboard() {
+            const activeLic = licenses.find(l => l.id === state.activeLicId);
+            const text = getTenderText(activeLic, state.tenderLevel);
             
-            <div className="flex flex-wrap items-center gap-3">
-              {/* Tender Level Switcher */}
-              <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
-                <button
-                  onClick={() => setTenderLevel('flagship')}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-bold transition-all ${
-                    tenderLevel === 'flagship' 
-                      ? 'bg-white text-indigo-600 shadow-sm' 
-                      : 'text-slate-500 hover:text-slate-700'
-                  }`}
-                >
-                  <Clapperboard size={16} /> 全套旗艦
-                </button>
-                <button
-                  onClick={() => setTenderLevel('essential')}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-bold transition-all ${
-                    tenderLevel === 'essential' 
-                      ? 'bg-white text-emerald-600 shadow-sm' 
-                      : 'text-slate-500 hover:text-slate-700'
-                  }`}
-                >
-                  <PenTool size={16} /> 基礎平面
-                </button>
-              </div>
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                state.showCopyFeedback = true;
+                render(); // Re-render to show "Copied"
+                setTimeout(() => {
+                    state.showCopyFeedback = false;
+                    render(); // Re-render to revert button
+                }, 2000);
+            } catch (e) {
+                console.error("Copy failed", e);
+            }
+            document.body.removeChild(textArea);
+        }
 
-              {/* Audit Toggle */}
-              <button
-                onClick={() => setIsAuditMode(!isAuditMode)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-bold border transition-all ${
-                  isAuditMode 
-                    ? 'bg-amber-100 text-amber-700 border-amber-300 shadow-inner' 
-                    : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                {isAuditMode ? <Eye size={16} /> : <ClipboardCheck size={16} />}
-                <span className="hidden sm:inline">{isAuditMode ? '關閉稽核' : '資料稽核'}</span>
-              </button>
+        // --- Render Functions ---
 
-              <button 
-                onClick={handleCopy}
-                className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg shadow-sm transition-all font-medium text-sm"
-              >
-                {showCopyFeedback ? <CheckCircle size={18} className="text-green-400" /> : <Copy size={18} />}
-                {showCopyFeedback ? '已複製' : '複製規格'}
-              </button>
-            </div>
-          </div>
+        function renderSidebar() {
+            const container = document.getElementById('sidebar-buttons');
+            container.innerHTML = licenses.map(lic => {
+                const isActive = state.activeLicId === lic.id;
+                const baseClasses = "flex items-center gap-3 p-3 rounded-lg transition-all whitespace-nowrap md:whitespace-normal flex-shrink-0 md:w-full border text-left cursor-pointer";
+                const activeClasses = `bg-${lic.color}-50 border-${lic.color}-200 text-${lic.color}-800 shadow-sm`;
+                const inactiveClasses = "bg-white border-transparent text-slate-500 hover:bg-slate-50";
+                const iconColor = isActive ? `text-${lic.color}-600` : 'opacity-50';
 
-          {/* === Summary Banner === */}
-          <SummaryBanner lic={activeLic} level={tenderLevel} />
+                return `
+                    <button
+                        onclick="setState('activeLicId', '${lic.id}')"
+                        class="${baseClasses} ${isActive ? activeClasses : inactiveClasses}"
+                    >
+                        <i data-lucide="${lic.icon}" class="w-[18px] h-[18px] ${iconColor}"></i>
+                        <div>
+                            <div class="text-sm font-bold">${lic.short}</div>
+                            ${isActive ? `<div class="text-[10px] opacity-70 hidden md:block">${lic.name}</div>` : ''}
+                        </div>
+                    </button>
+                `;
+            }).join('');
+        }
 
-          {/* Section 1: Desktop Apps Table */}
-          <AppTable 
-            title="1. 桌面軟體 (Desktop Apps)" 
-            icon={Monitor} 
-            apps={desktopApps} 
-            colorClass="text-blue-700"
-            isAuditMode={isAuditMode}
-            level={tenderLevel}
-          />
+        function renderBanner(lic) {
+            const summary = state.tenderLevel === 'flagship' ? lic.summaryFlagship : lic.summaryEssential;
+            const isFlagship = state.tenderLevel === 'flagship';
+            
+            const gradientClass = isFlagship 
+                ? 'bg-gradient-to-r from-violet-600 to-indigo-600' 
+                : 'bg-gradient-to-r from-emerald-600 to-teal-600';
 
-          {/* Section 2: Mobile Apps Table */}
-          {mobileApps.length > 0 && (
-            <AppTable 
-              title="2. 行動裝置應用程式 (Mobile Apps)" 
-              icon={Tablet} 
-              apps={mobileApps} 
-              colorClass="text-purple-700"
-              isAuditMode={isAuditMode}
-              level={tenderLevel}
-            />
-          )}
+            return `
+                <div class="mb-6 rounded-xl p-6 text-white shadow-lg animate-fade-in relative overflow-hidden transition-colors duration-500 ${gradientClass}">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <i data-lucide="zap" width="100" height="100"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <h2 class="text-xl font-bold flex items-center gap-2 mb-4">
+                            <i data-lucide="check-circle" class="text-white/90 w-6 h-6"></i>
+                            ${isFlagship ? '全套旗艦安裝・高階影視門檻' : '基礎平面安裝・一般設計門檻'}
+                        </h2>
 
-          {/* Section 3: Cloud Services Table */}
-          {cloudApps.length > 0 && (
-            <AppTable 
-              title="3. 雲端服務 (Cloud Services)" 
-              icon={Cloud} 
-              apps={cloudApps} 
-              colorClass="text-orange-700"
-              isAuditMode={isAuditMode}
-              level={tenderLevel}
-            />
-          )}
+                        <div class="mb-6 bg-black/20 border border-white/20 rounded-lg p-4 flex gap-4 backdrop-blur-md">
+                            <div class="bg-rose-500 text-white p-2 rounded-full h-fit flex-shrink-0">
+                                <i data-lucide="calendar-clock" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <div class="font-bold text-white text-base mb-1">
+                                    資安風險聲明 (Security Advisory)
+                                </div>
+                                <p class="text-sm text-white/90 leading-relaxed opacity-90">
+                                    微軟將於 **2025 年 10 月 14 日** 終止 Windows 10 支援。
+                                    雖然 Adobe 2025 最低支援 Win 10 22H2，但為資安合規，**強烈建議採購 Windows 11**。
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="bg-white/10 rounded-lg p-3 border border-white/20 backdrop-blur-sm">
+                                <div class="text-xs text-white/70 mb-1 flex items-center gap-1"><i data-lucide="hard-drive" class="w-3 h-3"></i> OS 系統</div>
+                                <div class="font-bold text-lg leading-tight">${summary.os}</div>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-3 border border-white/20 backdrop-blur-sm">
+                                <div class="text-xs text-white/70 mb-1 flex items-center gap-1"><i data-lucide="cpu" class="w-3 h-3"></i> 處理器 CPU</div>
+                                <div class="font-bold text-lg">${summary.cpu}</div>
+                                <div class="text-[10px] text-white/60">支援 AVX2</div>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-3 border border-white/20 backdrop-blur-sm">
+                                <div class="text-xs text-white/70 mb-1 flex items-center gap-1"><i data-lucide="layers" class="w-3 h-3"></i> 記憶體 RAM</div>
+                                <div class="font-bold text-lg">${summary.ram}</div>
+                                <div class="text-[10px] text-white/60">${isFlagship ? 'AE/PR 建議' : 'PS/AI 足夠'}</div>
+                            </div>
+                            <div class="bg-white/10 rounded-lg p-3 border border-white/20 backdrop-blur-sm">
+                                <div class="text-xs text-white/70 mb-1 flex items-center gap-1"><i data-lucide="monitor" class="w-3 h-3"></i> 顯示卡 GPU</div>
+                                <div class="font-bold text-lg">${summary.gpu}</div>
+                                <div class="text-[10px] text-white/60">${isFlagship ? '支援硬體加速' : '基本顯示'}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
 
-          {/* Restricted Notice for SDL/FRL */}
-          {isRestricted && (
-            <div className="bg-slate-100 border border-slate-200 rounded-xl p-8 text-center text-slate-500">
-              <CloudOff size={32} className="mx-auto mb-2 text-slate-400" />
-              <h4 className="font-bold text-slate-700">行動裝置與雲端服務區塊已隱藏</h4>
-              <p className="text-sm mt-1">
-                依據您選擇的 <strong>{activeLic.short}</strong> 規範，不包含 Photoshop for iPad、Firefly Web 等服務。<br/>
-                此區塊已自動從投標規格書中移除。
-              </p>
-            </div>
-          )}
+        function renderAppTable(title, iconName, apps, colorClass) {
+            if (apps.length === 0) return '';
+            
+            const rows = apps.map(app => {
+                const isDimmed = state.tenderLevel === 'essential' && app.is_heavy;
+                const rowClass = `group hover:bg-slate-50 transition-colors ${isDimmed ? 'opacity-40 bg-slate-50 grayscale' : ''}`;
+                
+                return `
+                    <tr class="${rowClass}">
+                        <td class="px-6 py-4 align-top">
+                            <div class="flex items-center gap-3">
+                                <div class="flex-shrink-0 p-2 rounded-lg bg-slate-100 text-slate-600">
+                                    <i data-lucide="${app.icon}" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-slate-900">${app.name}</div>
+                                    <div class="text-xs text-slate-400">${app.version}</div>
+                                    ${isDimmed ? '<div class="text-[10px] font-bold text-slate-500 mt-1">[非基礎安裝核心軟體]</div>' : ''}
+                                    ${app.alert && !isDimmed ? `
+                                    <div class="mt-1 flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded w-fit">
+                                        <i data-lucide="alert-triangle" class="w-2.5 h-2.5"></i> ${app.alert}
+                                    </div>` : ''}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 align-top">
+                            <div class="font-medium text-slate-700">${app.min_os_win}</div>
+                            <div class="text-xs text-slate-400">最低支援版本</div>
+                        </td>
+                        <td class="px-6 py-4 align-top">
+                            <div class="font-medium ${app.min_os_mac.includes('不支援') ? 'text-red-500' : 'text-slate-700'}">
+                                ${app.min_os_mac}
+                            </div>
+                            ${app.min_os_mac.includes('14') && !isDimmed ? '<div class="text-[10px] text-amber-600">建議 Sonoma 最佳</div>' : ''}
+                        </td>
+                        <td class="px-6 py-4 align-top">
+                            <div class="space-y-1">
+                                <div class="flex justify-between gap-4">
+                                    <span class="text-slate-400 text-xs">RAM</span>
+                                    <span class="font-medium text-slate-800">${app.rec_ram}</span>
+                                </div>
+                                <div class="flex justify-between gap-4">
+                                    <span class="text-slate-400 text-xs">GPU</span>
+                                    <span class="font-medium text-slate-800">${app.rec_gpu}</span>
+                                </div>
+                            </div>
+                        </td>
+                        ${state.isAuditMode ? `
+                        <td class="px-6 py-4 align-middle bg-amber-50/30 border-l border-amber-100">
+                            <div class="flex flex-col gap-2">
+                                <a href="${app.url}" target="_blank" class="flex items-center gap-1.5 text-xs text-blue-600 hover:underline font-medium">
+                                    <i data-lucide="external-link" class="w-3 h-3"></i> 開啟官網查證
+                                </a>
+                                <label class="flex items-center gap-2 text-xs text-slate-500 cursor-pointer select-none">
+                                    <input type="checkbox" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+                                    已確認
+                                </label>
+                            </div>
+                        </td>
+                        ` : ''}
+                    </tr>
+                `;
+            }).join('');
 
-        </div>
-      </div>
+            return `
+                <div class="mb-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm animate-fade-in transition-all">
+                    <div class="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-6 py-4 font-bold text-slate-800 ${colorClass}">
+                        <i data-lucide="${iconName}" class="w-5 h-5"></i>
+                        ${title}
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-slate-600">
+                            <thead class="bg-slate-50 text-xs uppercase text-slate-500">
+                                <tr>
+                                    <th class="px-6 py-3 min-w-[200px]">軟體名稱 / 版本</th>
+                                    <th class="px-6 py-3 min-w-[150px]">Windows 需求</th>
+                                    <th class="px-6 py-3 min-w-[150px]">macOS 需求</th>
+                                    <th class="px-6 py-3 min-w-[200px]">硬體建議 (RAM / GPU)</th>
+                                    ${state.isAuditMode ? '<th class="px-6 py-3 min-w-[120px] bg-amber-50 text-amber-800 border-l border-amber-100">官方溯源稽核</th>' : ''}
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                ${rows}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
 
-    </div>
-  );
-}
+        function renderMainContent() {
+            const container = document.getElementById('main-content');
+            const activeLic = licenses.find(l => l.id === state.activeLicId);
+            const isRestricted = activeLic.type === 'restricted';
+            const displayApps = getFilteredApps(activeLic.type);
+            
+            const desktopApps = displayApps.filter(a => a.category === 'desktop');
+            const mobileApps = displayApps.filter(a => a.category === 'mobile');
+            const cloudApps = displayApps.filter(a => a.category === 'cloud');
+
+            // Header HTML
+            const headerHtml = `
+                <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                            ${activeLic.name}
+                        </h1>
+                        <p class="text-slate-500 text-sm mt-1">
+                            ${isRestricted 
+                                ? '⚠️ 限制型授權：僅包含桌面端軟體，已自動過濾不適用項目。' 
+                                : '✅ 完整型授權：包含桌面、行動裝置與雲端服務。'}
+                        </p>
+                    </div>
+                    
+                    <div class="flex flex-wrap items-center gap-3">
+                        <div class="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
+                            <button onclick="setState('tenderLevel', 'flagship')" class="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-bold transition-all ${state.tenderLevel === 'flagship' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}">
+                                <i data-lucide="clapperboard" class="w-4 h-4"></i> 全套旗艦
+                            </button>
+                            <button onclick="setState('tenderLevel', 'essential')" class="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-bold transition-all ${state.tenderLevel === 'essential' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}">
+                                <i data-lucide="pen-tool" class="w-4 h-4"></i> 基礎平面
+                            </button>
+                        </div>
+
+                        <button onclick="setState('isAuditMode', ${!state.isAuditMode})" class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-bold border transition-all ${state.isAuditMode ? 'bg-amber-100 text-amber-700 border-amber-300 shadow-inner' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'}">
+                            <i data-lucide="${state.isAuditMode ? 'eye' : 'clipboard-check'}" class="w-4 h-4"></i>
+                            <span class="hidden sm:inline">${state.isAuditMode ? '關閉稽核' : '資料稽核'}</span>
+                        </button>
+
+                        <button onclick="copyToClipboard()" class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg shadow-sm transition-all font-medium text-sm">
+                            <i data-lucide="${state.showCopyFeedback ? 'check-circle' : 'copy'}" class="w-[18px] h-[18px] ${state.showCopyFeedback ? 'text-green-400' : ''}"></i>
+                            ${state.showCopyFeedback ? '已複製' : '複製規格'}
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Build Content
+            let contentHtml = headerHtml;
+            contentHtml += renderBanner(activeLic);
+            contentHtml += renderAppTable("1. 桌面軟體 (Desktop Apps)", "monitor", desktopApps, "text-blue-700");
+            
+            if (mobileApps.length > 0) {
+                contentHtml += renderAppTable("2. 行動裝置應用程式 (Mobile Apps)", "tablet", mobileApps, "text-purple-700");
+            }
+            if (cloudApps.length > 0) {
+                contentHtml += renderAppTable("3. 雲端服務 (Cloud Services)", "cloud", cloudApps, "text-orange-700");
+            }
+
+            if (isRestricted) {
+                contentHtml += `
+                    <div class="bg-slate-100 border border-slate-200 rounded-xl p-8 text-center text-slate-500">
+                        <div class="flex justify-center mb-2"><i data-lucide="cloud-off" class="text-slate-400 w-8 h-8"></i></div>
+                        <h4 class="font-bold text-slate-700">行動裝置與雲端服務區塊已隱藏</h4>
+                        <p class="text-sm mt-1">
+                            依據您選擇的 <strong>${activeLic.short}</strong> 規範，不包含 Photoshop for iPad、Firefly Web 等服務。<br/>
+                            此區塊已自動從投標規格書中移除。
+                        </p>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = contentHtml;
+        }
+
+        // --- Main Render & Init ---
+        function render() {
+            renderSidebar();
+            renderMainContent();
+            lucide.createIcons(); // Re-scan DOM for icons
+        }
+
+        function setState(key, value) {
+            state[key] = value;
+            render();
+        }
+
+        // Initial Render
+        document.addEventListener('DOMContentLoaded', () => {
+            render();
+        });
+
+    </script>
+</body>
+</html>
