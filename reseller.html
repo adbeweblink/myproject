@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adobe 經銷商推薦系統</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 自定義動畫與樣式微調 */
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* 隱藏捲軸但保持功能 */
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Tooltip 樣式 */
+        .tooltip {
+            position: relative;
+        }
+        .tooltip::after {
+            content: "已複製";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #10B981;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+        }
+        .tooltip.show-tooltip::after {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50 text-gray-800">
+
+    <header class="bg-gradient-to-r from-red-700 to-red-900 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 md:py-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold flex items-center gap-3">
+                        Adobe 經銷商推薦系統
+                    </h1>
+                </div>
+                <div class="text-right hidden md:block">
+                    <p class="text-red-100 text-sm opacity-90">台灣授權合作夥伴名錄</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6 overflow-hidden">
+            <button id="intro-toggle-btn" class="w-full p-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center hover:bg-gray-100 transition-colors">
+                <span class="font-bold text-gray-700 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+                    經銷商等級說明 (點擊下方方塊可快速篩選)
+                </span>
+                <span id="intro-chevron">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+                </span>
+            </button>
+            
+            <div id="intro-content" class="p-6 grid grid-cols-1 md:grid-cols-4 gap-4 bg-white transition-all duration-300">
+                </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-8">
+            <aside class="md:w-1/4 flex-shrink-0">
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 sticky top-24">
+                    <div class="flex items-center justify-between mb-6 border-b pb-4">
+                        <div class="flex items-center gap-2 text-gray-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                            <h3 class="font-bold text-lg">條件篩選</h3>
+                        </div>
+                        <button id="reset-all-btn-top" class="hidden text-xs text-red-600 hover:text-red-800 underline flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                            重置所有
+                        </button>
+                    </div>
+
+                    <div class="mb-6 relative">
+                        <label class="block text-sm font-bold text-gray-700 mb-3">關鍵字搜尋</label>
+                        <div class="relative">
+                            <input type="text" id="search-input" placeholder="輸入名稱、電話、Email..." class="w-full p-2.5 pl-9 pr-8 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm transition-all" />
+                            <div class="absolute left-3 top-2.5 text-gray-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            </div>
+                            <button id="clear-search-btn" class="hidden absolute right-2 top-2.5 text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-200 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+                            合作夥伴等級
+                        </label>
+                        <div class="space-y-2" id="level-radios">
+                            </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            所在地區
+                        </label>
+                        <select id="region-select" class="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm">
+                            <option value="All">全台灣 (含跨區)</option>
+                            <option value="North">北區 (台北/新北/基隆)</option>
+                            <option value="TaoZhuMiao">桃竹苗區</option>
+                            <option value="Central">中區 (台中/彰化/南投)</option>
+                            <option value="South">南區 (台南/高雄/屏東)</option>
+                            <option value="East">東區 (宜蘭/花蓮/台東)</option>
+                        </select>
+                        <p class="text-xs text-gray-400 mt-2">* 選擇地區後，亦會顯示服務全台的經銷商。</p>
+                    </div>
+
+                    <button id="reset-all-btn-bottom" class="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg text-sm font-medium transition-colors border border-gray-300">
+                        清除所有條件
+                    </button>
+                </div>
+            </aside>
+
+            <div class="md:w-3/4">
+                <div class="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                        搜尋結果 
+                        <span id="result-count" class="text-sm font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded-full">0 家</span>
+                    </h3>
+                    
+                    <div id="active-filters" class="flex flex-wrap gap-2">
+                        </div>
+                </div>
+
+                <div id="reseller-list" class="space-y-4">
+                    </div>
+                
+                <div id="no-results" class="hidden bg-white p-12 rounded-xl text-center shadow-sm border border-gray-200">
+                    <div class="flex justify-center mb-4 text-gray-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-600">沒有找到符合條件的經銷商</h3>
+                    <p class="text-gray-500 mt-2">請嘗試輸入其他關鍵字或清除篩選條件。</p>
+                    <button id="reset-no-result-btn" class="mt-4 text-red-600 hover:underline text-sm font-medium">重置所有篩選</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-gray-400 py-6 mt-12 text-center text-xs">
+        <div class="max-w-4xl mx-auto px-4">
+            <p>© 2025 Adobe Partner Finder System. 非 Adobe 官方網站，資料僅供內部參考。</p>
+            <p class="mt-1">資料來源：Adobe Partner Connection Portal & 展碁國際 (Weblink International) 經銷體系 | 更新日期：2025/11/28</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- 1. 資料與設定 ---
+
+        const LEVEL_ORDER = ['Platinum', 'Gold', 'Certified', 'Distributor'];
+
+        const LEVEL_CONFIG = {
+            Platinum: { 
+                label: '白金級 (Platinum)', 
+                colorClass: 'bg-indigo-600 text-white', 
+                borderClass: 'border-indigo-600',
+                bgLightClass: 'bg-indigo-50',
+                desc: '最高等級合作夥伴，具備最完整的產品專業認證與大型企業服務能力。',
+                icon: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>'
+            },
+            Gold: { 
+                label: '黃金級 (Gold)', 
+                colorClass: 'bg-amber-500 text-white', 
+                borderClass: 'border-amber-500',
+                bgLightClass: 'bg-amber-50',
+                desc: '具備特定領域的專業認證，適合中大型企業與特定產業需求。',
+                icon: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
+            },
+            Certified: { 
+                label: '認證級 (Certified)', 
+                colorClass: 'bg-blue-600 text-white', 
+                borderClass: 'border-blue-600',
+                bgLightClass: 'bg-blue-50',
+                desc: '經過原廠認證，適合中小企業、教育單位與個人工作室採購。',
+                icon: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+            },
+            Distributor: { 
+                label: '代理商 (Distributor)', 
+                colorClass: 'bg-slate-800 text-white', 
+                borderClass: 'border-slate-800',
+                bgLightClass: 'bg-slate-50',
+                desc: '原廠授權之主要通路商，負責支援其他經銷商與大型專案。',
+                icon: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M8 10h.01"/><path d="M16 10h.01"/><path d="M8 14h.01"/><path d="M16 14h.01"/></svg>'
+            },
+        };
+
+        const RESELLERS_DATA = [
+            // --- Distributor ---
+            { id: 'd1', nameEn: 'Weblink International', nameTw: '展碁國際股份有限公司', level: 'Distributor', tags: ['Full Catalog', 'Channel Support'], targetAudience: ['Resellers', 'Enterprise', 'Education', 'Government'], region: ['Taipei', 'All'], address: '台北市南港區南港路三段9號10-12樓', phone: '02-2371-6000', email: 'info@weblink.com.tw', website: 'https://www.weblink.com.tw', description: 'Adobe 台灣區主要代理商 (Distributor)，提供完整的軟硬體通路服務。' },
+            // --- Platinum ---
+            { id: 'p1', nameEn: 'Systex Software and Service Corporation', nameTw: '精誠軟體服務股份有限公司', level: 'Platinum', tags: ['Enterprise Solution', 'Government', 'Digital Transformation'], targetAudience: ['Enterprise', 'Government'], region: ['Taipei', 'All'], address: '台北市中正區羅斯福路二段100號17樓', phone: '(02) 2367-0188', email: 'jofang@systexsoftware.com.tw', website: 'https://www.systexsoftware.com.tw', description: 'Adobe 白金級合作夥伴，提供大型企業與政府機關完整的軟體資產管理服務。' },
+            { id: 'p2', nameEn: 'Acer E-Enabling Service Business', nameTw: '宏碁資訊服務股份有限公司', level: 'Platinum', tags: ['Cloud Services', 'Enterprise', 'Government'], targetAudience: ['Enterprise', 'Government'], region: ['Taipei', 'All'], address: '115臺北市南港區南港路三段9號18樓', phone: '(02) 2784-1000', email: 'hqkeb.aa@aceraeb.com.', website: 'https://www.aceraeb.com', description: '專注於企業雲端服務與資安整合，協助大型客戶導入自動化文件流程。' },
+            // --- Gold ---
+            { id: 'n7', nameEn: 'Evertop Information', nameTw: '長峰資訊股份有限公司', level: 'Gold', tags: ['Education', 'Volume License'], targetAudience: ['Education'], region: ['Taipei', 'North'], address: '台北市', phone: '(02) 2788-2408', email: 'kary_huang@evertop.com.tw', website: 'https://www.evertop.com.tw', description: '專注於教育市場軟體授權與校園服務。' },
+            { id: 'n5', nameEn: 'Jen Hong International', nameTw: '朕宏國際實業有限公司', level: 'Gold', tags: ['3D Animation', 'Creative Cloud', 'VFX'], targetAudience: ['Creative Pros', 'Media'], region: ['Taipei', 'North'], address: '台北市北投區', phone: '(02) 2897-6878', email: 'tina@gemhorn.com', website: 'https://www.gemhorn.com', description: '專精於 3D 動畫與多媒體創作軟體，提供專業技術支援。' },
+            { id: 'n4', nameEn: 'Shin Chi Cloud', nameTw: '昕奇雲端科技股份有限公司', level: 'Gold', tags: ['Cloud SaaS', 'Startups'], targetAudience: ['SMB', 'Startups'], region: ['Taipei', 'North'], address: '台北市內湖區', phone: '(02) 8792-3677', email: 'info@grandtechcloud.com', website: 'https://www.grandtechcloud.com', description: '專注於雲端服務的新創友善經銷商。' },
+            { id: 'n8', nameEn: 'I-Planet International', nameTw: '智域國際股份有限公司', level: 'Gold', tags: ['Education'], targetAudience: ['Education'], region: ['Taipei', 'North'], address: '台北市', phone: '(02) 2727-8077', email: 'iplanetpm@i-planet.com.tw', website: 'https://www.i-planet.com.tw', description: '深耕教育市場，提供各級學校專業軟體授權規劃。' },
+            { id: 'n2', nameEn: 'Tomorrow Info', nameTw: '明日資訊有限公司', level: 'Gold', tags: ['SMB', 'Consulting'], targetAudience: ['SMB'], region: ['Taipei', 'North'], address: '台北市', phone: '(03) 317-3742', email: 'service@tomorrow-info.com', description: '提供專業的軟體諮詢與企業解決方案。' },
+            { id: 'g2', nameEn: 'Otsuka Information Technology', nameTw: '大塚資訊科技股份有限公司', level: 'Gold', tags: ['Manufacturing', 'CAD/CAM', 'Enterprise'], targetAudience: ['Enterprise', 'Manufacturing'], region: ['NewTaipei', 'All'], address: '新北市', phone: '(02) 8964-6668', email: 'service@otsuka.com.tw', website: 'https://www.oitc.com.tw/', description: '專精於製造業與設計產業的軟體整合服務。' },
+            { id: 'n1', nameEn: 'Quickly 3C', nameTw: '快克利有限公司', level: 'Gold', tags: ['SMB', 'Retail'], targetAudience: ['SMB', 'Individual'], region: ['Taipei', 'North'], address: '台北市', phone: '(02) 2511-9098', email: 'service@quickly.com.tw', website: 'https://www.quickly.tw', description: '專注於中小企業軟體授權與採購服務。' },
+            { id: 'new1', nameEn: 'Liso Information Co., Ltd.', nameTw: '力梭資訊股份有限公司', level: 'Gold', tags: ['SMB', 'ServerBank'], targetAudience: ['SMB', 'Enterprise'], region: ['NewTaipei', 'North'], address: '新北市', phone: '(02) 8969-0901', email: 'service@serverbank.com.tw', website: 'https://www.serverbank.com.tw', description: '知名的 ServerBank 營運商，提供企業軟硬體整合與 Adobe 授權服務。' },
+            { id: 'n3', nameEn: 'Keyi International', nameTw: '科益國際股份有限公司', level: 'Gold', tags: ['SMB', 'Software'], targetAudience: ['SMB'], region: ['Taipei', 'North'], address: '台北市', phone: '(02) 2585-8725', email: 'service@techez.com.tw', website: 'https://www.techez.com.tw', description: '提供軟體經銷、技術支援與企業授權規劃。' },
+            { id: 'n6', nameEn: 'Chuangjie International', nameTw: '創捷國際有限公司', level: 'Gold', tags: ['Procurement', 'SMB'], targetAudience: ['SMB', 'Government'], region: ['Taipei', 'North'], address: '台北市', phone: '(02) 2570-3233', email: 'sales@teksource.com.tw', website: 'https://www.teksource.com.tw', description: '提供政府共同供應契約與企業採購服務。' },
+            { id: 'new2', nameEn: 'Tyche Information Co., Ltd.', nameTw: '台奇資訊有限公司', level: 'Gold', tags: ['Education', 'SMB'], targetAudience: ['Education', 'SMB'], region: ['NewTaipei', 'North'], address: '新北市', phone: '(02) 8983-3989', email: 'service@tycheinfo.com.tw', website: 'https://www.tycheinfo.com.tw', description: '專注於教育市場與中小企業的軟體解決方案提供商。' },
+            // --- Certified ---
+            { id: 'g3', nameEn: 'Yifan Technology', nameTw: '逸凡科技股份有限公司', level: 'Certified', tags: ['System Integration', 'Enterprise'], targetAudience: ['Enterprise', 'Government'], region: ['Taipei', 'All'], address: '台北市', phone: '0800-098-598', email: 'service@yifan.com.tw', website: 'https://www.ivan.com.tw', description: '提供全方位的資訊系統整合與企業軟體授權服務。' },
+            { id: 'g4', nameEn: 'BestCom Infotech Corp.', nameTw: '大綜電腦系統股份有限公司', level: 'Certified', tags: ['System Integration', 'Cloud'], targetAudience: ['Enterprise', 'Manufacturing'], region: ['Kaohsiung', 'All'], address: '高雄市', phone: '(07) 345-8011', email: 'sales@bestcom.com.tw', website: 'https://www.bestcom.com.tw', description: '台灣南部起家的大型系統整合商，服務範圍涵蓋全台。' },
+            { id: 'g5', nameEn: 'Xunda Computer', nameTw: '訊達電腦股份有限公司', level: 'Certified', tags: ['IT Infrastructure', 'Enterprise'], targetAudience: ['Enterprise'], region: ['Taipei', 'All'], address: '台北市', phone: '(02) 2501-5568 #2285', email: 'service@xunda.com.tw', website: 'http://www.xunda.com.tw', description: '提供企業級資訊基礎建設與軟體解決方案。' },
+            { id: 'n9', nameEn: 'Guanglian International', nameTw: '光聯國際股份有限公司', level: 'Certified', tags: ['SMB'], targetAudience: ['SMB'], region: ['Taipei', 'North'], address: '台北市', phone: '(02) 8768-1631', email: 'service@guanglian.com.tw', website: 'https://condata-ai.com/', description: '企業軟體經銷服務。' },
+            { id: 'n10', nameEn: 'Jinte Enterprise', nameTw: '勁特企業有限公司', level: 'Certified', tags: ['Education'], targetAudience: ['Education'], region: ['NewTaipei', 'North'], address: '新北市', phone: '(02) 8685-4166', email: 'service@jinte.com.tw', description: '專注於教育機構軟體服務。' },
+            { id: 'n11', nameEn: 'Zhenchuan Info', nameTw: '真傳資訊有限公司', level: 'Certified', tags: ['SMB'], targetAudience: ['SMB'], region: ['Taipei', 'North'], address: '台北市', phone: '(02) 2754-8510', email: 'jyi@realinfo.com.tw', website: 'https://www.realinfo.com.tw', description: '資訊軟體經銷。' },
+            { id: 'n12', nameEn: 'Qiaoju Info', nameTw: '僑巨資訊企業有限公司', level: 'Certified', tags: ['SMB'], targetAudience: ['SMB'], region: ['Taipei', 'North'], address: '台北市', phone: '(02) 2522-1212', email: 'ciccorp@ciccorp.com.tw', website: 'https://ciccorp8.webnode.tw', description: '企業資訊解決方案。' },
+            { id: 'n13', nameEn: 'TeraSoft', nameTw: '台灣碩軟軟體有限公司', level: 'Certified', tags: ['Software Licensing', 'MNC'], targetAudience: ['Enterprise', 'SMB'], region: ['Taipei', 'North'], address: '台北市', phone: '(02) 2176-5186', email: 'info.tw@softwareone.com', website: 'https://www.softwareone.com', description: '全球化軟體授權管理專家。' },
+            { id: 'n14', nameEn: 'Ability International Co., Ltd.', nameTw: '佳能國際股份有限公司', level: 'Certified', tags: ['Document Solutions'], targetAudience: ['Enterprise'], region: ['Taipei', 'North'], address: '台北市', phone: '0800-055-056', email: 'service@canon.com.tw', website: 'https://ait.abico.com.tw/', description: '結合硬體與文件解決方案。' },
+            // --- Tao-Zhu-Miao ---
+            { id: 't1', nameEn: 'Youshuo Computer', nameTw: '又碩電腦科技股份有限公司', level: 'Certified', tags: ['SMB'], targetAudience: ['SMB'], region: ['TaoZhuMiao', 'North'], address: '桃園市', phone: '(03) 463-9119', email: 'service@youshuo.com.tw', description: '桃園地區專業電腦與軟體服務。' },
+            { id: 't2', nameEn: 'Weice Computer', nameTw: '威策電腦股份有限公司', level: 'Certified', tags: ['SMB'], targetAudience: ['SMB'], region: ['TaoZhuMiao', 'North'], address: '桃園市', phone: '(03) 301-9789', email: 'flower.chen@welltake.com.tw', website: 'http://www.welltake.com.tw', description: '在地化企業資訊服務。' },
+            { id: 't3', nameEn: 'Kaimo Technology', nameTw: '凱模科技有限公司', level: 'Certified', tags: ['SMB'], targetAudience: ['SMB'], region: ['TaoZhuMiao', 'North'], address: '桃園市', phone: '(03) 218-0011', email: 'service@kaimo.com.tw', description: '提供中小企業軟硬體整合服務。' },
+            // --- Central ---
+            { id: 'c1', nameEn: 'Se Mai Technology', nameTw: '瑟麥科技事業有限公司', level: 'Certified', tags: ['SMB', 'Design'], targetAudience: ['SMB'], region: ['Taichung', 'Central'], address: '台中市', phone: '(04) 2475-0698', email: 'sales@semai.com.tw', description: '深耕中部中小企業與設計市場。' },
+            { id: 'c2', nameEn: 'Show Yi International', nameTw: '首羿國際股份有限公司', level: 'Certified', tags: ['Education', 'Maker Education'], targetAudience: ['Education'], region: ['Taichung', 'Central'], address: '台中市', phone: '(04) 2258-3355', email: 'service@so-easy.com.tw', website: 'http://www.so-easy.com.tw', description: '專注於創客教育與校園軟體服務。' },
+            { id: 'c3', nameEn: 'Quantai Info', nameTw: '銓太資訊有限公司', level: 'Certified', tags: ['SMB'], targetAudience: ['SMB'], region: ['Taichung', 'Central'], address: '台中市', phone: '(04) 2312-7008', email: 'ray@chaintek.com.tw', website: 'http://www.it-mall.com.tw', description: '中部地區資訊服務經銷商。' },
+            { id: 'c4', nameEn: 'Xin-En Technology', nameTw: '昕恩科技有限公司', level: 'Certified', tags: ['SMB'], targetAudience: ['SMB'], region: ['Taichung', 'Central'], address: '台中市', phone: '(04) 2202-0158', email: 'xinen@xinen.com.tw', website: 'https://xinen.com.tw', description: '提供專業軟體銷售與諮詢。' },
+            // --- South ---
+            { id: 's1', nameEn: 'Gao Jie Xin', nameTw: '高傑信股份有限公司', level: 'Certified', tags: ['SMB'], targetAudience: ['SMB'], region: ['Kaohsiung', 'South'], address: '高雄市', phone: '(07) 975-6888', email: 'sales@gjs.com.tw', description: '高雄地區專業軟體經銷商。' },
+            { id: 's2', nameEn: 'Yunchuan Technology', nameTw: '允傳科技股份有限公司', level: 'Certified', tags: ['SMB'], targetAudience: ['SMB'], region: ['Kaohsiung', 'South'], address: '高雄市', phone: '(07) 348-5625', email: 'service@yunchuan.com.tw', description: '南部企業資訊服務夥伴。' },
+            { id: 's3', nameEn: 'Diyiming Computer', nameTw: '帝易明電腦有限公司', level: 'Certified', tags: ['SMB'], targetAudience: ['SMB'], region: ['Tainan', 'South'], address: '台南市', phone: '(06) 222-4339', email: 'service@diyiming.com.tw', description: '台南地區電腦與軟體經銷。' },
+            { id: 's4', nameEn: 'Deyuan Computer', nameTw: '德源電腦有限公司', level: 'Certified', tags: ['Retail', 'SMB'], targetAudience: ['SMB', 'Individual'], region: ['Tainan', 'South'], address: '台南市', phone: '(06) 228-4367', email: 'mypc@mypc.com.tw', website: 'https://www.mypc.com.tw', description: '提供電腦組裝與軟體銷售服務。' },
+            { id: 's5', nameEn: 'Song Yue International', nameTw: '淞鉞國際有限公司', level: 'Certified', tags: ['SMB'], targetAudience: ['SMB'], region: ['Kaohsiung', 'South'], address: '高雄市', phone: '(07) 588-5272', email: 'south@song-yue.com', website: 'https://www.song-yue.com', description: '南部地區軟體經銷商。' },
+            // --- East ---
+            { id: 'e1', nameEn: 'Haoshi Tech Studio', nameTw: '好時科技工作室', level: 'Certified', tags: ['SMB', 'Studio'], targetAudience: ['SMB', 'Individual'], region: ['East'], address: '台東縣', phone: '089-311220', email: '', description: '東部地區在地資訊服務。' }
+        ];
+
+        // --- 2. 狀態變數 ---
+
+        let state = {
+            level: 'All',
+            region: 'All',
+            search: '',
+            isIntroOpen: true
+        };
+
+        // --- 3. DOM 元素 ---
+        const els = {
+            resellerList: document.getElementById('reseller-list'),
+            noResults: document.getElementById('no-results'),
+            resultCount: document.getElementById('result-count'),
+            activeFilters: document.getElementById('active-filters'),
+            searchInput: document.getElementById('search-input'),
+            clearSearchBtn: document.getElementById('clear-search-btn'),
+            levelRadios: document.getElementById('level-radios'),
+            regionSelect: document.getElementById('region-select'),
+            resetAllTop: document.getElementById('reset-all-btn-top'),
+            resetAllBottom: document.getElementById('reset-all-btn-bottom'),
+            resetNoResult: document.getElementById('reset-no-result-btn'),
+            introToggleBtn: document.getElementById('intro-toggle-btn'),
+            introContent: document.getElementById('intro-content'),
+            introChevron: document.getElementById('intro-chevron')
+        };
+
+        // --- 4. 初始化 ---
+
+        function init() {
+            renderLevelRadios();
+            renderIntroCards();
+            updateResults();
+            setupEventListeners();
+        }
+
+        // --- 5. 渲染邏輯 ---
+
+        function renderLevelRadios() {
+            let html = `
+                <label class="flex items-center gap-2 p-2 rounded hover:bg-gray-50 cursor-pointer">
+                    <input type="radio" name="level" value="All" ${state.level === 'All' ? 'checked' : ''} class="text-red-600 focus:ring-red-500">
+                    <span class="text-sm font-medium">全部等級</span>
+                </label>
+            `;
+            LEVEL_ORDER.forEach(level => {
+                html += `
+                    <label class="flex items-center gap-2 p-2 rounded hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="level" value="${level}" ${state.level === level ? 'checked' : ''} class="text-red-600 focus:ring-red-500">
+                        <span class="text-sm">${LEVEL_CONFIG[level].label.split(' (')[0]}</span>
+                    </label>
+                `;
+            });
+            els.levelRadios.innerHTML = html;
+        }
+
+        function renderIntroCards() {
+            let html = '';
+            LEVEL_ORDER.forEach(level => {
+                const config = LEVEL_CONFIG[level];
+                const isSelected = state.level === level;
+                html += `
+                    <div onclick="selectLevel('${level}')" 
+                        class="p-4 rounded-lg border cursor-pointer transition-all duration-200 relative
+                        ${isSelected ? 'border-red-500 bg-red-50 shadow-md ring-2 ring-red-200' : 'border-gray-100 bg-gray-50 hover:bg-white hover:shadow-md hover:border-gray-300'}">
+                        ${isSelected ? '<div class="absolute top-2 right-2 text-red-600"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>' : ''}
+                        <div class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-bold mb-2 ${config.colorClass}">
+                            ${config.icon}
+                            ${config.label.split(' (')[0]}
+                        </div>
+                        <p class="text-xs text-gray-600 leading-relaxed">${config.desc}</p>
+                    </div>
+                `;
+            });
+            els.introContent.innerHTML = html;
+        }
+
+        function updateResults() {
+            // 1. 篩選
+            const term = state.search.toLowerCase().trim();
+            const termNumeric = term.replace(/\D/g, '');
+
+            const filtered = RESELLERS_DATA.filter(item => {
+                // Level filter
+                if (state.level !== 'All' && item.level !== state.level) return false;
+                
+                // Region filter
+                if (state.region !== 'All') {
+                    if (!item.region.includes(state.region) && !item.region.includes('All')) return false;
+                }
+
+                // Search filter
+                if (term) {
+                    const phoneNumeric = item.phone.replace(/\D/g, '');
+                    const matchPhone = item.phone.includes(term) || (termNumeric.length > 0 && phoneNumeric.includes(termNumeric));
+                    
+                    const matchText = 
+                        item.nameTw.toLowerCase().includes(term) ||
+                        item.nameEn.toLowerCase().includes(term) ||
+                        item.address.toLowerCase().includes(term) ||
+                        (item.email && item.email.toLowerCase().includes(term)) ||
+                        (item.website && item.website.toLowerCase().includes(term));
+                    
+                    if (!matchText && !matchPhone) return false;
+                }
+
+                return true;
+            });
+
+            // 2. 排序
+            filtered.sort((a, b) => LEVEL_ORDER.indexOf(a.level) - LEVEL_ORDER.indexOf(b.level));
+
+            // 3. 更新 UI 計數與標籤
+            els.resultCount.textContent = `${filtered.length} 家`;
+            renderActiveFilters();
+            toggleResetButtons();
+
+            // 4. 渲染列表
+            if (filtered.length === 0) {
+                els.resellerList.innerHTML = '';
+                els.noResults.classList.remove('hidden');
+            } else {
+                els.noResults.classList.add('hidden');
+                els.resellerList.innerHTML = filtered.map(item => createResellerCard(item)).join('');
+            }
+
+            // 更新 Intro 卡片樣式 (因為 level 可能改變)
+            renderIntroCards();
+        }
+
+        function createResellerCard(item) {
+            const config = LEVEL_CONFIG[item.level];
+            const tagsHtml = item.tags.map(tag => `<span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded border border-gray-200">${tag}</span>`).join('');
+            
+            // Icons
+            const iconMap = '<svg class="flex-shrink-0 text-red-500" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+            const iconPhone = '<svg class="flex-shrink-0 text-red-500" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>';
+            const iconMail = '<svg class="flex-shrink-0 text-red-500" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>';
+            const iconGlobe = '<svg class="flex-shrink-0" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>';
+            const iconExt = '<svg class="flex-shrink-0" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
+            const iconCopy = '<svg class="text-gray-400 group-hover/btn:text-red-600 transition-colors" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+
+            const websiteBtn = item.website ? `
+                <div class="mt-4 md:mt-0 md:absolute md:bottom-5 md:right-5">
+                    <a href="${item.website}" target="_blank" rel="noopener noreferrer"
+                    class="flex items-center justify-center gap-1 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-2 rounded-lg transition-colors border border-red-100">
+                    ${iconGlobe} 造訪網站 ${iconExt}
+                    </a>
+                </div>
+            ` : '';
+
+            const emailLink = item.email 
+                ? `<a href="mailto:${item.email}" class="truncate mr-1 hover:text-red-600">${item.email}</a>`
+                : `<span class="text-gray-400 cursor-default">(未提供 Email)</span>`;
+            
+            const emailCopyBtn = item.email 
+                ? `<button class="copy-btn tooltip p-1 group/btn" data-copy="${item.email}">${iconCopy}</button>`
+                : '';
+
+            return `
+                <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-200 hover:shadow-md hover:border-red-200 transition-all duration-200 group relative fade-in">
+                    <div class="absolute top-5 right-5 hidden md:block">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold tracking-wide flex items-center gap-1 ${config.colorClass}">
+                            ${config.icon} ${config.label.split(' (')[0]}
+                        </span>
+                    </div>
+
+                    <div class="pr-0 md:pr-32">
+                        <div class="flex flex-col gap-1 mb-3">
+                            <div class="md:hidden mb-2">
+                                <span class="inline-flex px-2 py-1 rounded text-xs font-bold items-center gap-1 ${config.colorClass}">
+                                    ${config.icon} ${config.label.split(' (')[0]}
+                                </span>
+                            </div>
+                            
+                            <h2 class="text-xl font-bold text-gray-900 group-hover:text-red-700 transition-colors">
+                                ${item.nameTw}
+                            </h2>
+                            <p class="text-sm text-gray-500 font-medium">${item.nameEn}</p>
+                        </div>
+
+                        <p class="text-gray-600 text-sm mb-4 line-clamp-2">${item.description}</p>
+
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            ${tagsHtml}
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                            <div class="flex items-center gap-2">
+                                ${iconMap} <span class="truncate">${item.address}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                ${iconPhone}
+                                <div class="flex items-center">
+                                    <span>${item.phone}</span>
+                                    <button class="copy-btn tooltip p-1 ml-1 group/btn" data-copy="${item.phone}">${iconCopy}</button>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 md:col-span-2">
+                                ${iconMail}
+                                <div class="flex items-center truncate max-w-full">
+                                    ${emailLink}
+                                    ${emailCopyBtn}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    ${websiteBtn}
+                </div>
+            `;
+        }
+
+        function renderActiveFilters() {
+            let html = '';
+            
+            if (state.search) {
+                html += `
+                    <span class="text-xs bg-gray-800 text-white px-2 py-1 rounded flex items-center gap-1 animate-in fade-in zoom-in">
+                        搜尋: ${state.search}
+                        <span onclick="clearSearch()" class="cursor-pointer hover:text-red-300">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </span>
+                    </span>
+                `;
+            }
+
+            if (state.level !== 'All') {
+                const label = LEVEL_CONFIG[state.level].label.split(' (')[0];
+                html += `
+                    <span class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded flex items-center gap-1">
+                        ${label}
+                        <span onclick="selectLevel('All')" class="cursor-pointer hover:text-red-900">
+                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </span>
+                    </span>
+                `;
+            }
+
+            if (state.region !== 'All') {
+                const regionMap = { 'North': '北區', 'TaoZhuMiao': '桃竹苗', 'Central': '中區', 'South': '南區', 'East': '東區' };
+                html += `
+                    <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded flex items-center gap-1">
+                        區域: ${regionMap[state.region] || state.region}
+                        <span onclick="selectRegion('All')" class="cursor-pointer hover:text-blue-900">
+                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </span>
+                    </span>
+                `;
+            }
+
+            els.activeFilters.innerHTML = html;
+        }
+
+        function toggleResetButtons() {
+            const hasFilter = state.level !== 'All' || state.region !== 'All' || state.search !== '';
+            if (hasFilter) {
+                els.resetAllTop.classList.remove('hidden');
+            } else {
+                els.resetAllTop.classList.add('hidden');
+            }
+
+            if (state.search) {
+                els.clearSearchBtn.classList.remove('hidden');
+            } else {
+                els.clearSearchBtn.classList.add('hidden');
+            }
+        }
+
+        // --- 6. 事件處理 ---
+
+        function setupEventListeners() {
+            // Level Radio Inputs
+            els.levelRadios.addEventListener('change', (e) => {
+                if (e.target.name === 'level') {
+                    state.level = e.target.value;
+                    updateResults();
+                }
+            });
+
+            // Region Select
+            els.regionSelect.addEventListener('change', (e) => {
+                state.region = e.target.value;
+                updateResults();
+            });
+
+            // Search Input
+            els.searchInput.addEventListener('input', (e) => {
+                state.search = e.target.value;
+                updateResults();
+            });
+
+            // Clear Search Button
+            els.clearSearchBtn.addEventListener('click', clearSearch);
+
+            // Reset All Buttons
+            const resetAll = () => {
+                state.level = 'All';
+                state.region = 'All';
+                state.search = '';
+                els.searchInput.value = '';
+                els.regionSelect.value = 'All';
+                // Reset radios
+                const radio = document.querySelector(`input[name="level"][value="All"]`);
+                if (radio) radio.checked = true;
+                
+                updateResults();
+            };
+            els.resetAllTop.addEventListener('click', resetAll);
+            els.resetAllBottom.addEventListener('click', resetAll);
+            els.resetNoResult.addEventListener('click', resetAll);
+
+            // Intro Toggle
+            els.introToggleBtn.addEventListener('click', () => {
+                state.isIntroOpen = !state.isIntroOpen;
+                if (state.isIntroOpen) {
+                    els.introContent.classList.remove('hidden');
+                    els.introChevron.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>';
+                } else {
+                    els.introContent.classList.add('hidden');
+                    els.introChevron.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+                }
+            });
+
+            // Copy to Clipboard (Event Delegation)
+            document.body.addEventListener('click', async (e) => {
+                const btn = e.target.closest('.copy-btn');
+                if (!btn) return;
+                
+                const text = btn.getAttribute('data-copy');
+                if (text) {
+                    try {
+                        // 優先嘗試現代 API
+                        await navigator.clipboard.writeText(text);
+                        showTooltip(btn);
+                    } catch (err) {
+                        // Fallback
+                        const textArea = document.createElement("textarea");
+                        textArea.value = text;
+                        textArea.style.position = "fixed";
+                        textArea.style.left = "-9999px";
+                        document.body.appendChild(textArea);
+                        textArea.focus();
+                        textArea.select();
+                        try {
+                            document.execCommand('copy');
+                            showTooltip(btn);
+                        } catch (err) {
+                            console.error('複製失敗', err);
+                        }
+                        document.body.removeChild(textArea);
+                    }
+                }
+            });
+        }
+
+        // --- Helper Functions Exposed to Window (for inline onclicks) ---
+
+        window.selectLevel = (level) => {
+            if (state.level === level) {
+                state.level = 'All';
+            } else {
+                state.level = level;
+            }
+            // Sync UI inputs
+            const radio = document.querySelector(`input[name="level"][value="${state.level}"]`);
+            if (radio) radio.checked = true;
+            updateResults();
+        };
+
+        window.selectRegion = (region) => {
+            state.region = region;
+            els.regionSelect.value = region;
+            updateResults();
+        };
+
+        window.clearSearch = () => {
+            state.search = '';
+            els.searchInput.value = '';
+            updateResults();
+        };
+
+        function showTooltip(btn) {
+            btn.classList.add('show-tooltip');
+            setTimeout(() => {
+                btn.classList.remove('show-tooltip');
+            }, 2000);
+        }
+
+        // 啟動
+        init();
+
+    </script>
+</body>
+</html>
