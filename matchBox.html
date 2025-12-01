@@ -2,595 +2,1351 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>奧多比消消樂 - 挑戰賽</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>奧多比消消樂</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- LIFF SDK -->
     <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Roboto+Mono:wght@500&display=swap');
-        
-        /* 禁止預設觸控行為 (為滑動功能做準備) */
         body { 
             font-family: 'Inter', sans-serif; 
             user-select: none; 
             -webkit-user-select: none;
-            touch-action: none; 
-            overscroll-behavior: none;
-            background-color: #111827;
+            /* Prevent pull-to-refresh on mobile */
+            overscroll-behavior-y: contain;
         }
         
-        .grid-cell { 
-            will-change: transform; 
-            transform: translateZ(0);
-            border-radius: 8px; /* 讓方塊圓潤一點 */
-            overflow: hidden;
+        .grid-cell {
+            will-change: transform;
+        }
+        
+        /* 讓圖片不能被拖曳 */
+        .grid-cell img {
+            pointer-events: none; 
+            -webkit-user-drag: none;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 3px rgba(0,0,0,0.3)); 
         }
         
         .selected {
-            filter: brightness(1.2);
-            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6);
+            transform: scale(1.15);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 18px;
             z-index: 20 !important;
         }
 
         /* 消除動畫 */
-        .match-anim { animation: popOut 0.3s ease-out forwards; z-index: 10; }
-        @keyframes popOut {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.3); opacity: 0.8; }
-            100% { transform: scale(0); opacity: 0; }
+        .match-anim {
+            animation: popOut 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            z-index: 10;
         }
 
-        /* 無效交換晃動 */
-        .shake-anim { animation: shake 0.3s ease-in-out; }
+        @keyframes popOut {
+            0% { transform: scale(1); opacity: 1; filter: brightness(1); }
+            40% { transform: scale(1.4); opacity: 0.9; filter: brightness(1.5); }
+            100% { transform: scale(0); opacity: 0; filter: brightness(1); }
+        }
+
+        /* 輕微晃動效果 */
+        .shake-anim {
+            animation: shake 0.3s ease-in-out;
+        }
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-4px) rotate(-2deg); }
-            75% { transform: translateX(4px) rotate(2deg); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
         }
 
-        /* 按鈕呼吸燈特效 */
-        .pulse-btn { animation: pulseBtn 2s infinite; }
-        @keyframes pulseBtn {
-            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        /* 劇烈晃動 */
+        .shake-intense {
+            animation: shakeIntense 0.2s infinite;
+        }
+        @keyframes shakeIntense {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-3px, 3px) rotate(-5deg); }
+            50% { transform: translate(3px, -3px) rotate(5deg); }
+            75% { transform: translate(-3px, -3px) rotate(-5deg); }
+            100% { transform: translate(3px, 3px) rotate(5deg); }
         }
 
-        .reward-pulse { animation: rewardPulse 2s infinite; }
-        @keyframes rewardPulse {
-            0% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(234, 179, 8, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
+        /* 連鎖震動 */
+        .screen-shake-combo {
+            animation: screenShake 0.3s ease-in-out;
         }
-
-        /* 特殊方塊 */
-        .mystery-pulse { animation: mysteryPulse 1.5s infinite; }
+        @keyframes screenShake {
+            0% { transform: translate(0, 0); }
+            20% { transform: translate(-5px, 5px); }
+            40% { transform: translate(5px, -5px); }
+            60% { transform: translate(-5px, -5px); }
+            80% { transform: translate(5px, 5px); }
+            100% { transform: translate(0, 0); }
+        }
+        
+        /* 神祕方塊脈衝 */
+        .mystery-pulse {
+            animation: mysteryPulse 1.5s infinite;
+        }
         @keyframes mysteryPulse {
             0% { filter: drop-shadow(0 0 2px #fff); transform: scale(1); }
-            50% { filter: drop-shadow(0 0 8px #D29BFF); transform: scale(1.05); }
+            50% { filter: drop-shadow(0 0 8px #D29BFF); transform: scale(1.02); }
             100% { filter: drop-shadow(0 0 2px #fff); transform: scale(1); }
         }
 
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 2px; }
+        /* 炸彈脈衝 */
+        .bomb-pulse {
+            animation: bombPulse 1s infinite;
+        }
+        @keyframes bombPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); filter: brightness(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* 炸彈超人火焰特效 */
+        .explosion-fire {
+            background: radial-gradient(circle, #fff700 10%, #ff8800 50%, #ff0000 90%);
+            border-radius: 8px;
+            animation: fireExpand 0.4s ease-out forwards;
+            box-shadow: 0 0 15px #ff4500;
+            z-index: 50;
+        }
+        @keyframes fireExpand {
+            0% { transform: scale(0.5); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 0; }
+        }
+
+        /* Combo 文字特效 */
+        .combo-text-anim {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4rem;
+            font-weight: 900;
+            color: #FFFF00;
+            text-shadow: 4px 4px 0px #FF0000, 0 0 20px rgba(255, 165, 0, 0.8);
+            font-family: 'Inter', sans-serif;
+            font-style: italic;
+            z-index: 100;
+            pointer-events: none;
+            white-space: nowrap;
+            animation: comboFloat 0.8s ease-out forwards;
+        }
+        @keyframes comboFloat {
+            0% { transform: translate(-50%, -50%) scale(0.5) rotate(-10deg); opacity: 0; }
+            30% { transform: translate(-50%, -50%) scale(1.2) rotate(0deg); opacity: 1; }
+            100% { transform: translate(-50%, -150%) scale(1) rotate(0deg); opacity: 0; }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+        
+        #leaderboard-section {
+            transition: height 0.3s ease-in-out;
+        }
+
+        /* Prevent scrolling on game grid for swipe gestures */
+        #game-grid {
+            touch-action: none; 
+        }
     </style>
 </head>
-<body class="text-white min-h-screen flex flex-col items-center justify-center fixed w-full h-full">
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center overflow-hidden">
 
-    <div id="app" class="w-full max-w-lg h-full flex flex-col p-4 relative justify-center gap-4">
+    <!-- Fireworks Canvas (Overlay) -->
+    <canvas id="fireworks-canvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
+
+    <!-- App Container -->
+    <div id="app" class="w-full max-w-5xl h-screen md:h-auto md:min-h-[850px] flex flex-col md:flex-row gap-6 p-4 relative">
         
-        <div class="flex justify-between items-end w-full px-2">
-            <div>
-                <div class="text-[10px] text-gray-400">SCORE</div>
-                <div id="score-display" class="text-4xl font-black text-yellow-400 font-mono leading-none">0</div>
-            </div>
-            <div class="flex flex-col items-center flex-1 mx-4">
-                <div class="text-[10px] text-gray-400 mb-1">LV.<span id="level-display">1</span></div>
-                <div class="w-full bg-gray-700 h-2 rounded-full overflow-hidden">
-                    <div id="level-progress" class="bg-blue-500 h-full w-0 transition-all duration-300"></div>
+        <!-- Game Section -->
+        <div id="game-container" class="flex-1 flex flex-col items-center justify-center bg-gray-800 rounded-3xl p-6 shadow-2xl border border-gray-700 relative overflow-hidden z-10 transition-transform">
+            
+            <!-- Tip Ticker (Marquee Style) -->
+            <div id="tip-container" class="w-full bg-gray-900/60 rounded-lg mb-4 flex items-center min-h-[40px] border border-gray-700/50 backdrop-blur-sm overflow-hidden relative">
+                <div id="tip-content" class="absolute top-1/2 -translate-y-1/2 whitespace-nowrap text-sm md:text-base text-gray-200 font-medium will-change-transform">
+                    <!-- Text will be injected here -->
                 </div>
             </div>
-            <div class="text-right">
-                <div class="text-[10px] text-gray-400">TIME</div>
-                <div id="time-display" class="text-4xl font-black text-red-400 font-mono leading-none">60</div>
-            </div>
-        </div>
 
-        <div id="game-container" class="w-full aspect-square bg-gray-800/50 rounded-xl p-2 relative shadow-2xl border border-gray-700">
-            <div id="game-grid" class="w-full h-full grid grid-cols-8 gap-1 relative touch-none"></div>
-            
-            <div id="overlay" class="absolute inset-0 bg-gray-900/95 z-30 flex flex-col items-center justify-center rounded-xl backdrop-blur-sm p-6 text-center">
+            <!-- Header / Stats (Fixed Layout) -->
+            <div class="w-full flex items-end justify-between mb-4 px-1 gap-2 md:gap-4">
+                <!-- Left: Score & Level -->
+                <div class="flex flex-col flex-shrink-0">
+                    <span class="text-[10px] md:text-xs text-gray-400 uppercase tracking-wider mb-1">SCORE / LEVEL</span>
+                    <div class="flex items-baseline gap-1 md:gap-2">
+                        <span id="score-display" class="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500 font-mono">0</span>
+                        <span class="text-xs md:text-sm text-gray-500 font-bold">LV.<span id="level-display">1</span></span>
+                    </div>
+                </div>
+
+                <!-- Middle: Progress Bar (Responsive) -->
+                <div class="flex-1 flex flex-col justify-end pb-2 px-2 md:px-4 min-w-[60px]">
+                     <div class="flex justify-between text-[10px] text-gray-400 mb-1">
+                        <span>EXP</span>
+                        <span id="progress-percent">0%</span>
+                     </div>
+                     <div class="w-full bg-gray-700 h-1.5 md:h-2 rounded-full overflow-hidden border border-gray-600">
+                        <div id="level-progress" class="bg-blue-500 h-full w-0 transition-all duration-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
+                     </div>
+                </div>
+
+                <!-- Right: Time -->
+                <div class="flex flex-col items-end flex-shrink-0">
+                    <span class="text-[10px] md:text-xs text-gray-400 uppercase tracking-wider mb-1">TIME</span>
+                    <span id="time-display" class="text-3xl md:text-4xl font-black text-red-400 font-mono drop-shadow-lg">60</span>
+                </div>
+            </div>
+
+            <!-- Game Board Wrapper -->
+            <div class="relative bg-gray-900/50 p-2 md:p-3 rounded-2xl border border-gray-700/50 shadow-inner backdrop-blur-sm">
+                <!-- Flash Overlay for Mystery/Bomb Clear -->
+                <div id="flash-overlay" class="absolute inset-0 pointer-events-none z-20 rounded-2xl"></div>
+
+                <div id="game-grid" class="grid grid-cols-8 gap-1 md:gap-1.5 w-[320px] h-[320px] sm:w-[420px] sm:h-[420px] md:w-[520px] md:h-[520px] relative">
+                    <!-- Tiles injected by JS -->
+                </div>
                 
-                <div id="start-screen" class="w-full space-y-6">
-                    <h1 class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-blue-400 to-purple-500 mb-2 drop-shadow-sm">奧多比<br>消消樂</h1>
-                    <div class="text-xs text-gray-400 tracking-widest uppercase">SWIPE TO MATCH</div>
+                <!-- Overlay: Game Over / Start -->
+                <div id="overlay" class="absolute inset-0 bg-gray-900/95 z-30 flex flex-col items-center justify-center rounded-2xl backdrop-blur-md transition-opacity duration-300 px-4">
+                    <div class="text-center mb-6 md:mb-8 transform hover:scale-105 transition duration-500">
+                        <h1 class="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#FF0000] via-[#D29BFF] to-[#31A8FF] mb-2 drop-shadow-2xl font-[sans-serif]">
+                            奧多比<br>消消樂
+                        </h1>
+                        <p class="text-gray-400 text-xs md:text-sm tracking-[0.2em] uppercase">Creative Cloud Edition</p>
+                    </div>
                     
-                    <button id="start-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg pulse-btn active:scale-95 transition text-xl">
-                        開始遊戲
-                    </button>
-                    
-                    <div class="bg-gray-800/80 rounded-lg p-4 text-left w-full border border-gray-700">
-                        <h3 class="text-xs text-gray-400 mb-2 border-b border-gray-600 pb-1">🏆 您的最佳紀錄</h3>
-                        <div id="local-best-list" class="space-y-1 text-sm font-mono min-h-[60px]">
-                            <div class="text-gray-500 text-xs text-center py-4">尚無紀錄</div>
+                    <div id="start-screen-content" class="flex flex-col items-center w-full px-4 space-y-4">
+                        <input type="text" id="player-name-input" placeholder="輸入您的暱稱" class="w-full max-w-xs bg-gray-800 border border-gray-600 text-white text-center rounded-xl px-4 py-4 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 placeholder-gray-500 transition-all text-lg">
+                        <button id="start-btn" class="w-full max-w-xs bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-4 px-6 rounded-xl transform transition active:scale-95 shadow-lg shadow-blue-900/30 flex items-center justify-center gap-2 group">
+                            <span>開始遊戲</span>
+                            <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </button>
+                    </div>
+
+                    <div id="game-over-content" class="hidden flex flex-col items-center w-full text-center animate-in fade-in zoom-in duration-300 overflow-y-auto max-h-full py-4">
+                        <p class="text-3xl font-bold text-white mb-2">遊戲結束！</p>
+                        <div class="bg-gray-800/80 p-6 rounded-xl border border-gray-600 mb-4 w-full max-w-xs">
+                            <p class="text-sm text-gray-400 mb-1">最終得分</p>
+                            <p class="text-4xl text-yellow-400 font-mono font-bold tracking-tight"><span id="final-score">0</span></p>
+                        </div>
+                        
+                        <div class="flex flex-col gap-3 w-full max-w-xs">
+                            <button id="restart-btn" class="w-full bg-white hover:bg-gray-100 text-gray-900 font-bold py-3 px-8 rounded-xl border border-gray-200 transition shadow-lg active:scale-95">
+                                再玩一次
+                            </button>
+                            
+                            <!-- Share Button (Updated) -->
+                            <button id="share-btn" class="w-full flex items-center justify-center gap-2 bg-[#06C755] hover:bg-[#05b34c] text-white font-bold py-3 px-8 rounded-xl transition shadow-lg active:scale-95 border border-[#06C755]/50 group">
+                                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21.16 7.42c-1-3-5.26-5.22-10.4-5.22-6 0-10.76 3.12-10.76 8 0 3.32 2.3 6.13 6 7.37.5.11 1.07.33.8.92 0 0-.3.81-.37 1s-.07.25.14.36c1 .54 5.56-3.26 5.56-3.26a17.48 17.48 0 0 0 4.29-.68c4.32-.82 6.55-3.37 5.74-6.49zm-13.84 5.6a.41.41 0 0 1-.41.41h-2a.41.41 0 0 1-.41-.41v-3.76a.41.41 0 0 1 .41-.41.41.41 0 0 1 .41.41v3.35h1.59a.41.41 0 0 1 .41.41zm3.22 0a.41.41 0 0 1-.41.41h-.42a.41.41 0 0 1-.41-.41V9.67h-.06l-1.07 3.33a.4.4 0 0 1-.39.29h-.36a.4.4 0 0 1-.39-.27l-1.08-3.35h-.07v3.35a.41.41 0 0 1-.41.41.41.41 0 0 1-.41-.41v-3.76a.41.41 0 0 1 .41-.41h.63a.41.41 0 0 1 .38.28l.89 2.76h.05l.89-2.76a.41.41 0 0 1 .39-.28h.59a.41.41 0 0 1 .41.41zm2.37-3.35h-1.63v1.07h1.63a.41.41 0 0 1 .41.41.41.41 0 0 1-.41.41h-1.63v1.05h1.63a.41.41 0 0 1 .41.41.41.41 0 0 1-.41.41h-2a.41.41 0 0 1-.41-.41v-3.76a.41.41 0 0 1 .41-.41h2a.41.41 0 0 1 .41.41.41.41 0 0 1-.41.41zm4.7 0H16v1.07h1.63a.41.41 0 0 1 .41.41.41.41 0 0 1-.41.41H16v1.05h1.63a.41.41 0 0 1 .41.41.41.41 0 0 1-.41.41h-2a.41.41 0 0 1-.41-.41v-3.76a.41.41 0 0 1 .41-.41h2a.41.41 0 0 1 .41.41.41.41 0 0 1-.41.41z"/></svg>
+                                分享好友
+                            </button>
+
+                            <!-- Reward Button (Initially Hidden) -->
+                            <button id="reward-btn" class="hidden w-full flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold py-3 px-8 rounded-xl transition shadow-lg active:scale-95 border border-yellow-300">
+                                <span class="text-xl">🎁</span> 領取通關獎勵
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <div id="game-over-screen" class="hidden w-full space-y-4">
-                    <h2 class="text-3xl font-bold text-white">時間到！</h2>
-                    
-                    <div class="bg-gray-800 p-6 rounded-2xl border border-gray-600 w-full">
-                        <div class="text-xs text-gray-400 mb-1">本次得分</div>
-                        <div id="final-score" class="text-5xl text-yellow-400 font-mono font-bold">0</div>
-                        <div id="new-record-badge" class="hidden mt-2 inline-block bg-red-600 text-white text-[10px] px-2 py-0.5 rounded font-bold animate-bounce">新紀錄!</div>
+                <!-- Level Up Notification -->
+                <div id="level-up-toast" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-0 z-20 transition-all duration-500">
+                    <div class="bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-black text-4xl px-8 py-4 rounded-xl shadow-2xl rotate-[-5deg] border-4 border-white whitespace-nowrap">
+                        LEVEL UP!
                     </div>
+                </div>
+            </div>
+            
+            <!-- Controls Hint -->
+            <div class="mt-4 flex gap-4 text-xs text-gray-500 justify-center">
+                <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-500"></span> 交換</div>
+                <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-yellow-400"></span> 連線</div>
+                <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-indigo-600 border border-gray-600">?</span> 驚喜</div>
+                <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-black border border-gray-600">💣</span> 炸彈</div>
+            </div>
+        </div>
 
-                    <button id="claim-reward-btn" class="hidden w-full bg-gradient-to-r from-yellow-500 to-amber-600 text-black font-black py-4 rounded-xl shadow-xl reward-pulse active:scale-95 transition flex items-center justify-center gap-2">
-                        <span>🎁</span> 領取通關獎勵
-                    </button>
+        <!-- Leaderboard Section (Local) -->
+        <div id="leaderboard-section" class="w-full md:w-80 bg-gray-800 rounded-3xl shadow-2xl border border-gray-700 flex flex-col overflow-hidden h-14 md:h-auto z-20 absolute bottom-4 left-4 right-4 md:relative md:bottom-auto md:left-auto md:right-auto md:block">
+            <!-- Header (Clickable on Mobile) -->
+            <div id="leaderboard-header" class="p-4 flex justify-between items-center cursor-pointer md:cursor-default bg-gray-800 border-b border-gray-700 md:border-none">
+                <h2 class="text-lg font-bold flex items-center gap-2 text-white">
+                    <span class="text-2xl">🏆</span> 本機紀錄
+                </h2>
+                <!-- Toggle Icon (Mobile Only) -->
+                <button class="md:hidden text-gray-400 focus:outline-none">
+                    <svg id="chevron-icon" class="w-6 h-6 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                    </svg>
+                </button>
+            </div>
 
-                    <div class="flex gap-2 w-full">
-                        <button id="restart-btn" class="flex-1 bg-gray-700 hover:bg-gray-600 py-3 rounded-xl font-bold transition">再玩一次</button>
-                        <button id="share-btn" class="flex-1 bg-[#06C755] hover:bg-[#05b34c] py-3 rounded-xl font-bold transition flex items-center justify-center gap-2">
-                            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
-                            分享好友
-                        </button>
-                    </div>
+            <!-- List Content -->
+            <div id="leaderboard-content" class="flex-1 overflow-y-auto space-y-2 px-6 pb-6 pt-2 bg-gray-800 hidden md:block opacity-0 md:opacity-100 transition-opacity duration-300">
+                <div id="leaderboard-list" class="space-y-2">
+                    <!-- Leaderboard items injected here -->
+                    <div class="text-center text-gray-500 py-4 animate-pulse">載入紀錄...</div>
                 </div>
             </div>
         </div>
 
-        <div class="w-full bg-gray-800/50 rounded-full h-8 flex items-center px-4 overflow-hidden border border-gray-700">
-            <div id="tips-text" class="text-xs text-gray-400 whitespace-nowrap"></div>
-        </div>
-
     </div>
 
+    <!-- Main Logic -->
     <script>
-        // === 設定區 ===
-        const LIFF_ID = '2008592497-pvgkXmM2'; // 您的 LIFF ID
-        const REWARD_SCORE_THRESHOLD = 10000;
-        const BOTBONNIE_KEYWORD = '#win消消樂';
-        const STORAGE_KEY = 'adobe_game_local_best';
-        
+        // --- LIFF & App Config ---
+        const LIFF_ID = "2008592497-pvgkXmM2";
+        const LOCAL_STORAGE_KEY = "adobe_match_scores_v1";
+
+        // --- Game Config ---
         const GRID_SIZE = 8;
         const BASE_TIME = 60;
+        const LEVEL_THRESHOLD = 800; 
+        const FIREWORKS_THRESHOLD = 10000;
+
+        // --- Icons Data ---
         const ALL_TILES = [
-            { id: 'Ps', file: 'Adobe_Photoshop_CC_icon.svg', color: '#31A8FF' },
-            { id: 'Ai', file: 'Adobe_Illustrator_CC_icon.svg', color: '#FF9A00' },
-            { id: 'Ac', file: 'Adobe_Acrobat_DC_logo_2020.svg', color: '#FF0000' },
-            { id: 'Fl', file: 'Adobe_Firefly_Logo.svg', color: '#00D084' },
-            { id: 'Pr', file: 'Adobe_Premiere_Pro_CC_icon.svg', color: '#9999FF' },
-        ];
-        // 為了讓手機畫面不擁擠，我減少了預設的圖示種類，確保方塊顏色鮮明好辨識
-
-        const TIPS = [
-            "💡 提示：按住方塊並往上下左右滑動即可交換！",
-            "💡 Ps：選取工具按 Shift 可以增加選取範圍",
-            "💡 Ai：Ctrl+Y 可以切換外框模式檢視",
-            "💡 Pr：按 ` 鍵可以將選取的視窗最大化",
-            "💡 炸彈方塊可以消除周圍九宮格！"
+            { id: 'Ps', name: 'Photoshop', file: 'Adobe_Photoshop_CC_icon.svg' },
+            { id: 'Ai', name: 'Illustrator', file: 'Adobe_Illustrator_CC_icon.svg' },
+            { id: 'Ac', name: 'Acrobat', file: 'Adobe_Acrobat_DC_logo_2020.svg' },
+            { id: 'Fl', name: 'Firefly', file: 'Adobe_Firefly_Logo.svg' },
+            { id: 'Ex', name: 'Express', file: 'Adobe_Express_logo_CMYK_256px.svg' },
+            { id: 'Lr', name: 'Lightroom', file: 'Adobe_Photoshop_Lightroom_CC_logo.svg' },
+            { id: 'Pr', name: 'Premiere', file: 'Adobe_Premiere_Pro_CC_icon.svg' },
+            { id: 'Ae', name: 'After Effects', file: 'Adobe_After_Effects_CC_icon.svg'},
+            { id: 'CC', name: 'Creative Cloud', file: 'Adobe_Creative_Cloud_rainbow_icon.svg'}
         ];
 
-        // 狀態
-        let grid = [];
+        // --- Tips Data ---
+        const ADOBE_TIPS = [
+            "💡 Ps 小技巧：按住 Space 鍵可以隨時切換成手型工具移動畫面。",
+            "💡 Ai 冷知識：Ctrl + D 可以重複上一個變形動作，製作重複圖樣超方便！",
+            "💡 Pr 密技：按 Q 和 W 可以快速裁剪波紋編輯，剪輯速度倍增。",
+            "💡 Ae 提醒：開啟動態模糊 (Motion Blur) 開關，讓移動的圖層看起來更自然。",
+            "💡 Lr 技巧：在編輯模式下按 \\ 鍵，可以快速比對修改前後的差異。",
+            "💡 Acrobat：手機下載 Acrobat Reader App，可以拍照直接掃描成 PDF。",
+            "💡 Firefly：使用 Generative Fill (生成填色) 可以快速擴展圖片背景。",
+            "💡 CC 雲端：善用 CC Library，可以在不同軟體間秒速同步顏色和Logo。",
+            "💡 Express：一鍵「移除背景」功能非常強大，適合製作社群貼文。",
+            "❓ Q: Photoshop 的預設存檔格式是什麼？ A: PSD",
+            "❓ Q: 哪個軟體最適合處理向量圖形？ A: Illustrator",
+            "💡 Ps 技巧：按住 Alt 鍵拖曳圖層，可以快速複製該圖層。",
+            "💡 Ai 技巧：使用形狀建立程式工具 (Shift+M) 可以快速合併或刪除重疊區域。"
+        ];
+        
+        // --- State ---
+        let grid = []; 
         let score = 0;
         let timeLeft = BASE_TIME;
-        let activeTileTypes = 5;
-        let isProcessing = false;
         let gameInterval = null;
-        let selectedTile = null; // 點擊模式用
+        let isProcessing = false;
+        let selectedTile = null; 
+        let playerName = "Designer";
+        let currentLevel = 1;
+        let activeTileCount = 5; 
+        let isLeaderboardOpen = false;
+        let hasWonFireworks = false;
+
+        // Swipe Handling
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchEndX = 0;
+        let touchEndY = 0;
+
+        // --- Audio Context ---
+        let audioCtx = null;
+        let gainNode = null;
+
+        // --- DOM Elements ---
+        const gameContainer = document.getElementById('game-container');
+        const gridEl = document.getElementById('game-grid');
+        const scoreEl = document.getElementById('score-display');
+        const levelEl = document.getElementById('level-display');
+        const levelProgressEl = document.getElementById('level-progress');
+        const progressPercentEl = document.getElementById('progress-percent');
+        const timeEl = document.getElementById('time-display');
+        const overlayEl = document.getElementById('overlay');
+        const startScreenContent = document.getElementById('start-screen-content');
+        const gameOverContent = document.getElementById('game-over-content');
+        const finalScoreEl = document.getElementById('final-score');
+        const nameInput = document.getElementById('player-name-input');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const shareBtn = document.getElementById('share-btn'); 
+        const rewardBtn = document.getElementById('reward-btn'); 
+        const leaderboardList = document.getElementById('leaderboard-list');
+        const levelUpToast = document.getElementById('level-up-toast');
+        const flashOverlay = document.getElementById('flash-overlay');
+        const fireworksCanvas = document.getElementById('fireworks-canvas');
         
-        // 觸控滑動變數
-        let touchStart = null;
-        let activeTouchTile = null;
+        // Tip Elements
+        const tipContainer = document.getElementById('tip-container');
+        const tipContent = document.getElementById('tip-content');
+        
+        // Leaderboard Toggle Elements
+        const leaderboardSection = document.getElementById('leaderboard-section');
+        const leaderboardHeader = document.getElementById('leaderboard-header');
+        const leaderboardContent = document.getElementById('leaderboard-content');
+        const chevronIcon = document.getElementById('chevron-icon');
 
-        // DOM
-        const els = {
-            grid: document.getElementById('game-grid'),
-            score: document.getElementById('score-display'),
-            time: document.getElementById('time-display'),
-            overlay: document.getElementById('overlay'),
-            startScn: document.getElementById('start-screen'),
-            endScn: document.getElementById('game-over-screen'),
-            finalScore: document.getElementById('final-score'),
-            rewardBtn: document.getElementById('claim-reward-btn'),
-            bar: document.getElementById('level-progress'),
-            lvl: document.getElementById('level-display'),
-            tips: document.getElementById('tips-text'),
-            localList: document.getElementById('local-best-list'),
-            newRecord: document.getElementById('new-record-badge')
-        };
-
-        // --- LIFF 初始化 ---
-        async function initLIFF() {
+        // --- LIFF Initialization ---
+        async function initLiff() {
             try {
                 await liff.init({ liffId: LIFF_ID });
-            } catch (e) { console.error('LIFF Init Failed', e); }
+                if (!liff.isLoggedIn()) {
+                    // Optional: liff.login(); or just allow guest play
+                    // console.log("User not logged in");
+                }
+            } catch (err) {
+                console.error("LIFF Init Error", err);
+            }
         }
 
-        // --- 排行榜 (本機儲存) ---
-        function updateLocalLeaderboard(currentScore) {
-            let records = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        // --- Audio System ---
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                gainNode = audioCtx.createGain();
+                gainNode.connect(audioCtx.destination);
+                gainNode.gain.value = 0.3; // Master volume
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTone(freq, type, duration, startTime = 0) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime + startTime);
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime + startTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + startTime + duration);
+            osc.connect(gain);
+            gain.connect(gainNode);
+            osc.start(audioCtx.currentTime + startTime);
+            osc.stop(audioCtx.currentTime + startTime + duration);
+        }
+
+        function playSwapSound() { playTone(300, 'sine', 0.1); }
+        function playInvalidSound() { playTone(150, 'sawtooth', 0.1); setTimeout(() => playTone(100, 'sawtooth', 0.1), 100); }
+        function playMatchSound(comboLevel = 0) {
+            const baseFreqs = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1174.66, 1318.51];
+            const pitchIndex = Math.min(comboLevel, baseFreqs.length - 1);
+            const freq = baseFreqs[pitchIndex];
+            playTone(freq, 'sine', 0.2);
+            playTone(freq * 2, 'sine', 0.2, 0.05);
+            if (comboLevel > 1) {
+                setTimeout(() => playTone(freq * 1.5, 'square', 0.1), 50);
+            }
+        }
+        function playLevelUpSound() {
+            playTone(440, 'square', 0.1, 0);
+            playTone(554, 'square', 0.1, 0.1);
+            playTone(659, 'square', 0.2, 0.2);
+            playTone(880, 'square', 0.4, 0.3);
+        }
+        function playMysterySound() {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(800, audioCtx.currentTime + 2); 
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 1.8);
+            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 2);
+            osc.connect(gain);
+            gain.connect(gainNode);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 2);
+        }
+        function playBombSound() {
+            if (!audioCtx) return;
+            const noiseBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.5, audioCtx.sampleRate);
+            const output = noiseBuffer.getChannelData(0);
+            for (let i = 0; i < noiseBuffer.length; i++) output[i] = Math.random() * 2 - 1;
+            const noiseSrc = audioCtx.createBufferSource();
+            noiseSrc.buffer = noiseBuffer;
+            const noiseGain = audioCtx.createGain();
+            noiseGain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            noiseGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+            noiseSrc.connect(noiseGain);
+            noiseGain.connect(gainNode);
+            noiseSrc.start();
+            setTimeout(() => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 0.5);
+                gain.gain.setValueAtTime(1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                osc.connect(gain);
+                gain.connect(gainNode);
+                osc.start(audioCtx.currentTime);
+                osc.stop(audioCtx.currentTime + 0.5);
+            }, 400);
+        }
+        function playMassiveClearSound() {
+            playTone(100, 'sawtooth', 0.5);
+            playTone(200, 'sine', 0.5);
+            setTimeout(() => playTone(800, 'square', 0.3), 100);
+        }
+
+        // --- Fireworks System ---
+        const particles = [];
+        let fireworksLoop = null;
+
+        function createFirework() {
+            const x = Math.random() * fireworksCanvas.width;
+            const y = Math.random() * (fireworksCanvas.height / 2); 
+            const color = `hsl(${Math.random() * 360}, 100%, 50%)`;
             
-            // 檢查是否新紀錄
-            const maxScore = records.length > 0 ? records[0].score : 0;
-            if (currentScore > maxScore && currentScore > 0) {
-                els.newRecord.classList.remove('hidden');
-            } else {
-                els.newRecord.classList.add('hidden');
+            for (let i = 0; i < 50; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = Math.random() * 4 + 1;
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * velocity,
+                    vy: Math.sin(angle) * velocity,
+                    life: 1,
+                    color: color,
+                    decay: Math.random() * 0.02 + 0.01
+                });
+            }
+        }
+
+        function drawFireworks() {
+            if (fireworksCanvas.width !== window.innerWidth || fireworksCanvas.height !== window.innerHeight) {
+                fireworksCanvas.width = window.innerWidth;
+                fireworksCanvas.height = window.innerHeight;
+            }
+            const ctx = fireworksCanvas.getContext('2d');
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fillRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+            ctx.globalCompositeOperation = 'lighter';
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.05; // Gravity
+                p.life -= p.decay;
+                
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.life;
+                ctx.fill();
+
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                }
             }
 
-            // 加入新分數
-            if (currentScore > 0) {
-                records.push({ score: currentScore, date: new Date().toLocaleDateString() });
-                records.sort((a, b) => b.score - a.score); // 降序
-                records = records.slice(0, 5); // 只留前5
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+            if (Math.random() < 0.05) {
+                createFirework();
+                playTone(200 + Math.random() * 600, 'square', 0.1);
+            }
+
+            fireworksLoop = requestAnimationFrame(drawFireworks);
+        }
+
+        function startFireworks() {
+            fireworksCanvas.width = window.innerWidth;
+            fireworksCanvas.height = window.innerHeight;
+            drawFireworks();
+            setTimeout(() => {
+                cancelAnimationFrame(fireworksLoop);
+                const ctx = fireworksCanvas.getContext('2d');
+                ctx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+            }, 10000);
+        }
+
+        // --- Icon Generation ---
+        function getIconSVG(tileData) {
+            if (!tileData) return ''; 
+            
+            // MYSTERY TILE VISUAL
+            if (tileData.id === 'Mystery') {
+                return `
+                    <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md mystery-pulse">
+                        <defs>
+                            <linearGradient id="mysteryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#4f46e5;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#7e22ce;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <rect x="5" y="5" width="90" height="90" rx="22" fill="url(#mysteryGrad)" />
+                        <text x="50" y="65" font-family="sans-serif" font-weight="900" font-size="55" text-anchor="middle" fill="white" style="filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5));">?</text>
+                        <!-- Gloss similar to official icons -->
+                        <path d="M10 25 Q 50 5 90 25" stroke="white" stroke-opacity="0.2" stroke-width="3" fill="none" />
+                    </svg>
+                `;
             }
             
-            // 渲染畫面
-            if (records.length === 0) {
-                els.localList.innerHTML = '<div class="text-gray-500 text-xs text-center py-4">尚無紀錄，快來挑戰！</div>';
-            } else {
-                els.localList.innerHTML = records.map((r, i) => `
-                    <div class="flex justify-between items-center border-b border-gray-700/50 pb-1 last:border-0">
-                        <span class="${i===0?'text-yellow-400 font-bold':'text-gray-400'}">#${i+1}</span>
-                        <span class="text-gray-500 text-[10px]">${r.date}</span>
-                        <span class="text-white font-mono">${r.score}</span>
+            // BOMB TILE VISUAL
+            if (tileData.id === 'Bomb') {
+                return `
+                    <div class="w-full h-full bg-gray-900/80 rounded-2xl flex items-center justify-center relative overflow-hidden bomb-pulse">
+                        <span class="text-4xl md:text-5xl drop-shadow-md filter drop-shadow(0 0 5px red)">💣</span>
                     </div>
-                `).join('');
+                `;
+            }
+
+            const { id, file, name } = tileData;
+            const baseUrl = "https://commons.wikimedia.org/wiki/Special:FilePath/";
+            const fullUrl = baseUrl + file;
+
+            return `
+                <img src="${fullUrl}" 
+                     alt="${name}" 
+                     class="w-full h-full object-contain pointer-events-none drop-shadow-md"
+                     onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzMzMyIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPj88L3RleHQ+PC9zdmc+'">
+            `;
+        }
+
+        // --- Helper: Get random tile based on active count ---
+        function getRandomTile() {
+            const rand = Math.random();
+            if (rand < 0.05) {
+                return { id: 'Mystery', name: 'Mystery Box' };
+            }
+            if (rand < 0.08) {
+                return { id: 'Bomb', name: 'Bomb' };
+            }
+            const index = Math.floor(Math.random() * activeTileCount);
+            return ALL_TILES[index];
+        }
+
+        // --- Tips Ticker Logic ---
+        function startTipsTicker() {
+            let tickerTimeout;
+            const runTicker = () => {
+                const randomTip = ADOBE_TIPS[Math.floor(Math.random() * ADOBE_TIPS.length)];
+                tipContent.innerText = randomTip;
+                tipContent.style.transition = 'none';
+                tipContent.style.left = '100%'; 
+                void tipContent.offsetWidth;
+                const totalDistance = tipContainer.offsetWidth + tipContent.offsetWidth;
+                const speed = 100; 
+                const duration = Math.max(8, totalDistance / speed * 4); 
+                tipContent.style.transition = `left ${duration}s linear`;
+                tipContent.style.left = `-${tipContent.offsetWidth}px`;
+                if (tickerTimeout) clearTimeout(tickerTimeout);
+                tickerTimeout = setTimeout(runTicker, duration * 1000); 
+            };
+            runTicker();
+        }
+
+        // --- Local Leaderboard Logic ---
+        function updateLocalLeaderboard(newScore) {
+            if (newScore === 0) return;
+            
+            // Get existing
+            let scores = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+            
+            // Add new
+            scores.push({
+                name: playerName,
+                score: newScore,
+                timestamp: Date.now(),
+                level: currentLevel
+            });
+            
+            // Sort
+            scores.sort((a, b) => b.score - a.score);
+            
+            // Keep top 5
+            scores = scores.slice(0, 5);
+            
+            // Save
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(scores));
+            
+            renderLeaderboardHTML(scores);
+        }
+
+        function loadLocalLeaderboard() {
+            const scores = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+            renderLeaderboardHTML(scores);
+        }
+
+        function renderLeaderboardHTML(scores) {
+            if (scores.length === 0) {
+                leaderboardList.innerHTML = '<div class="text-center text-gray-500 py-4">暫無紀錄，快來挑戰！</div>';
+                return;
+            }
+            leaderboardList.innerHTML = scores.map((s, index) => {
+                let rankClass = "text-gray-400";
+                let rankIcon = "";
+                
+                if (index === 0) { rankClass = "text-yellow-400 font-bold"; rankIcon = "👑"; }
+                else if (index === 1) { rankClass = "text-gray-300 font-bold"; }
+                else if (index === 2) { rankClass = "text-amber-600 font-bold"; }
+
+                const dateStr = s.timestamp ? new Date(s.timestamp).toLocaleDateString() : '';
+
+                return `
+                    <div class="flex justify-between items-center bg-gray-700/50 p-2 rounded hover:bg-gray-700 transition">
+                        <div class="flex items-center gap-3">
+                            <span class="w-6 text-center ${rankClass}">${index + 1}</span>
+                            <div class="flex flex-col">
+                                <span class="text-sm font-medium text-white truncate max-w-[100px]">${s.name || 'Anonymous'}</span>
+                                <span class="text-[10px] text-gray-500">${dateStr}</span>
+                            </div>
+                        </div>
+                        <span class="font-mono text-yellow-400 font-bold">${s.score}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // --- Game Logic ---
+        function initGame() {
+            score = 0;
+            timeLeft = BASE_TIME;
+            currentLevel = 1;
+            activeTileCount = 5; 
+            hasWonFireworks = false;
+            
+            scoreEl.innerText = score;
+            timeEl.innerText = timeLeft;
+            levelEl.innerText = currentLevel;
+            updateProgressBar();
+            
+            grid = [];
+            gridEl.innerHTML = '';
+            selectedTile = null;
+            isProcessing = false;
+
+            createBoard();
+            cleanInitialBoard();
+            startTipsTicker();
+            loadLocalLeaderboard();
+
+            overlayEl.classList.add('hidden');
+            startScreenContent.classList.add('hidden');
+            gameOverContent.classList.add('hidden');
+            
+            // Reset Buttons visibility
+            rewardBtn.classList.add('hidden');
+
+            if (gameInterval) clearInterval(gameInterval);
+            gameInterval = setInterval(() => {
+                timeLeft--;
+                timeEl.innerText = timeLeft;
+                if (timeLeft <= 0) endGame();
+                else if (timeLeft <= 10) timeEl.classList.add('animate-pulse', 'text-red-500');
+            }, 1000);
+            
+            initAudio(); 
+        }
+
+        function updateProgressBar() {
+            const nextLevelScore = currentLevel * LEVEL_THRESHOLD;
+            const prevLevelScore = (currentLevel - 1) * LEVEL_THRESHOLD;
+            const percentage = Math.min(100, Math.max(0, ((score - prevLevelScore) / (nextLevelScore - prevLevelScore)) * 100));
+            levelProgressEl.style.width = `${percentage}%`;
+            progressPercentEl.innerText = `${Math.floor(percentage)}%`;
+        }
+
+        function checkLevelUp() {
+            if (activeTileCount >= ALL_TILES.length) return;
+            if (score >= currentLevel * LEVEL_THRESHOLD) {
+                currentLevel++;
+                activeTileCount++;
+                levelEl.innerText = currentLevel;
+                playLevelUpSound();
+                levelUpToast.style.opacity = '1';
+                levelUpToast.style.transform = 'translate(-50%, -150%) rotate(0deg) scale(1.2)';
+                setTimeout(() => {
+                    levelUpToast.style.opacity = '0';
+                    levelUpToast.style.transform = 'translate(-50%, -50%) rotate(-5deg) scale(1)';
+                }, 2000);
+                timeLeft += 15;
+                timeEl.innerText = timeLeft;
+                timeEl.classList.add('text-green-400');
+                setTimeout(() => timeEl.classList.remove('text-green-400'), 500);
+            }
+            updateProgressBar();
+        }
+
+        function checkFireworks() {
+            if (score >= FIREWORKS_THRESHOLD && !hasWonFireworks) {
+                hasWonFireworks = true;
+                startFireworks();
             }
         }
 
-        // --- 遊戲核心 ---
-        function getImg(data) {
-            if (!data) return '';
-            if (data.id === 'Mystery') return `<div class="w-full h-full bg-indigo-600 flex items-center justify-center text-white font-black text-2xl mystery-pulse rounded-lg">?</div>`;
-            if (data.id === 'Bomb') return `<div class="w-full h-full bg-gray-900 flex items-center justify-center text-2xl rounded-lg">💣</div>`;
-            return `<img src="https://commons.wikimedia.org/wiki/Special:FilePath/${data.file}" class="w-full h-full object-contain drop-shadow-md pointer-events-none" onerror="this.style.display='none'">`;
-        }
-
-        function initGame() {
-            score = 0; timeLeft = BASE_TIME; isProcessing = false;
-            els.score.innerText = 0; els.time.innerText = timeLeft; els.lvl.innerText = 1;
-            els.bar.style.width = '0%';
-            
-            grid = []; els.grid.innerHTML = '';
-            for(let y=0; y<GRID_SIZE; y++) {
+        function createBoard() {
+            for (let y = 0; y < GRID_SIZE; y++) {
                 let row = [];
-                for(let x=0; x<GRID_SIZE; x++) {
-                    const t = createTile(x,y);
-                    row.push(t);
-                    els.grid.appendChild(t.el);
+                for (let x = 0; x < GRID_SIZE; x++) {
+                    const tileData = getRandomTile();
+                    const tile = createTileElement(tileData, x, y);
+                    row.push({ tileData, x, y, element: tile });
+                    gridEl.appendChild(tile);
                 }
                 grid.push(row);
             }
-            
-            checkMatchesAndRefill(); // 初始盤面整理
-            
-            els.overlay.classList.add('hidden');
-            els.startScn.classList.add('hidden');
-            els.endScn.classList.add('hidden');
-            
-            if(gameInterval) clearInterval(gameInterval);
-            gameInterval = setInterval(() => {
-                timeLeft--;
-                els.time.innerText = timeLeft;
-                if(timeLeft <= 0) endGame();
-            }, 1000);
-            
-            startTips();
         }
 
-        function createTile(x, y) {
-            const el = document.createElement('div');
-            // touch-action: none 很重要，防止滑動時觸發瀏覽器滾動
-            el.className = 'absolute p-1 transition-transform duration-200 ease-out cursor-pointer';
-            el.style.width = '12.5%';
-            el.style.height = '12.5%';
-            el.style.left = (x * 12.5) + '%';
-            el.style.top = (y * 12.5) + '%';
-
-            let data = ALL_TILES[Math.floor(Math.random() * ALL_TILES.length)];
-            // 隨機生成特殊方塊
-            if (Math.random() < 0.03) data = {id: 'Bomb'};
-            else if (Math.random() < 0.03) data = {id: 'Mystery'};
-
-            el.innerHTML = getImg(data);
-
-            const tileObj = { x, y, data, el };
-
-            // === 綁定事件 (同時支援滑動與點擊) ===
+        function createTileElement(tileData, x, y) {
+            const div = document.createElement('div');
+            div.className = 'grid-cell w-full h-full cursor-pointer hover:brightness-110 active:scale-95 flex items-center justify-center p-[2px] relative';
+            div.innerHTML = getIconSVG(tileData);
+            div.dataset.x = x;
+            div.dataset.y = y;
             
-            // 1. 滑動開始 (Touch Start)
-            el.addEventListener('touchstart', (e) => {
-                if (isProcessing) return;
-                touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-                activeTouchTile = tileObj;
-            }, {passive: false});
-
-            // 2. 點擊互換 (保留滑鼠操作)
-            el.addEventListener('mousedown', () => handleClick(tileObj));
-
-            return tileObj;
+            // Click Event
+            div.onclick = () => handleTileClick(x, y);
+            
+            // Touch Events for Swipe
+            div.addEventListener('touchstart', handleTouchStart, {passive: false});
+            div.addEventListener('touchmove', handleTouchMove, {passive: false});
+            div.addEventListener('touchend', handleTouchEnd, {passive: false});
+            
+            return div;
         }
 
-        // === 全域滑動監聽 (Touch Move/End) ===
-        // 我們把監聽加在 grid 上，或是 document 上會更靈敏
-        document.addEventListener('touchmove', (e) => {
-            // 禁止滾動
-            if(activeTouchTile) e.preventDefault();
-        }, {passive: false});
-
-        document.addEventListener('touchend', (e) => {
-            if (!activeTouchTile || isProcessing || !touchStart) return;
-
-            const touchEnd = { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
-            const dx = touchEnd.x - touchStart.x;
-            const dy = touchEnd.y - touchStart.y;
+        // --- Swipe Logic ---
+        function handleTouchStart(evt) {
+            if (isProcessing) return;
+            const firstTouch = evt.touches[0];
+            touchStartX = firstTouch.clientX;
+            touchStartY = firstTouch.clientY;
             
-            // 判斷滑動距離是否足夠 (大於 30px 才算滑動，避免誤觸)
-            if (Math.abs(dx) > 30 || Math.abs(dy) > 30) {
-                let targetX = activeTouchTile.x;
-                let targetY = activeTouchTile.y;
+            const x = parseInt(this.dataset.x);
+            const y = parseInt(this.dataset.y);
+        }
 
-                if (Math.abs(dx) > Math.abs(dy)) {
-                    // 左右滑動
-                    targetX += dx > 0 ? 1 : -1;
-                } else {
-                    // 上下滑動
-                    targetY += dy > 0 ? 1 : -1;
-                }
+        function handleTouchMove(evt) {
+            // Prevent scrolling
+            if (evt.cancelable) evt.preventDefault(); 
+        }
 
-                // 檢查邊界
-                if (targetX >= 0 && targetX < GRID_SIZE && targetY >= 0 && targetY < GRID_SIZE) {
-                    const targetTile = grid[targetY][targetX];
-                    swapTiles(activeTouchTile, targetTile);
-                }
-            } else {
-                // 如果滑動距離太短，視為點擊
-                handleClick(activeTouchTile);
+        function handleTouchEnd(evt) {
+            if (isProcessing || timeLeft <= 0) return;
+            
+            const changedTouch = evt.changedTouches[0];
+            touchEndX = changedTouch.clientX;
+            touchEndY = changedTouch.clientY;
+            
+            handleSwipe(this);
+        }
+
+        function handleSwipe(element) {
+            const xDiff = touchEndX - touchStartX;
+            const yDiff = touchEndY - touchStartY;
+            const originX = parseInt(element.dataset.x);
+            const originY = parseInt(element.dataset.y);
+            
+            // Threshold for swipe detection (px)
+            if (Math.abs(xDiff) < 30 && Math.abs(yDiff) < 30) {
+                return; // Treated as tap/click by onclick handler
             }
 
-            activeTouchTile = null;
-            touchStart = null;
-        });
+            // Determine direction
+            let targetX = originX;
+            let targetY = originY;
 
-        function handleClick(tile) {
-            if(isProcessing) return;
+            if (Math.abs(xDiff) > Math.abs(yDiff)) {
+                // Horizontal
+                if (xDiff > 0) targetX++; else targetX--;
+            } else {
+                // Vertical
+                if (yDiff > 0) targetY++; else targetY--;
+            }
+
+            // Boundary Check
+            if (targetX < 0 || targetX >= GRID_SIZE || targetY < 0 || targetY >= GRID_SIZE) return;
+
+            // Execute Swap
+            const originTile = grid[originY][originX];
+            const targetTile = grid[targetY][targetX];
             
-            // 如果是特殊方塊，點擊直接觸發
-            if(tile.data.id === 'Bomb' || tile.data.id === 'Mystery') {
-                triggerSpecial(tile);
+            // If origin isn't selected, select it silently for the swap function logic
+            selectedTile = originTile; 
+            originTile.element.classList.add('selected');
+            
+            // Then swap with target
+            swapTiles(originTile, targetTile);
+            deselectTile();
+        }
+
+        function handleTileClick(x, y) {
+            if (isProcessing || timeLeft <= 0) return;
+            const clickedTile = grid[y][x];
+
+            if (clickedTile.tileData.id === 'Mystery') {
+                activateMysteryTile(clickedTile);
+                return;
+            }
+            
+            if (clickedTile.tileData.id === 'Bomb') {
+                activateBombTile(clickedTile);
                 return;
             }
 
-            if(selectedTile) {
-                // 檢查是否相鄰
-                const dist = Math.abs(selectedTile.x - tile.x) + Math.abs(selectedTile.y - tile.y);
-                if(dist === 1) {
-                    swapTiles(selectedTile, tile);
-                    selectedTile.el.classList.remove('selected');
-                    selectedTile = null;
+            if (selectedTile) {
+                if (selectedTile.x === x && selectedTile.y === y) {
+                    deselectTile();
+                } else if (Math.abs(selectedTile.x - x) + Math.abs(selectedTile.y - y) === 1) {
+                    swapTiles(selectedTile, clickedTile);
+                    deselectTile();
                 } else {
-                    selectedTile.el.classList.remove('selected');
-                    selectedTile = tile;
-                    tile.el.classList.add('selected');
+                    deselectTile();
+                    selectTile(clickedTile);
                 }
             } else {
-                selectedTile = tile;
-                tile.el.classList.add('selected');
+                selectTile(clickedTile);
             }
         }
 
-        async function swapTiles(t1, t2) {
+        // --- Mystery Tile Logic ---
+        function activateMysteryTile(tileObj) {
             isProcessing = true;
-            if(selectedTile) { selectedTile.el.classList.remove('selected'); selectedTile = null; }
+            deselectTile();
+            playMysterySound();
 
-            // 視覺交換 (CSS Transform) - 這裡做簡單處理，直接交換資料重繪比較穩定
-            const temp = t1.data; t1.data = t2.data; t2.data = temp;
-            t1.el.innerHTML = getImg(t1.data);
-            t2.el.innerHTML = getImg(t2.data);
+            const targetIndex = Math.floor(Math.random() * activeTileCount);
+            const targetTileData = ALL_TILES[targetIndex];
 
-            // 檢查是否有消除
-            const matches = findMatches();
-            if (matches.length > 0) {
-                await processMatches(matches);
-            } else {
-                // 無效交換：晃動並換回來
-                t1.el.classList.add('shake-anim');
-                t2.el.classList.add('shake-anim');
-                setTimeout(() => {
-                    const temp = t1.data; t1.data = t2.data; t2.data = temp;
-                    t1.el.innerHTML = getImg(t1.data);
-                    t2.el.innerHTML = getImg(t2.data);
-                    t1.el.classList.remove('shake-anim');
-                    t2.el.classList.remove('shake-anim');
-                    isProcessing = false;
-                }, 300);
+            let rouletteSteps = 0;
+            const rouletteInterval = setInterval(() => {
+                const randomIdx = Math.floor(Math.random() * activeTileCount);
+                tileObj.element.innerHTML = getIconSVG(ALL_TILES[randomIdx]);
+                rouletteSteps++;
+                
+                if (rouletteSteps > 8) {
+                    clearInterval(rouletteInterval);
+                    tileObj.element.innerHTML = getIconSVG(targetTileData);
+                    tileObj.element.classList.add('selected'); 
+
+                    const shakingTiles = [];
+                    for (let y = 0; y < GRID_SIZE; y++) {
+                        for (let x = 0; x < GRID_SIZE; x++) {
+                            const t = grid[y][x];
+                            if (t !== tileObj && t.tileData && t.tileData.id === targetTileData.id) {
+                                shakingTiles.push(t);
+                            }
+                        }
+                    }
+                    
+                    tileObj.element.classList.add('shake-intense');
+                    shakingTiles.forEach(t => t.element.classList.add('shake-intense'));
+
+                    setTimeout(() => {
+                        tileObj.element.classList.remove('shake-intense');
+                        shakingTiles.forEach(t => t.element.classList.remove('shake-intense'));
+                        triggerMysteryClear(targetTileData.id, tileObj);
+                    }, 2000);
+                }
+            }, 100);
+        }
+
+        // --- Bomb Tile Logic ---
+        function activateBombTile(tileObj) {
+            isProcessing = true;
+            deselectTile();
+            playBombSound();
+            tileObj.element.classList.add('shake-intense');
+            setTimeout(() => {
+                triggerBombClear(tileObj);
+            }, 800);
+        }
+
+        function getFireSVG() {
+             return `
+                <svg viewBox="0 0 100 100" class="w-full h-full explosion-fire">
+                    <circle cx="50" cy="50" r="40" fill="url(#fireGradient)"/>
+                    <defs>
+                        <radialGradient id="fireGradient">
+                            <stop offset="0%" stop-color="#ffff00"/>
+                            <stop offset="50%" stop-color="#ff8800"/>
+                            <stop offset="100%" stop-color="#ff0000"/>
+                        </radialGradient>
+                    </defs>
+                </svg>
+             `;
+        }
+
+        async function triggerBombClear(bombTileObj) {
+            const rowY = bombTileObj.y;
+            const bombX = bombTileObj.x;
+            const matches = [];
+
+            for(let x=0; x<GRID_SIZE; x++) {
+                matches.push(grid[rowY][x]);
             }
+
+            gameContainer.classList.add('screen-shake-combo');
+            setTimeout(() => gameContainer.classList.remove('screen-shake-combo'), 300);
+
+            matches.forEach((cell) => {
+                const distance = Math.abs(cell.x - bombX);
+                setTimeout(() => {
+                    cell.element.innerHTML = getFireSVG();
+                }, distance * 50); 
+            });
+
+            await new Promise(r => setTimeout(r, 600));
+
+            const points = matches.length * 30;
+            score += points;
+            scoreEl.innerText = score;
+            checkLevelUp();
+            checkFireworks();
+
+            matches.forEach(m => {
+                m.element.innerHTML = ''; 
+                m.element.classList.remove('match-anim', 'shake-anim', 'shake-intense');
+                m.tileData = null;
+            });
+
+            await applyGravityAndRefill();
+            isProcessing = false;
+        }
+
+        async function triggerMysteryClear(targetId, mysteryTileObj) {
+            mysteryTileObj.element.classList.remove('selected');
+            playMassiveClearSound();
+            flashOverlay.classList.add('screen-flash');
+            setTimeout(() => flashOverlay.classList.remove('screen-flash'), 500);
+
+            const matches = [];
+            matches.push(mysteryTileObj);
+
+            for (let y = 0; y < GRID_SIZE; y++) {
+                for (let x = 0; x < GRID_SIZE; x++) {
+                    const tile = grid[y][x];
+                    if (tile === mysteryTileObj) continue;
+                    if (tile.tileData && tile.tileData.id === targetId) {
+                        matches.push(tile);
+                    }
+                }
+            }
+
+            const points = matches.length * 50; 
+            score += points;
+            scoreEl.innerText = score;
+            checkLevelUp();
+            checkFireworks();
+
+            matches.forEach(m => {
+                m.element.classList.add('match-anim');
+            });
+
+            await new Promise(r => setTimeout(r, 400));
+
+             matches.forEach(m => {
+                m.element.classList.remove('match-anim');
+                m.tileData = null;
+            });
+
+            await applyGravityAndRefill();
+            isProcessing = false;
+        }
+
+        async function applyGravityAndRefill() {
+             for (let x = 0; x < GRID_SIZE; x++) {
+                let writeIndex = GRID_SIZE - 1;
+                for (let y = GRID_SIZE - 1; y >= 0; y--) {
+                    if (grid[y][x].tileData !== null) {
+                        if (writeIndex !== y) {
+                            grid[writeIndex][x].tileData = grid[y][x].tileData;
+                            grid[y][x].tileData = null;
+                        }
+                        writeIndex--;
+                    }
+                }
+                for (let y = writeIndex; y >= 0; y--) {
+                    grid[y][x].tileData = getRandomTile();
+                }
+            }
+            renderBoardFromState();
+            
+            await new Promise(r => setTimeout(r, 200));
+            const newMatches = findMatches();
+            if (newMatches.length > 0) {
+                await processMatches(newMatches, 1);
+            }
+        }
+
+        function selectTile(tileObj) {
+            selectedTile = tileObj;
+            tileObj.element.classList.add('selected');
+            playTone(400, 'triangle', 0.05); 
+        }
+
+        function deselectTile() {
+            if (selectedTile) {
+                selectedTile.element.classList.remove('selected');
+                selectedTile = null;
+            }
+        }
+
+        async function swapTiles(tile1, tile2) {
+            isProcessing = true;
+            playSwapSound();
+
+            const el1 = tile1.element;
+            const el2 = tile2.element;
+
+            const r1 = el1.getBoundingClientRect();
+            const r2 = el2.getBoundingClientRect();
+            const distX = r2.left - r1.left;
+            const distY = r2.top - r1.top;
+
+            el1.style.transform = `translate(${distX}px, ${distY}px)`;
+            el2.style.transform = `translate(${-distX}px, ${-distY}px)`;
+            el1.style.transition = 'transform 0.2s ease-out';
+            el2.style.transition = 'transform 0.2s ease-out';
+
+            await new Promise(r => setTimeout(r, 200));
+
+            el1.style.transition = '';
+            el2.style.transition = '';
+            el1.style.transform = '';
+            el2.style.transform = '';
+
+            const tempTileData = tile1.tileData;
+            tile1.tileData = tile2.tileData;
+            tile2.tileData = tempTileData;
+
+            el1.innerHTML = getIconSVG(tile1.tileData);
+            el2.innerHTML = getIconSVG(tile2.tileData);
+
+            const matches = findMatches();
+            
+            if (matches.length > 0) {
+                await processMatches(matches, 1);
+            } else {
+                playInvalidSound();
+                el1.classList.add('shake-anim');
+                el2.classList.add('shake-anim');
+                const temp = tile1.tileData;
+                tile1.tileData = tile2.tileData;
+                tile2.tileData = temp;
+                await new Promise(r => setTimeout(r, 200)); 
+                el1.innerHTML = getIconSVG(tile1.tileData);
+                el2.innerHTML = getIconSVG(tile2.tileData);
+                el1.classList.remove('shake-anim');
+                el2.classList.remove('shake-anim');
+            }
+
+            isProcessing = false;
         }
 
         function findMatches() {
-            let matched = new Set();
-            // 橫向
-            for(let y=0; y<GRID_SIZE; y++) {
-                for(let x=0; x<GRID_SIZE-2; x++) {
-                    const a=grid[y][x], b=grid[y][x+1], c=grid[y][x+2];
-                    if(a.data.id===b.data.id && b.data.id===c.data.id && !isSpecial(a)) {
-                        matched.add(a); matched.add(b); matched.add(c);
+            let matches = new Set();
+            for (let y = 0; y < GRID_SIZE; y++) {
+                for (let x = 0; x < GRID_SIZE - 2; x++) {
+                    const t1 = grid[y][x].tileData?.id;
+                    const t2 = grid[y][x+1].tileData?.id;
+                    const t3 = grid[y][x+2].tileData?.id;
+                    if (t1 && t1 !== 'Mystery' && t1 !== 'Bomb' && t1 === t2 && t2 === t3) {
+                        matches.add(grid[y][x]);
+                        matches.add(grid[y][x+1]);
+                        matches.add(grid[y][x+2]);
                     }
                 }
             }
-            // 縱向
-            for(let x=0; x<GRID_SIZE; x++) {
-                for(let y=0; y<GRID_SIZE-2; y++) {
-                    const a=grid[y][x], b=grid[y+1][x], c=grid[y+2][x];
-                    if(a.data.id===b.data.id && b.data.id===c.data.id && !isSpecial(a)) {
-                        matched.add(a); matched.add(b); matched.add(c);
+            for (let x = 0; x < GRID_SIZE; x++) {
+                for (let y = 0; y < GRID_SIZE - 2; y++) {
+                    const t1 = grid[y][x].tileData?.id;
+                    const t2 = grid[y+1][x].tileData?.id;
+                    const t3 = grid[y+2][x].tileData?.id;
+                    if (t1 && t1 !== 'Mystery' && t1 !== 'Bomb' && t1 === t2 && t2 === t3) {
+                        matches.add(grid[y][x]);
+                        matches.add(grid[y+1][x]);
+                        matches.add(grid[y+2][x]);
                     }
                 }
             }
-            return Array.from(matched);
+            return Array.from(matches);
         }
 
-        function isSpecial(t) { return t.data.id === 'Bomb' || t.data.id === 'Mystery'; }
+        // --- Visual Combo Effect ---
+        function showComboVisual(count) {
+            const existing = document.querySelector('.combo-text-anim');
+            if(existing) existing.remove();
 
-        async function processMatches(matches) {
-            score += matches.length * 10;
-            updateUI();
-            
-            matches.forEach(m => m.el.classList.add('match-anim'));
-            await new Promise(r => setTimeout(r, 300));
-            
+            gameContainer.classList.remove('screen-shake-combo');
+            void gameContainer.offsetWidth; 
+            gameContainer.classList.add('screen-shake-combo');
+
+            const comboDiv = document.createElement('div');
+            comboDiv.innerText = `COMBO x${count}!`;
+            comboDiv.className = 'combo-text-anim';
+            gridEl.appendChild(comboDiv);
+        }
+
+        async function processMatches(matches, comboCount) {
+            isProcessing = true;
+            playMatchSound(comboCount);
+
+            if (comboCount > 1) {
+                showComboVisual(comboCount);
+            }
+
             matches.forEach(m => {
-                m.el.classList.remove('match-anim');
-                m.data = null; 
-                m.el.innerHTML = '';
+                m.element.classList.add('match-anim');
             });
 
-            await applyGravity();
+            const points = matches.length * 10 * comboCount;
+            score += points;
+            scoreEl.innerText = score;
+            checkLevelUp();
+            checkFireworks();
+
+            await new Promise(r => setTimeout(r, 400));
+
+            matches.forEach(m => {
+                m.element.classList.remove('match-anim');
+                m.tileData = null;
+            });
+
+            await applyGravityAndRefill(); 
+            isProcessing = false; 
         }
 
-        async function applyGravity() {
-            // 下落
-            for(let x=0; x<GRID_SIZE; x++) {
-                let writeY = GRID_SIZE - 1;
-                for(let y=GRID_SIZE-1; y>=0; y--) {
-                    if(grid[y][x].data) {
-                        if(writeY !== y) {
-                            grid[writeY][x].data = grid[y][x].data;
-                            grid[writeY][x].el.innerHTML = getImg(grid[writeY][x].data);
-                            grid[y][x].data = null;
-                            grid[y][x].el.innerHTML = '';
-                        }
-                        writeY--;
-                    }
-                }
-                // 補滿上方
-                for(let y=writeY; y>=0; y--) {
-                    let d = ALL_TILES[Math.floor(Math.random() * ALL_TILES.length)];
-                    grid[y][x].data = d;
-                    grid[y][x].el.innerHTML = getImg(d);
+        function renderBoardFromState() {
+            for (let y = 0; y < GRID_SIZE; y++) {
+                for (let x = 0; x < GRID_SIZE; x++) {
+                    grid[y][x].element.innerHTML = getIconSVG(grid[y][x].tileData);
                 }
             }
-            
-            await new Promise(r => setTimeout(r, 200));
-            
-            // 連鎖檢查
-            const newMatches = findMatches();
-            if(newMatches.length > 0) await processMatches(newMatches);
-            else isProcessing = false;
         }
 
-        function triggerSpecial(t) {
-            isProcessing = true;
-            t.el.classList.add('match-anim');
-            setTimeout(async () => {
-                score += 500;
-                // 這裡簡化特殊效果：如果是炸彈，周圍8格消除；Mystery 則隨機消
-                // 為求程式碼簡潔，統一直接消除該方塊並加分，並進行重整
-                t.data = null; t.el.innerHTML = '';
-                t.el.classList.remove('match-anim');
-                await applyGravity();
-            }, 300);
-        }
-
-        function checkMatchesAndRefill() {
+        function cleanInitialBoard() {
             let matches = findMatches();
-            while(matches.length > 0) {
-                matches.forEach(m => {
-                    m.data = ALL_TILES[Math.floor(Math.random() * ALL_TILES.length)];
-                    m.el.innerHTML = getImg(m.data);
-                });
+            let specialTiles = grid.flat().filter(cell => cell.tileData && (cell.tileData.id === 'Mystery' || cell.tileData.id === 'Bomb'));
+            
+            while (matches.length > 0 || specialTiles.length > 0) {
+                matches.forEach(m => m.tileData = getRandomTile());
+                specialTiles.forEach(m => m.tileData = getRandomTile());
+                
+                renderBoardFromState();
                 matches = findMatches();
+                specialTiles = grid.flat().filter(cell => cell.tileData && (cell.tileData.id === 'Mystery' || cell.tileData.id === 'Bomb'));
             }
-        }
-
-        function updateUI() {
-            els.score.innerText = score;
-            const lvl = Math.floor(score / 1000) + 1;
-            els.lvl.innerText = lvl;
-            const pct = (score % 1000) / 1000 * 100;
-            els.bar.style.width = pct + '%';
         }
 
         function endGame() {
             clearInterval(gameInterval);
-            els.overlay.classList.remove('hidden');
-            els.endScn.classList.remove('hidden');
-            els.startScn.classList.add('hidden');
-            els.finalScore.innerText = score;
-
-            // 更新本機排行榜
+            isProcessing = true;
+            
             updateLocalLeaderboard(score);
 
-            if(score > REWARD_SCORE_THRESHOLD) {
-                els.rewardBtn.classList.remove('hidden');
+            overlayEl.classList.remove('hidden');
+            startScreenContent.classList.add('hidden');
+            gameOverContent.classList.remove('hidden');
+            finalScoreEl.innerText = score;
+            
+            // Check Reward condition
+            if (score > 10000) {
+                rewardBtn.classList.remove('hidden');
             } else {
-                els.rewardBtn.classList.add('hidden');
+                rewardBtn.classList.add('hidden');
             }
         }
-
-        function startTips() {
-            const show = () => {
-                els.tips.innerText = TIPS[Math.floor(Math.random() * TIPS.length)];
-                els.tips.style.opacity = 0;
-                setTimeout(() => els.tips.style.opacity = 1, 100);
-            };
-            show();
-            setInterval(show, 5000);
-        }
-
-        // --- 按鈕事件 ---
-        document.getElementById('start-btn').onclick = initGame;
-        document.getElementById('restart-btn').onclick = () => {
-            els.endScn.classList.add('hidden');
-            els.startScn.classList.remove('hidden');
-            // 重新顯示排行榜
-            updateLocalLeaderboard(0);
-        };
-
-        // 領獎 (BotBonnie)
-        els.rewardBtn.onclick = () => {
-            if (liff.isInClient()) {
-                liff.sendMessages([{type: 'text', text: BOTBONNIE_KEYWORD}])
-                    .then(() => liff.closeWindow());
+        
+        // --- Leaderboard Toggle ---
+        leaderboardHeader.addEventListener('click', () => {
+            if (window.innerWidth >= 768) return; 
+            isLeaderboardOpen = !isLeaderboardOpen;
+            if (isLeaderboardOpen) {
+                leaderboardSection.style.height = '320px'; 
+                leaderboardContent.classList.remove('hidden');
+                setTimeout(() => leaderboardContent.classList.remove('opacity-0'), 10);
+                chevronIcon.style.transform = 'rotate(180deg)';
             } else {
-                alert('請在 LINE 開啟以領取獎勵');
+                leaderboardSection.style.height = '56px'; 
+                leaderboardContent.classList.add('opacity-0');
+                setTimeout(() => leaderboardContent.classList.add('hidden'), 300);
+                chevronIcon.style.transform = 'rotate(0deg)';
             }
-        };
+        });
 
-        // 分享好友 (New)
-        document.getElementById('share-btn').onclick = () => {
-            if (liff.isApiAvailable('shareTargetPicker')) {
-                // 如果是 LIFF 環境且支援分享
-                liff.shareTargetPicker([
+        // --- Button Listeners ---
+        startBtn.addEventListener('click', () => {
+            const val = nameInput.value.trim();
+            if (val) playerName = val;
+            initAudio();
+            initGame();
+        });
+
+        restartBtn.addEventListener('click', () => {
+            overlayEl.classList.remove('hidden');
+            startScreenContent.classList.remove('hidden');
+            gameOverContent.classList.add('hidden');
+        });
+        
+        // Share Button (LIFF ShareTargetPicker)
+        shareBtn.addEventListener('click', async () => {
+            if (!liff.isLoggedIn()) {
+                alert("請先登入 LINE 才能分享！");
+                liff.login();
+                return;
+            }
+            try {
+                const result = await liff.shareTargetPicker([
                     {
                         type: "text",
-                        text: "🔥 我在奧多比消消樂拿了 " + score + " 分！\n快來挑戰我的紀錄，還能領取通關獎勵喔！\n👇 點擊開始玩：\nhttps://liff.line.me/" + LIFF_ID 
+                        text: `🔥 我在奧多比消消樂拿了 ${score} 分！快來挑戰我的紀錄！`
                     }
-                ]).then(res => {
-                    if (res) alert("分享成功！");
-                }).catch(err => {
-                    console.error(err);
-                    alert("分享功能暫時無法使用，請直接分享網址。");
-                });
-            } else {
-                // 電腦版或不支援時，改為複製連結
-                navigator.clipboard.writeText("https://liff.line.me/" + LIFF_ID)
-                    .then(() => alert("連結已複製！快去貼給朋友吧！"));
+                ]);
+                if (result) {
+                    // Shared successfully
+                }
+            } catch (err) {
+                console.error("Share Error", err);
+                // Fallback for non-LIFF environment or error
+                alert("分享功能僅限於 LINE 內部使用！");
             }
-        };
+        });
 
-        // 初始載入排行榜
-        updateLocalLeaderboard(0);
-        initLIFF();
+        // Reward Button (Send Message via LIFF for BotBonnie)
+        rewardBtn.addEventListener('click', async () => {
+            if (!liff.isLoggedIn()) {
+                alert("請先登入 LINE 才能領取！");
+                liff.login();
+                return;
+            }
+            try {
+                await liff.sendMessages([
+                    {
+                        type: 'text',
+                        text: '#win消消樂'
+                    }
+                ]);
+                alert("獎勵指令已發送！請查看聊天室。");
+                liff.closeWindow();
+            } catch (err) {
+                console.error("Send Message Error", err);
+                alert("無法發送訊息，請手動輸入 #win消消樂");
+            }
+        });
+
+        // Initialize
+        initLiff();
+        loadLocalLeaderboard();
 
     </script>
-</body> 
+</body>
 </html>
