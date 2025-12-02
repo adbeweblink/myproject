@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -530,15 +530,19 @@
         const statusText = document.getElementById('statusText');
         const dateField = document.getElementById('dateField');
 
+        // 更新狀態
         spinner.style.display = 'block';
-        statusText.innerText = '正在掃描 Adobe.com (模擬中)...';
+        statusText.innerText = '正在掃描最新資訊...'; // 修改狀態文字
         statusText.style.color = '#0265DC';
 
+        // 模擬延遲 (例如 2 秒)
         setTimeout(() => {
+            // 完成
             spinner.style.display = 'none';
             statusText.innerText = '更新完成！內容已是最新版本。';
             statusText.style.color = 'green';
             
+            // 更新時間戳記
             const now = new Date();
             const year = now.getFullYear();
             const month = now.getMonth() + 1;
@@ -548,7 +552,8 @@
             
             dateField.innerText = `更新日期：${year}年${month}月${day}日 ${hours}:${minutes}`;
 
-            alert('注意：由於瀏覽器安全性限制 (CORS)，靜態 HTML 檔案無法直接從第三方網站 (Adobe) 抓取即時資料。\n\n此按鈕僅為 UI 演示。在真實的應用程式中，這需要後端伺服器支援。');
+            // 告知使用者這是靜態檔案的限制
+            alert('注意：由於瀏覽器安全性限制 (CORS)，靜態 HTML 檔案無法直接從第三方網站 (Adobe) 抓取即時資料。\n\n此按鈕僅為 UI 演示，實際上不會連網更新內容。在真實的應用程式中，這需要後端伺服器支援。');
         }, 2000);
     }
 
