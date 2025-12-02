@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>奧多比合合樂 - Adobe Merge Fun</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <style>
+        @font-face {
+            font-family: 'AdobeClean';
+            src: url('https://adbeweblink.github.io/myproject/font/AdobeClean/AdobeClean-Black.otf') format('opentype');
+            font-weight: 900;
+            font-style: normal;
+        }
+
+        body {
+            touch-action: none;
+            font-family: 'AdobeClean', 'Roboto', sans-serif;
+            background-color: #1e1e1e;
+            color: #f3f3f3;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+            background-image: radial-gradient(circle at center, #2a2a2a 0%, #1a1a1a 100%);
+            user-select: none;
+            transition: background-color 0.5s;
+        }
+
+        body.danger-mode {
+            background-image: radial-gradient(circle at center, #3a1a1a 0%, #1a0000 100%);
+        }
+
+        /* 震動動畫 */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        .shake-anim {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        /* 死亡線閃爍動畫 */
+        @keyframes pulse-red {
+            0% { border-color: #ffcc00; opacity: 0.6; box-shadow: 0 0 10px rgba(255, 204, 0, 0.2); }
+            50% { border-color: #ff0000; opacity: 1; box-shadow: 0 0 20px rgba(255, 0, 0, 0.8); }
+            100% { border-color: #ffcc00; opacity: 0.6; box-shadow: 0 0 10px rgba(255, 204, 0, 0.2); }
+        }
+
+        /* 主容器 */
+        .main-layout {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            height: 100%;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 1;
+        }
+
+        .center-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+        }
+
+        .game-title {
+            font-size: 32px;
+            font-weight: 900;
+            color: #ffffff;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            letter-spacing: 2px;
+            margin: 0;
+        }
+
+        #game-wrapper {
+            position: relative;
+            width: 450px;
+            height: 80vh;
+            max-height: 800px;
+            border-radius: 12px;
+            background-color: rgba(30, 30, 30, 0.85);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,0,0,0.5);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            flex-shrink: 0;
+            transform-origin: center;
+        }
+        
+        canvas#world {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 左側：進化圖鑑 */
+        .sidebar-left {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            background: rgba(40, 40, 40, 0.6);
+            padding: 15px;
+            border-radius: 12px;
+            height: 80vh;
+            max-height: 800px;
+            overflow-y: auto;
+            min-width: 90px;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .evolution-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0.2;
+            transition: opacity 0.3s, transform 0.3s;
+            transform: scale(0.9);
+            filter: grayscale(80%);
+        }
+        .evolution-item.active {
+            opacity: 1;
+            transform: scale(1.15);
+            filter: grayscale(0%) drop-shadow(0 0 8px rgba(255, 255, 255, 0.4));
+        }
+        .evolution-img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            border-radius: 7px;
+        }
+        .arrow {
+            color: #555;
+            font-size: 8px;
+            margin: 1px 0;
+        }
+
+        /* 右側：資訊面板 */
+        .sidebar-right {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 240px;
+            height: 80vh;
+            max-height: 800px;
+            justify-content: flex-start;
+        }
+
+        .panel {
+            background: rgba(40, 40, 40, 0.8);
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            backdrop-filter: blur(5px);
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .next-box canvas {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+        }
+        
+        #next-fruit-name {
+            font-size: 16px;
+            color: #fff;
+            font-weight: bold;
+            margin-bottom: 5px;
+            min-height: 24px;
+        }
+
+        #next-fruit-desc {
+            font-size: 13px;
+            color: #bbb;
+            line-height: 1.5;
+            text-align: center; 
+            width: 100%;
+        }
+
+        .score-box {
+            font-size: 36px;
+            color: #fff;
+            font-weight: bold;
+            font-family: 'Roboto', sans-serif;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            line-height: 1.2;
+        }
+
+        .shake-hint {
+            font-size: 11px;
+            color: #ffcc00;
+            margin-top: 2px;
+            margin-bottom: 8px;
+            opacity: 0.8;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .best-score {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
+        .label {
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        #game-over-screen {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 15, 15, 0.96);
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .leaderboard {
+            width: 100%;
+            max-width: 320px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .leaderboard h3 {
+            color: #ffcc00;
+            font-size: 20px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+            font-weight: bold;
+        }
+        .leaderboard-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 15px;
+        }
+        .leaderboard-row:last-child { border-bottom: none; }
+        .rank-num { width: 30px; color: #888; font-weight: bold; }
+        .rank-date { font-size: 12px; color: #666; margin-right: auto; padding-left: 10px; }
+        .rank-score { font-weight: bold; color: #fff; font-family: monospace; font-size: 16px; }
+
+        .deadline-line {
+            border-top: 2px dashed #ffcc00; width: 100%; margin-top: 80px; opacity: 0.6;
+            box-shadow: 0 0 10px rgba(255, 204, 0, 0.2);
+            transition: all 0.2s;
+        }
+        .deadline-line.danger {
+            animation: pulse-red 0.5s infinite;
+        }
+        .deadline-text {
+            color: #ffcc00; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            font-weight: bold; font-size: 12px;
+            background: rgba(0,0,0,0.7); padding: 4px 10px; border-radius: 20px;
+        }
+
+        /* --- RWD 手機版優化 --- */
+        @media (max-width: 1024px) {
+            .sidebar-left { display: none; }
+        }
+
+        @media (max-width: 768px) {
+            body { justify-content: flex-start; } /* 手機版內容靠上 */
+            
+            .main-layout { 
+                flex-direction: column; 
+                padding: 0; 
+                gap: 0; 
+                width: 100%;
+                height: 100%;
+            }
+            
+            /* 隱藏桌機的側邊欄與標題 */
+            .center-column { width: 100%; height: 100%; gap: 0; }
+            .game-title { display: none; }
+            .sidebar-left { display: none !important; }
+            
+            /* 改造右側面板為手機 HUD (Heads-Up Display) */
+            .sidebar-right {
+                position: absolute;
+                top: 10px;
+                left: 0;
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                justify-content: space-between;
+                padding: 0 15px;
+                z-index: 50; /* 確保在遊戲層之上 */
+                pointer-events: none; /* 讓點擊穿透到遊戲層 */
+                gap: 0;
+            }
+
+            .panel {
+                background: rgba(0, 0, 0, 0.3); /* 更透明 */
+                backdrop-filter: none;
+                box-shadow: none;
+                border: none;
+                padding: 5px 10px;
+                border-radius: 20px;
+                min-height: auto;
+                flex: initial; /* 不要佔滿 */
+                pointer-events: auto; /* 恢復面板內的點擊 (如果有的話) */
+            }
+
+            /* 手機版：左上角顯示分數 */
+            .score-container {
+                align-items: flex-start;
+                background: transparent;
+                padding: 0;
+            }
+            .score-box { font-size: 28px; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+            .label { display: none; } /* 隱藏標籤文字 */
+            .shake-hint { display: none; } /* 隱藏晃動提示 */
+            .best-score { font-size: 10px; color: #ddd; margin-top: 0; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
+            .reset-btn-desktop { display: none; } /* 隱藏重置按鈕 */
+
+            /* 手機版：右上角顯示 Next */
+            .next-box {
+                align-items: flex-end;
+                background: transparent;
+                padding: 0;
+            }
+            .next-box canvas {
+                margin: 0;
+                width: 50px;
+                height: 50px;
+                background: rgba(0,0,0,0.4);
+                border-radius: 12px;
+                border: 1px solid rgba(255,255,255,0.2);
+            }
+            #next-fruit-name, #next-fruit-desc { display: none; } /* 隱藏詳細文字 */
+
+            /* 遊戲區域滿版 */
+            #game-wrapper {
+                width: 100%;
+                height: 100vh; /* 佔滿全螢幕 */
+                max-height: none;
+                border-radius: 0;
+                border: none;
+                box-shadow: none;
+            }
+            
+            /* 調整死亡線位置，避免被上方 UI 遮擋 */
+            .deadline-line { margin-top: 100px; }
+            .deadline-text { top: 75px; right: 10px; font-size: 10px; opacity: 0.8; }
+        }
+
+        /* 按鈕樣式 */
+        .adobe-btn {
+            background: linear-gradient(135deg, #1473E6 0%, #0d66d0 100%);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(20, 115, 230, 0.4);
+            margin: 5px;
+            letter-spacing: 1px;
+        }
+        .adobe-btn:active { transform: scale(0.95); }
+        .adobe-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(20, 115, 230, 0.6); }
+        .adobe-btn.secondary { background: #444; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .adobe-btn.secondary:hover { background: #555; }
+        
+        #modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.85); z-index: 200;
+            display: flex; justify-content: center; align-items: center;
+            backdrop-filter: blur(8px);
+        }
+        .modal-content {
+            background: rgba(30, 30, 30, 0.95);
+            padding: 40px; border-radius: 20px;
+            max-width: 420px; width: 90%; text-align: center;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.7);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="modal-overlay">
+        <div class="modal-content">
+            <h2 class="text-3xl font-bold mb-6 text-white">奧多比合合樂</h2>
+            <div class="space-y-4 mb-8 text-gray-300 text-sm leading-relaxed text-left bg-black/40 p-6 rounded-xl border border-white/5">
+                <p>1. 移動並放下 Adobe 圖示。</p>
+                <p>2. 合成順序：<span class="text-blue-300">Dc > Firefly > Express > Lr > Ps > Ai > Id > Pr > Ae > CC</span>。</p>
+                <p>3. <span class="text-red-400 font-bold">💣 炸彈球 (3%)</span>：3秒倒數後爆炸，可消除堆積的球。</p>
+                <p>4. <span class="text-yellow-400 font-bold">💎 大獎</span>：合成出 CC 圖標會有特別驚喜！</p>
+            </div>
+            <div class="flex justify-center gap-4">
+                 <button class="adobe-btn" onclick="startGame()">開始遊戲</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-layout blur-sm transition-all duration-500" id="main-content">
+        
+        <!-- 左側：進化圖鑑 (手機版隱藏) -->
+        <div class="sidebar-left" id="evolution-list"></div>
+
+        <!-- 中間：遊戲區 (手機版滿版) -->
+        <div class="center-column">
+            <h1 class="game-title">奧多比合合樂</h1>
+            
+            <div id="game-wrapper">
+                <div class="absolute top-4 left-0 w-full text-center pointer-events-none z-10">
+                    <div id="deadline-line" class="deadline-line"></div>
+                    <span class="deadline-text absolute right-2 top-20">⚠ 堆疊上限</span>
+                </div>
+
+                <canvas id="world"></canvas>
+                
+                <div id="game-over-screen">
+                    <h2 class="text-5xl mb-2 text-red-500 font-bold tracking-widest">GAME OVER</h2>
+                    <p class="text-lg mb-6 text-gray-400">專案記憶體不足，程式即將關閉</p>
+                    <div class="text-4xl font-bold text-white mb-6 font-mono">Score: <span id="final-score" class="text-yellow-400">0</span></div>
+                    
+                    <div class="leaderboard">
+                        <h3>🏆 排行榜 TOP 5</h3>
+                        <div id="leaderboard-list"></div>
+                    </div>
+
+                    <div class="flex gap-4 w-full max-w-sm justify-center">
+                        <button id="restart-btn-over" class="adobe-btn secondary flex-1" onclick="resetGameLogic()">重新開始</button>
+                        <button id="share-revive-btn" class="adobe-btn flex-1" onclick="shareGameRevive()">分享並復活</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右側：資訊 HUD (手機版浮動在上方) -->
+        <div class="sidebar-right">
+            <!-- 手機版：左上角分數 -->
+            <div class="panel score-container">
+                <span class="label">Project Score</span>
+                <div class="score-box" id="score">0</div>
+                <div class="best-score">BEST: <span id="best-score-display">0</span></div>
+                <div class="shake-hint">⚡ 每滿 100 分晃動獎勵 ⚡</div>
+                <button class="adobe-btn secondary text-sm w-full mt-6 reset-btn-desktop" onclick="resetGameLogic()">
+                    重置
+                </button>
+            </div>
+
+            <!-- 手機版：右上角 Next -->
+            <div class="panel next-box">
+                <span class="label">Next App</span>
+                <canvas id="next-canvas" width="80" height="80"></canvas>
+                <div id="next-fruit-name"></div>
+                <div id="next-fruit-desc"></div>
+            </div>
+        </div>
+
+    </div>
+
+<script>
+    // --- 聲音系統 ---
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx;
+
+    function initAudio() {
+        if (!audioCtx) audioCtx = new AudioContext();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playTone(freq, type, duration, vol) {
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.value = freq;
+        osc.type = type;
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function playMergeSound(level) {
+        const base = 220 * Math.pow(1.05946, level * 2);
+        playTone(base, 'sine', 0.4, 0.1);
+        playTone(base * 1.5, 'triangle', 0.3, 0.05); 
+    }
+
+    function playDropSound(isHeavy) {
+        const freq = isHeavy ? 80 : 300;
+        playTone(freq, 'triangle', 0.15, 0.08);
+    }
+    
+    function playExplosionSound() {
+        if (!audioCtx) return;
+        playTone(100, 'sawtooth', 0.6, 0.2);
+        setTimeout(() => playTone(60, 'square', 0.5, 0.2), 50);
+    }
+
+    function playGameOverSound() {
+        playTone(300, 'sawtooth', 0.5, 0.1);
+        setTimeout(() => playTone(250, 'sawtooth', 0.5, 0.1), 300);
+        setTimeout(() => playTone(200, 'sawtooth', 1.0, 0.1), 600);
+    }
+
+    function playJackpotSound() {
+        if (!audioCtx) return;
+        let notes = [523.25, 659.25, 783.99, 1046.50, 783.99, 1046.50];
+        notes.forEach((freq, i) => {
+            setTimeout(() => {
+                playTone(freq, 'square', 0.2, 0.15);
+            }, i * 150);
+        });
+    }
+
+    // --- 遊戲引擎 ---
+    const Engine = Matter.Engine,
+          Render = Matter.Render,
+          Runner = Matter.Runner,
+          Bodies = Matter.Bodies,
+          Composite = Matter.Composite,
+          Events = Matter.Events,
+          World = Matter.World,
+          Body = Matter.Body,
+          Vector = Matter.Vector;
+
+    const FRUITS = [
+        { name: 'Adobe Acrobat',    desc: '全球最受信賴的 PDF 解決方案。檢視、編輯、簽署與保護文件。', img: 'https://adbeweblink.github.io/myproject/images/Dc.png',      radius: 20, score: 1, color: '#FF0000' },
+        { name: 'Adobe Firefly',    desc: 'AI 創意生成引擎。輸入文字即可生成驚人圖像。', img: 'https://adbeweblink.github.io/myproject/images/Firefly.png', radius: 28, score: 2, color: '#00D4FF' },
+        { name: 'Adobe Express',    desc: '萬用內容創作工具。快速製作社群貼文。', img: 'https://adbeweblink.github.io/myproject/images/Express.png', radius: 36, score: 4, color: '#FFCC00' },
+        { name: 'Adobe Lightroom',  desc: '攝影師首選雲端服務。隨時隨地編輯相片。', img: 'https://adbeweblink.github.io/myproject/images/lr.png',      radius: 44, score: 6, color: '#31A8FF' },
+        { name: 'Adobe Photoshop',  desc: '影像處理代名詞。相片編輯與合成設計。', img: 'https://adbeweblink.github.io/myproject/images/ps.png',      radius: 54, score: 10, color: '#001E36' },
+        { name: 'Adobe Illustrator',desc: '業界標準向量繪圖軟體。繪製標誌與圖示。', img: 'https://adbeweblink.github.io/myproject/images/Ai.png',      radius: 64, score: 20, color: '#FF9A00' },
+        { name: 'Adobe InDesign',   desc: '專業排版設計軟體。製作書籍與雜誌。', img: 'https://adbeweblink.github.io/myproject/images/Id.png',      radius: 76, score: 30, color: '#FF3366' },
+        { name: 'Adobe Premiere Pro',desc: '頂尖影片剪輯軟體。色彩、音效與 AI 工具。', img: 'https://adbeweblink.github.io/myproject/images/Pr.png',      radius: 88, score: 50, color: '#9999FF' },
+        { name: 'Adobe After Effects',desc: '電影級視覺特效工具。動態圖形與綠幕去背。', img: 'https://adbeweblink.github.io/myproject/images/Ae.png',      radius: 100, score: 80, color: '#00005B' },
+        { name: 'Adobe Creative Cloud',desc: '創意的終極集合體。釋放無限潛能。', img: 'https://adbeweblink.github.io/myproject/images/CC.png',      radius: 115, score: 150, color: '#D91F26' }
+    ];
+
+    const loadedImages = {};
+    let imagesLoadedCount = 0;
+
+    function preloadImages(callback) {
+        let loaded = 0;
+        const total = FRUITS.length;
+        const timeout = setTimeout(() => { if (loaded < total) callback(); }, 3000);
+        FRUITS.forEach((fruit, index) => {
+            const img = new Image();
+            img.src = fruit.img;
+            img.onload = () => { loadedImages[index] = img; loaded++; if (loaded === total) { clearTimeout(timeout); callback(); } };
+            img.onerror = () => {
+                const placeholder = document.createElement('canvas'); placeholder.width = 128; placeholder.height = 128;
+                const pCtx = placeholder.getContext('2d'); pCtx.fillStyle = fruit.color; pCtx.beginPath(); pCtx.arc(64, 64, 64, 0, Math.PI*2); pCtx.fill();
+                pCtx.fillStyle = '#fff'; pCtx.font = 'bold 40px Arial'; pCtx.textAlign = 'center'; pCtx.textBaseline = 'middle'; pCtx.fillText(fruit.name.substring(6, 8), 64, 64);
+                loadedImages[index] = placeholder; loaded++; if (loaded === total) { clearTimeout(timeout); callback(); }
+            }
+        });
+    }
+
+    let engine, world, runner;
+    let canvas, ctx;
+    let nextCanvas, nextCtx;
+    let score = 0;
+    let lastScoreMilestone = 0;
+    let isGameOver = false;
+    let currentFruit = 0; 
+    let nextFruitIndex = 0;
+    let canDrop = true;
+    let lastMouseX = 0;
+    
+    let particles = [];
+    let floatingTexts = [];
+    let comboCount = 0;
+    let comboTimer = 0;
+    
+    let nextIsBomb = false;
+    let bonusBombActive = false; 
+    const BOMB_CHANCE = 0.03;
+    const BOMB_RADIUS = 35;
+    
+    let ground, leftWall, rightWall;
+    let GAME_WIDTH = 0;
+    let GAME_HEIGHT = 0;
+    const DEADLINE_Y = 100; 
+    let isEventsBound = false;
+    let confetti = []; 
+
+    function initSidebar() {
+        const list = document.getElementById('evolution-list');
+        list.innerHTML = ''; 
+        FRUITS.forEach((fruit, idx) => {
+            const item = document.createElement('div');
+            item.className = 'evolution-item';
+            item.id = `evo-${idx}`;
+            const img = document.createElement('img');
+            img.src = fruit.img;
+            img.className = 'evolution-img';
+            item.appendChild(img);
+            if (idx < FRUITS.length - 1) {
+                const arrow = document.createElement('div');
+                arrow.className = 'arrow';
+                arrow.innerHTML = '▼';
+                item.appendChild(arrow);
+            }
+            list.appendChild(item);
+        });
+    }
+
+    window.startGame = function() {
+        initAudio();
+        document.getElementById('modal-overlay').style.display = 'none';
+        document.getElementById('main-content').classList.remove('blur-sm');
+        preloadImages(() => { initGame(); });
+        initSidebar();
+        updateBestScoreDisplay();
+    };
+
+    window.resetGameLogic = function() {
+        if (world) {
+            World.clear(world);
+            Engine.clear(engine);
+            if(runner) Runner.stop(runner);
+        }
+        // 重置按鈕文字
+        const restartBtn = document.getElementById('restart-btn-over');
+        if (restartBtn) restartBtn.innerText = "再次挑戰";
+        
+        // 移除危險模式
+        document.body.classList.remove('danger-mode');
+        const deadlineLine = document.getElementById('deadline-line');
+        if(deadlineLine) deadlineLine.classList.remove('danger');
+
+        initGame();
+    }
+
+    function updateBestScoreDisplay() {
+        const key = 'adobe_suika_scores';
+        const scores = JSON.parse(localStorage.getItem(key) || '[]');
+        const best = scores.length > 0 ? scores[0].score : 0;
+        document.getElementById('best-score-display').innerText = best;
+    }
+
+    function initGame() {
+        const container = document.getElementById('game-wrapper');
+        canvas = document.getElementById('world');
+        ctx = canvas.getContext('2d');
+        nextCanvas = document.getElementById('next-canvas');
+        nextCtx = nextCanvas.getContext('2d');
+        const rect = container.getBoundingClientRect();
+        GAME_WIDTH = rect.width;
+        GAME_HEIGHT = rect.height;
+        const dpr = window.devicePixelRatio || 1;
+        if (canvas.width !== GAME_WIDTH * dpr || canvas.height !== GAME_HEIGHT * dpr) {
+            canvas.width = GAME_WIDTH * dpr;
+            canvas.height = GAME_HEIGHT * dpr;
+            ctx.scale(dpr, dpr);
+        } else {
+             ctx.clearRect(0,0, GAME_WIDTH, GAME_HEIGHT);
+             ctx.scale(dpr, dpr);
+        }
+
+        engine = Engine.create();
+        world = engine.world;
+        engine.gravity.y = 1.2;
+
+        const wallOptions = { isStatic: true, render: { visible: false }, friction: 0.3, frictionStatic: 0.3, restitution: 0.2 };
+        const wallThick = 200; 
+        
+        ground = Bodies.rectangle(GAME_WIDTH/2, GAME_HEIGHT + wallThick/2 - 10, GAME_WIDTH + 400, wallThick, wallOptions);
+        leftWall = Bodies.rectangle(0 - wallThick/2, GAME_HEIGHT/2, wallThick, GAME_HEIGHT * 2, wallOptions);
+        rightWall = Bodies.rectangle(GAME_WIDTH + wallThick/2, GAME_HEIGHT/2, wallThick, GAME_HEIGHT * 2, wallOptions);
+        
+        World.add(world, [ground, leftWall, rightWall]);
+
+        runner = Runner.create();
+        Runner.run(runner, engine);
+
+        score = 0;
+        lastScoreMilestone = 0;
+        comboCount = 0;
+        comboTimer = 0;
+        confetti = [];
+        updateScore(0);
+        isGameOver = false;
+        canDrop = true;
+        document.getElementById('game-over-screen').style.display = 'none';
+        document.getElementById('game-wrapper').classList.remove('shake-anim');
+
+        nextFruitIndex = Math.floor(Math.random() * 4); 
+        spawnNextFruitLogic();
+
+        lastMouseX = GAME_WIDTH / 2;
+
+        if (!isEventsBound) {
+            bindEvents();
+            isEventsBound = true;
+        }
+
+        Events.on(engine, 'collisionStart', handleCollisions);
+        
+        Events.on(engine, 'beforeUpdate', function() {
+            const bodies = Composite.allBodies(world);
+            const now = Date.now();
+            bodies.forEach(body => {
+                if (body.label === 'bomb' && body.bombExplodeTime) {
+                    if (now >= body.bombExplodeTime) {
+                        explodeBomb(body);
+                    }
+                }
+            });
+        });
+
+        requestAnimationFrame(renderLoop);
+    }
+
+    function spawnNextFruitLogic() {
+        if (bonusBombActive) {
+            nextIsBomb = true;
+            bonusBombActive = false; // 消耗掉獎勵
+        } else if (Math.random() < BOMB_CHANCE) {
+            nextIsBomb = true;
+        } else {
+            nextIsBomb = false;
+            nextFruitIndex = Math.floor(Math.random() * 4);
+        }
+        drawNextFruitPreview();
+        canDrop = true;
+    }
+
+    function drawNextFruitPreview() {
+        const dpr = window.devicePixelRatio || 1;
+        // 手機版 nextCanvas 可能比較小，使用 CSS 寬度來調整
+        // 但為了畫質，維持高解析度，僅顯示內容
+        nextCanvas.width = 80 * dpr;
+        nextCanvas.height = 80 * dpr;
+        nextCtx.scale(dpr, dpr);
+        nextCtx.clearRect(0,0, 80, 80);
+
+        if (nextIsBomb) {
+            const x = 40, y = 40, size = 30;
+            nextCtx.save();
+            const grad = nextCtx.createRadialGradient(x - size/3, y - size/3, size/10, x, y, size);
+            grad.addColorStop(0, '#666'); grad.addColorStop(0.3, '#333'); grad.addColorStop(1, '#000');
+            nextCtx.beginPath(); nextCtx.arc(x, y, size, 0, Math.PI * 2); nextCtx.fillStyle = grad; nextCtx.fill();
+            nextCtx.beginPath(); nextCtx.moveTo(x + 10, y - 20); nextCtx.quadraticCurveTo(x + 20, y - 35, x + 30, y - 30); nextCtx.strokeStyle = '#888'; nextCtx.lineWidth = 2; nextCtx.stroke();
+            nextCtx.beginPath(); nextCtx.arc(x + 30, y - 30, 4, 0, Math.PI*2); nextCtx.fillStyle = '#ffcc00'; nextCtx.fill();
+            nextCtx.restore();
+            document.getElementById('next-fruit-name').innerText = "危險炸彈球";
+            document.getElementById('next-fruit-desc').innerText = "3秒後引爆，消除周圍球體。";
+            document.getElementById('next-fruit-name').style.color = '#ff4444';
+        } else {
+            const fruit = FRUITS[nextFruitIndex];
+            const img = loadedImages[nextFruitIndex];
+            if(img) {
+                const size = 50; const x = 40 - size/2; const y = 40 - size/2;
+                nextCtx.save();
+                nextCtx.shadowColor = 'rgba(0, 0, 0, 0.5)'; nextCtx.shadowBlur = 10;
+                roundRect(nextCtx, x, y, size, size, 12); nextCtx.clip();
+                nextCtx.drawImage(img, x, y, size, size);
+                nextCtx.shadowColor = 'transparent'; nextCtx.lineWidth = 2; nextCtx.strokeStyle = 'rgba(255, 255, 255, 0.3)'; nextCtx.stroke();
+                nextCtx.restore();
+                document.getElementById('next-fruit-name').innerText = fruit.name;
+                document.getElementById('next-fruit-desc').innerText = fruit.desc;
+                document.getElementById('next-fruit-name').style.color = '#fff';
+            }
+        }
+    }
+
+    function bindEvents() {
+        const container = document.getElementById('game-wrapper');
+        const updateX = (clientX) => {
+            const rect = container.getBoundingClientRect();
+            GAME_WIDTH = rect.width; 
+            let x = clientX - rect.left;
+            const r = nextIsBomb ? BOMB_RADIUS : FRUITS[nextFruitIndex].radius;
+            const limit = r + 5; 
+            x = Math.max(limit, Math.min(GAME_WIDTH - limit, x));
+            lastMouseX = x;
+        };
+        const onStart = (e) => { if(isGameOver) return; const clientX = e.touches ? e.touches[0].clientX : e.clientX; updateX(clientX); };
+        const onMove = (e) => { if(isGameOver) return; if (e.cancelable && e.target === canvas) e.preventDefault(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; updateX(clientX); };
+        const onEnd = (e) => { if(isGameOver || !canDrop) return; dropFruit(); };
+
+        container.addEventListener('mousedown', onStart);
+        container.addEventListener('touchstart', onStart, {passive: false});
+        window.addEventListener('mousemove', onMove, {passive: false}); 
+        window.addEventListener('touchmove', onMove, {passive: false});
+        window.addEventListener('mouseup', onEnd);
+        window.addEventListener('touchend', onEnd);
+        
+        window.addEventListener('resize', () => {
+             const rect = container.getBoundingClientRect();
+             GAME_WIDTH = rect.width; GAME_HEIGHT = rect.height;
+             const wallThick = 200;
+             Body.setPosition(ground, {x: GAME_WIDTH/2, y: GAME_HEIGHT + wallThick/2 - 10});
+             Body.setPosition(rightWall, {x: GAME_WIDTH + wallThick/2, y: GAME_HEIGHT/2});
+             const dpr = window.devicePixelRatio || 1;
+             canvas.width = GAME_WIDTH * dpr; canvas.height = GAME_HEIGHT * dpr; ctx.scale(dpr, dpr);
+        });
+    }
+
+    function getBodyOptions(idx) {
+        const t = idx / (FRUITS.length - 1); 
+        const restitution = 0.7 - (t * 0.6); 
+        const density = 0.001 + (t * 0.004); 
+        return { restitution: restitution, friction: 0.2, density: density };
+    }
+
+    function dropFruit() {
+        if(!canDrop) return;
+        canDrop = false;
+        
+        const isHeavy = !nextIsBomb && nextFruitIndex > 4;
+        playDropSound(isHeavy); 
+
+        if (nextIsBomb) {
+            const radius = BOMB_RADIUS;
+            const body = Bodies.circle(lastMouseX, 40, radius, { label: 'bomb', restitution: 0.5, friction: 0.5, density: 0.005 });
+            body.bombExplodeTime = Date.now() + 3000;
+            body.renderScale = 1; 
+            World.add(world, body);
+        } else {
+            const idx = nextFruitIndex;
+            const radius = FRUITS[idx].radius;
+            const opts = getBodyOptions(idx);
+            opts.label = 'fruit_' + idx;
+            const body = Bodies.circle(lastMouseX, 40, radius, opts);
+            body.gameLevel = idx;
+            body.renderScale = 1;
+            World.add(world, body);
+        }
+        setTimeout(() => { spawnNextFruitLogic(); }, 600);
+    }
+
+    function explodeBomb(bombBody) {
+        if (bombBody.hasExploded) return;
+        bombBody.hasExploded = true;
+        const bombPos = bombBody.position;
+        playExplosionSound();
+        createExplosion(bombPos.x, bombPos.y, '#ff4444', 30);
+
+        const allBodies = Composite.allBodies(world);
+        const blastRadius = 150;
+        const removeList = [];
+        allBodies.forEach(body => {
+            if (body === bombBody) return;
+            if (body.isStatic) return;
+            const dist = Vector.magnitude(Vector.sub(body.position, bombPos));
+            if (dist < blastRadius) {
+                removeList.push(body);
+                createExplosion(body.position.x, body.position.y, '#fff', 5);
+            } else if (dist < blastRadius * 3) {
+                const forceMag = (blastRadius * 3 - dist) * 0.002;
+                const dir = Vector.normalise(Vector.sub(body.position, bombPos));
+                Body.applyForce(body, body.position, Vector.mult(dir, forceMag));
+            }
+        });
+
+        removeList.push(bombBody);
+        World.remove(world, removeList);
+        
+        const points = removeList.length * 5;
+        score += points;
+        addFloatingText(bombPos.x, bombPos.y - 30, `BOOM! +${points}`, '#ff4444', 24);
+        updateScore(score);
+    }
+
+    function triggerJackpot(x, y) {
+        playJackpotSound();
+        addFloatingText(x, y, "Creative Cloud!!", "#FFD700", 50);
+        triggerShake();
+        for (let i = 0; i < 100; i++) {
+            confetti.push({
+                x: Math.random() * GAME_WIDTH,
+                y: -Math.random() * 200,
+                vx: (Math.random() - 0.5) * 5,
+                vy: Math.random() * 5 + 2,
+                color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+                rotation: Math.random() * Math.PI * 2,
+                rotationSpeed: (Math.random() - 0.5) * 0.2,
+                size: Math.random() * 5 + 5
+            });
+        }
+    }
+
+    function handleCollisions(event) {
+        const pairs = event.pairs;
+        let merged = false;
+
+        for (let i = 0; i < pairs.length; i++) {
+            const bodyA = pairs[i].bodyA;
+            const bodyB = pairs[i].bodyB;
+
+            if (bodyA.label === 'bomb' || bodyB.label === 'bomb') continue;
+
+            if (bodyA.label.startsWith('fruit_') && bodyB.label.startsWith('fruit_')) {
+                const levelA = parseInt(bodyA.label.split('_')[1]);
+                const levelB = parseInt(bodyB.label.split('_')[1]);
+
+                if (levelA === levelB && levelA < FRUITS.length - 1) {
+                    if (!Composite.get(world, bodyA.id, 'body') || !Composite.get(world, bodyB.id, 'body')) continue;
+
+                    const midX = (bodyA.position.x + bodyB.position.x) / 2;
+                    const midY = (bodyA.position.y + bodyB.position.y) / 2;
+                    const fruitColor = FRUITS[levelA].color;
+
+                    createExplosion(midX, midY, fruitColor, 10); 
+                    
+                    const blastRadius = FRUITS[levelA].radius * 2.5;
+                    Composite.allBodies(world).forEach(body => {
+                        if (body === bodyA || body === bodyB || body.isStatic) return;
+                        const dist = Vector.magnitude(Vector.sub(body.position, {x: midX, y: midY}));
+                        if (dist < blastRadius) {
+                            const force = (blastRadius - dist) * 0.0005;
+                            const dir = Vector.normalise(Vector.sub(body.position, {x: midX, y: midY}));
+                            Body.applyForce(body, body.position, Vector.mult(dir, force));
+                        }
+                    });
+
+                    World.remove(world, [bodyA, bodyB]);
+                    playMergeSound(levelA); 
+                    
+                    let points = FRUITS[levelA].score;
+                    merged = true;
+
+                    if (comboTimer > 0) {
+                        comboCount++;
+                        points *= comboCount; 
+                        addFloatingText(midX, midY - 20, `Combo x${comboCount}!`, '#ffcc00', 20);
+                    } else {
+                        comboCount = 1;
+                    }
+                    comboTimer = 120; 
+
+                    score += points;
+                    addFloatingText(midX, midY, `+${points}`, '#fff', 24);
+                    updateScore(score);
+
+                    const nextLevel = levelA + 1;
+                    const nextRadius = FRUITS[nextLevel].radius;
+                    const opts = getBodyOptions(nextLevel);
+                    opts.label = 'fruit_' + nextLevel;
+                    const newBody = Bodies.circle(midX, midY, nextRadius, opts);
+                    newBody.gameLevel = nextLevel;
+                    newBody.renderScale = 0.1;
+
+                    World.add(world, newBody);
+                    if (nextLevel === FRUITS.length - 1) triggerJackpot(midX, midY);
+                }
+            }
+        }
+    }
+
+    function updateScore(val) {
+        document.getElementById('score').innerText = val;
+        document.getElementById('final-score').innerText = val;
+        const currentMilestone = Math.floor(val / 100);
+        if (currentMilestone > lastScoreMilestone) {
+            lastScoreMilestone = currentMilestone;
+            triggerShake();
+        }
+    }
+
+    function triggerShake() {
+        const wrapper = document.getElementById('game-wrapper');
+        wrapper.classList.remove('shake-anim');
+        void wrapper.offsetWidth; 
+        wrapper.classList.add('shake-anim');
+        const scoreBox = document.getElementById('score');
+        scoreBox.style.transform = "scale(1.5)";
+        scoreBox.style.color = "#ffcc00";
+        setTimeout(() => { scoreBox.style.transform = "scale(1)"; scoreBox.style.color = "#fff"; }, 200);
+    }
+
+    function gameOver() {
+        if(isGameOver) return;
+        isGameOver = true;
+        playGameOverSound();
+        saveScore(score);
+        renderLeaderboard();
+        document.getElementById('game-over-screen').style.display = 'flex';
+    }
+
+    function addFloatingText(x, y, text, color, size) {
+        floatingTexts.push({ x, y, text, color, size, life: 1.0, vy: -2 });
+    }
+
+    function updateAndDrawFloatingTexts() {
+        for (let i = floatingTexts.length - 1; i >= 0; i--) {
+            const ft = floatingTexts[i];
+            ft.y += ft.vy;
+            ft.life -= 0.02;
+            if (ft.life <= 0) {
+                floatingTexts.splice(i, 1);
+            } else {
+                ctx.save();
+                ctx.globalAlpha = ft.life;
+                ctx.fillStyle = ft.color;
+                ctx.font = `bold ${ft.size}px Arial`;
+                ctx.shadowColor = 'black';
+                ctx.shadowBlur = 4;
+                ctx.textAlign = 'center';
+                ctx.fillText(ft.text, ft.x, ft.y);
+                ctx.restore();
+            }
+        }
+    }
+
+    function saveScore(newScore) {
+        const key = 'adobe_suika_scores';
+        let scores = JSON.parse(localStorage.getItem(key) || '[]');
+        scores.push({ score: newScore, date: new Date().toISOString() });
+        scores.sort((a, b) => b.score - a.score);
+        scores = scores.slice(0, 5);
+        localStorage.setItem(key, JSON.stringify(scores));
+    }
+
+    function renderLeaderboard() {
+        const key = 'adobe_suika_scores';
+        const scores = JSON.parse(localStorage.getItem(key) || '[]');
+        const list = document.getElementById('leaderboard-list');
+        list.innerHTML = '';
+        if (scores.length === 0) { list.innerHTML = '<div class="text-gray-400 text-sm">尚無紀錄</div>'; return; }
+        scores.forEach((item, index) => {
+            const row = document.createElement('div'); row.className = 'leaderboard-row';
+            const d = new Date(item.date);
+            const dateStr = `${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${d.getMinutes().toString().padStart(2,'0')}`;
+            const colorClass = index === 0 ? 'text-yellow-400' : (index === 1 ? 'text-gray-300' : (index === 2 ? 'text-yellow-700' : 'text-gray-500'));
+            row.innerHTML = `<div class="flex items-center w-full"><span class="rank-num ${colorClass}">${index + 1}.</span><span class="rank-date">${dateStr}</span><span class="rank-score">${item.score}</span></div>`;
+            list.appendChild(row);
+        });
+    }
+
+    // 分享並復活功能
+    window.shareGameRevive = function() {
+        const text = `我在《奧多比合合樂》獲得了 ${score} 分！快來挑戰合成 Creative Cloud 吧！`;
+        const shareData = { title: '奧多比合合樂', text: text, url: window.location.href };
+        
+        const onShareSuccess = () => {
+            alert('分享成功！獲得免費炸彈，並消除最上層水果！');
+            reviveGame();
+        };
+
+        if (navigator.share) { 
+            navigator.share(shareData).then(onShareSuccess).catch(console.error); 
+        } else { 
+            navigator.clipboard.writeText(text + " " + window.location.href).then(() => {
+                onShareSuccess(); 
+            }); 
+        }
+    }
+
+    // 復活邏輯：清理頂部 + 給炸彈
+    function reviveGame() {
+        document.getElementById('game-over-screen').style.display = 'none';
+        isGameOver = false;
+        
+        // 移除危險模式樣式
+        document.body.classList.remove('danger-mode');
+        const deadlineLine = document.getElementById('deadline-line');
+        if(deadlineLine) deadlineLine.classList.remove('danger');
+        
+        // 找出所有動態球體
+        const bodies = Composite.allBodies(world)
+            .filter(b => !b.isStatic && b.label !== 'bomb')
+            .sort((a, b) => a.position.y - b.position.y); // Y值越小越上面
+
+        // 移除最上面的一批 (例如 5 顆)
+        const bodiesToRemove = bodies.slice(0, 5); 
+        World.remove(world, bodiesToRemove);
+        
+        // 產生移除特效
+        bodiesToRemove.forEach(b => {
+            createExplosion(b.position.x, b.position.y, '#fff', 5);
+        });
+
+        // 設定下一顆為炸彈
+        bonusBombActive = true; 
+        spawnNextFruitLogic(); // 重新生成下一顆
+        
+        // 恢復遊戲循環 (如果已經停止)
+        requestAnimationFrame(renderLoop);
+    }
+
+    function createExplosion(x, y, color, count = 12) {
+        for (let i = 0; i < count; i++) {
+            particles.push({ x, y, vx: (Math.random() - 0.5) * 12, vy: (Math.random() - 0.5) * 12, life: 1.0, color: color });
+        }
+    }
+
+    function updateAndDrawParticles() {
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i]; p.x += p.vx; p.y += p.vy; p.life -= 0.04;
+            if (p.life <= 0) { particles.splice(i, 1); }
+            else {
+                ctx.save(); ctx.globalAlpha = p.life; ctx.fillStyle = p.color; ctx.shadowBlur = 10; ctx.shadowColor = p.color;
+                ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+            }
+        }
+    }
+
+    function updateSidebarStatus() {
+        const activeLevels = new Set();
+        const bodies = Composite.allBodies(world);
+        bodies.forEach(b => {
+            if (b.gameLevel !== undefined) {
+                activeLevels.add(b.gameLevel);
+            }
+        });
+        FRUITS.forEach((_, idx) => {
+            const el = document.getElementById(`evo-${idx}`);
+            if (activeLevels.has(idx)) el.classList.add('active');
+            else el.classList.remove('active');
+        });
+    }
+
+    function roundRect(ctx, x, y, w, h, r) {
+        if (w < 2 * r) r = w / 2; if (h < 2 * r) r = h / 2;
+        ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+    }
+
+    function renderLoop() {
+        if(!ctx || !canvas) { requestAnimationFrame(renderLoop); return; }
+        ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+        if (comboTimer > 0) comboTimer--;
+
+        for (let i = confetti.length - 1; i >= 0; i--) {
+            const c = confetti[i];
+            c.y += c.vy; c.x += c.vx; c.rotation += c.rotationSpeed;
+            if (c.y > GAME_HEIGHT) { confetti.splice(i, 1); continue; }
+            ctx.save(); ctx.translate(c.x, c.y); ctx.rotate(c.rotation); ctx.fillStyle = c.color;
+            ctx.fillRect(-c.size/2, -c.size/2, c.size, c.size); ctx.restore();
+        }
+
+        if (canDrop && !isGameOver) {
+            ctx.save();
+            ctx.beginPath(); ctx.moveTo(lastMouseX, 40); ctx.lineTo(lastMouseX, GAME_HEIGHT);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]); ctx.stroke();
+            ctx.restore();
+
+            ctx.save();
+            ctx.translate(lastMouseX, 40);
+            if (nextIsBomb) {
+                const r = BOMB_RADIUS;
+                const grad = ctx.createRadialGradient(-r/3, -r/3, r/10, 0, 0, r);
+                grad.addColorStop(0, '#666'); grad.addColorStop(0.3, '#333'); grad.addColorStop(1, '#000');
+                ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fillStyle = grad; ctx.fill();
+                ctx.beginPath(); ctx.moveTo(10, -20); ctx.quadraticCurveTo(20, -35, 30, -30); ctx.strokeStyle = '#888'; ctx.lineWidth = 2; ctx.stroke();
+                ctx.beginPath(); ctx.arc(30, -30, 4, 0, Math.PI*2); ctx.fillStyle = '#ffcc00'; ctx.fill();
+                ctx.fillStyle = '#ff3333'; ctx.font = 'bold 20px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText("3", 0, 0); 
+            } else {
+                const idx = nextFruitIndex;
+                const img = loadedImages[idx];
+                if(img) {
+                    const r = FRUITS[idx].radius;
+                    const size = r * 2;
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.6)'; ctx.shadowBlur = 15;
+                    ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.clip();
+                    ctx.globalAlpha = 0.7; ctx.drawImage(img, -r, -r, size, size);
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)'; ctx.lineWidth = 2; ctx.stroke();
+                }
+            }
+            ctx.restore();
+        }
+
+        const bodies = Composite.allBodies(world);
+        let highestY = GAME_HEIGHT;
+
+        bodies.forEach(body => {
+            if (body.isStatic) return;
+
+            // 尋找最高點 (Y值最小)
+            if (body.position.y < highestY) highestY = body.position.y;
+
+            if (!isGameOver && body.label !== 'bomb' && body.position.y < DEADLINE_Y && Math.abs(body.velocity.y) < 0.2) {
+                 if(body.position.y > 0) gameOver();
+            }
+
+            const x = body.position.x; const y = body.position.y; const r = body.circleRadius; const angle = body.angle;
+            let scale = 1;
+            if (body.renderScale !== undefined && body.renderScale < 1) {
+                body.renderScale += 0.15; if (body.renderScale > 1) body.renderScale = 1;
+                scale = body.renderScale;
+            }
+
+            ctx.translate(x, y); ctx.rotate(angle); ctx.scale(scale, scale);
+
+            if (body.label === 'bomb') {
+                ctx.save(); ctx.shadowColor = 'rgba(0, 0, 0, 0.8)'; ctx.shadowBlur = 15;
+                const grad = ctx.createRadialGradient(-r/3, -r/3, r/10, 0, 0, r);
+                grad.addColorStop(0, '#666'); grad.addColorStop(0.3, '#333'); grad.addColorStop(1, '#000');
+                ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2); ctx.fillStyle = grad; ctx.fill();
+                ctx.shadowColor = 'transparent'; ctx.beginPath(); ctx.moveTo(r*0.3, -r*0.7); ctx.quadraticCurveTo(r*0.5, -r*1.1, r*0.8, -r*0.9); ctx.strokeStyle = '#888'; ctx.lineWidth = 3; ctx.stroke();
+                ctx.beginPath(); ctx.arc(r*0.8, -r*0.9, 5, 0, Math.PI*2); ctx.fillStyle = (Date.now() % 200 < 100) ? '#fff' : '#ffaa00'; ctx.fill();
+                const remaining = Math.max(0, Math.ceil((body.bombExplodeTime - Date.now()) / 1000));
+                ctx.fillStyle = '#ff3333'; ctx.font = 'bold 28px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(remaining, 0, 0);
+                ctx.restore();
+            } else if (body.gameLevel !== undefined && loadedImages[body.gameLevel]) {
+                const img = loadedImages[body.gameLevel];
+                const size = r * 2;
+                ctx.save(); ctx.shadowColor = 'rgba(0, 0, 0, 0.5)'; ctx.shadowBlur = 12;
+                ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2); ctx.clip();
+                ctx.fillStyle = '#222'; ctx.fill();
+                ctx.drawImage(img, -r, -r, size, size);
+                const gradient = ctx.createRadialGradient(-r/3, -r/3, r/8, 0, 0, r);
+                gradient.addColorStop(0, 'rgba(255, 255, 255, 0.35)'); gradient.addColorStop(0.3, 'rgba(255, 255, 255, 0.05)'); gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0.1)'); gradient.addColorStop(1, 'rgba(0, 0, 0, 0.3)'); 
+                ctx.shadowColor = 'transparent'; ctx.fillStyle = gradient; ctx.fill();
+                ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)'; ctx.stroke();
+                ctx.restore();
+            }
+            ctx.scale(1/scale, 1/scale); ctx.rotate(-angle); ctx.translate(-x, -y);
+        });
+
+        // 判斷是否接近死亡線，切換危險模式
+        const deadlineLine = document.getElementById('deadline-line');
+        if (highestY < DEADLINE_Y + 150) { // 接近 150px
+            document.body.classList.add('danger-mode');
+            if(deadlineLine) deadlineLine.classList.add('danger');
+        } else {
+            document.body.classList.remove('danger-mode');
+            if(deadlineLine) deadlineLine.classList.remove('danger');
+        }
+
+        updateAndDrawParticles();
+        updateAndDrawFloatingTexts();
+        if (Math.random() < 0.1) updateSidebarStatus();
+        if (!isGameOver) requestAnimationFrame(renderLoop);
+    }
+</script>
+</body>
+</html>

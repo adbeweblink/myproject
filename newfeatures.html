@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adobe Creative Cloud 最新功能概覽彙整</title>
+    <!-- 引入 html2pdf.js 程式庫 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+
+        /* 引入 Adobe Clean Black 字體 */
+        @font-face {
+            font-family: 'Adobe Clean Black';
+            src: url('https://adbeweblink.github.io/myproject/font/AdobeClean/AdobeClean-Black.otf') format('opentype');
+            font-weight: normal; 
+            font-style: normal;
+        }
+
+        :root {
+            --adobe-red: #FA0F00;
+            --text-dark: #2C2C2C;
+            --text-light: #505050;
+            --border-color: #E1E1E1;
+            --btn-color: #0265DC;
+            --btn-hover: #0056b3;
+        }
+
+        * {
+            box-sizing: border-box; /* 全域設定：確保 Padding 不會撐大寬度 */
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 控制面板樣式 */
+        .action-bar {
+            background: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            width: 210mm;
+            max-width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Noto Sans TC', sans-serif;
+            white-space: nowrap; /* 按鈕文字不換行 */
+        }
+
+        .btn-primary { background-color: var(--btn-color); color: white; }
+        .btn-primary:hover { background-color: var(--btn-hover); }
+        .btn-secondary { background-color: white; border: 1px solid #ccc; color: var(--text-dark); }
+        .btn-secondary:hover { background-color: #f0f0f0; }
+        .btn-download { background-color: var(--text-dark); color: white; }
+        .btn-download:hover { background-color: black; }
+
+        .status-msg {
+            margin-left: auto;
+            font-size: 13px;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid #ccc;
+            border-top-color: var(--btn-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* 頁面本體樣式 - 桌面版預設 */
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 12mm 15mm; 
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        /* ======= 手機/窄螢幕響應式優化 (關鍵修改) ======= */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 0;
+                background-color: #fff;
+                overflow-x: hidden; /* 防止水平捲軸 */
+            }
+
+            .action-bar {
+                width: 100%;
+                border-radius: 0;
+                margin-bottom: 0;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+                padding: 15px 20px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                position: sticky;
+                top: 0;
+                z-index: 100;
+            }
+            
+            .btn {
+                justify-content: center;
+                padding: 12px; /* 加大按鈕點擊區域 */
+                font-size: 15px;
+            }
+
+            .status-msg {
+                margin-left: 0;
+                justify-content: center;
+                margin-top: 5px;
+            }
+
+            .page {
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                box-shadow: none;
+                padding: 20px 20px 40px 20px; /* 手機版邊距，底部留白 */
+            }
+
+            /* 標題區域 */
+            .header-title-area {
+                flex-direction: row;
+                align-items: center;
+                margin-bottom: 15px;
+                flex-wrap: wrap; /* 允許極窄螢幕換行 */
+            }
+
+            .cc-icon {
+                width: 36px;
+                height: 36px;
+                margin-top: 0;
+            }
+
+            .title-en {
+                font-size: 18pt;
+                line-height: 1.2;
+                /* 強制文字換行，避免撐破螢幕 */
+                word-wrap: break-word; 
+                overflow-wrap: break-word; 
+            }
+
+            .title-zh {
+                font-size: 13pt;
+                margin-top: 4px;
+            }
+
+            .update-date {
+                text-align: left;
+                margin-left: 0;
+                margin-bottom: 25px;
+                font-size: 9.5pt;
+                color: #666;
+            }
+
+            /* 表格轉為區塊顯示 */
+            .features-table, 
+            .features-table tbody, 
+            .features-table tr, 
+            .features-table td {
+                display: block;
+                width: 100%;
+            }
+
+            .features-table thead {
+                display: none;
+            }
+
+            .app-row {
+                border-bottom: 1px solid #f0f0f0;
+                padding-bottom: 25px;
+                margin-bottom: 25px;
+            }
+
+            /* App 標題區塊 */
+            .app-cell {
+                width: 100%;
+                padding: 0 0 15px 0;
+                border-bottom: none;
+            }
+
+            .app-icon-box {
+                flex-direction: row;
+                align-items: center;
+                justify-content: flex-start;
+                background-color: #f7f7f7;
+                padding: 12px;
+                border-radius: 10px;
+                gap: 15px;
+            }
+
+            .app-name {
+                font-size: 15pt;
+                /* 確保長標題也會換行 */
+                word-break: break-word;
+            }
+
+            .app-icon {
+                width: 44px;
+                height: 44px;
+            }
+
+            /* 內容區塊 */
+            .content-cell {
+                width: 100%;
+                padding: 5px 0 0 0;
+            }
+
+            .feature-item {
+                margin-bottom: 22px;
+            }
+
+            .feature-title {
+                font-size: 12pt;
+                margin-bottom: 6px;
+                color: #000;
+                line-height: 1.3;
+                /* 關鍵：強制換行 */
+                overflow-wrap: break-word;
+                word-break: break-word;
+            }
+            
+            .feature-title-en {
+                display: block; /* 英文標題在手機上換行顯示，更清晰 */
+                margin-left: 0;
+                margin-top: 2px;
+                font-size: 10pt;
+                color: #777;
+            }
+
+            .feature-desc {
+                font-size: 11pt;
+                line-height: 1.6;
+                color: #444;
+                text-align: left; /* 手機靠左對齊較易閱讀 */
+                /* 關鍵：強制換行 */
+                overflow-wrap: break-word;
+                word-break: break-word;
+                hyphens: auto;
+            }
+            
+            .intro {
+                font-size: 11pt;
+                max-width: 100%;
+                line-height: 1.6;
+            }
+        }
+
+        /* ======= 列印樣式 (強制 A4) ======= */
+        @media print {
+            body { background: none; padding: 0; }
+            .page { width: 100%; height: auto; box-shadow: none; padding: 12mm 15mm; margin: 0; }
+            .no-print { display: none !important; }
+            
+            .features-table { display: table !important; }
+            .features-table thead { display: table-header-group !important; }
+            .features-table tbody { display: table-row-group !important; }
+            .features-table tr { display: table-row !important; }
+            .app-row { display: table-row !important; border-bottom: 1px solid #E1E1E1 !important; padding-bottom: 0 !important; margin-bottom: 0 !important; }
+            .app-cell { display: table-cell !important; width: 28% !important; padding: 12px 0 !important; vertical-align: middle !important; }
+            .content-cell { display: table-cell !important; width: 72% !important; padding: 12px 0 12px 15px !important; }
+            .app-icon-box { background-color: transparent !important; padding: 0 !important; flex-direction: row !important; }
+            .app-name { font-size: 10pt !important; }
+            .feature-title { font-size: 9.5pt !important; }
+            .feature-title-en { display: inline !important; margin-left: 4px !important; font-size: 8.5pt !important; }
+            .feature-desc { font-size: 9pt !important; line-height: 1.4 !important; }
+        }
+
+        header {
+            border-bottom: 2px solid var(--text-dark);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        /* 標題區域樣式 */
+        .header-title-area {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .cc-icon {
+            width: 38px;
+            height: 38px;
+            object-fit: contain;
+            display: block;
+            margin-top: 4px;
+        }
+
+        .header-text {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .title-en {
+            font-family: 'Adobe Clean Black', 'Noto Sans TC', sans-serif;
+            color: var(--adobe-red);
+            font-size: 20pt;
+            margin: 0;
+            line-height: 1.1;
+        }
+
+        .title-zh {
+            font-family: 'Noto Sans TC', sans-serif;
+            color: var(--text-dark);
+            font-weight: 500;
+            font-size: 13pt;
+            margin-top: 2px;
+            line-height: 1.2;
+        }
+
+        .intro {
+            font-size: 9pt;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            line-height: 1.4;
+            max-width: 90%;
+        }
+
+        .update-date {
+            font-size: 8pt;
+            color: var(--text-light);
+            text-align: right;
+            font-weight: bold;
+            white-space: nowrap;
+            margin-left: 20px;
+            margin-bottom: 4px;
+        }
+
+        .features-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .features-table th {
+            text-align: left;
+            font-size: 9pt;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--text-dark);
+            padding-bottom: 6px;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .app-row {
+            border-bottom: 1px solid var(--border-color);
+            page-break-inside: avoid; 
+        }
+
+        .app-cell {
+            padding: 12px 0;
+            vertical-align: middle; 
+            width: 28%;
+        }
+
+        .content-cell {
+            padding: 12px 0 12px 15px;
+            vertical-align: top;
+            width: 72%;
+        }
+
+        /* 左側圖示區塊 - 橫向排列、垂直置中、靠左對齊 */
+        .app-icon-box {
+            display: flex;
+            flex-direction: row; 
+            align-items: center; 
+            justify-content: flex-start;
+            text-align: left;
+            gap: 12px;
+        }
+
+        .app-icon {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 0; 
+            display: block;
+            object-fit: contain;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+
+        .app-name {
+            font-weight: 700;
+            font-size: 10pt;
+            color: var(--text-dark);
+            line-height: 1.2;
+        }
+
+        .feature-item {
+            margin-bottom: 10px;
+        }
+
+        .feature-title {
+            font-weight: 700;
+            font-size: 9.5pt;
+            color: var(--text-dark);
+            margin-bottom: 2px;
+            display: block;
+        }
+        
+        .feature-title-en {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 500;
+            color: #666;
+            font-size: 8.5pt;
+            margin-left: 4px;
+        }
+
+        .feature-desc {
+            font-size: 9pt;
+            color: var(--text-light);
+            line-height: 1.4;
+            margin: 0;
+            text-align: justify;
+        }
+
+        footer {
+            margin-top: 20px;
+            font-size: 8pt;
+            color: #999;
+            border-top: 1px solid #eee;
+            padding-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 控制面板 -->
+<div class="action-bar no-print" data-html2canvas-ignore="true">
+    <button class="btn btn-primary" onclick="simulateRefresh()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 4v6h-6"></path>
+            <path d="M1 20v-6h6"></path>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+        </svg>
+        重新抓取最新功能
+    </button>
+    
+    <button class="btn btn-secondary" onclick="window.print()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect x="6" y="14" width="12" height="8"></rect>
+        </svg>
+        列印 / 轉存 PDF (系統)
+    </button>
+
+    <button class="btn btn-download" onclick="downloadPDF()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        直接下載 PDF
+    </button>
+
+    <div class="status-msg" id="statusMsg">
+        <div class="spinner" id="loadingSpinner"></div>
+        <span id="statusText">等待操作...</span>
+    </div>
+</div>
+
+<div class="page" id="contentToPrint">
+    <header>
+        <div class="header-title-area">
+            <!-- 第一排：Icon + 英文標題 -->
+            <img src="https://adbeweblink.github.io/myproject/images/CC.png" class="cc-icon" alt="Creative Cloud" crossorigin="anonymous">
+            <div class="header-text">
+                <span class="title-en">Adobe Creative Cloud</span>
+                <!-- 第二排：中文標題 (獨立一行) -->
+                <span class="title-zh">最新功能概覽彙整</span>
+            </div>
+        </div>
+        
+        <div class="update-date" id="dateField">
+            更新日期：2025年11月27日
+        </div>
+    </header>
+
+    <div class="intro">
+        最新版本的 Creative Cloud 應用程式提供了運用生成式 AI 建立品牌、拓展業務的新方法，讓團隊協作比以往更加順暢。以下是本月精選的重點更新功能。
+    </div>
+
+    <table class="features-table">
+        <thead>
+            <tr>
+                <th style="width: 25%">應用程式</th>
+                <th style="width: 75%">新功能重點 (中英對照)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- 1. Firefly -->
+            <tr class="app-row">
+                <td class="app-cell">
+                    <div class="app-icon-box">
+                        <img src="https://adbeweblink.github.io/myproject/images/Firefly.png" class="app-icon" alt="Firefly" crossorigin="anonymous">
+                        <span class="app-name">Adobe<br>Firefly</span>
+                    </div>
+                </td>
+                <td class="content-cell">
+                    <div class="feature-item">
+                        <span class="feature-title">產生配樂 <span class="feature-title-en">(Text to Music)</span></span>
+                        <p class="feature-desc">為您的影片產生錄音室品質的音樂。輸入情緒或風格描述，AI 即可生成獨一無二的背景配樂，並授權於任何地方使用。</p>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-title">產生語音 <span class="feature-title-en">(Text to Speech)</span></span>
+                        <p class="feature-desc">為您的內容產生專業的畫外音和旁白。透過簡單的文字輸入，即可轉換成自然流暢的人聲，省去錄音與聘請配音員的成本。</p>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-title">Firefly 展示板 <span class="feature-title-en">(Firefly Boards)</span></span>
+                        <p class="feature-desc">在無邊際的畫布上進行創作。上傳影像、草圖或影片，運用進階控制功能進行混編，並結合多種熱門 AI 模型，讓創意構思無限延伸。</p>
+                    </div>
+                </td>
+            </tr>
+
+            <!-- 2. Photoshop -->
+            <tr class="app-row">
+                <td class="app-cell">
+                    <div class="app-icon-box">
+                        <img src="https://adbeweblink.github.io/myproject/images/ps.png" class="app-icon" alt="Photoshop" crossorigin="anonymous">
+                        <span class="app-name">Adobe<br>Photoshop</span>
+                    </div>
+                </td>
+                <td class="content-cell">
+                    <div class="feature-item">
+                        <span class="feature-title">生成式填色中的新合作夥伴 AI 模型 <span class="feature-title-en">(New partner AI models in Generative Fill)</span></span>
+                        <p class="feature-desc">使用 Gemini 2.5 Flash Image (Nano Banana) 和 FLUX.1 Kontext [pro]，以及全新的 Firefly 填色和擴張模型 (Beta)，來獲得更多選擇和更好的成果。</p>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-title">使用 Topaz Labs 讓影像更大、更清晰 <span class="feature-title-en">(Go bigger and sharper with Topaz Labs)</span></span>
+                        <p class="feature-desc">在 Photoshop 中，使用 Topaz Labs 的合作夥伴 AI 模型，以無與倫比的強大功能和靈活性來放大影像。立即提高品質、清晰度和銳利度。</p>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-title">重新設計構圖 <span class="feature-title-en">(Compositing reimagined / Harmonize)</span></span>
+                        <p class="feature-desc">快速將人物和物件混合到任何背景中。「調和」功能可在幾秒鐘內協調光線、陰影、顏色和其他細節，打造無縫銜接的場景。</p>
+                    </div>
+                </td>
+            </tr>
+
+            <!-- 3. Illustrator -->
+            <tr class="app-row">
+                <td class="app-cell">
+                    <div class="app-icon-box">
+                        <img src="https://adbeweblink.github.io/myproject/images/Ai.png" class="app-icon" alt="Illustrator" crossorigin="anonymous">
+                        <span class="app-name">Adobe<br>Illustrator</span>
+                    </div>
+                </td>
+                <td class="content-cell">
+                    <div class="feature-item">
+                        <span class="feature-title">Project Neo (Beta) 整合 <span class="feature-title-en">(Project Neo (Beta) integration)</span></span>
+                        <p class="feature-desc">將 2D 設計瞬間轉為 3D 場景。您現在可以將 SVG 檔案匯入 Project Neo，轉換為可編輯的 3D 圖片，或將 3D 內容匯出回 Illustrator 進行向量編輯。</p>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-title">Retype <span class="feature-title-en">(Retype)</span></span>
+                        <p class="feature-desc">遇到轉檔成圖片的文字不知如何修改？Retype 功能可分析點陣圖中的靜態文字，辨識其字體，並將其轉換為可編輯的即時文字。</p>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-title">生成式形狀填色 <span class="feature-title-en">(Generative Shape Fill)</span></span>
+                        <p class="feature-desc">透過簡單的文字提示，將手繪或基本幾何形狀直接填充為細緻的向量圖形，讓草圖瞬間變成精美插畫。</p>
+                    </div>
+                </td>
+            </tr>
+
+            <!-- 4. InDesign (精簡為前兩項) -->
+            <tr class="app-row">
+                <td class="app-cell">
+                    <div class="app-icon-box">
+                        <img src="https://adbeweblink.github.io/myproject/images/Id.png" class="app-icon" alt="InDesign" crossorigin="anonymous">
+                        <span class="app-name">Adobe<br>InDesign</span>
+                    </div>
+                </td>
+                <td class="content-cell">
+                    <div class="feature-item">
+                        <span class="feature-title">生成式擴張 <span class="feature-title-en">(Generative Expand)</span></span>
+                        <p class="feature-desc">針對排版人員的救星。當圖片比例與版面不符時，使用「生成式擴張」即可智慧填補圖片空白處，無需回到 Photoshop 調整，直接在 InDesign 內完成。</p>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-title">MathML 數學公式支援 <span class="feature-title-en">(MathML support)</span></span>
+                        <p class="feature-desc">新增對 MathML 的原生支援。現在可以直接匯入並編輯複雜的數學與科學符號，並將其視為一般文字進行格式化，大幅提升學術與教育出版的效率。</p>
+                    </div>
+                </td>
+            </tr>
+
+            <!-- 5. Premiere Pro -->
+            <tr class="app-row">
+                <td class="app-cell">
+                    <div class="app-icon-box">
+                        <img src="https://adbeweblink.github.io/myproject/images/Pr.png" class="app-icon" alt="Premiere Pro" crossorigin="anonymous">
+                        <span class="app-name">Adobe<br>Premiere Pro</span>
+                    </div>
+                </td>
+                <td class="content-cell">
+                    <div class="feature-item">
+                        <span class="feature-title">快速追蹤如何使用 AI 進行遮蔽 <span class="feature-title-en">(Fast track masking with AI)</span></span>
+                        <p class="feature-desc">歡迎使用物件遮色片 (Object Masking)，告別耗時費力的轉描。只需將滑鼠停留在主體上，按一下，然後觀看 AI 如何準確地對其進行遮蔽和追蹤。</p>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-title">任何形狀的遮色片，全面控制 <span class="feature-title-en">(Masks of any shape, total control)</span></span>
+                        <p class="feature-desc">重新設計的形狀遮色片現在可以跨影格速度追蹤動態，並且具有準確的精度。非常適合輕鬆處理精確的顏色和效果工作。</p>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-title">超過 90 種更高等級的全新特效和轉場效果 <span class="feature-title-en">(Over 90 new leveled-up effects and transitions)</span></span>
+                        <p class="feature-desc">使用 Film Impact 中的全新現代轉場效果、特效和動畫來提升您的編輯水準。它們採用 GPU 加速，可實現即時播放且無需額外付費。</p>
+                    </div>
+                </td>
+            </tr>
+
+            <!-- 6. After Effects (精簡為前兩項) -->
+            <tr class="app-row">
+                <td class="app-cell">
+                    <div class="app-icon-box">
+                        <img src="https://adbeweblink.github.io/myproject/images/Ae.png" class="app-icon" alt="After Effects" crossorigin="anonymous">
+                        <span class="app-name">Adobe<br>After Effects</span>
+                    </div>
+                </td>
+                <td class="content-cell">
+                    <div class="feature-item">
+                        <span class="feature-title">原生 3D 模型匯入 <span class="feature-title-en">(Native 3D Model Import)</span></span>
+                        <p class="feature-desc">這是重大更新。現在可以直接將 GLB、GLTF 和 OBJ 等 3D 模型匯入 After Effects，並在統一的 3D 空間中與 2D 圖形混合，無需再依賴外部插件。</p>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-title">進階 3D 渲染器 <span class="feature-title-en">(Advanced 3D Renderer)</span></span>
+                        <p class="feature-desc">全新的高品質即時預覽引擎，支援基於圖像的照明 (Image-Based Lighting)，能讓 3D 物件投射逼真的陰影到 2D 素材上，大幅提升合成的真實感。</p>
+                    </div>
+                </td>
+            </tr>
+
+            <!-- 7. Lightroom (精簡為前兩項) -->
+            <tr class="app-row">
+                <td class="app-cell">
+                    <div class="app-icon-box">
+                        <img src="https://adbeweblink.github.io/myproject/images/lr.png" class="app-icon" alt="Lightroom" crossorigin="anonymous">
+                        <span class="app-name">Adobe<br>Lightroom</span>
+                    </div>
+                </td>
+                <td class="content-cell">
+                    <div class="feature-item">
+                        <span class="feature-title">輔助剔除 <span class="feature-title-en">(Assistive Culling)</span></span>
+                        <p class="feature-desc">這項全新功能使用 AI 快速分析大量影像，建議最佳照片。它能根據對焦、曝光和構圖評分，幫助攝影師在幾秒鐘內從數百張照片中選出精華。</p>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-title">干擾物移除 <span class="feature-title-en">(Distraction Removal)</span></span>
+                        <p class="feature-desc">「移除」工具現在更聰明了。新增專用的「偵測人物 (Detect People)」與「偵測物件 (Detect Objects)」模式，能自動識別並移除窗戶反光或背景中的遊客。</p>
+                    </div>
+                </td>
+            </tr>
+
+            <!-- 8. Express (置底 - 精簡為前兩項) -->
+            <tr class="app-row" style="border-bottom: none;">
+                <td class="app-cell">
+                    <div class="app-icon-box">
+                        <img src="https://adbeweblink.github.io/myproject/images/Express.png" class="app-icon" alt="Express" crossorigin="anonymous">
+                        <span class="app-name">Adobe<br>Express</span>
+                    </div>
+                </td>
+                <td class="content-cell">
+                    <div class="feature-item">
+                        <span class="feature-title">以音訊建立動畫 <span class="feature-title-en">(Animate from Audio)</span></span>
+                        <p class="feature-desc">讓靜態角色開口說話。只要上傳錄音檔，AI 就能自動生成與語音同步的嘴型和肢體動作，輕鬆製作生動的動畫影片。</p>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-title">生成式填色 <span class="feature-title-en">(Generative Fill)</span></span>
+                        <p class="feature-desc">將 Photoshop 的強大功能帶入瀏覽器。透過簡單的文字指令，即可在 Express 中插入、移除或替換圖像中的任何物件。</p>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <footer>
+        <p>* Adobe Firefly 功能可用性因 Creative Cloud 計劃和地區而異。部分生成式 AI 功能可能需要消耗生成式點數。</p>
+    </footer>
+</div>
+
+<script>
+    // 模擬更新功能
+    function simulateRefresh() {
+        const spinner = document.getElementById('loadingSpinner');
+        const statusText = document.getElementById('statusText');
+        const dateField = document.getElementById('dateField');
+
+        // 更新狀態
+        spinner.style.display = 'block';
+        statusText.innerText = '正在掃描最新資訊...'; // 修改狀態文字
+        statusText.style.color = '#0265DC';
+
+        // 模擬延遲 (例如 2 秒)
+        setTimeout(() => {
+            // 完成
+            spinner.style.display = 'none';
+            statusText.innerText = '更新完成！內容已是最新版本。';
+            statusText.style.color = 'green';
+            
+            // 更新時間戳記
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+            const day = now.getDate();
+            const hours = now.getHours();
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            
+            dateField.innerText = `更新日期：${year}年${month}月${day}日 ${hours}:${minutes}`;
+
+            // 移除 Alert，只保留 UI 視覺回饋
+        }, 2000);
+    }
+
+    // PDF 生成與下載功能
+    function downloadPDF() {
+        const element = document.getElementById('contentToPrint');
+        const statusText = document.getElementById('statusText');
+        
+        statusText.innerText = '正在生成 PDF，請稍候...';
+        statusText.style.color = '#0265DC';
+
+        const opt = {
+            margin:       0,
+            filename:     'Adobe_CC_New_Features_2025.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true }, // 重要：允許跨域讀取 github.io 圖片
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(element).save().then(function() {
+            statusText.innerText = 'PDF 下載已開始！';
+            statusText.style.color = 'green';
+        }).catch(function(error) {
+            console.error('PDF 生成失敗:', error);
+            statusText.innerText = 'PDF 生成失敗，請改用系統列印。';
+            statusText.style.color = 'red';
+            alert('PDF 生成發生錯誤。可能是因為網路圖片的安全限制。\n\n建議您使用「列印 / 轉存 PDF (系統)」按鈕，這是最穩定的方式。');
+        });
+    }
+</script>
+
+</body>
+</html>
