@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>奧多比碰碰樂 (5x5)</title>
+    <style>
+        :root {
+            /* Adobe Dark Mode Palette */
+            --bg-color: #1a1a1a;
+            --panel-bg: #2b2b2b;
+            --board-bg: #151515;
+            --cell-bg: #323232;
+            --text-primary: #f5f5f5;
+            --text-secondary: #aaaaaa;
+            --accent-blue: #0265DC;
+            --accent-blue-hover: #0056b3;
+            --border-color: #444;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft JhengHei", Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Header Area */
+        .header-container {
+            display: flex;
+            width: 500px;
+            max-width: 95vw;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        .brand-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .adobe-logo {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            /* 3D effect matching tiles */
+            box-shadow: 0 4px 0 rgba(0,0,0,0.5), 0 5px 5px rgba(0,0,0,0.3);
+            position: relative;
+            top: -2px;
+            overflow: hidden;
+            background-color: #000; /* Fallback bg */
+        }
+        
+        .adobe-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .game-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: 1px;
+            text-shadow: 0 2px 2px rgba(0,0,0,0.5);
+        }
+
+        .scores-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        /* Panel Style Score Box */
+        .score-box {
+            background: var(--panel-bg);
+            padding: 8px 15px;
+            border-radius: 8px;
+            min-width: 70px;
+            text-align: right;
+            border: 1px solid var(--border-color);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2); /* Inset for recessed look */
+        }
+        
+        .score-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 2px;
+        }
+
+        .score-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--accent-blue);
+        }
+
+        /* Controls & Info */
+        .controls-bar {
+            width: 500px;
+            max-width: 95vw;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .status-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            background-color: var(--panel-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px; /* Pill shape */
+            padding: 6px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            white-space: nowrap;
+            /* Button 3D feel */
+            box-shadow: 0 2px 0 #111;
+            transform: translateY(0);
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 0 0 #111;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-blue);
+            color: white;
+            border: none;
+            box-shadow: 0 3px 0 #003d80; /* Blue shadow */
+        }
+        
+        .btn-primary:active {
+            box-shadow: 0 0 0 #003d80;
+        }
+        
+        .btn-revive {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 0 #1e8449, 0 5px 10px rgba(46, 204, 113, 0.3);
+            font-weight: bold;
+            font-size: 16px;
+            padding: 10px 20px;
+            transition: all 0.1s;
+        }
+        
+        .btn-revive:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #1e8449;
+        }
+        
+        .btn-revive:disabled {
+            background: #555;
+            color: #999;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Improved Info Button */
+        .info-btn {
+            background: #444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 2px 0 #222;
+            transition: all 0.1s;
+            margin-right: 10px;
+        }
+        .info-btn:active {
+            transform: translateY(2px);
+            box-shadow: none;
+        }
+
+        /* Game Board */
+        #game-container {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            max-width: 95vw;
+            max-height: 95vw;
+            background-color: var(--board-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px;
+            /* Deep recess effect */
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.1); 
+            touch-action: none;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 8px;
+            width: 100%;
+            height: 100%;
+        }
+
+        .grid-cell {
+            background-color: var(--cell-bg);
+            border-radius: 8px;
+            width: 100%;
+            height: 100%;
+            box-shadow: inset 1px 1px 4px rgba(0,0,0,0.4);
+        }
+
+        .tile-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* 3D Tile Design */
+        .tile {
+            position: absolute;
+            width: calc(20% - 8px); 
+            height: calc(20% - 8px);
+            border-radius: 10px; /* Slightly more rounded */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 700;
+            font-size: 24px;
+            color: white;
+            text-align: center;
+            transition: transform 0.08s ease-in-out, opacity 0.08s ease;
+            animation: appear 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: auto;
+            
+            /* The 3D Thickness Effect */
+            box-shadow: 
+                0 4px 0 rgba(0,0,0,0.3), /* The "side" of the tile */
+                0 5px 5px rgba(0,0,0,0.4); /* The shadow on the board */
+            
+            background-color: #333;
+            overflow: hidden;
+            
+            /* Slight transform to emphasize perspective if desired, but 2D shift is safer for alignment */
+            transform-origin: center bottom;
+        }
+
+        /* The Gloss/Shine Effect */
+        .tile::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 45%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+            border-radius: 10px 10px 30% 30%;
+            pointer-events: none;
+        }
+
+        .tile img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+            pointer-events: none;
+        }
+        
+        .tile-4 img { transform: scale(1.02); }
+
+        .tile .tile-text { display: none; position: absolute; z-index: 2; }
+        .tile.fallback-mode .tile-text { display: block; }
+        .tile.fallback-mode img { display: none; }
+
+        /* Jelly / Bounce Animation on Merge */
+        .tile.merged {
+            z-index: 10;
+            animation: jelly-pop 0.3s ease;
+        }
+
+        /* Q-Bounce (Jelly) Physics Animation */
+        @keyframes jelly-pop {
+            0% { transform: scale(1); }
+            30% { transform: scale(1.25); } /* Rapid expansion */
+            50% { transform: scale(0.9); }  /* Elastic recoil */
+            70% { transform: scale(1.05); } /* Settle */
+            100% { transform: scale(1); }
+        }
+
+        @keyframes appear { 
+            0% { opacity: 0; transform: scale(0); } 
+            70% { opacity: 1; transform: scale(1.1); } /* Overshoot for new tiles too */
+            100% { opacity: 1; transform: scale(1); } 
+        }
+
+        /* Overlays */
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(20, 20, 20, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            border-radius: 8px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(8px);
+            touch-action: none;
+        }
+        .overlay.active { opacity: 1; pointer-events: auto; }
+        .overlay-text { font-size: 42px; font-weight: 700; color: white; margin-bottom: 20px; text-shadow: 0 4px 10px rgba(0,0,0,0.8); text-align: center; }
+        .overlay-subtext { font-size: 16px; color: #ccc; margin-bottom: 20px; text-align: center; line-height: 1.5; padding: 0 20px;}
+        .overlay-hint { font-size: 14px; color: #666; margin-top: 20px; }
+
+        /* Lists */
+        #leaderboard-overlay, #evolution-overlay {
+            justify-content: flex-start;
+            padding-top: 30px;
+        }
+        
+        .modal-list {
+            width: 85%;
+            max-width: 320px;
+            max-height: 70%;
+            background: var(--panel-bg);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
+        
+        .leaderboard-item, .evolution-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #444;
+            font-size: 15px;
+        }
+        .leaderboard-item:last-child, .evolution-item:last-child { border-bottom: none; }
+        
+        .rank { color: var(--accent-blue); font-weight: bold; width: 30px; }
+        .score { color: white; font-weight: bold; }
+        .date { color: #888; font-size: 12px; }
+
+        /* Evolution list styling */
+        .evo-row { display: flex; align-items: center; width: 100%; }
+        .evo-icon { 
+            width: 36px; height: 36px; 
+            border-radius: 8px; 
+            object-fit: cover; 
+            box-shadow: 0 2px 0 rgba(0,0,0,0.5); /* Mini 3D for list */
+            margin-right: 15px;
+        }
+        .evo-info { flex-grow: 1; display: flex; flex-direction: column; }
+        .evo-name { color: #fff; font-weight: 600; font-size: 15px; }
+        .evo-score { color: var(--accent-blue); font-size: 12px; font-family: monospace; margin-top: 2px;}
+        .evo-arrow { color: #666; font-size: 12px; margin-right: 5px; }
+
+        /* Instructions */
+        .instructions-panel {
+            margin-top: 20px;
+            width: 500px;
+            max-width: 95vw;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .key-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .key-icon {
+            display: inline-block;
+            border: 1px solid #555;
+            border-bottom: 3px solid #333; /* Key 3D effect */
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: monospace;
+            font-size: 12px;
+            background: #444;
+            color: #ddd;
+            transform: translateY(0);
+        }
+
+        .key-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Fallback Colors */
+        .tile-2.fallback-mode { background: #E22C2C; } 
+        .tile-4.fallback-mode { background: linear-gradient(135deg, #ff4d4d, #c0392b); }
+        .tile-8.fallback-mode { background: linear-gradient(135deg, #f1c40f, #e67e22, #e74c3c, #9b59b6); }
+        .tile-16.fallback-mode { background: #31a8ff; filter: hue-rotate(180deg); }
+        .tile-32.fallback-mode { background: #31A8FF; color: #001e36; }
+        .tile-64.fallback-mode { background: #FF9A00; color: #330000; }
+        .tile-128.fallback-mode { background: #ff3366; }
+        .tile-256.fallback-mode { background: #9999FF; color: #000044; }
+        .tile-512.fallback-mode { background: #9999FF; color: #000044; }
+        .tile-1024.fallback-mode { background: linear-gradient(45deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff); }
+
+        @media (max-width: 520px) {
+            .tile { font-size: 18px; }
+            .header-container { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .scores-wrapper { width: 100%; justify-content: space-between; }
+            .score-box { flex: 1; text-align: center; }
+            .instructions-panel { flex-direction: column; gap: 15px; text-align: center; }
+            .tile-container { top: 10px; left: 10px; right: 10px; bottom: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <div class="brand-area">
+            <div class="adobe-logo">
+                <img src="https://adbeweblink.github.io/myproject/images/CC.png" alt="CC">
+            </div>
+            <div class="game-title">奧多比碰碰樂 (5x5)</div>
+        </div>
+        <div class="scores-wrapper">
+            <button class="info-btn" onclick="game.showEvolution()" title="查看圖鑑">ℹ️</button>
+            <div class="score-box">
+                <div class="score-label">分數</div>
+                <div class="score-value" id="score">0</div>
+            </div>
+            <div class="score-box">
+                <div class="score-label">最高分</div>
+                <div class="score-value" id="best-score">0</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls-bar">
+        <div class="status-text" id="status-msg">合併圖標，解鎖全套軟體！</div>
+        <div class="btn-group">
+            <button class="btn" onclick="game.showLeaderboard()">🏆 排行榜</button>
+            <button class="btn" id="sound-toggle" onclick="game.toggleSound()">🔊 音效</button>
+            <button class="btn btn-primary" onclick="game.restart()">🔄 重新開始</button>
+        </div>
+    </div>
+
+    <div id="game-container">
+        <div class="grid-container">
+            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+        </div>
+        <div class="tile-container" id="tile-container"></div>
+
+        <!-- Game Over Overlay -->
+        <div class="overlay" id="game-over">
+            <div class="overlay-text">遊戲結束</div>
+            <div class="overlay-subtext">別氣餒！您可以選擇接關繼續挑戰<br>(每局限用一次，消除最底層)</div>
+            
+            <button class="btn btn-revive" id="revive-btn" onclick="game.revive()">📺 觀看廣告/分享接關</button>
+            <button class="btn" style="margin-top:15px; background:transparent; border:none; text-decoration:underline; color:#888;" onclick="game.restart()">放棄，重新開始</button>
+        </div>
+
+        <!-- Win Overlay -->
+        <div class="overlay" id="game-won">
+            <div class="overlay-text" style="color:#00ff00; text-shadow:0 0 20px rgba(0,255,0,0.3);">恭喜破關</div>
+            <div class="overlay-subtext">
+                您已成功解鎖 Creative Cloud 全套授權<br><br>
+                <span style="color: #fff; font-weight:bold; font-size: 20px;">請按右上方 🔄 重新開始</span><br>
+                <span style="font-size: 14px; color: #888;">以挑戰更高分數</span>
+            </div>
+            
+             <!-- Action Buttons -->
+             <div style="display:flex; gap:15px; margin-bottom:15px; z-index:101;">
+                <button class="btn btn-primary" onclick="game.shareResult(this)">📤 分享戰績</button>
+                <button class="btn" onclick="document.getElementById('game-won').classList.remove('active')">暫時隱藏</button>
+            </div>
+        </div>
+
+        <!-- Leaderboard Overlay -->
+        <div class="overlay" id="leaderboard-overlay">
+            <div class="overlay-text">🏆 頂尖創作者</div>
+            <div class="modal-list" id="leaderboard-list"></div>
+            <button class="btn btn-primary" onclick="game.hideOverlay('leaderboard')">關閉</button>
+        </div>
+
+        <!-- Evolution Overlay -->
+        <div class="overlay" id="evolution-overlay">
+            <div class="overlay-text">ℹ️ 進化圖鑑</div>
+            <div class="modal-list" id="evolution-list"></div>
+            <button class="btn btn-primary" onclick="game.hideOverlay('evolution')">關閉</button>
+        </div>
+    </div>
+
+    <div class="instructions-panel">
+        <div class="key-group">
+            <span class="key-label">操作:</span>
+            <div>
+                <span class="key-icon">W</span><span class="key-icon">A</span><span class="key-icon">S</span><span class="key-icon">D</span>
+            </div>
+            <span class="key-label" style="margin: 0 5px;">或</span>
+            <div>
+                <span class="key-icon">↑</span><span class="key-icon">←</span><span class="key-icon">↓</span><span class="key-icon">→</span>
+            </div>
+        </div>
+        <div class="status-text">
+            手機可直接滑動
+        </div>
+    </div>
+
+    <script>
+        class SoundManager {
+            constructor() {
+                this.enabled = true;
+                this.ctx = null;
+                const initOnce = () => {
+                    this.init();
+                    window.removeEventListener('click', initOnce);
+                    window.removeEventListener('keydown', initOnce);
+                    window.removeEventListener('touchstart', initOnce);
+                };
+                window.addEventListener('click', initOnce);
+                window.addEventListener('keydown', initOnce);
+                window.addEventListener('touchstart', initOnce);
+            }
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+            play(type) {
+                if (!this.enabled || !this.ctx) return;
+                
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                const now = this.ctx.currentTime;
+
+                if (type === 'move') {
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(300, now); osc.frequency.exponentialRampToValueAtTime(100, now+0.1);
+                    gain.gain.setValueAtTime(0.05, now); gain.gain.exponentialRampToValueAtTime(0.001, now+0.1);
+                    osc.start(now); osc.stop(now+0.1);
+                } else if (type === 'merge') {
+                    // Bouncier sound for merge
+                    osc.type = 'triangle'; 
+                    osc.frequency.setValueAtTime(300, now); 
+                    osc.frequency.linearRampToValueAtTime(600, now+0.1);
+                    gain.gain.setValueAtTime(0.1, now); 
+                    gain.gain.exponentialRampToValueAtTime(0.001, now+0.2);
+                    osc.start(now); osc.stop(now+0.2);
+                } else if (type === 'gameover') {
+                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now); osc.frequency.linearRampToValueAtTime(50, now+1);
+                    gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0.001, now+1);
+                    osc.start(now); osc.stop(now+1);
+                } else if (type === 'win') {
+                    this.playTone(523, now, 0.1); this.playTone(659, now+0.1, 0.1); this.playTone(783, now+0.2, 0.4);
+                } else if (type === 'revive') {
+                    this.playTone(400, now, 0.1); this.playTone(800, now+0.1, 0.3);
+                }
+            }
+            playTone(f,t,d){
+                const o=this.ctx.createOscillator();const g=this.ctx.createGain();o.connect(g);g.connect(this.ctx.destination);
+                o.type='square';o.frequency.value=f;g.gain.setValueAtTime(0.05,t);g.gain.exponentialRampToValueAtTime(0.001,t+d);o.start(t);o.stop(t+d);
+            }
+            toggle() { 
+                this.enabled = !this.enabled; 
+                if(this.enabled) this.init();
+                return this.enabled; 
+            }
+        }
+
+        class Game2048 {
+            constructor() {
+                this.gridSize = 5;
+                this.grid = [];
+                this.score = 0;
+                this.bestScore = localStorage.getItem('adobe_pong_best_5x5') || 0;
+                this.over = false;
+                this.won = false;
+                this.keepPlaying = false;
+                this.reviveUsed = false;
+                this.sound = new SoundManager();
+                
+                this.iconMap = {
+                    2: { text: 'Dc', url: 'https://adbeweblink.github.io/myproject/images/Dc.png' }, 
+                    4: { text: 'Fi', url: 'https://adbeweblink.github.io/myproject/images/fl.png' }, 
+                    8: { text: 'Ex', url: 'https://adbeweblink.github.io/myproject/images/Express.png' }, 
+                    16: { text: 'Lr', url: 'https://adbeweblink.github.io/myproject/images/lr.png' }, 
+                    32: { text: 'Ps', url: 'https://adbeweblink.github.io/myproject/images/ps.png' }, 
+                    64: { text: 'Ai', url: 'https://adbeweblink.github.io/myproject/images/Ai.png' }, 
+                    128: { text: 'Id', url: 'https://adbeweblink.github.io/myproject/images/Id.png' }, 
+                    256: { text: 'Pr', url: 'https://adbeweblink.github.io/myproject/images/Pr.png' }, 
+                    512: { text: 'Ae', url: 'https://adbeweblink.github.io/myproject/images/Ae.png' }, 
+                    1024: { text: 'CC', url: 'https://adbeweblink.github.io/myproject/images/CC.png' }
+                };
+
+                this.tileContainer = document.getElementById('tile-container');
+                this.scoreDisplay = document.getElementById('score');
+                this.bestScoreDisplay = document.getElementById('best-score');
+                this.msgDisplay = document.getElementById('status-msg');
+                this.soundBtn = document.getElementById('sound-toggle');
+                this.reviveBtn = document.getElementById('revive-btn');
+                this.overlays = { 
+                    over: document.getElementById('game-over'), 
+                    won: document.getElementById('game-won'),
+                    leaderboard: document.getElementById('leaderboard-overlay'),
+                    evolution: document.getElementById('evolution-overlay')
+                };
+
+                this.bestScoreDisplay.textContent = this.bestScore;
+                this.setupInput();
+                this.restart();
+            }
+
+            toggleSound() {
+                const isOn = this.sound.toggle();
+                this.soundBtn.textContent = isOn ? '🔊 音效' : '🔇 靜音';
+                this.soundBtn.style.opacity = isOn ? 1 : 0.6;
+            }
+
+            restart() {
+                this.grid = Array(this.gridSize).fill(null).map(() => Array(this.gridSize).fill(null));
+                this.score = 0; 
+                this.over = false; 
+                this.won = false; 
+                this.keepPlaying = false;
+                this.reviveUsed = false;
+                
+                this.updateScoreDisplay(); 
+                this.clearTiles();
+                
+                Object.values(this.overlays).forEach(el => el.classList.remove('active'));
+                
+                this.msgDisplay.textContent = "準備好開始創作了嗎？";
+                this.reviveBtn.disabled = false;
+                this.reviveBtn.innerHTML = "📺 觀看廣告/分享接關";
+                
+                this.addRandomTile(); 
+                this.addRandomTile(); 
+                this.updateView();
+            }
+
+            revive() {
+                if (this.reviveUsed) return;
+                
+                const originalText = this.reviveBtn.innerHTML;
+                this.reviveBtn.innerHTML = "廣告載入中...";
+                this.reviveBtn.disabled = true;
+
+                setTimeout(() => {
+                    // Remove bottom row
+                    for (let c = 0; c < this.gridSize; c++) {
+                        this.grid[4][c] = null;
+                    }
+
+                    this.reviveUsed = true;
+                    this.over = false;
+                    this.overlays.over.classList.remove('active');
+                    this.sound.play('revive');
+                    this.updateView();
+                    this.msgDisplay.textContent = "復活成功！最底層已清空！";
+                }, 1000);
+            }
+            
+            saveScore() {
+                let scores = JSON.parse(localStorage.getItem('adobe_pong_leaderboard_5x5') || '[]');
+                const now = new Date();
+                const dateStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+                scores.push({ score: this.score, date: dateStr });
+                scores.sort((a,b) => b.score - a.score);
+                scores = scores.slice(0, 5);
+                localStorage.setItem('adobe_pong_leaderboard_5x5', JSON.stringify(scores));
+            }
+            
+            showLeaderboard() {
+                const scores = JSON.parse(localStorage.getItem('adobe_pong_leaderboard_5x5') || '[]');
+                const listEl = document.getElementById('leaderboard-list');
+                listEl.innerHTML = '';
+                
+                if (scores.length === 0) {
+                    listEl.innerHTML = '<div style="text-align:center; color:#888;">暫無紀錄，快來挑戰！</div>';
+                } else {
+                    scores.forEach((s, index) => {
+                        const item = document.createElement('div');
+                        item.className = 'leaderboard-item';
+                        item.innerHTML = `
+                            <span class="rank">#${index+1}</span>
+                            <span class="score">${s.score}</span>
+                            <span class="date">${s.date}</span>
+                        `;
+                        listEl.appendChild(item);
+                    });
+                }
+                this.overlays.leaderboard.classList.add('active');
+            }
+
+            showEvolution() {
+                const listEl = document.getElementById('evolution-list');
+                listEl.innerHTML = '';
+                
+                const values = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024];
+                values.forEach((val, index) => {
+                    const info = this.iconMap[val];
+                    const item = document.createElement('div');
+                    item.className = 'evolution-item';
+                    item.innerHTML = `
+                        <div class="evo-row">
+                            <img src="${info.url}" class="evo-icon" onerror="this.style.display='none'">
+                            <div class="evo-info">
+                                <span class="evo-name">${info.text}</span>
+                                <span class="evo-score">Score: ${val}</span>
+                            </div>
+                            ${index < values.length - 1 ? '<span class="evo-arrow">▼</span>' : ''}
+                        </div>
+                    `;
+                    listEl.appendChild(item);
+                });
+                this.overlays.evolution.classList.add('active');
+            }
+            
+            hideOverlay(name) {
+                this.overlays[name].classList.remove('active');
+            }
+            
+            copyToClipboard(text, btn) {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    const originalText = btn.textContent;
+                    btn.textContent = "已複製！";
+                    setTimeout(() => btn.textContent = originalText, 2000);
+                } catch (err) {
+                    console.error('Fallback error', err);
+                }
+                document.body.removeChild(textArea);
+            }
+
+            shareResult(btn) {
+                const text = `我在奧多比碰碰樂 (5x5) 獲得了 ${this.score} 分！成功解鎖全套 Adobe Creative Cloud！快來挑戰！`;
+                if (navigator.share) {
+                    navigator.share({
+                        title: '奧多比碰碰樂',
+                        text: text,
+                        url: window.location.href
+                    }).catch(console.error);
+                } else {
+                    this.copyToClipboard(text, btn);
+                }
+            }
+
+            addRandomTile() {
+                const empty = [];
+                for (let r=0; r<this.gridSize; r++) for (let c=0; c<this.gridSize; c++) if (!this.grid[r][c]) empty.push({r,c});
+                if (empty.length) {
+                    const {r,c} = empty[Math.floor(Math.random()*empty.length)];
+                    this.grid[r][c] = { value: Math.random()<0.9?2:4, id: Math.random().toString(36).substr(2) };
+                }
+            }
+
+            move(dir) {
+                if (this.over || Object.values(this.overlays).some(el => el.classList.contains('active'))) return;
+                
+                let moved = false;
+                let mergedThisTurn = false;
+                let mergedIds = new Set();
+                const vectors = { 'up':{x:0,y:-1}, 'down':{x:0,y:1}, 'left':{x:-1,y:0}, 'right':{x:1,y:0} };
+                const v = vectors[dir];
+
+                let xs = [], ys = [];
+                for(let i=0; i<this.gridSize; i++) { xs.push(i); ys.push(i); }
+                
+                if (v.x===1) xs.reverse(); if (v.y===1) ys.reverse();
+
+                xs.forEach(x => { ys.forEach(y => {
+                    let cell = this.grid[y][x];
+                    if (cell) {
+                        let pos = this.findFarthest({x,y}, v);
+                        let next = this.getCell(pos.next);
+                        if (next && next.value === cell.value && !mergedIds.has(next.id)) {
+                            let merged = { value: cell.value*2, id: Math.random().toString(36), mergedFrom: [cell, next] };
+                            mergedIds.add(merged.id);
+                            this.grid[y][x] = null;
+                            this.grid[pos.next.y][pos.next.x] = merged;
+                            this.score += merged.value;
+                            
+                            if (merged.value === 1024 && !this.won) {
+                                this.won = true;
+                                setTimeout(() => { 
+                                    this.sound.play('win'); 
+                                    this.overlays.won.classList.add('active'); 
+                                }, 300);
+                            }
+                            
+                            moved = true; mergedThisTurn = true;
+                        } else if (pos.farthest.x !== x || pos.farthest.y !== y) {
+                            this.grid[y][x] = null;
+                            this.grid[pos.farthest.y][pos.farthest.x] = cell;
+                            moved = true;
+                        }
+                    }
+                })});
+
+                if (moved) {
+                    this.sound.play(mergedThisTurn ? 'merge' : 'move');
+                    this.addRandomTile();
+                    this.updateScoreDisplay();
+                    this.updateView();
+                    
+                    setTimeout(() => {
+                        if (!this.movesAvailable()) {
+                            this.over = true;
+                            if(this.score > this.bestScore) {
+                                localStorage.setItem('adobe_pong_best_5x5', this.score);
+                            }
+                            
+                            this.sound.play('gameover');
+                            this.overlays.over.classList.add('active');
+                            
+                            if(this.reviveUsed) {
+                                this.reviveBtn.disabled = true;
+                                this.reviveBtn.innerHTML = "🚫 已使用過接關";
+                            }
+                        }
+                    }, 150);
+                }
+            }
+
+            findFarthest(cell, v) {
+                let prev;
+                do { prev = cell; cell = {x: prev.x + v.x, y: prev.y + v.y}; } 
+                while (this.inBounds(cell) && !this.getCell(cell));
+                return { farthest: prev, next: cell };
+            }
+            inBounds(p) { return p.x>=0 && p.x<this.gridSize && p.y>=0 && p.y<this.gridSize; }
+            getCell(p) { return this.inBounds(p) ? this.grid[p.y][p.x] : null; }
+            
+            movesAvailable() {
+                for(let y=0; y<this.gridSize; y++) for(let x=0; x<this.gridSize; x++) {
+                    if(!this.grid[y][x]) return true;
+                    if(x<this.gridSize-1 && this.grid[y][x].value == this.grid[y][x+1]?.value) return true;
+                    if(y<this.gridSize-1 && this.grid[y][x].value == this.grid[y+1][x]?.value) return true;
+                }
+                return false;
+            }
+
+            clearTiles() { this.tileContainer.innerHTML = ''; }
+            updateView() {
+                this.tileContainer.innerHTML = '';
+                for (let y=0; y<this.gridSize; y++) for (let x=0; x<this.gridSize; x++) {
+                    if (this.grid[y][x]) this.addTile(x, y, this.grid[y][x]);
+                }
+            }
+
+            addTile(x, y, data) {
+                const el = document.createElement('div');
+                const tileInfo = this.iconMap[data.value] || { text: data.value, url: '' };
+                
+                el.className = `tile tile-${data.value} tile-pos-${x}-${y}`;
+                if (data.mergedFrom) el.classList.add('merged');
+                
+                const img = document.createElement('img');
+                img.src = tileInfo.url;
+                img.alt = tileInfo.text;
+                img.onerror = () => { el.classList.add('fallback-mode'); };
+                
+                const txt = document.createElement('span');
+                txt.className = 'tile-text';
+                txt.textContent = tileInfo.text;
+                
+                el.appendChild(img);
+                el.appendChild(txt);
+                
+                this.tileContainer.appendChild(el);
+            }
+
+            updateScoreDisplay() {
+                this.scoreDisplay.textContent = this.score;
+                if (this.score > this.bestScore) {
+                    this.bestScore = this.score;
+                    localStorage.setItem('adobe_pong_best_5x5', this.bestScore);
+                }
+                this.bestScoreDisplay.textContent = this.bestScore;
+            }
+
+            setupInput() {
+                window.addEventListener('keydown', e => {
+                    const k = e.key.toLowerCase();
+                    const map = { 'arrowup':'up', 'w':'up', 'arrowdown':'down', 's':'down', 'arrowleft':'left', 'a':'left', 'arrowright':'right', 'd':'right' };
+                    if (map[k]) { e.preventDefault(); this.move(map[k]); }
+                });
+
+                const c = document.getElementById('game-container');
+                let sx, sy;
+                c.addEventListener('mousedown', e => { sx=e.clientX; sy=e.clientY; });
+                c.addEventListener('mouseup', e => { 
+                    if (!sx) return;
+                    const dx = e.clientX - sx;
+                    const dy = e.clientY - sy;
+                    if (Math.max(Math.abs(dx), Math.abs(dy)) > 30) {
+                        this.move(Math.abs(dx)>Math.abs(dy) ? (dx>0?'right':'left') : (dy>0?'down':'up'));
+                    }
+                    sx=null; 
+                });
+                
+                c.addEventListener('touchstart', e => { sx=e.touches[0].clientX; sy=e.touches[0].clientY; e.preventDefault(); }, {passive:false});
+                c.addEventListener('touchend', e => {
+                    if (!sx || !sy) return;
+                    const dx = e.changedTouches[0].clientX - sx;
+                    const dy = e.changedTouches[0].clientY - sy;
+                    if (Math.max(Math.abs(dx), Math.abs(dy)) > 30) {
+                        this.move(Math.abs(dx)>Math.abs(dy) ? (dx>0?'right':'left') : (dy>0?'down':'up'));
+                    }
+                    sx=null; sy=null;
+                });
+            }
+        }
+
+        const style = document.createElement("style");
+        let css = "";
+        for(let x=0; x<5; x++) for(let y=0; y<5; y++) {
+            css += `.tile-pos-${x}-${y} { left: calc(20% * ${x} + ${x*2}px); top: calc(20% * ${y} + ${y*2}px); }`;
+        }
+        style.innerText = css;
+        document.head.appendChild(style);
+
+        const game = new Game2048();
+    </script>
+</body>
+</html>
