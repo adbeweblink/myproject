@@ -39,7 +39,7 @@
             align-items: center;
         }
 
-        /* 控制面板樣式 (列印/下載時隱藏) */
+        /* 控制面板樣式 */
         .action-bar {
             background: white;
             padding: 12px 20px;
@@ -50,6 +50,7 @@
             gap: 15px;
             align-items: center;
             width: 210mm;
+            max-width: 100%; /* 確保不超過螢幕 */
             box-sizing: border-box;
             flex-wrap: wrap;
         }
@@ -96,7 +97,7 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* 頁面本體樣式 - 緊湊版 (桌面) */
+        /* 頁面本體樣式 - 桌面版 */
         .page {
             width: 210mm;
             min-height: 297mm;
@@ -107,27 +108,22 @@
             box-sizing: border-box;
         }
 
-        /* 手機/窄螢幕響應式設計 (Max-width: 768px) */
-        @media (max-width: 768px) {
+        /* 手機/窄螢幕響應式優化 */
+        @media screen and (max-width: 768px) {
             body {
-                padding: 10px; /* 減少 Body 邊距 */
-                background-color: #fff; /* 手機上背景全白 */
-            }
-            
-            .page {
-                width: 100%; /* 寬度 100% */
-                height: auto; /* 高度自動 */
-                min-height: auto;
-                box-shadow: none; /* 移除陰影 */
-                padding: 15px; /* 內邊距調整 */
+                padding: 0;
+                background-color: #fff;
             }
 
             .action-bar {
                 width: 100%;
-                flex-direction: column; /* 按鈕垂直排列 */
-                align-items: stretch;
+                border-radius: 0;
+                margin-bottom: 0;
+                flex-direction: column; /* 按鈕垂直堆疊 */
+                align-items: stretch; /* 拉伸填滿 */
                 gap: 10px;
                 padding: 15px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             }
 
             .status-msg {
@@ -136,50 +132,69 @@
                 margin-top: 5px;
             }
 
+            .page {
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                box-shadow: none;
+                padding: 20px; /* 手機版舒適邊距 */
+            }
+
             /* 標題區域調整 */
             .header-title-area {
-                flex-direction: row; /* 標題保持橫向 */
+                flex-direction: row; 
                 align-items: center;
+                margin-bottom: 15px;
             }
-            
+
+            .cc-icon {
+                width: 32px;
+                height: 32px;
+                margin-top: 0;
+            }
+
             .title-en {
-                font-size: 18pt; /* 稍微縮小標題 */
-                white-space: normal; /* 允許換行 */
+                font-size: 18pt;
             }
-            
+
             .title-zh {
                 font-size: 12pt;
+                margin-top: 2px;
             }
 
             .update-date {
-                text-align: left; /* 日期靠左 */
+                text-align: left;
                 margin-left: 0;
-                margin-top: 5px;
+                margin-bottom: 20px;
                 font-size: 9pt;
+                color: #666;
             }
 
             /* 表格轉為區塊顯示 (Block Layout) */
-            .features-table, .features-table tbody, .features-table tr, .features-table td {
+            .features-table, 
+            .features-table tbody, 
+            .features-table tr, 
+            .features-table td {
                 display: block;
                 width: 100%;
             }
 
             .features-table thead {
-                display: none; /* 手機版隱藏表頭 */
+                display: none; /* 隱藏表頭 */
             }
 
             .app-row {
                 display: flex;
                 flex-direction: column;
                 border-bottom: 1px solid #eee;
-                padding-bottom: 20px;
-                margin-bottom: 20px;
+                padding-bottom: 25px;
+                margin-bottom: 25px;
             }
 
-            /* 手機版 App 欄位 */
+            /* App 標題區塊 */
             .app-cell {
                 width: 100%;
-                padding: 0 0 10px 0;
+                padding: 0 0 15px 0;
                 border-bottom: none;
             }
 
@@ -187,13 +202,14 @@
                 flex-direction: row;
                 align-items: center;
                 justify-content: flex-start;
-                background-color: #f9f9f9; /* 增加底色區分 */
-                padding: 10px;
+                background-color: #f7f7f7; /* 增加底色區分區塊 */
+                padding: 12px;
                 border-radius: 8px;
+                gap: 12px;
             }
 
             .app-name {
-                font-size: 14pt; /* App 名稱放大 */
+                font-size: 14pt; /* 放大 App 名稱 */
             }
 
             .app-icon {
@@ -201,44 +217,49 @@
                 height: 40px;
             }
 
-            /* 手機版內容欄位 */
+            /* 內容區塊 */
             .content-cell {
                 width: 100%;
-                padding: 10px 0 0 0;
+                padding: 5px 0 0 0;
             }
 
             .feature-item {
-                margin-bottom: 15px;
+                margin-bottom: 20px; /* 增加項目間距 */
             }
 
             .feature-title {
-                font-size: 11pt; /* 功能標題放大 */
+                font-size: 11pt; /* 放大標題 */
+                margin-bottom: 6px;
                 color: #000;
             }
 
             .feature-desc {
-                font-size: 10pt; /* 內文放大 */
+                font-size: 10.5pt; /* 放大內文 */
                 line-height: 1.6;
                 color: #444;
             }
         }
 
+        /* 列印樣式 (強制 A4 格式，忽略手機版樣式) */
         @media print {
             body { background: none; padding: 0; }
             .page { width: 100%; height: auto; box-shadow: none; padding: 12mm 15mm; margin: 0; }
             .no-print { display: none !important; }
             
-            /* 列印時強制使用桌面版排版 (Table Layout) */
+            /* 強制還原為表格佈局 */
             .features-table { display: table !important; }
             .features-table thead { display: table-header-group !important; }
             .features-table tbody { display: table-row-group !important; }
             .features-table tr { display: table-row !important; }
-            .app-cell { display: table-cell !important; width: 28% !important; padding: 12px 0 !important; }
+            .app-row { display: table-row !important; border-bottom: 1px solid #E1E1E1 !important; padding-bottom: 0 !important; margin-bottom: 0 !important; }
+            .app-cell { display: table-cell !important; width: 28% !important; padding: 12px 0 !important; vertical-align: middle !important; }
             .content-cell { display: table-cell !important; width: 72% !important; padding: 12px 0 12px 15px !important; }
-            .app-icon-box { background-color: transparent !important; padding: 0 !important; }
+            
+            /* 還原圖示區塊樣式 */
+            .app-icon-box { background-color: transparent !important; padding: 0 !important; flex-direction: row !important; }
             .app-name { font-size: 10pt !important; }
             .feature-title { font-size: 9.5pt !important; }
-            .feature-desc { font-size: 9pt !important; }
+            .feature-desc { font-size: 9pt !important; line-height: 1.4 !important; }
         }
 
         header {
@@ -248,7 +269,7 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
-            flex-wrap: wrap; /* 允許 Header 在手機上換行 */
+            flex-wrap: wrap;
         }
 
         /* 標題區域樣式 */
