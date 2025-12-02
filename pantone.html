@@ -1,0 +1,697 @@
+import React, { useState, useEffect } from 'react';
+import { Trophy, RefreshCcw, Share2, Info, Play, ArrowRight, X, Copy, CheckCircle } from 'lucide-react';
+
+// --- Pantone Data (2000-2025) ---
+const PANTONE_YEARS = [
+  {
+    year: 2025,
+    name: "Mocha Mousse",
+    nameCN: "摩卡慕斯",
+    code: "17-1230",
+    hex: "#96786A", 
+    desc: "Mocha Mousse 是一種濃郁、絲滑的巧克力棕色，喚起溫暖與舒適的感官體驗。它滋養著我們對簡約與品質的渴望，是一種類似甜點般的縱情享受，帶來極致的舒適感。"
+  },
+  { 
+    year: 2024, 
+    name: "Peach Fuzz", 
+    nameCN: "柔和桃",
+    code: "13-1023", 
+    hex: "#FFBE98",
+    desc: "Peach Fuzz 是一種天鵝絨般柔和的蜜桃色，其包容的精神豐富了身心與靈魂。它喚起了對親密感的渴望，適合應用於居家裝飾與舒適的服裝設計。"
+  },
+  { 
+    year: 2023, 
+    name: "Viva Magenta", 
+    nameCN: "萬歲洋紅",
+    code: "18-1750", 
+    hex: "#BB2649",
+    desc: "Viva Magenta 源自紅色家族，靈感來自胭脂紅。這是一種充滿活力的色彩，象徵著勇敢、無畏與快樂的慶典。"
+  },
+  { 
+    year: 2022, 
+    name: "Very Peri", 
+    nameCN: "長春花藍",
+    code: "17-3938", 
+    hex: "#6667AB",
+    desc: "Very Peri 是為了應對轉變中的世界而創。它將藍色的忠誠與紅色的能量融合，創造出一種快樂、溫暖的紫藍色。"
+  },
+  { 
+    year: 2021, 
+    name: "Illuminating", 
+    nameCN: "亮麗黃",
+    code: "13-0647", 
+    hex: "#F5DF4D",
+    desc: "Illuminating 是一種明亮且快活的黃色，閃耀著活力，彷彿注滿了太陽的能量。象徵著希望與友善。"
+  },
+  { 
+    year: 2021, 
+    name: "Ultimate Gray", 
+    nameCN: "極致灰",
+    code: "17-5104", 
+    hex: "#939597",
+    desc: "Ultimate Gray 象徵著堅實與可靠，如同海灘上的石子，經得起時間的考驗。它提供了穩定的基礎。"
+  },
+  { 
+    year: 2020, 
+    name: "Classic Blue", 
+    nameCN: "經典藍",
+    code: "19-4052", 
+    hex: "#0F4C81",
+    desc: "Classic Blue 簡約而優雅，像極了薄暮時的天空。它帶來和平與寧靜的感覺，有助於集中思緒。"
+  },
+  { 
+    year: 2019, 
+    name: "Living Coral", 
+    nameCN: "活珊瑚橘",
+    code: "16-1546", 
+    hex: "#FF6F61",
+    desc: "Living Coral 散發著大自然中珊瑚礁的色彩，充滿活力卻又醇厚。它在不斷變化的環境中提供舒適感。"
+  },
+  { 
+    year: 2018, 
+    name: "Ultra Violet", 
+    nameCN: "紫外光",
+    code: "18-3838", 
+    hex: "#5F4B8B",
+    desc: "Ultra Violet 傳達了原創性、獨創性與富有遠見的思維。這種複雜的紫色調指向了宇宙的神秘。"
+  },
+  { 
+    year: 2017, 
+    name: "Greenery", 
+    nameCN: "草木綠",
+    code: "15-0343", 
+    hex: "#88B04B",
+    desc: "Greenery 是一個清新的黃綠色調，喚起初春繁茂的綠意。它象徵著復甦與恢復，適合用於強調環保意識的品牌。"
+  },
+  { 
+    year: 2016, 
+    name: "Rose Quartz", 
+    nameCN: "玫瑰石英粉",
+    code: "13-1520", 
+    hex: "#F7CAC9",
+    desc: "Rose Quartz 是一種具說服力但不失溫柔的色調，傳達同情與鎮定。它像落日餘暉般柔和。"
+  },
+  { 
+    year: 2016, 
+    name: "Serenity", 
+    nameCN: "寧靜粉藍",
+    code: "15-3919", 
+    hex: "#91A8D0",
+    desc: "Serenity 輕盈通透，像極了廣闊的藍天。它帶給人們喘息的空間與放鬆感。"
+  },
+  { 
+    year: 2015, 
+    name: "Marsala", 
+    nameCN: "瑪薩拉酒紅",
+    code: "18-1438", 
+    hex: "#964F4C",
+    desc: "Marsala 是一種自然強勁且質樸的酒紅色。它豐富了我們的身心靈，散發出成熟與穩重的氣息。"
+  },
+  { 
+    year: 2014, 
+    name: "Radiant Orchid", 
+    nameCN: "蘭花紫",
+    code: "18-3224", 
+    hex: "#B565A7",
+    desc: "Radiant Orchid 以其迷人的紫紅色調激發自信與創意。這是一種引人注目的色彩，能夠讓肌膚煥發光彩。"
+  },
+  { 
+    year: 2013, 
+    name: "Emerald", 
+    nameCN: "翡翠綠",
+    code: "17-5641", 
+    hex: "#009473",
+    desc: "Emerald 是一種生動、輝煌且華麗的綠色。它增強了幸福感與平衡感，長期以來都是精緻與奢華的象徵。"
+  },
+  { 
+    year: 2012, 
+    name: "Tangerine Tango", 
+    nameCN: "探戈橘",
+    code: "17-1463", 
+    hex: "#DD4124",
+    desc: "Tangerine Tango 是一種充滿挑逗性的橘紅色。它散發著熱力與能量，能夠瞬間提振精神。"
+  },
+  { 
+    year: 2011, 
+    name: "Honeysuckle", 
+    nameCN: "忍冬紅",
+    code: "18-2120", 
+    hex: "#D65076",
+    desc: "Honeysuckle 是一種勇敢的新紅色，給予我們面對日常生活的勇氣。它令人振奮，適合用於增添活力的配件。"
+  },
+  { 
+    year: 2010, 
+    name: "Turquoise", 
+    nameCN: "土耳其藍",
+    code: "15-5519", 
+    hex: "#45B5AA",
+    desc: "Turquoise 結合了藍色的寧靜與綠色的活力。它讓人聯想到熱帶海洋，是一種令人逃離煩惱的色彩。"
+  },
+  { 
+    year: 2009, 
+    name: "Mimosa", 
+    nameCN: "含羞草黃",
+    code: "14-0848", 
+    hex: "#EFC050",
+    desc: "Mimosa 是一種溫暖且引人入勝的黃色。在經濟不確定的時期，它代表著樂觀與希望。"
+  },
+  { 
+    year: 2008, 
+    name: "Blue Iris", 
+    nameCN: "鳶尾藍",
+    code: "18-3943", 
+    hex: "#5A5B9F",
+    desc: "Blue Iris 結合了藍色的穩定與紫色的神秘。它滿足了對複雜性的需求，是一種帶有魔法氛圍的色彩。"
+  },
+  { 
+    year: 2007, 
+    name: "Chili Pepper", 
+    nameCN: "辣椒紅",
+    code: "19-1557", 
+    hex: "#9B1B30",
+    desc: "Chili Pepper 是一種深沈的辛辣紅色，大膽、外向且自信。它刺激感官，是一種宣告自我的色彩。"
+  },
+  { 
+    year: 2006, 
+    name: "Sand Dollar", 
+    nameCN: "沙幣褐",
+    code: "13-1106", 
+    hex: "#DECDBE",
+    desc: "Sand Dollar 是一種被認為是自然與有機的色調。它表達了對經濟擔憂的放鬆，是一種回歸基礎的中性色。"
+  },
+  { 
+    year: 2005, 
+    name: "Blue Turquoise", 
+    nameCN: "藍綠松石",
+    code: "15-5217", 
+    hex: "#53B0AE",
+    desc: "Blue Turquoise 比起一般的綠松石色含有更多的藍色調。它更加柔和，像是一片平靜的海域。"
+  },
+  { 
+    year: 2004, 
+    name: "Tigerlily", 
+    nameCN: "虎皮百合橘",
+    code: "17-1456", 
+    hex: "#E2583E",
+    desc: "Tigerlily 包含了紅與黃，充滿異國情調。它大膽而富有激情，靈感來自同名花卉。"
+  },
+  { 
+    year: 2003, 
+    name: "Aqua Sky", 
+    nameCN: "水色天空",
+    code: "14-4811", 
+    hex: "#7BC4C4",
+    desc: "Aqua Sky 是一種柔和、寧靜的藍綠色。它帶來希望與安寧的感覺，像是一陣清新的微風。"
+  },
+  { 
+    year: 2002, 
+    name: "True Red", 
+    nameCN: "正紅",
+    code: "19-1664", 
+    hex: "#BF1932",
+    desc: "True Red 是一種強烈且富有力量的紅色。它與愛、熱情與愛國主義相關聯，是一種經典且不敗的色彩。"
+  },
+  { 
+    year: 2001, 
+    name: "Fuchsia Rose", 
+    nameCN: "桃紅玫瑰",
+    code: "17-2031", 
+    hex: "#C74375",
+    desc: "Fuchsia Rose 是一種充滿女性魅力且熱情的色彩。它比傳統粉紅更具挑逗性，象徵著大膽與性感。"
+  },
+  { 
+    year: 2000, 
+    name: "Cerulean", 
+    nameCN: "蔚藍",
+    code: "15-4020", 
+    hex: "#98B2D1",
+    desc: "Cerulean 代表著千禧年的天空色彩。它帶來內心的平靜與精神的滿足，是對未來的期許。"
+  },
+];
+
+// --- Utility Functions ---
+
+const hexToRgb = (hex) => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : { r: 0, g: 0, b: 0 };
+};
+
+const rgbToHex = (r, g, b) => {
+  return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+};
+
+const generateVariantColor = (baseHex, level) => {
+  const rgb = hexToRgb(baseHex);
+  let difficulty = Math.max(1.5, 25 - (level * 1.2)); 
+  
+  const change = (val) => {
+    const direction = Math.random() > 0.5 ? 1 : -1;
+    let newVal = val + (difficulty * direction);
+    if (newVal > 255) newVal = val - difficulty;
+    if (newVal < 0) newVal = val + difficulty;
+    if (Math.abs(newVal - val) < 2) {
+        newVal = val + (direction * 5); 
+    }
+    return Math.floor(Math.max(0, Math.min(255, newVal)));
+  };
+
+  const r = change(rgb.r);
+  const g = change(rgb.g);
+  const b = change(rgb.b);
+
+  return rgbToHex(r, g, b);
+};
+
+const getRankTitle = (level) => {
+  if (level < 5) return "色彩學徒 (Apprentice)";
+  if (level < 10) return "設計助理 (Junior Designer)";
+  if (level < 15) return "資深設計師 (Senior Designer)";
+  if (level < 20) return "藝術總監 (Art Director)";
+  if (level < 30) return "印刷廠師傅 (Print Master)";
+  return "絕對色感神人 (Pantone God)";
+};
+
+// --- Components ---
+
+// Toast Component for Notifications
+const Toast = ({ message, onClose }) => {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 2500);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-black text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 z-50 animate-fade-in-up">
+      <CheckCircle size={20} className="text-green-400" />
+      <span className="font-bold text-sm">{message}</span>
+    </div>
+  );
+};
+
+const PantoneCard = ({ colorHex, colorName, colorNameCN, colorCode, isOdd, onClick, showFeedback, isGameActive, className = "" }) => {
+  const [clicked, setClicked] = useState(false);
+
+  const handleColorClick = () => {
+    if (!isGameActive) return;
+    setClicked(true);
+    onClick(isOdd);
+  };
+
+  return (
+    <div className={`
+      relative bg-white shadow-lg flex flex-col transition-all duration-200
+      ${isGameActive ? 'cursor-pointer hover:shadow-2xl hover:scale-[1.02]' : ''}
+      ${clicked && !isOdd ? 'animate-shake' : ''}
+      ${clicked && isOdd ? 'scale-95' : ''}
+      ${className}
+    `}
+    // Style update: Ensure height is ample and no fixed ratio is forcing clips
+    style={{ minHeight: '280px' }}
+    >
+      {/* Color Area - Flex 1 fills remaining space */}
+      <div 
+        className="flex-1 w-full relative group min-h-[160px]" 
+        style={{ backgroundColor: colorHex }}
+        onClick={handleColorClick}
+      >
+         {/* Correct Feedback (Ripple/Ping) */}
+         {showFeedback && isOdd && (
+            <div className="absolute inset-0 flex items-center justify-center z-10">
+                <div className="bg-white/40 rounded-full p-4 shadow-lg backdrop-blur-sm">
+                    <div className="w-8 h-8 bg-white rounded-full animate-ping"/>
+                </div>
+            </div>
+         )}
+         
+         {/* Wrong Feedback (Error Overlay) */}
+         {clicked && !isOdd && (
+            <div className="absolute inset-0 bg-red-500/50 flex items-center justify-center z-10 animate-pulse-fast">
+                 <X className="text-white drop-shadow-md w-12 h-12" strokeWidth={3} />
+            </div>
+         )}
+      </div>
+
+      {/* Text Area - Auto height, never cut off */}
+      <div className="w-full p-3 md:p-4 flex flex-col justify-end text-left select-none border-t border-gray-100 bg-white shrink-0">
+        <div className="mb-2">
+            <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Pantone_logo.svg" 
+                alt="PANTONE" 
+                className="h-5 md:h-6 object-contain object-left"
+            />
+        </div>
+        <p className="text-slate-500 font-mono text-xs md:text-sm font-bold tracking-wide leading-none mb-1">{colorCode}</p>
+        <div className="flex flex-col min-w-0">
+            <p className="text-slate-900 font-black text-base md:text-lg leading-tight truncate">{colorName}</p>
+            <p className="text-slate-500 font-bold text-xs md:text-sm leading-tight mt-0.5 truncate">{colorNameCN}</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default function PantoneGame() {
+  const [gameState, setGameState] = useState('home'); // home, intro, playing, gameover
+  const [level, setLevel] = useState(1);
+  const [currentBase, setCurrentBase] = useState(PANTONE_YEARS[0]);
+  const [introBase, setIntroBase] = useState(null);
+  const [oddColor, setOddColor] = useState("");
+  const [oddIndex, setOddIndex] = useState(0);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [toastMsg, setToastMsg] = useState(null);
+
+  // Separate 2025 for specific layout requirements
+  const currentYearColor = PANTONE_YEARS.find(p => p.year === 2025);
+  const pastYearsColors = PANTONE_YEARS.filter(p => p.year !== 2025);
+
+  const startRound = (specificBase = null) => {
+    const base = specificBase || PANTONE_YEARS[Math.floor(Math.random() * PANTONE_YEARS.length)];
+    setCurrentBase(base);
+    setOddColor(generateVariantColor(base.hex, level));
+    setOddIndex(Math.floor(Math.random() * 4));
+    setShowFeedback(false);
+  };
+
+  const handleYearSelect = (yearData) => {
+    setIntroBase(yearData);
+    setGameState('intro');
+    // Scroll to top to ensure intro is fully visible
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const startGameFromIntro = () => {
+    setLevel(1);
+    setGameState('playing');
+    startRound(introBase);
+  };
+
+  const startRandomGame = () => {
+    setLevel(1);
+    setGameState('playing');
+    startRound();
+  };
+
+  const handleCardClick = (isOdd) => {
+    if (isOdd) {
+      // Correct
+      const nextLevel = level + 1;
+      setLevel(nextLevel);
+      setTimeout(() => {
+        startRound(); 
+      }, 200);
+    } else {
+      // Wrong
+      // Haptic feedback for mobile
+      if (navigator.vibrate) {
+        navigator.vibrate(200);
+      }
+      
+      setShowFeedback(true);
+      setTimeout(() => {
+        setGameState('gameover');
+      }, 1000);
+    }
+  };
+
+  const handleShare = () => {
+    const text = `我在 Pantone 色彩極限挑戰中活到了第 ${level} 關！稱號：${getRankTitle(level)}。你也來挑戰看看？`;
+    navigator.clipboard.writeText(text).then(() => {
+        setToastMsg("成績已複製到剪貼簿！");
+    }).catch(() => {
+        setToastMsg("複製失敗，請手動截圖分享");
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-[#F0F0F0] font-sans text-slate-900 flex flex-col items-center py-6 px-4">
+      
+      {/* Toast Notification */}
+      {toastMsg && <Toast message={toastMsg} onClose={() => setToastMsg(null)} />}
+
+      {/* Header */}
+      <div className="w-full max-w-lg flex justify-between items-end mb-8 border-b-4 border-black pb-4">
+        <div className="flex flex-col">
+            <div className="bg-black text-white px-2 py-1 font-black text-xs md:text-sm tracking-[0.2em] w-fit mb-2">PANTONE</div>
+            <h1 className="font-black text-2xl md:text-3xl tracking-tighter leading-tight text-black">
+                Pantone 色彩極限挑戰<br/>
+                <span className="text-base md:text-lg font-bold text-gray-500 tracking-normal block mt-1">Color Challenge</span>
+            </h1>
+        </div>
+        {gameState === 'playing' && (
+            <div className="flex flex-col items-end">
+                <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Level</span>
+                <span className="text-4xl font-black leading-none text-black">{level}</span>
+            </div>
+        )}
+      </div>
+
+      <div className="w-full max-w-lg relative min-h-[600px]">
+        
+        {/* HOME SCREEN */}
+        {gameState === 'home' && (
+          <div className="animate-fade-in pb-12">
+            {/* Instruction Card */}
+            <div className="bg-black text-white p-6 shadow-xl mb-8 relative overflow-hidden group rounded-lg">
+                <h2 className="text-xl md:text-2xl font-black mb-4 uppercase tracking-wide border-b border-white/30 pb-2">How to Play</h2>
+                <ul className="space-y-4 font-bold text-sm md:text-base text-gray-200">
+                    <li className="flex items-start gap-4">
+                        <span className="bg-white text-black w-6 h-6 flex items-center justify-center rounded-full text-sm font-black shrink-0 mt-0.5 shadow-sm">1</span>
+                        <span>畫面將顯示 4 張色卡。</span>
+                    </li>
+                    <li className="flex items-start gap-4">
+                        <span className="bg-white text-black w-6 h-6 flex items-center justify-center rounded-full text-sm font-black shrink-0 mt-0.5 shadow-sm">2</span>
+                        <span>找出唯一一張<span className="text-white font-black border-b-2 border-white ml-1">顏色不同</span>的色卡並點擊。</span>
+                    </li>
+                    <li className="flex items-start gap-4">
+                        <span className="bg-white text-black w-6 h-6 flex items-center justify-center rounded-full text-sm font-black shrink-0 mt-0.5 shadow-sm">3</span>
+                        <span>顏色差異會隨著關卡增加而越來越細微。</span>
+                    </li>
+                </ul>
+            </div>
+
+            <button 
+                onClick={startRandomGame}
+                className="w-full bg-white border-2 border-black p-5 mb-10 font-black text-lg text-black hover:bg-black hover:text-white transition-all flex items-center justify-between group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] rounded-lg active:scale-[0.98]"
+            >
+                <span className="flex items-center gap-3"><RefreshCcw size={22}/> 隨機挑戰 (RANDOM START)</span>
+                <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+            </button>
+
+            <div>
+                <h3 className="font-black text-xl mb-5 uppercase tracking-tighter flex items-center gap-3 text-black">
+                    <span className="w-2 h-8 bg-black block rounded-sm"></span>
+                    選擇 PANTONE 年度代表色
+                </h3>
+
+                {/* Featured 2025 Card (New Layout) */}
+                {currentYearColor && (
+                    <div 
+                        onClick={() => handleYearSelect(currentYearColor)}
+                        className="w-full bg-white shadow-md hover:shadow-2xl transition-all cursor-pointer group border border-gray-200 flex flex-col md:flex-row h-auto md:h-52 mb-8 rounded-xl overflow-hidden transform hover:-translate-y-1"
+                    >
+                         {/* Color block */}
+                        <div className="h-48 md:h-full w-full md:w-5/12 relative" style={{backgroundColor: currentYearColor.hex}}>
+                             <div className="absolute top-4 left-4 bg-black/90 text-white text-[10px] px-3 py-1.5 rounded-full uppercase tracking-wider font-bold shadow-md ring-1 ring-white/20">
+                                2025 New Arrival
+                             </div>
+                             <div className="absolute bottom-3 right-3 text-white/40 text-sm font-black tracking-widest uppercase">{currentYearColor.year}</div>
+                        </div>
+                         {/* Text info */}
+                        <div className="p-6 flex-1 flex flex-col justify-center bg-white relative">
+                             <img src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Pantone_logo.svg" alt="PANTONE" className="h-6 md:h-8 object-contain object-left mb-4 opacity-80" />
+                            <div className="text-sm font-mono font-bold text-gray-400 mb-1">{currentYearColor.code}</div>
+                            <div className="text-3xl font-black text-gray-900 leading-none mb-2">{currentYearColor.name}</div>
+                            <div className="text-xl font-bold text-gray-600">{currentYearColor.nameCN}</div>
+                            
+                            <div className="mt-4 flex items-center text-xs font-bold text-gray-400 gap-2 group-hover:text-black transition-colors">
+                                <span>了解更多</span>
+                                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Grid for past years */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-8">
+                    {pastYearsColors.map((p) => (
+                        <div 
+                            key={`${p.year}-${p.name}`}
+                            onClick={() => handleYearSelect(p)}
+                            className="bg-white aspect-[3/4] shadow-sm hover:shadow-xl transition-all cursor-pointer group border border-gray-100 flex flex-col rounded-lg overflow-hidden transform hover:-translate-y-1"
+                        >
+                            <div className="h-[65%] w-full relative" style={{backgroundColor: p.hex}}>
+                                 <div className="absolute bottom-2 right-2 text-white/60 text-[10px] font-black tracking-widest uppercase bg-black/10 px-1 rounded">{p.year}</div>
+                            </div>
+                            <div className="p-3 flex-1 flex flex-col justify-end bg-white border-t border-gray-50">
+                                <div className="text-[10px] font-mono font-bold text-gray-400 mb-0.5">{p.code}</div>
+                                <div className="text-sm font-black text-gray-900 leading-tight truncate">{p.name}</div>
+                                <div className="text-xs font-bold text-gray-500 mt-0.5 truncate">{p.nameCN}</div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+          </div>
+        )}
+
+        {/* INTRO SCREEN */}
+        {gameState === 'intro' && introBase && (
+            <div className="animate-fade-in flex flex-col bg-white rounded-xl shadow-2xl overflow-hidden mb-12 border border-gray-200">
+                <div className="relative">
+                    {/* Close Button with better visibility */}
+                    <button 
+                        onClick={() => setGameState('home')}
+                        className="absolute top-4 right-4 p-2 z-20 bg-white/90 hover:bg-white text-black rounded-full shadow-lg transition-transform hover:scale-110"
+                    >
+                        <X size={24} strokeWidth={2.5} />
+                    </button>
+
+                    <div className="flex flex-col border-b-[16px]" style={{borderColor: introBase.hex}}>
+                        {/* Big Color Block */}
+                        <div className="w-full h-64 md:h-80 relative" style={{backgroundColor: introBase.hex}}>
+                             <div className="absolute bottom-6 left-6 md:left-8 bg-black/80 backdrop-blur-md px-4 py-2 text-xs font-bold tracking-widest uppercase text-white rounded-lg shadow-lg">
+                                Pantone Color of the Year {introBase.year}
+                             </div>
+                        </div>
+                        
+                        <div className="p-6 md:p-10 flex flex-col relative overflow-hidden bg-white">
+                            {/* Decorative Year Watermark */}
+                            <h2 className="text-[6rem] md:text-[9rem] font-black text-gray-100 absolute select-none -top-10 right-0 z-0 leading-none opacity-60">{introBase.year}</h2>
+                            
+                            <div className="relative z-10 mb-8">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Pantone_logo.svg" alt="PANTONE" className="h-6 md:h-8 object-contain object-left mb-4" />
+                                <h2 className="text-4xl md:text-5xl font-black text-black mb-2 leading-tight tracking-tight">{introBase.name}</h2>
+                                <h3 className="text-2xl md:text-3xl font-bold text-gray-600 mb-3 leading-none">{introBase.nameCN}</h3>
+                                <p className="font-mono font-bold text-gray-400 text-lg">PANTONE {introBase.code}</p>
+                            </div>
+                            
+                            <div className="relative z-10">
+                                <h3 className="font-bold text-xs uppercase tracking-widest text-black mb-4 border-b-2 border-black inline-block pb-1">About the Color</h3>
+                                <p className="text-gray-700 leading-relaxed font-medium text-justify text-sm md:text-base lg:text-lg">
+                                    {introBase.desc}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-6 bg-gray-50 border-t border-gray-100">
+                    <button 
+                        onClick={startGameFromIntro}
+                        className="w-full bg-black text-white py-5 font-black text-xl hover:bg-neutral-800 transition-all flex items-center justify-center gap-3 shadow-xl rounded-lg active:scale-[0.99]"
+                    >
+                        <Play fill="white" size={24} />
+                        START CHALLENGE
+                    </button>
+                </div>
+            </div>
+        )}
+
+        {/* GAME SCREEN - Fixed Grid Issue */}
+        {gameState === 'playing' && (
+          // Fixed height calculation and grid gap
+          <div className="grid grid-cols-2 gap-4 md:gap-6 animate-fade-in w-full max-w-md mx-auto pb-12">
+            {[0, 1, 2, 3].map((index) => {
+              const isOdd = index === oddIndex;
+              return (
+                <PantoneCard 
+                  key={`${level}-${index}`} 
+                  isOdd={isOdd}
+                  colorHex={isOdd ? oddColor : currentBase.hex}
+                  colorName={currentBase.name}
+                  colorNameCN={currentBase.nameCN}
+                  colorCode={currentBase.code}
+                  onClick={handleCardClick}
+                  showFeedback={showFeedback}
+                  isGameActive={!showFeedback}
+                  className="rounded-lg overflow-hidden"
+                />
+              );
+            })}
+          </div>
+        )}
+
+        {/* GAME OVER SCREEN */}
+        {gameState === 'gameover' && (
+          <div className="bg-white p-8 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] text-center animate-fade-in border-t-[16px] relative rounded-xl overflow-hidden max-w-md mx-auto mb-12" style={{borderColor: currentBase.hex}}>
+            <div className="absolute -top-14 left-1/2 -translate-x-1/2 bg-white rounded-full p-4 shadow-xl border-4 border-gray-50">
+                 <Trophy className="w-10 h-10 text-yellow-500" fill="currentColor" />
+            </div>
+            
+            <h2 className="text-3xl font-black mb-2 mt-8 uppercase tracking-tight text-black">Game Over</h2>
+            <p className="text-gray-500 font-bold mb-8">Stopped at Level {level}</p>
+
+            <div className="bg-neutral-50 p-6 border-l-4 border-black text-left mb-8 rounded-r-lg shadow-inner">
+                <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Your Rank</div>
+                <div className="text-2xl font-black text-black leading-tight">{getRankTitle(level)}</div>
+                <div className="w-full h-px bg-gray-200 my-4"></div>
+                <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold text-gray-400 uppercase">Total Score</span>
+                    <span className="text-3xl font-black text-black">{level - 1}</span>
+                </div>
+            </div>
+
+            <div className="space-y-3">
+                <button 
+                    onClick={() => setGameState('home')}
+                    className="w-full bg-gray-100 text-black py-4 font-black hover:bg-gray-200 transition flex items-center justify-center gap-2 uppercase tracking-wide text-sm rounded-lg"
+                >
+                    <RefreshCcw size={18}/>
+                    Try Again
+                </button>
+                <button 
+                    onClick={handleShare}
+                    className="w-full bg-black text-white py-4 font-black hover:bg-neutral-800 transition flex items-center justify-center gap-2 uppercase tracking-wide text-sm rounded-lg"
+                >
+                    <Share2 size={18}/>
+                    Share Result
+                </button>
+            </div>
+            
+            <div className="mt-8 text-[11px] font-bold text-gray-400 font-mono bg-gray-50 py-2 rounded">
+                FAILED ON: <span className="text-gray-800">{currentBase.name.toUpperCase()}</span> ({currentBase.nameCN})
+            </div>
+          </div>
+        )}
+      </div>
+
+      <style>{`
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-6px) rotate(-2deg); }
+            40% { transform: translateX(6px) rotate(2deg); }
+            60% { transform: translateX(-3px); }
+            80% { transform: translateX(3px); }
+        }
+        .animate-shake {
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes pulse-fast {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .animate-pulse-fast {
+            animation: pulse-fast 0.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translate(-50%, 20px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.3s ease-out forwards;
+        }
+      `}</style>
+    </div>
+  );
+}
