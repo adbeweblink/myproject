@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>奧多比轉轉樂</title>
+    <!-- 引入思源黑體 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #1a1a1a;
+            font-family: 'Noto Sans TC', sans-serif;
+            color: white;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+        }
+
+        #ui-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            pointer-events: none;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 1px;
+            text-shadow: none;
+        }
+
+        p {
+            margin: 0;
+            font-size: 14px;
+            opacity: 0.7;
+            color: #ccc;
+        }
+
+        #timer-display {
+            font-family: 'Noto Sans TC', sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: #eeeeee;
+            margin-top: 5px;
+            opacity: 0.5;
+            transition: opacity 0.3s;
+        }
+        #timer-display.active {
+            opacity: 1;
+            color: #fff;
+        }
+
+        #game-status {
+            font-size: 14px;
+            color: #FF9A00;
+            font-weight: bold;
+            margin-bottom: 8px;
+            min-height: 20px;
+        }
+
+        #btn-share {
+            pointer-events: auto;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: all 0.2s ease;
+            font-family: 'Noto Sans TC', sans-serif;
+            margin-top: 5px;
+        }
+        #btn-share:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        #controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            z-index: 10;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 90%;
+        }
+
+        .ctrl-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 15px;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: all 0.2s ease;
+            font-weight: bold;
+            pointer-events: auto;
+            white-space: nowrap;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        .ctrl-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+        .ctrl-btn:active { transform: translateY(0); }
+
+        .legend {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            pointer-events: none;
+            display: none; 
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        @media (min-width: 768px) {
+            .legend { display: block; }
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: #eee;
+        }
+
+        .legend-icon {
+            width: 20px; height: 20px;
+            margin-right: 10px;
+            border-radius: 4px;
+            background-size: cover;
+            background-position: center;
+            background-color: #333;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        #keyboard-help {
+            position: absolute;
+            bottom: 100px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+            pointer-events: none;
+            font-size: 12px;
+            line-height: 1.8;
+            display: none;
+            text-align: left;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        @media (min-width: 768px) {
+            #keyboard-help { display: block; }
+        }
+
+        #mobile-help {
+            position: absolute;
+            bottom: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 20px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+            pointer-events: none;
+            font-size: 14px;
+            color: #eee;
+            text-align: center;
+            width: 80%;
+            display: block;
+        }
+
+        @media (min-width: 768px) {
+            #mobile-help { display: none; }
+        }
+
+        #keyboard-help h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #aaa;
+            text-align: left;
+        }
+        
+        .key {
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 4px;
+            padding: 2px 8px;
+            margin: 0 6px 0 0;
+            font-family: 'Consolas', monospace;
+            font-weight: bold;
+            min-width: 16px;
+            text-align: center;
+            color: #fff;
+        }
+
+        .key-group { margin-bottom: 4px; display: flex; align-items: center; }
+        .key-desc { margin-right: 12px; color: #ccc; }
+
+        #modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+        #leaderboard-modal {
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid #444;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            text-align: center;
+            position: relative;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+        #leaderboard-modal h2 { margin-top: 0; color: #FF9A00; }
+        .score-row {
+            display: flex; justify-content: space-between;
+            padding: 8px 0; border-bottom: 1px solid #444; font-size: 14px;
+        }
+        .score-row:nth-child(1) { color: #FFD700; font-weight: bold; }
+        .score-row:nth-child(2) { color: #C0C0C0; }
+        .score-row:nth-child(3) { color: #CD7F32; }
+        
+        #player-name-input {
+            width: 100%; padding: 10px; margin: 15px 0;
+            border-radius: 5px; border: 1px solid #555;
+            background: #333; color: white; font-size: 16px; box-sizing: border-box;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+        .modal-btn {
+            background: #31A8FF; border: none; padding: 10px 20px;
+            border-radius: 5px; color: white; font-weight: bold;
+            cursor: pointer; margin-top: 10px;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+        .modal-btn:hover { background: #2086d1; }
+        .close-btn {
+            position: absolute; top: 10px; right: 15px;
+            color: #888; cursor: pointer; font-size: 20px;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+    <div id="ui-container">
+        <h1>奧多比轉轉樂</h1>
+        <p>滾輪縮放 | 拖曳旋轉</p>
+        
+        <div id="timer-display">00:00.00</div>
+        <div id="game-status">請點擊「打亂」開始遊戲</div>
+        <button id="btn-share">🔗 分享遊戲</button>
+    </div>
+
+    <!-- Leaderboard Modal -->
+    <div id="modal-overlay">
+        <div id="leaderboard-modal">
+            <div class="close-btn" onclick="closeModal()">×</div>
+            <h2 id="modal-title">恭喜完成！</h2>
+            <div id="new-score-section">
+                <p>你的成績：<span id="current-score" style="color:#4ff; font-weight:bold; font-size:20px;"></span></p>
+                <input type="text" id="player-name-input" placeholder="輸入你的名字" maxlength="10">
+                <button class="modal-btn" onclick="saveScore()">提交成績</button>
+            </div>
+            <div id="leaderboard-section" style="margin-top:20px;">
+                <h3>🏆 排行榜 (Top 5)</h3>
+                <div id="score-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="keyboard-help">
+        <h3>鍵盤操作 (Shift 反向)</h3>
+        <div class="key-group">
+            <span class="key">W</span><span class="key-desc">上層</span>
+            <span class="key">S</span><span class="key-desc">下層</span>
+        </div>
+        <div class="key-group">
+            <span class="key">A</span><span class="key-desc">左層</span>
+            <span class="key">D</span><span class="key-desc">右層</span>
+        </div>
+        <div class="key-group">
+            <span class="key">Q</span><span class="key-desc">前層</span>
+            <span class="key">E</span><span class="key-desc">後層</span>
+        </div>
+    </div>
+
+    <div id="mobile-help">
+        👋 <strong>觸控操作：</strong><br>
+        單指拖曳旋轉 | 雙指縮放
+    </div>
+
+    <div class="legend" id="legend-container"></div>
+
+    <div id="controls">
+        <button id="btn-scramble" class="ctrl-btn">🔀 打亂</button>
+        <button id="btn-center" class="ctrl-btn">👁️ 視角歸位</button>
+        <button id="btn-reset" class="ctrl-btn">🔄 重置遊戲</button>
+    </div>
+
+    <div id="canvas-container"></div>
+    
+    <script>
+        // --- Audio Context for Sound Effects ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = new AudioContext();
+
+        function playSnapSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            osc.type = 'triangle';
+            // Quick pitch drop for a "click" sound
+            osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.1);
+            
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        }
+
+        const container = document.getElementById('canvas-container');
+        let scene, camera, renderer;
+        let cubes = [];
+        let pivot;
+        let isAnimating = false;
+        
+        let isDragging = false;
+        let startMouse = { x: 0, y: 0 };
+        let intersectObject = null;
+        let intersectNormal = null;
+        
+        const DEFAULT_ANGLE = { x: Math.PI / 4, y: Math.PI / 4 };
+        const DEFAULT_RADIUS = 12;
+        let cameraAngle = { ...DEFAULT_ANGLE };
+        let cameraRadius = DEFAULT_RADIUS;
+        let isCameraRotating = false;
+        let lastMousePos = { x: 0, y: 0 };
+        
+        let initialPinchDist = 0;
+        let initialRadius = 0;
+
+        let gameState = 'IDLE'; 
+        let timerInterval = null;
+        let startTime = 0;
+        let elapsedTime = 0;
+
+        const FACE_CONFIG = {
+            RIGHT:  { label: 'Firefly (右)', type: 'Firefly', file: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Adobe_Firefly_Logo.svg/1200px-Adobe_Firefly_Logo.svg.png' },
+            LEFT:   { label: 'Ps (左)',      type: 'Ps',      file: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Adobe_Photoshop_CC_icon.svg/512px-Adobe_Photoshop_CC_icon.svg.png' },
+            TOP:    { label: 'Ai (上)',      type: 'Ai',      file: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Adobe_Illustrator_CC_icon.svg/512px-Adobe_Illustrator_CC_icon.svg.png' },
+            BOTTOM: { label: 'Pr (下)',      type: 'Pr',      file: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Adobe_Premiere_Pro_CC_icon.svg/512px-Adobe_Premiere_Pro_CC_icon.svg.png' },
+            FRONT:  { label: 'CC (前)',      type: 'CC',      file: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Adobe_Creative_Cloud_rainbow_icon.svg/1200px-Adobe_Creative_Cloud_rainbow_icon.svg.png' },
+            BACK:   { label: 'Express (後)', type: 'Express', file: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Adobe_Express_logo_CMYK_256px.svg/2101px-Adobe_Express_logo_CMYK_256px.svg.png' }
+        };
+
+        init();
+        animate();
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x222222);
+
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+            updateCameraPosition();
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(10, 20, 10);
+            scene.add(dirLight);
+            const backLight = new THREE.DirectionalLight(0xffffff, 0.3);
+            backLight.position.set(-10, -10, -10);
+            scene.add(backLight);
+
+            createRubiksCube();
+            pivot = new THREE.Object3D();
+            scene.add(pivot);
+
+            buildLegend();
+            updateTimerDisplay(0);
+
+            window.addEventListener('resize', onWindowResize);
+            
+            renderer.domElement.addEventListener('mousedown', onMouseDown);
+            renderer.domElement.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('mouseup', onMouseUp);
+            renderer.domElement.addEventListener('wheel', onWheel, {passive: false});
+            
+            renderer.domElement.addEventListener('touchstart', onTouchStart, {passive: false});
+            renderer.domElement.addEventListener('touchmove', onTouchMove, {passive: false});
+            window.addEventListener('touchend', onTouchEnd);
+
+            document.getElementById('btn-scramble').addEventListener('click', scrambleCube);
+            document.getElementById('btn-reset').addEventListener('click', resetCube);
+            document.getElementById('btn-center').addEventListener('click', centerView);
+            document.getElementById('btn-share').addEventListener('click', shareGame);
+            
+            window.addEventListener('keydown', onKeyDown);
+        }
+
+        function buildLegend() {
+            const container = document.getElementById('legend-container');
+            container.innerHTML = '';
+            const order = ['LEFT', 'TOP', 'BOTTOM', 'FRONT', 'BACK', 'RIGHT'];
+            order.forEach(key => {
+                const conf = FACE_CONFIG[key];
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                item.innerHTML = `<div class="legend-icon" style="background-image: url('${conf.file}')"></div>${conf.label}`;
+                container.appendChild(item);
+            });
+        }
+
+        function createAdobeTexture(config) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256; canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            const texture = new THREE.CanvasTexture(canvas);
+
+            drawFallback(ctx, config.type);
+            texture.needsUpdate = true;
+
+            const img = new Image();
+            img.crossOrigin = "Anonymous"; 
+            img.onload = function() {
+                ctx.fillStyle = '#111'; ctx.fillRect(0, 0, 256, 256);
+                const pad = 10;
+                ctx.fillRect(pad, pad, 256 - pad*2, 256 - pad*2); 
+                ctx.drawImage(img, pad, pad, 256 - pad*2, 256 - pad*2);
+                ctx.fillStyle = 'rgba(255,255,255,0.1)';
+                ctx.fillRect(pad, pad, 256 - pad*2, (256 - pad*2)/2);
+                texture.needsUpdate = true;
+            };
+            img.src = config.file;
+            return texture;
+        }
+
+        function drawFallback(ctx, type) {
+            ctx.fillStyle = '#111'; ctx.fillRect(0, 0, 256, 256);
+            const pad = 10; const w = 236; const h = 236; const x = 10; const y = 10;
+            ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+
+            if (type === 'Ps') {
+                ctx.fillStyle = '#31A8FF'; ctx.fillRect(x,y,w,h);
+                ctx.fillStyle = '#001E36'; ctx.font = 'bold 140px sans-serif';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('Ps', 128, 128);
+            } else if (type === 'Ai') {
+                ctx.fillStyle = '#FF9A00'; ctx.fillRect(x,y,w,h);
+                ctx.fillStyle = '#330000'; ctx.font = 'bold 140px sans-serif';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('Ai', 128, 128);
+            } else if (type === 'Pr') {
+                ctx.fillStyle = '#9999FF'; ctx.fillRect(x,y,w,h);
+                ctx.fillStyle = '#00005B'; ctx.font = 'bold 140px sans-serif';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('Pr', 128, 128);
+            } else if (type === 'CC') {
+                const grad = ctx.createLinearGradient(x, y, x+w, y+h);
+                grad.addColorStop(0, '#DA1F26'); grad.addColorStop(0.5, '#FF0099'); grad.addColorStop(1, '#9900FF');
+                ctx.fillStyle = grad; ctx.fillRect(x,y,w,h);
+                ctx.fillStyle = 'white'; ctx.font = 'bold 130px sans-serif';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('CC', 128, 132);
+            } else if (type === 'Express') {
+                ctx.fillStyle = 'black'; ctx.fillRect(x,y,w,h);
+                const grad = ctx.createLinearGradient(x,y,x+w,y);
+                grad.addColorStop(0, '#7D47F4'); grad.addColorStop(1, '#2F7CFF');
+                ctx.fillStyle = grad; ctx.font = 'bold italic 100px serif';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('Ex', 128, 128);
+            } else if (type === 'Firefly') {
+                const grad = ctx.createLinearGradient(x,y,x+w,y+h);
+                grad.addColorStop(0, '#5C2D91'); grad.addColorStop(0.5, '#FA5B34'); grad.addColorStop(1, '#F8C92A');
+                ctx.fillStyle = grad; ctx.fillRect(x,y,w,h);
+                ctx.fillStyle = 'white'; ctx.font = 'bold 130px sans-serif';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('Fi', 128, 128);
+            }
+            ctx.restore();
+            ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.fillRect(x, y, w, h/2);
+        }
+
+        function createRubiksCube() {
+            if(cubes.length > 0) {
+                cubes.forEach(c => scene.remove(c));
+                cubes = [];
+            }
+
+            const textures = {
+                right: createAdobeTexture(FACE_CONFIG.RIGHT),
+                left: createAdobeTexture(FACE_CONFIG.LEFT),
+                top: createAdobeTexture(FACE_CONFIG.TOP),
+                bottom: createAdobeTexture(FACE_CONFIG.BOTTOM),
+                front: createAdobeTexture(FACE_CONFIG.FRONT),
+                back: createAdobeTexture(FACE_CONFIG.BACK)
+            };
+
+            const blackMat = new THREE.MeshStandardMaterial({ 
+                color: 0x111111, 
+                roughness: 0.5, 
+                metalness: 0.1 
+            });
+            const boxGeo = new THREE.BoxGeometry(0.96, 0.96, 0.96);
+
+            for(let x=-1; x<=1; x++) {
+                for(let y=-1; y<=1; y++) {
+                    for(let z=-1; z<=1; z++) {
+                        const materials = [
+                            x === 1 ? new THREE.MeshBasicMaterial({ map: textures.right }) : blackMat,
+                            x === -1 ? new THREE.MeshBasicMaterial({ map: textures.left }) : blackMat,
+                            y === 1 ? new THREE.MeshBasicMaterial({ map: textures.top }) : blackMat,
+                            y === -1 ? new THREE.MeshBasicMaterial({ map: textures.bottom }) : blackMat,
+                            z === 1 ? new THREE.MeshBasicMaterial({ map: textures.front }) : blackMat,
+                            z === -1 ? new THREE.MeshBasicMaterial({ map: textures.back }) : blackMat,
+                        ];
+
+                        const mesh = new THREE.Mesh(boxGeo, materials);
+                        mesh.position.set(x, y, z);
+                        mesh.userData = { 
+                            initialPos: new THREE.Vector3(x, y, z)
+                        };
+                        cubes.push(mesh);
+                        scene.add(mesh);
+                    }
+                }
+            }
+            stopTimer();
+            resetTimerDisplay();
+            setGameStatus('IDLE');
+        }
+
+        function setGameStatus(state) {
+            gameState = state;
+            const el = document.getElementById('game-status');
+            if (state === 'IDLE') el.innerText = '請點擊「打亂」開始遊戲';
+            else if (state === 'SCRAMBLING') el.innerText = '打亂中...';
+            else if (state === 'READY') el.innerText = '撥動方塊開始計時';
+            else if (state === 'PLAYING') el.innerText = '計時中...';
+            else if (state === 'SOLVED') el.innerText = '完成！';
+        }
+
+        function resetTimerDisplay() {
+            updateTimerDisplay(0);
+            document.getElementById('timer-display').classList.remove('active');
+        }
+
+        function updateTimerDisplay(ms) {
+            const minutes = Math.floor(ms / 60000);
+            const seconds = Math.floor((ms % 60000) / 1000);
+            const centiseconds = Math.floor((ms % 1000) / 10);
+            const txt = (minutes < 10 ? "0" + minutes : minutes) + ":" + 
+                        (seconds < 10 ? "0" + seconds : seconds) + "." + 
+                        (centiseconds < 10 ? "0" + centiseconds : centiseconds);
+            document.getElementById('timer-display').innerText = txt;
+        }
+
+        function startTimer() {
+            if (gameState === 'PLAYING' || gameState === 'SOLVED') return;
+            setGameStatus('PLAYING');
+            startTime = Date.now();
+            document.getElementById('timer-display').classList.add('active');
+            
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                elapsedTime = Date.now() - startTime;
+                updateTimerDisplay(elapsedTime);
+            }, 30);
+        }
+
+        function stopTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = null;
+        }
+
+        function checkSolved() {
+            if (gameState !== 'PLAYING') return;
+
+            let isSolved = true;
+            const epsilon = 0.1;
+
+            for (let c of cubes) {
+                const currentPos = c.position.clone();
+                const targetPos = c.userData.initialPos;
+                if (currentPos.distanceTo(targetPos) > epsilon) {
+                    isSolved = false; break;
+                }
+                const angle = c.quaternion.angleTo(new THREE.Quaternion()); 
+                if (Math.abs(angle) > epsilon) {
+                    isSolved = false; break;
+                }
+            }
+
+            if (isSolved) {
+                setGameStatus('SOLVED');
+                stopTimer();
+                showLeaderboard(elapsedTime);
+            }
+        }
+
+        // --- Interaction ---
+        function attemptMove() {
+            if (gameState === 'READY') {
+                startTimer();
+            }
+        }
+
+        function getMousePos(e) {
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: clientX, y: clientY };
+        }
+
+        function onMouseDown(event) {
+            if(isAnimating) return;
+            isDragging = true;
+            const pos = getMousePos(event);
+            startMouse.x = pos.x;
+            startMouse.y = pos.y;
+            lastMousePos.x = pos.x;
+            lastMousePos.y = pos.y;
+
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+            mouse.x = (pos.x / window.innerWidth) * 2 - 1;
+            mouse.y = -(pos.y / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(cubes);
+
+            if (intersects.length > 0) {
+                intersectObject = intersects[0].object;
+                intersectNormal = intersects[0].face.normal.clone();
+                intersectNormal.transformDirection(intersectObject.matrixWorld).round();
+                isCameraRotating = false;
+            } else {
+                intersectObject = null;
+                isCameraRotating = true;
+            }
+        }
+
+        function onMouseMove(event) {
+            if (!isDragging) return;
+            const pos = getMousePos(event);
+
+            if (isCameraRotating) {
+                const dx = pos.x - lastMousePos.x;
+                const dy = pos.y - lastMousePos.y;
+                cameraAngle.x -= dx * 0.005;
+                cameraAngle.y += dy * 0.005;
+                cameraAngle.y = Math.max(0.1, Math.min(Math.PI - 0.1, cameraAngle.y));
+                updateCameraPosition();
+                lastMousePos.x = pos.x;
+                lastMousePos.y = pos.y;
+            } else if (intersectObject && !isAnimating) {
+                const moveX = pos.x - startMouse.x;
+                const moveY = pos.y - startMouse.y;
+                const dist = Math.sqrt(moveX*moveX + moveY*moveY);
+                if (dist > 30) {
+                    if (gameState === 'READY' || gameState === 'PLAYING') {
+                         if(gameState === 'READY') attemptMove();
+                         triggerRotation(intersectObject, intersectNormal, moveX, moveY);
+                    } else if (gameState === 'IDLE' || gameState === 'SOLVED') {
+                         triggerRotation(intersectObject, intersectNormal, moveX, moveY);
+                    }
+                    isDragging = false;
+                }
+            }
+        }
+
+        function onMouseUp() { isDragging = false; intersectObject = null; isCameraRotating = false; }
+        function onWheel(e) {
+            e.preventDefault();
+            const delta = e.deltaY * 0.01;
+            cameraRadius = Math.max(5, Math.min(30, cameraRadius + delta));
+            updateCameraPosition();
+        }
+
+        function onTouchStart(e) { 
+            if (e.touches.length === 2) {
+                isDragging = false;
+                const dx = e.touches[0].pageX - e.touches[1].pageX;
+                const dy = e.touches[0].pageY - e.touches[1].pageY;
+                initialPinchDist = Math.sqrt(dx*dx + dy*dy);
+                initialRadius = cameraRadius;
+            } else if(e.touches.length === 1) {
+                if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') {
+                    e.preventDefault();
+                }
+                onMouseDown(e);
+            }
+        }
+        function onTouchMove(e) { 
+            if (e.touches.length === 2) {
+                e.preventDefault();
+                const dx = e.touches[0].pageX - e.touches[1].pageX;
+                const dy = e.touches[0].pageY - e.touches[1].pageY;
+                const currentDist = Math.sqrt(dx*dx + dy*dy);
+                const scale = initialPinchDist / currentDist;
+                cameraRadius = Math.max(5, Math.min(30, initialRadius * scale));
+                updateCameraPosition();
+            } else if(isDragging) {
+                e.preventDefault();
+                onMouseMove(e);
+            }
+        }
+        function onTouchEnd(e) { onMouseUp(); }
+
+        function updateCameraPosition() {
+            camera.position.x = cameraRadius * Math.sin(cameraAngle.y) * Math.sin(cameraAngle.x);
+            camera.position.z = cameraRadius * Math.sin(cameraAngle.y) * Math.cos(cameraAngle.x);
+            camera.position.y = cameraRadius * Math.cos(cameraAngle.y);
+            camera.lookAt(0, 0, 0);
+        }
+
+        function centerView() {
+            cameraAngle = { ...DEFAULT_ANGLE };
+            cameraRadius = DEFAULT_RADIUS;
+            updateCameraPosition();
+        }
+
+        // --- Core Rotation Logic ---
+        function triggerRotation(object, normal, dx, dy) {
+            const pos = object.position.clone().round();
+            let dragDir = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+            let rotateAxis, layerValue, directionScale = 1;
+            
+            const nx = Math.abs(normal.x), ny = Math.abs(normal.y), nz = Math.abs(normal.z);
+
+            if (nx > 0.5) { 
+                if (dragDir === 'y') { rotateAxis = 'z'; layerValue = pos.z; directionScale = (normal.x > 0 ? -1 : 1) * (dy > 0 ? 1 : -1); } 
+                else { rotateAxis = 'y'; layerValue = pos.y; directionScale = (normal.x > 0 ? 1 : -1) * (dx > 0 ? 1 : -1); }
+            } else if (ny > 0.5) {
+                if (dragDir === 'y') { rotateAxis = 'x'; layerValue = pos.x; directionScale = (normal.y > 0 ? 1 : -1) * (dy > 0 ? 1 : -1); } 
+                else { rotateAxis = 'z'; layerValue = pos.z; directionScale = (normal.y > 0 ? -1 : 1) * (dx > 0 ? -1 : 1); }
+            } else if (nz > 0.5) {
+                if (dragDir === 'y') { rotateAxis = 'x'; layerValue = pos.x; directionScale = (normal.z > 0 ? -1 : 1) * (dy > 0 ? 1 : -1); } 
+                else { rotateAxis = 'y'; layerValue = pos.y; directionScale = (normal.z > 0 ? -1 : 1) * (dx > 0 ? 1 : -1); }
+            }
+
+            if(rotateAxis) rotateLayer(rotateAxis, Math.round(layerValue), directionScale * Math.PI/2);
+        }
+
+        function onKeyDown(event) {
+            if (isAnimating || document.getElementById('leaderboard-modal').style.display === 'block') return;
+            
+            const key = event.key.toUpperCase();
+            if(gameState !== 'SCRAMBLING' && ['W','S','A','D','Q','E'].includes(key)) {
+                if (gameState === 'READY') attemptMove();
+                
+                const isShift = event.shiftKey;
+                const angle = isShift ? Math.PI / 2 : -Math.PI / 2; 
+
+                switch (key) {
+                    case 'W': rotateLayer('y', 1, angle); break;
+                    case 'S': rotateLayer('y', -1, -angle); break;
+                    case 'A': rotateLayer('x', -1, angle); break;
+                    case 'D': rotateLayer('x', 1, -angle); break;
+                    case 'Q': rotateLayer('z', 1, angle); break;
+                    case 'E': rotateLayer('z', -1, -angle); break;
+                }
+            }
+        }
+
+        function rotateLayer(axis, layerVal, angle, duration = 300) {
+            if (isAnimating) return;
+            isAnimating = true;
+            
+            playSnapSound();
+
+            const activeCubes = cubes.filter(c => {
+                const worldPos = new THREE.Vector3();
+                c.getWorldPosition(worldPos);
+                return Math.abs(worldPos[axis] - layerVal) < 0.1;
+            });
+
+            if(activeCubes.length === 0) { isAnimating = false; return; }
+
+            pivot.rotation.set(0, 0, 0);
+            pivot.position.set(0, 0, 0);
+            
+            activeCubes.forEach(c => {
+                const worldPos = new THREE.Vector3();
+                const worldQuat = new THREE.Quaternion();
+                const worldScale = new THREE.Vector3();
+                c.matrixWorld.decompose(worldPos, worldQuat, worldScale);
+                scene.remove(c);
+                pivot.add(c);
+                c.position.copy(worldPos);
+                c.quaternion.copy(worldQuat);
+                c.scale.copy(worldScale);
+            });
+
+            const startTimeAnim = Date.now();
+            function anim() {
+                const now = Date.now();
+                const progress = Math.min((now - startTimeAnim) / duration, 1);
+                
+                const ease = 1 - Math.pow(1 - progress, 3);
+                
+                pivot.rotation[axis] = angle * ease;
+
+                if (progress < 1) {
+                    requestAnimationFrame(anim);
+                } else {
+                    pivot.rotation[axis] = angle;
+                    pivot.updateMatrixWorld();
+                    activeCubes.forEach(c => {
+                        const worldPos = new THREE.Vector3();
+                        const worldQuat = new THREE.Quaternion();
+                        const worldScale = new THREE.Vector3();
+                        c.matrixWorld.decompose(worldPos, worldQuat, worldScale);
+                        pivot.remove(c);
+                        scene.add(c);
+                        c.position.copy(worldPos);
+                        c.quaternion.copy(worldQuat);
+                        c.scale.copy(worldScale);
+                        
+                        c.position.x = Math.round(c.position.x);
+                        c.position.y = Math.round(c.position.y);
+                        c.position.z = Math.round(c.position.z);
+                        c.quaternion.normalize();
+                    });
+                    isAnimating = false;
+                    checkSolved(); 
+                }
+            }
+            anim();
+        }
+
+        function resetCube() { 
+            if(isAnimating) return; 
+            createRubiksCube(); 
+        }
+        
+        function scrambleCube() {
+            if(isAnimating) return;
+            stopTimer();
+            resetTimerDisplay();
+            setGameStatus('SCRAMBLING');
+
+            const axes = ['x', 'y', 'z'];
+            const layers = [-1, 0, 1];
+            const dirs = [Math.PI/2, -Math.PI/2];
+            let count = 0;
+            const totalMoves = 20;
+            const speed = 60; 
+
+            function nextMove() {
+                if(count >= totalMoves) {
+                    setGameStatus('READY'); 
+                    return;
+                }
+                const axis = axes[Math.floor(Math.random() * axes.length)];
+                const layer = layers[Math.floor(Math.random() * layers.length)];
+                const angle = dirs[Math.floor(Math.random() * dirs.length)];
+                
+                rotateLayer(axis, layer, angle, speed);
+                setTimeout(() => { count++; nextMove(); }, speed + 20);
+            }
+            nextMove();
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+
+        // --- Leaderboard & Sharing ---
+        function shareGame() {
+            const url = window.location.href;
+            const text = "來挑戰奧多比轉轉樂！看你能多快解開！ #AdobeMagicCube";
+            if (navigator.share) {
+                navigator.share({ title: '奧多比轉轉樂', text: text, url: url }).catch(console.error);
+            } else {
+                const dummy = document.createElement('input');
+                document.body.appendChild(dummy);
+                dummy.value = url;
+                dummy.select();
+                document.execCommand('copy');
+                document.body.removeChild(dummy);
+                alert('遊戲連結已複製！');
+            }
+        }
+
+        const STORAGE_KEY = 'adobe_cube_scores';
+        function showLeaderboard(finalTime) {
+            document.getElementById('modal-overlay').style.display = 'flex';
+            if (finalTime !== undefined) {
+                document.getElementById('new-score-section').style.display = 'block';
+                document.getElementById('modal-title').innerText = "恭喜完成！";
+                document.getElementById('current-score').innerText = formatTime(finalTime);
+            } else {
+                document.getElementById('new-score-section').style.display = 'none';
+                document.getElementById('modal-title').innerText = "排行榜";
+            }
+            renderScores();
+        }
+        function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
+        function saveScore() {
+            const name = document.getElementById('player-name-input').value.trim() || "玩家";
+            const newScore = { name: name, time: elapsedTime, date: Date.now() };
+            let scores = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            scores.push(newScore);
+            scores.sort((a, b) => a.time - b.time);
+            scores = scores.slice(0, 5);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(scores));
+            renderScores();
+            document.getElementById('new-score-section').style.display = 'none';
+        }
+        function renderScores() {
+            const list = document.getElementById('score-list');
+            list.innerHTML = '';
+            const scores = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            if (scores.length === 0) { list.innerHTML = '<p style="color:#888;">暫無紀錄，快來挑戰！</p>'; return; }
+            scores.forEach((s, i) => {
+                const row = document.createElement('div');
+                row.className = 'score-row';
+                const medal = i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : `#${i+1}`));
+                row.innerHTML = `<span>${medal} ${s.name}</span><span>${formatTime(s.time)}</span>`;
+                list.appendChild(row);
+            });
+        }
+        function formatTime(ms) {
+            const min = Math.floor(ms / 60000);
+            const sec = Math.floor((ms % 60000) / 1000);
+            const cs = Math.floor((ms % 1000) / 10);
+            return `${min}:${sec < 10 ? '0'+sec : sec}.${cs < 10 ? '0'+cs : cs}`;
+        }
+        
+    </script>
+</body>
+</html>
