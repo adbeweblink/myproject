@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adobe 企業方案比較表</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        adobeRed: '#FA0F00',
+                        adobeDarkRed: '#D40D00',
+                        adobeBlack: '#1A1A1A',
+                        adobeBlue: '#1473E6'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 自定義樣式與列印設定 */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+        
+        body { font-family: 'Noto Sans TC', sans-serif; }
+
+        /* 隱藏 Scrollbar 但保留功能 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @media print {
+            @page { size: A4 landscape; margin: 5mm; }
+            body { 
+                background: white; 
+                color: black; 
+                font-size: 10pt; 
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            
+            /* 列印時強制展開所有內容 */
+            .grid { display: grid !important; width: 100% !important; }
+            
+            /* 去除陰影與懸浮效果 */
+            .shadow-xl, .shadow-lg, .shadow-md, .shadow-sm { box-shadow: none !important; }
+            .hover\:scale-\[1\.02\] { transform: none !important; }
+            
+            /* 強制背景色顯示 */
+            .bg-adobeRed { background-color: #FA0F00 !important; }
+            .text-white { color: white !important; }
+            .bg-green-50 { background-color: #f0fdf4 !important; }
+            
+            /* 調整縮放以適應紙張 */
+            #comparison-table { zoom: 0.75; }
+        }
+        .print-only { display: none; }
+        
+        /* Modal 動畫 */
+        .modal-enter { opacity: 0; transform: scale(0.95); }
+        .modal-enter-active { opacity: 1; transform: scale(1); transition: all 0.3s ease-out; }
+        .modal-exit { opacity: 0; transform: scale(0.95); transition: all 0.2s ease-in; }
+    </style>
+</head>
+<body class="bg-[#F5F5F5] text-[#2C2C2C] pb-12 selection:bg-blue-100 selection:text-blue-900">
+
+    <!-- App Root -->
+    <div id="app" class="min-h-screen flex flex-col">
+        <!-- Header will be rendered here -->
+        <div id="header-container" class="sticky top-0 z-[60]"></div>
+
+        <!-- Main Content -->
+        <div class="max-w-7xl mx-auto p-1 md:p-6 w-full flex-grow">
+            <!-- Print Header -->
+            <div class="print-only text-center mb-4 border-b-2 border-adobeRed pb-2">
+                <h1 class="text-2xl font-bold text-black">Adobe Creative Cloud 企業方案比較表</h1>
+                <p class="text-xs text-gray-500" id="print-date"></p>
+            </div>
+
+            <!-- Legend -->
+            <div class="no-print mb-6 flex flex-wrap gap-2 md:gap-4 justify-center md:justify-start items-center text-xs font-medium text-gray-500 px-2">
+                <div class="flex items-center bg-white px-3 py-1.5 rounded-full shadow-sm border border-gray-100">
+                    <div class="flex items-center text-adobeRed font-bold mr-1.5">
+                        <div class="bg-adobeRed text-white rounded-full px-1.5 py-0.5 text-[10px] flex items-center">
+                            <svg class="w-2 h-2 mr-1 fill-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            推薦
+                        </div>
+                    </div>
+                    <span>最強優勢</span>
+                </div>
+                <div class="flex items-center bg-white px-3 py-1.5 rounded-full shadow-sm border border-gray-100">
+                    <svg class="w-3 h-3 text-adobeBlue mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 4.1 12 6"/><path d="m5.1 8-2.9-.8"/><path d="m6 12-1.9 2"/><path d="M7.2 2.2 8 5.1"/><path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z"/></svg>
+                    <span>點擊查看詳解</span>
+                </div>
+            </div>
+
+            <!-- Comparison Table Container -->
+            <div id="table-container" class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden flex flex-col w-full">
+                <!-- Grid will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="feature-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity duration-300" onclick="App.closeModal()"></div>
+        <div id="feature-modal-content" class="bg-white rounded-2xl shadow-2xl max-w-md w-full relative transform transition-all duration-300 p-0 border-none overflow-hidden scale-95 opacity-0">
+            <!-- Content Injected via JS -->
+        </div>
+    </div>
+
+    <div id="contact-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="App.closeContactModal()"></div>
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full relative p-6 border-none overflow-hidden animate-in fade-in zoom-in-95">
+            <button onclick="App.closeContactModal()" class="absolute top-4 right-4 text-gray-400 hover:text-black transition-colors p-2 rounded-full hover:bg-gray-200">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+            <h3 class="text-xl font-black text-adobeBlack mb-2 text-center">聯繫諮詢</h3>
+            <p class="text-gray-500 text-sm text-center mb-6">感謝您的興趣！請填寫以下資訊，我們將由專人聯繫您，或為您推薦合適的經銷商。</p>
+            <form class="space-y-4" onsubmit="event.preventDefault(); alert('感謝您的填寫，我們將盡快聯繫您！'); App.closeContactModal();">
+                <div><label class="block text-sm font-bold text-gray-700 mb-1">姓名</label><input type="text" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required placeholder="您的稱呼"></div>
+                <div><label class="block text-sm font-bold text-gray-700 mb-1">公司名稱</label><input type="text" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required placeholder="公司全名"></div>
+                <div><label class="block text-sm font-bold text-gray-700 mb-1">Email</label><input type="email" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required placeholder="name@company.com"></div>
+                <div><label class="block text-sm font-bold text-gray-700 mb-1">聯絡電話</label><input type="tel" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required placeholder="0912-345-678"></div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">感興趣的方案</label>
+                    <select class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none">
+                        <option>Creative Cloud 團隊完整版</option>
+                        <option>Creative Cloud 企業旗艦版</option>
+                        <option>尚未確定，需要建議</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-adobeRed text-white py-3 rounded-lg font-bold hover:bg-adobeDarkRed transition-colors flex items-center justify-center mt-6">
+                    <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg> 送出諮詢
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Logic Script -->
+    <script>
+        // --- 1. 資料定義 ---
+        const AppData = {
+            currentDate: new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }),
+            
+            plans: [
+                { 
+                    id: 'cct_pro', category: '團隊入門版', name: 'Creative Cloud Pro for teams', 
+                    desktop_apps: '包含 20+ 款', storage: '1TB', cloud_service: '包含', 
+                    firefly_img: '無限生成', firefly_credits: '包含 (4000點/月)', firefly_boards: '包含', 
+                    stock: '未包含', pdf_apps: '包含 Acrobat Pro', sign: '無限簽署', substance: '需加購', 
+                    admin_console: '基本後台', sso: '不支援', directory_sync: '無', support: '標準技術支援', 
+                    security_policy: '標準', encryption_key: '無', admin_roles: '僅單一管理員', 
+                    service_access: '無', cloud_control: '無', ip_indemnity: '無', 
+                    note: '適合在預算內採購最大數量的團隊', theme: 'gray'
+                },
+                { 
+                    id: 'cct_pro_plus', category: '團隊完整版', orientation: '用戶導向', isHot: true, 
+                    name: 'Creative Cloud Pro Plus for teams', 
+                    desktop_apps: '包含 20+ 款', storage: '1TB', cloud_service: '包含', 
+                    firefly_img: '無限生成', firefly_credits: '包含 (4000點/月)', firefly_boards: '包含', 
+                    stock: '無限下載\n(印量無上限)', pdf_apps: '包含 Acrobat Pro', sign: '無限簽署', substance: '需加購', 
+                    admin_console: '基本後台', sso: '不支援', directory_sync: '無', support: '標準技術支援', 
+                    security_policy: '標準', encryption_key: '無', admin_roles: '僅單一管理員', 
+                    service_access: '無', cloud_control: '無', ip_indemnity: '有 (基礎賠償)', 
+                    note: '適合需要大量素材的行銷團隊', theme: 'blue'
+                },
+                { 
+                    id: 'edition4', category: '企業旗艦版', orientation: '資安導向', 
+                    name: 'Creative Cloud Enterprise Edition 4', 
+                    desktop_apps: '包含 20+ 款', storage: '1TB (可集中管理)', cloud_service: '包含', 
+                    firefly_img: '無限生成\n(+物件合成/風格)', firefly_credits: '包含 (4000點/月)', firefly_boards: '包含', 
+                    stock: '無限下載\n(可商品化販售)', pdf_apps: '包含 Acrobat Pro', sign: '無限簽署', substance: '需加購', 
+                    admin_console: '進階後台', sso: '支援 (企業帳號整合)', directory_sync: '支援 (自動化同步)', 
+                    support: '企業級支援 (可開Case)', security_policy: '進階管控 (週期/強度)', encryption_key: '支援 (專屬金鑰)', 
+                    admin_roles: '分層管理 (多種角色)', service_access: '包含 (按群組)', cloud_control: '包含', 
+                    ip_indemnity: '包含 (企業級保障)', 
+                    note: '資安最高規格，素材可商用販售', theme: 'red'
+                }
+            ],
+
+            columns: [
+                { key: 'desktop_apps', label: '桌面軟體', icon: 'monitor', section: '使用端差異', description: '包含 Photoshop, Illustrator, Premiere Pro 等 20 多款業界標準的創意應用程式桌面版：\n\n• 影像處理：Photoshop, Lightroom\n• 設計排版：Illustrator, InDesign\n• 影片剪輯：Premiere Pro, After Effects\n• 網頁設計：Dreamweaver, XD\n• 以及更多...', url: 'https://adbeweblink.github.io/myproject/adbespec2026.html' },
+                { key: 'firefly_img', label: 'Firefly標準素材\n無限生成', icon: 'image', section: '使用端差異', description: '【Pro/Plus (標準功能)】\n• 內容：無限制地存取標準創意 AI 影像和向量功能。\n• 應用：例如 Photoshop 中的「生成式填色」、Illustrator 的「以文字建立向量」等。\n\n【Enterprise (進階功能)】\n• 升級：除上述功能外，額外支援「物件合成 (Object Composites)」與「風格套件 (Style Kits)」。\n• 價值：可讓企業訓練專屬的品牌風格模型，確保全公司產出的 AI 圖像風格一致，符合企業 VI 規範。', url: 'https://helpx.adobe.com/tw/firefly/web/generate-images-with-text-to-image/generate-images-using-text-prompts/image-generation-using-text-descriptions.html' },
+                { key: 'firefly_credits', label: 'AI生成式點數', icon: 'zap', section: '使用端差異', description: '每月提供 4000 個生成式點數，主要用於消耗較大算力的進階功能：\n\n• 影片/音訊生成：例如「以文字建立影片」。\n• 高解析度生成：輸出高品質的大尺寸 AI 圖像。\n• 第三方模型：使用非 Firefly 的其他 AI 模型功能。', url: 'https://helpx.adobe.com/tw/firefly/using/generative-credits-faq.html' },
+                { key: 'firefly_boards', label: 'Firefly Boards', icon: 'palette', section: '使用端差異', description: '提供無限制存取的視覺化協作空間：\n\n• 創意探索：在無限大的畫布上排列、組合 AI 生成的靈感。\n• 團隊協作：與團隊成員即時分享分鏡腳本或情緒板 (Mood Boards)。\n• 迭代優化：快速比較不同 Prompt 生成的結果，加速決策流程。', url: 'https://helpx.adobe.com/tw/firefly/web/create-mood-boards/firefly-boards/about-firefly-boards.html' },
+                { key: 'stock', label: 'Adobe Stock 圖庫', icon: 'image', section: '使用端差異', description: '【Pro Plus (印量無上限)】\n• 授權內容：標準資產無限下載 (圖片、向量圖)。\n• 關鍵優勢：印刷品印量沒有上限 (Unlimited Print Runs)。\n• 適用場景：適合需要大量印刷行銷物 (如 DM、海報、產品包裝) 的企業。\n\n【Enterprise (可商品化販售)】\n• 授權內容：包含 Pro Plus 所有權益，並升級為 Extended License (延伸授權)。\n• 關鍵優勢：允許將下載的素材用於製作「可轉售的商品」(Merchandise for Resale)。\n• 適用場景：販售印有該圖案的 T-shirt、馬克杯、月曆等直接販售給消費者的商品。', url: 'https://stock.adobe.com/tw/license-terms' },
+                { key: 'cloud_service', label: '雲端服務', icon: 'database', section: '使用端差異', description: '包含豐富的雲端加值服務，提升創作效率：\n\n• Adobe Fonts：20,000 個以上商用字型，可隨手使用。\n• CC Libraries：跨應用程式收集、共用標誌、影像及品牌元素的資料庫。\n• 外掛程式：為您喜愛的應用程式新增更多功能。\n• Behance：展示您的作品並查看全球創作者的內容。\n• Adobe Live：觀看直播並向專業人士學習\n• Adobe Portfolio：只要幾分鐘就能設計出專業的個人作品集網站。', url: 'https://helpx.adobe.com/tw/creative-cloud/help/faq-creative-cloud-all-apps-plan.html' },
+                { key: 'storage', label: '雲端空間', icon: 'hard-drive', section: '使用端差異', description: '提供每位使用者 1TB 的雲端儲存空間。\n\n【團隊版 (獨立配額)】\n• 限制：每位使用者的 1TB 是獨立的。若 A 同事空間滿了，無法直接使用 B 同事剩餘的空間。\n\n【企業版 (集中管理/儲存池)】\n• 概念：採取「儲存池 (Storage Pooling)」概念，就像公司的「共享大水塔」。\n• 優勢：假設公司買了 10 套授權，總共就有 10TB 的總容量池。\n• 彈性：IT 管理員可以將這 10TB 自由調配，例如分配給影音剪輯師 5TB，一般行政人員 100GB。避免單人爆量、他人閒置的浪費。', url: 'https://helpx.adobe.com/tw/enterprise/using/storage-limit-cce-cct.html' },
+                { key: 'pdf_apps', label: 'PDF 應用', icon: 'file-text', section: '使用端差異', description: '包含完整的 Acrobat Pro 桌面版與網頁版功能：\n\n• 編輯 PDF：直接修改文字與影像。\n• 轉檔與合併：將 Office 檔案轉為 PDF，或合併多個檔案。\n• 保護與比較：設定密碼保護，以及比較兩個版本文件的差異。', url: 'https://helpx.adobe.com/tw/acrobat/desktop.html' },
+                { key: 'sign', label: '基本電子簽署', icon: 'edit-3', section: '使用端差異', description: '整合 Acrobat Sign 電子簽核服務：\n\n• 發送簽署：發送合約供他人簽名。\n• 追蹤進度：即時查看文件是誰還沒簽。\n• 法律效力：符合國際標準的電子簽名，實現無紙化辦公。', url: 'https://helpx.adobe.com/tw/acrobat/desktop/e-sign-documents/learn-about-signatures/e-sign-overview.html' },
+                { key: 'substance', label: 'Substance 3D', icon: 'box', section: '使用端差異', description: '【需額外加購】專業的 3D 材質與建模套件：\n\n• 用途：用於 3D 材質製作、塗裝與渲染。\n• 包含軟體：Substance 3D Painter, Designer, Sampler, Stager 等。\n• 說明：此項目不包含在標準的 Creative Cloud All Apps 方案中，需要另外購買。', url: 'https://helpx.adobe.com/substance-3d.html' },
+                { key: 'admin_console', label: '管理後台', icon: 'layout', section: '管理端差異', description: 'IT 管理員專用的網頁主控台 (Admin Console)：\n\n• 授權管理：指派、重新指派或移除使用者的軟體授權。\n• 部署管理：打包軟體安裝檔，進行統一派送。\n• 使用分析：監控團隊的雲端空間與點數使用狀況。', url: 'https://helpx.adobe.com/tw/enterprise/admin-guide.html' },
+                { key: 'admin_roles', label: '管理員權限', icon: 'users', section: '管理端差異', description: '【團隊版】：僅有單一管理員層級，權限較為扁平。\n\n【企業版 (分層管理)】：可細分多種管理員角色，分權負責：\n• 系統管理員：擁有最高權限。\n• 產品管理員：僅管理特定產品授權。\n• 部署管理員：僅負責軟體打包與更新。\n• 支援管理員：僅負責聯繫原廠技術支援。', url: 'https://helpx.adobe.com/tw/enterprise/using/admin-roles.html#enterprise' },
+                { key: 'sso', label: 'SSO 單一登入', icon: 'shield', section: '管理端差異', description: '【企業版專屬】支援企業單一登入 (Single Sign-On)：\n\n• 帳號整合：可連結公司內部的 AD, Azure AD, Google 等目錄系統。\n• 使用體驗：員工使用原本的公司帳號密碼即可登入 Adobe，無須記憶新密碼。\n• 資安效益：離職時停用公司帳號，Adobe 存取權同步失效。', url: 'https://helpx.adobe.com/tw/enterprise/using/sso-overview.html' },
+                { key: 'directory_sync', label: '目錄同步', icon: 'refresh-cw', section: '管理端差異', description: '【企業版專屬】自動化帳號同步功能：\n\n• 自動化：支援與 Azure AD, Google Directory 進行排程同步。\n• 零時差管理：當 HR 系統有新進或離職員工異動時，Adobe 後台會自動對應新增或移除授權，大幅降低 IT 手動維護的人力成本與錯誤率。', url: 'https://helpx.adobe.com/tw/enterprise/using/user-sync.html' },
+                { key: 'service_access', label: '按群組控制服務存取權限', icon: 'settings', section: '管理端差異', description: '【企業版專屬】精細的服務權限控管：\n\n• 差異化設定：管理員可針對「行銷部」與「行政部」設定不同的權限。\n• 範例：允許設計師使用 Firefly AI 功能，但關閉行政人員的 AI 生成權限，以符合公司資安政策。', url: 'https://helpx.adobe.com/tw/enterprise/using/manage-product-profiles.html' },
+                { key: 'cloud_control', label: '控管雲端服務是否開放', icon: 'cloud-off', section: '管理端差異', description: '【企業版專屬】雲端資產安全鎖：\n\n• 資安防護：基於機密考量，企業可選擇性關閉雲端儲存空間、檔案分享或特定的雲端連線功能。\n• 防止外流：確保公司資產只保留在公司內網或受控的裝置上，防止資料透過個人雲端外流。', url: 'https://helpx.adobe.com/tw/enterprise/using/asset-settings.html' },
+                { key: 'security_policy', label: '資安管控政策', icon: 'lock', section: '管理端差異', description: '【企業版專屬】強化的身分驗證政策：\n\n• 密碼強度：可強制要求使用者設定更高強度的密碼。\n• 登入週期：可強制設定工作階段過期時間 (如每 90 天需重新驗證)，確保閒置帳號的安全性。', url: 'https://helpx.adobe.com/tw/enterprise/using/authentication-settings.html' },
+                { key: 'encryption_key', label: '專屬加密金鑰', icon: 'key', section: '管理端差異', description: '【企業版專屬】最高等級的資料隱私：\n\n• 專屬金鑰 (Dedicated Encryption Key)：支援企業使用自己的金鑰來加密雲端上的靜態資料。\n• 絕對控制：這意味著即使是 Adobe 原廠也無法在未經授權的情況下檢視您的資料，提供最高級別的隱私保護。', url: 'https://helpx.adobe.com/tw/enterprise/using/encryption.html' },
+                { key: 'support', label: '客服諮詢', icon: 'headset', section: '管理端差異', description: '【團隊版 (標準支援)】\n• 管道：提供一般的線上技術支援、文字客服與社群論壇協助。\n\n【企業版 (企業級支援)】\n• 管道：享有企業級專屬支援通道。\n• 特權：IT 管理員可直接透過後台開立案件 (Open Case)，由 Adobe 專門的技術團隊追蹤處理，確保重大問題能獲得優先解決。', url: 'https://helpx.adobe.com/tw/enterprise/using/support-for-enterprise.html' },
+                { key: 'ip_indemnity', label: '版權賠償保障', icon: 'shield', section: '其他權益', description: '針對使用 Firefly AI 生成內容或 Adobe Stock 素材若發生版權糾紛，Adobe 為「企業版 (Enterprise)」用戶提供的法律賠償保障。\n\n• 對象：僅限 Creative Cloud 企業版用戶。\n• 範圍：保障企業免受因使用 Firefly 生成內容而產生的第三方智慧財產權索賠。', url: 'https://helpx.adobe.com/tw/legal/product-descriptions/adobe-firefly.html' },
+                { key: 'note', label: '一句話總結', icon: 'info', section: '其他權益', description: '針對各方案適用對象與核心價值的快速總結，協助您根據團隊屬性做出最佳選擇。' }
+            ],
+
+            scoreMap: {
+                stock: { '未包含': 0, '無限下載\n(印量無上限)': 1, '無限下載\n(可商品化販售)': 2 },
+                sso: { '不支援': 0, '支援 (企業帳號整合)': 1 },
+                directory_sync: { '無': 0, '支援 (自動化同步)': 1 },
+                admin_roles: { '僅單一管理員': 0, '分層管理 (多種角色)': 1 },
+                admin_console: { '基本後台': 0, '進階後台': 1 },
+                support: { '標準技術支援': 0, '企業級支援 (可開Case)': 1 },
+                security_policy: { '標準': 0, '進階管控 (週期/強度)': 1 },
+                encryption_key: { '無': 0, '支援 (專屬金鑰)': 1 },
+                service_access: { '無': 0, '包含 (按群組)': 1 },
+                cloud_control: { '無': 0, '包含': 1 },
+                ip_indemnity: { '無': 0, '包含 (企業級保障)': 2 },
+                firefly_credits: { '包含 (4000點/月)': 1 }, 
+                firefly_img: { '無限生成': 1, '無限生成\n(+物件合成/風格)': 2 },
+                firefly_boards: { '包含': 1 },
+                storage: { '1TB': 1, '1TB (可集中管理)': 2 },
+                pdf_apps: { '包含 Acrobat Pro': 1 }
+            }
+        };
+
+        // --- 2. SVG Icons ---
+        // 使用 Switch Case 返回 SVG 字串
+        const getIcon = (name, className = "w-4 h-4") => {
+            const icons = {
+                'eye': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`,
+                'eye-off': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>`,
+                'list-filter': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M7 12h10"/><path d="M10 18h4"/></svg>`,
+                'printer': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>`,
+                'mail': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>`,
+                'monitor': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="3" rx="2" ry="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>`,
+                'hard-drive': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" x2="2" y1="12" y2="12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" x2="6.01" y1="16" y2="16"/><line x1="10" x2="10.01" y1="16" y2="16"/></svg>`,
+                'database': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>`,
+                'image': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>`,
+                'zap': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+                'palette': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>`,
+                'file-text': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>`,
+                'edit-3': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`,
+                'box': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" x2="12" y1="22.08" y2="12"/></svg>`,
+                'layout': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="9" x2="9" y1="21" y2="9"/></svg>`,
+                'users': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+                'shield': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+                'refresh-cw': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>`,
+                'settings': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>`,
+                'cloud-off': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m2 2 20 20"/><path d="M5.782 5.782A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.307-.193"/><path d="M21.532 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7.008 7.008 0 0 0 10 5.07"/></svg>`,
+                'lock': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
+                'key': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>`,
+                'headset': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11v3a8 8 0 0 0 16 0v-3"/><path d="M14 6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2z"/><path d="M6 14a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2z"/><path d="M18 6a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/></svg>`,
+                'info': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/></svg>`,
+                'flame': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.115.385-2.256 1-3.24.265.45.535.96.5 1.74Z"/></svg>`,
+                'star': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+                'check': `<svg class="${className}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`
+            };
+            return icons[name] || '';
+        };
+
+        // --- 3. 邏輯與渲染核心 ---
+        const App = {
+            state: {
+                visiblePlans: {
+                    cct_pro: true,
+                    cct_pro_plus: true,
+                    edition4: true
+                },
+                hideCommon: false,
+                isModalOpen: false,
+                isContactModalOpen: false,
+                selectedFeature: null
+            },
+
+            init() {
+                this.renderHeader();
+                this.renderGrid();
+                document.getElementById('print-date').innerText = `製表日期：${AppData.currentDate} | 供採購商業用戶整理參考，實際內容仍以官網實際公告為主`;
+            },
+
+            togglePlan(id) {
+                const newState = { ...this.state.visiblePlans, [id]: !this.state.visiblePlans[id] };
+                if (Object.values(newState).every(v => v === false)) return; // Prevent hiding all
+                this.state.visiblePlans = newState;
+                this.renderHeader();
+                this.renderGrid();
+            },
+
+            toggleHideCommon() {
+                this.state.hideCommon = !this.state.hideCommon;
+                this.renderHeader();
+                this.renderGrid();
+            },
+
+            openContactModal() {
+                const modal = document.getElementById('contact-modal');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            },
+
+            closeContactModal() {
+                const modal = document.getElementById('contact-modal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            },
+
+            openFeatureModal(colKey) {
+                const feature = AppData.columns.find(col => col.key === colKey);
+                if (!feature) return;
+                
+                this.state.selectedFeature = feature;
+                const modal = document.getElementById('feature-modal');
+                const content = document.getElementById('feature-modal-content');
+                
+                // Render content
+                content.innerHTML = `
+                    <div class="bg-[#FAFAFA] p-6 flex justify-center border-b border-gray-100 relative">
+                        <button onclick="App.closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-black transition-colors p-2 rounded-full hover:bg-gray-200">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+                        </button>
+                        <div class="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-adobeRed border border-gray-100">
+                            ${getIcon(feature.icon, "w-8 h-8")}
+                        </div>
+                    </div>
+                    <div class="p-6 md:p-8">
+                        <h3 class="text-xl md:text-2xl font-black text-adobeBlack mb-4 text-center">${feature.label}</h3>
+                        <div class="w-10 h-1 bg-adobeRed rounded-full mb-6 mx-auto"></div>
+                        <div class="text-gray-600 leading-relaxed text-sm md:text-base whitespace-pre-line text-left mb-8 space-y-2">
+                            ${feature.description}
+                        </div>
+                        ${feature.key === 'ip_indemnity' ? `
+                        <div class="mb-6 bg-red-50 border-l-4 border-adobeRed p-3 rounded-r">
+                            <p class="text-adobeRed text-xs font-bold">
+                               *具體賠償上限與條款，請務必以 Adobe 官方最新合約與公告為準
+                            </p>
+                        </div>` : ''}
+                        ${feature.url ? `
+                        <a href="${feature.url}" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center bg-adobeRed text-white py-3.5 rounded-xl font-bold hover:bg-adobeDarkRed transition-all transform active:scale-[0.98] shadow-lg shadow-red-500/20 group">
+                            了解更多 (Adobe 官方說明)
+                            <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
+                        </a>` : `
+                        <button onclick="App.closeModal()" class="w-full bg-adobeBlack text-white py-3.5 rounded-xl font-bold hover:bg-black transition-colors">
+                            關閉
+                        </button>`}
+                    </div>
+                `;
+
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                setTimeout(() => {
+                    content.classList.remove('opacity-0', 'scale-95');
+                    content.classList.add('opacity-100', 'scale-100');
+                }, 10);
+            },
+
+            closeModal() {
+                const modal = document.getElementById('feature-modal');
+                const content = document.getElementById('feature-modal-content');
+                content.classList.remove('opacity-100', 'scale-100');
+                content.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }, 300);
+            },
+
+            // --- Render Helpers ---
+            getActivePlans() {
+                return AppData.plans.filter(p => this.state.visiblePlans[p.id]);
+            },
+
+            isCommonFeature(key) {
+                const activePlans = this.getActivePlans();
+                if (activePlans.length < 2) return false;
+                // Force common check list
+                if (['desktop_apps', 'cloud_service', 'firefly_img', 'firefly_credits', 'firefly_boards', 'sign', 'substance', 'pdf_apps'].includes(key)) return true;
+                const firstVal = activePlans[0][key];
+                return activePlans.every(p => p[key] === firstVal);
+            },
+
+            getBestPlanIds() {
+                const result = {};
+                const activePlans = this.getActivePlans();
+                AppData.columns.forEach(col => {
+                    const key = col.key;
+                    // Check if all values are same
+                    const values = activePlans.map(p => p[key]);
+                    const uniqueValues = new Set(values);
+                    if (uniqueValues.size === 1) return;
+
+                    let maxScore = -1;
+                    activePlans.forEach(p => {
+                        const val = p[key];
+                        const score = AppData.scoreMap[key] ? (AppData.scoreMap[key][val] ?? 0) : 0;
+                        if (score > maxScore) maxScore = score;
+                    });
+
+                    if (maxScore === 0) return;
+
+                    result[key] = activePlans
+                        .filter(p => {
+                            const val = p[key];
+                            const score = AppData.scoreMap[key] ? (AppData.scoreMap[key][val] ?? 0) : 0;
+                            return score === maxScore;
+                        })
+                        .map(p => p.id);
+                });
+                return result;
+            },
+
+            renderHeader() {
+                const container = document.getElementById('header-container');
+                const { visiblePlans, hideCommon } = this.state;
+                
+                // Plan Toggles HTML
+                const togglesHtml = AppData.plans.map(plan => {
+                    const isVisible = visiblePlans[plan.id];
+                    const activeClass = isVisible ? 'bg-[#4B4B4B] text-white shadow-md' : 'text-gray-500 hover:text-gray-300';
+                    const icon = isVisible ? getIcon('eye', 'w-3 h-3 mr-1.5') : getIcon('eye-off', 'w-3 h-3 mr-1.5');
+                    return `
+                        <button onclick="App.togglePlan('${plan.id}')" class="px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-bold rounded-md flex items-center justify-center transition-all ${activeClass}">
+                            ${icon} ${plan.category.replace('版', '')}
+                        </button>
+                    `;
+                }).join('');
+
+                // Hide Common Button
+                const hideCommonClass = hideCommon ? 'bg-adobeRed border-adobeRed text-white shadow-lg hover:bg-adobeDarkRed' : 'bg-transparent border-[#444] text-gray-300 hover:bg-[#2A2A2A] hover:text-white';
+                const hideCommonIcon = hideCommon ? getIcon('list-filter', 'w-3 h-3 mr-1.5 fill-white') : getIcon('list-filter', 'w-3 h-3 mr-1.5');
+                const hideCommonText = hideCommon ? '顯示全部' : '只看差異';
+
+                container.innerHTML = `
+                    <div class="bg-adobeBlack text-white shadow-xl sticky top-0 z-[60]">
+                        <div class="max-w-7xl mx-auto px-4 py-4">
+                            <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
+                                <div class="flex flex-col items-start justify-center self-start w-full lg:w-auto">
+                                    <div class="flex items-center">
+                                        <h1 class="text-lg md:text-xl font-bold tracking-tight text-gray-100">Adobe 企業方案比較表</h1>
+                                    </div>
+                                    <div class="mt-1 flex flex-col md:flex-row md:items-center text-[10px] text-gray-400 gap-1 md:gap-3">
+                                        <div class="flex items-center">
+                                            ${getIcon('calendar', 'w-3 h-3 mr-1')}
+                                            <span>製表日期：${AppData.currentDate}</span>
+                                        </div>
+                                        <span class="hidden md:inline">|</span>
+                                        <span>供採購商業用戶整理參考，實際內容仍以官網實際公告為主</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex flex-wrap items-center gap-2 justify-center lg:justify-end w-full lg:w-auto no-print">
+                                    
+                                    <!-- 1. Plan Toggles -->
+                                    <div class="flex items-center bg-[#2A2A2A] rounded-lg p-1 border border-[#333]">
+                                        ${togglesHtml}
+                                    </div>
+
+                                    <!-- 2. Hide Common -->
+                                    <button onclick="App.toggleHideCommon()" class="flex items-center px-3 py-1.5 rounded-lg text-xs font-bold transition-all border h-[34px] whitespace-nowrap ${hideCommonClass}">
+                                        ${hideCommonIcon} ${hideCommonText}
+                                    </button>
+
+                                    <!-- 3. Print -->
+                                    <button onclick="window.print()" class="flex items-center px-3 py-1.5 bg-transparent border border-[#444] text-gray-300 rounded-lg text-xs font-bold hover:bg-[#2A2A2A] hover:text-white transition-colors h-[34px]">
+                                        ${getIcon('printer', 'w-4 h-4 mr-1.5')} 列印/PDF
+                                    </button>
+
+                                    <!-- 4. Interested CTA -->
+                                    <button onclick="App.openContactModal()" class="flex items-center px-4 py-1.5 bg-adobeRed text-white rounded-lg text-xs font-bold hover:bg-adobeDarkRed transition-colors shadow-md h-[34px] animate-pulse hover:animate-none">
+                                        ${getIcon('mail', 'w-4 h-4 mr-1.5')} 我有興趣
+                                    </button>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderGrid() {
+                const container = document.getElementById('table-container');
+                const activePlans = this.getActivePlans();
+                const bestPlanIdsByKey = this.getBestPlanIds();
+                const { hideCommon } = this.state;
+
+                // Group columns
+                const groupedColumns = {};
+                AppData.columns.forEach(col => {
+                    if (hideCommon && this.isCommonFeature(col.key)) return;
+                    if (!groupedColumns[col.section]) groupedColumns[col.section] = [];
+                    groupedColumns[col.section].push(col);
+                });
+
+                // Calculate Grid Template Class
+                // Mobile: 90px fixed left, rest equal
+                // Desktop: 180px fixed left, rest equal
+                const gridClass = `grid grid-cols-[90px_repeat(${activePlans.length},1fr)] md:grid-cols-[180px_repeat(${activePlans.length},1fr)]`;
+
+                // Build HTML
+                let html = `<div class="w-full relative"><div class="${gridClass}">`;
+
+                // --- Sticky Header Row ---
+                html += `<div class="sticky top-0 left-0 z-20 bg-[#F5F5F5] border-b border-gray-200 border-r p-2 md:p-4 flex items-center justify-start md:pl-6 shadow-sm"><span class="text-[10px] md:text-xs font-bold text-gray-500 uppercase tracking-widest break-words">比較項目</span></div>`;
+                
+                activePlans.forEach(plan => {
+                    const badgeClass = plan.id === 'edition4' ? 'bg-adobeRed text-white' : (plan.id === 'cct_pro_plus' ? 'bg-adobeBlue text-white' : 'bg-gray-200 text-gray-600');
+                    const bgClass = plan.id === 'edition4' ? 'bg-adobeRed/5' : (plan.id === 'cct_pro_plus' ? 'bg-adobeBlue/5' : 'bg-white');
+                    
+                    html += `
+                        <div class="sticky top-0 z-10 p-3 md:p-5 text-center border-b border-gray-200 border-r last:border-r-0 ${bgClass}">
+                            ${plan.isHot ? `<div class="absolute top-2 right-2 z-20"><div class="bg-gradient-to-r from-orange-500 to-red-500 text-white text-[10px] px-2 py-1 rounded-lg shadow-sm font-bold flex items-center">${getIcon('flame', 'w-3 h-3 mr-1 fill-white')} Hot 熱門！</div></div>` : ''}
+                            <div class="inline-flex items-center px-2 py-0.5 rounded text-[9px] md:text-[10px] font-bold mb-2 tracking-wide uppercase ${badgeClass}">
+                                ${plan.category}
+                                ${plan.orientation ? `<span class="mx-1 opacity-60">|</span><span class="text-[9px]">${plan.orientation}</span>` : ''}
+                            </div>
+                            <h3 class="text-xs md:text-base font-extrabold text-adobeBlack leading-tight whitespace-nowrap overflow-hidden text-ellipsis">${plan.name}</h3>
+                        </div>
+                    `;
+                });
+
+                // --- Empty State ---
+                if (Object.keys(groupedColumns).length === 0 && activePlans.length > 0) {
+                    html += `
+                        <div class="col-span-full p-16 text-center bg-white flex flex-col items-center justify-center">
+                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4 text-gray-400">${getIcon('zap', 'w-8 h-8')}</div>
+                            <p class="text-gray-500 font-medium mb-4">所有顯示的項目規格皆相同</p>
+                            <button onclick="App.toggleHideCommon()" class="text-adobeRed font-bold text-sm hover:underline flex items-center">重新顯示所有項目</button>
+                        </div>
+                    `;
+                } else {
+                    // --- Data Rows ---
+                    Object.keys(groupedColumns).forEach(sectionName => {
+                        // Section Title
+                        let iconName = 'star';
+                        if (sectionName === '使用端差異') iconName = 'users';
+                        if (sectionName === '管理端差異') iconName = 'shield';
+                        
+                        html += `
+                            <div class="col-span-full bg-[#FAFAFA] px-4 md:px-6 py-3 text-[10px] md:text-xs font-bold text-gray-500 flex items-center border-y border-gray-200 uppercase tracking-wider sticky left-0">
+                                ${getIcon(iconName, 'w-3 h-3 mr-2')} ${sectionName}
+                            </div>
+                        `;
+
+                        groupedColumns[sectionName].forEach(col => {
+                            const isCommon = this.isCommonFeature(col.key);
+                            const isNote = col.key === 'note';
+
+                            // Footer Row Special Handling
+                            if (isNote) {
+                                html += `<div class="bg-adobeBlack border-b border-[#333] border-r border-[#333] p-4 flex items-center justify-start md:pl-6 sticky left-0 z-10"><div class="flex items-center gap-2"><div class="text-adobeRed">${getIcon('info', 'w-4 h-4')}</div><div class="text-xs md:text-sm font-bold text-white uppercase tracking-wider">總結</div></div></div>`;
+                                activePlans.forEach(plan => {
+                                    html += `<div class="bg-adobeBlack p-4 md:p-6 text-center border-b border-[#333] border-r border-[#333] last:border-r-0 flex items-center justify-center"><span class="text-sm font-black text-white leading-relaxed">${plan.note}</span></div>`;
+                                });
+                                return;
+                            }
+
+                            // Normal Row
+                            // Label Column
+                            html += `
+                                <div onclick="App.openFeatureModal('${col.key}')" class="bg-white border-b border-gray-100 border-r p-3 md:p-4 flex items-center justify-start md:pl-6 cursor-pointer hover:bg-gray-50 transition-colors group sticky left-0 z-10 ${isCommon ? 'bg-gray-50/30' : ''}">
+                                    <div class="flex items-center gap-2 min-w-0 w-full">
+                                        <div class="text-gray-300 shrink-0 group-hover:text-adobeBlue hidden md:block transition-colors">${getIcon('info', 'w-3 h-3')}</div>
+                                        <div class="text-[11px] md:text-sm font-bold text-gray-700 break-words w-full whitespace-pre-line leading-snug group-hover:text-black transition-colors">${col.label}</div>
+                                    </div>
+                                </div>
+                            `;
+
+                            // Value Columns
+                            activePlans.forEach(plan => {
+                                const isWin = bestPlanIdsByKey[col.key]?.includes(plan.id);
+                                let val = plan[col.key];
+                                let content = '';
+
+                                // Content Formatting
+                                if (val === '包含' || val === '無限簽署' || val === '包含 Acrobat Pro' || (typeof val === 'string' && val.includes('包含 20+')) || val === '包含 (按群組)' || val === '包含 (4000點/月)' || val === '包含 (企業級保障)') {
+                                    const pillClass = isWin 
+                                        ? "flex items-center justify-center text-[#2D2D2D] bg-gray-50 px-2 py-1 md:px-3 md:py-1 rounded-full border border-gray-100" 
+                                        : "flex items-center justify-center text-[#2D2D2D] bg-gray-50 px-2 py-1 md:px-3 md:py-1 rounded-full border border-gray-200 shadow-sm";
+                                    content = `<div class="${pillClass}"><span class="text-adobeBlue mr-1.5">${getIcon('check', 'w-3 h-3 md:w-4 md:h-4 stroke-[3]')}</span><span class="font-bold text-xs md:text-sm break-words text-center whitespace-pre-line">${val}</span></div>`;
+                                } else if (val === '未包含' || val === '需加購' || val === '不支援' || val === '無') {
+                                    content = `<span class="text-gray-400 text-xs md:text-sm font-medium break-words">${val}</span>`;
+                                } else {
+                                    const textClass = isWin ? 'text-adobeRed font-bold' : 'text-[#2D2D2D] font-medium';
+                                    content = `<span class="text-xs md:text-sm break-words leading-tight whitespace-pre-line ${textClass}">${val}</span>`;
+                                }
+
+                                // Winner Box
+                                let cellContent = `<div class="w-full text-center flex justify-center items-center gap-1 px-1 md:px-2 py-2">${content}</div>`;
+                                if (isWin) {
+                                    cellContent = `
+                                        <div class="w-full h-full flex items-center justify-center p-1 md:p-2 relative">
+                                            <div class="relative border-2 border-adobeRed bg-white rounded-xl px-2 py-3 md:py-4 shadow-[0_4px_12px_rgba(250,15,0,0.15)] w-full flex items-center justify-center text-center h-full hover:scale-[1.02] transition-all duration-300">
+                                                ${content}
+                                                <div class="absolute top-0 right-0 z-10 translate-x-1 -translate-y-1">
+                                                    <div class="bg-adobeRed text-white text-[9px] md:text-[10px] px-2 py-1 rounded-bl-lg rounded-tr-md shadow-sm flex items-center font-bold">
+                                                        ${getIcon('star', 'w-2.5 h-2.5 md:w-3 md:h-3 mr-1 fill-white')} 推薦
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+                                }
+
+                                // Cell Container
+                                const opacityClass = isCommon && !isWin ? 'opacity-60' : '';
+                                const bgClass = plan.id === 'edition4' && !isCommon ? 'bg-adobeRed/[0.02]' : (plan.id === 'cct_pro_plus' && !isCommon ? 'bg-adobeBlue/[0.02]' : 'bg-white');
+                                
+                                html += `<div onclick="App.openFeatureModal('${col.key}')" class="p-2 md:p-3 flex items-center justify-center border-b border-gray-100 border-r last:border-r-0 cursor-pointer hover:bg-gray-50 transition-colors ${bgClass} ${opacityClass}">${cellContent}</div>`;
+                            });
+                        });
+                    });
+                }
+
+                html += `</div></div>`;
+                container.innerHTML = html;
+            }
+        };
+
+        // Init App
+        document.addEventListener('DOMContentLoaded', () => {
+            App.init();
+        });
+    </script>
+</body>
+</html>
