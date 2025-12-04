@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW"> 
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -141,11 +141,13 @@
     const LIFF_ID = "2008592497-M8lBAPJW";
     const PASS_CODE = "Adobe知識王2025"; // 通關密語
     
-    // ❗❗❗ 請在這裡填入您的 LINE 機器人 ID (Basic ID 或 Premium ID) ❗❗❗
-    // 例如 "@adobe_tw_bot" 或 "@123xyz" (一定要有 @)
-    const LINE_BOT_BASIC_ID = "@your_bot_id"; 
+    // ❗❗❗ [重要] 請將下方的 @your_bot_id 改成您的 LINE 官方帳號 ID ❗❗❗
+    // 例如 "@adobe_tw" 或 "@123abcde" (一定要保留 @ 符號)
+    // 如果不改，領獎按鈕會無法正常運作
+    const LINE_BOT_BASIC_ID = "@adbe_weblink"; 
 
-    const COVER_IMAGE = "fengmian.jpg";  // 封面圖 9:16
+    // 封面圖 9:16
+    const COVER_IMAGE = "fengmian.jpg";
 
     // 題目資料（正確答案 0=A,1=B,2=C,3=D）
     const QUESTIONS = [
@@ -168,4 +170,523 @@
         image: "q3.jpg",
         correct: 0,
         explanation:
-          "「文字生成影片」能讓靜態畫面動起來，只要輸入文字描述，就能快速做出短片，很適合社群素材
+          "「文字生成影片」能讓靜態畫面動起來，只要輸入文字描述，就能快速做出短片，很適合社群素材與提案。"
+      },
+      {
+        id: 4,
+        image: "q4.jpg",
+        correct: 2,
+        explanation:
+          "生成點數是用來計算 AI 生成次數的單位，方便團隊掌握使用量，讓資源分配與預算控管更清楚。"
+      },
+      {
+        id: 5,
+        image: "q5.jpg",
+        correct: 1,
+        explanation:
+          "透過 Firefly 生成的圖片會寫入「內容憑證」，標示這張圖是否由 AI 生成，提升透明度與品牌可信度。"
+      }
+    ];
+
+    // 校準好的初始點擊區數值
+    const INIT_TOP = 38;
+    const INIT_HEIGHT = 42;
+    const INIT_LEFT = 8;
+    const INIT_WIDTH = 85;
+
+    // 圖片路徑：維持原樣，不做修改
+    function getImagePath(fileName) {
+      return fileName;
+    }
+
+    // ===============================
+    // React App
+    // ===============================
+
+    function App() {
+      const [gameState, setGameState] = React.useState("start"); // start | playing | result
+      const [currentQIndex, setCurrentQIndex] = React.useState(0);
+      const [score, setScore] = React.useState(0);
+      
+      // LIFF 相關狀態
+      const [liffInitialized, setLiffInitialized] = React.useState(false);
+      const [userName, setUserName] = React.useState("");
+
+      const [showExplanation, setShowExplanation] = React.useState(false);
+      const [lastIsCorrect, setLastIsCorrect] = React.useState(false);
+      const [isLock, setIsLock] = React.useState(false);
+
+      // 點擊區百分比
+      const [topPercent, setTopPercent] = React.useState(INIT_TOP);
+      const [heightPercent, setHeightPercent] = React.useState(INIT_HEIGHT);
+      const [leftPercent, setLeftPercent] = React.useState(INIT_LEFT);
+      const [widthPercent, setWidthPercent] = React.useState(INIT_WIDTH);
+
+      // 初始化 LIFF
+      React.useEffect(() => {
+        const initLiff = async () => {
+          try {
+            await liff.init({ liffId: LIFF_ID });
+            setLiffInitialized(true);
+            
+            if (!liff.isLoggedIn()) {
+              liff.login();
+            } else {
+              const profile = await liff.getProfile();
+              setUserName(profile.displayName);
+            }
+          } catch (error) {
+            console.error("LIFF Init Failed:", error);
+          }
+        };
+        initLiff();
+      }, []);
+
+      // 🎉 100 分時觸發彩帶
+      React.useEffect(() => {
+        if (gameState !== "result" || score !== 100) return;
+        if (!window.confetti) return;
+
+        const confetti = window.confetti;
+        // 左下往右上
+        confetti({
+          particleCount: 50,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0, y: 1 },
+          ticks: 120
+        });
+
+        // 右下往左上
+        confetti({
+          particleCount: 50,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1, y: 1 },
+          ticks: 120
+        });
+      }, [gameState, score]);
+
+      const startGame = () => {
+        setGameState("playing");
+        setScore(0);
+        setCurrentQIndex(0);
+        setShowExplanation(false);
+        setIsLock(false);
+      };
+
+      const handleAnswer = (optionIndex) => {
+        if (isLock || showExplanation) return;
+
+        const currentQ = QUESTIONS[currentQIndex];
+        const isCorrect = optionIndex === currentQ.correct;
+
+        setLastIsCorrect(isCorrect);
+        setIsLock(true);
+
+        if (isCorrect) {
+          setScore((prev) => prev + 20);
+        }
+
+        setTimeout(() => {
+          setShowExplanation(true);
+        }, 200);
+      };
+
+      const goNextQuestion = () => {
+        const isLast = currentQIndex >= QUESTIONS.length - 1;
+
+        if (isLast) {
+          setShowExplanation(false);
+          setGameState("result");
+          return;
+        }
+
+        setShowExplanation(false);
+        setTimeout(() => {
+          setCurrentQIndex((prev) => prev + 1);
+          setIsLock(false);
+        }, 200);
+      };
+
+      // 📋 複製文字到剪貼簿 (輔助函式)
+      const copyToClipboard = (text) => {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          return navigator.clipboard.writeText(text);
+        } else {
+          // Fallback
+          const textArea = document.createElement("textarea");
+          textArea.value = text;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand("copy");
+          document.body.removeChild(textArea);
+          return Promise.resolve();
+        }
+      };
+
+      // 🏆 領取獎勵：使用 URL Scheme 跳轉 (穩定方案)
+      const handleClaimReward = async () => {
+        if (!liffInitialized) {
+          alert("LIFF 尚未初始化，請重新整理頁面。");
+          return;
+        }
+
+        // 檢查是否已設定機器人 ID
+        if (LINE_BOT_BASIC_ID === "@your_bot_id") {
+          alert("請通知管理員設定 LINE_BOT_BASIC_ID！\n(請至程式碼第138行填入您的官方帳號 ID)");
+          return;
+        }
+
+        const botId = LINE_BOT_BASIC_ID.replace("@", ""); 
+        const encodedText = encodeURIComponent(PASS_CODE);
+        // 使用 LINE URL Scheme：直接打開該機器人的聊天視窗並預填文字
+        const lineUrl = `https://line.me/R/oaMessage/@${botId}/?text=${encodedText}`;
+
+        try {
+           // 嘗試使用 LIFF openWindow (external: false 代表嘗試在 App 內跳轉)
+           await liff.openWindow({
+             url: lineUrl,
+             external: false 
+           });
+        } catch (e) {
+           console.error("LIFF openWindow failed, trying location.href", e);
+           // Fallback: 如果 openWindow 失敗，直接用 JS 跳轉
+           window.location.href = lineUrl;
+        }
+      };
+
+      // 📤 分享好友功能
+      const handleShare = async () => {
+        if (!liffInitialized) return;
+
+        const shareContent = [
+          {
+            type: "flex",
+            altText: "快來挑戰 Adobe 知識王！",
+            contents: {
+              type: "bubble",
+              hero: {
+                type: "image",
+                url: "https://developers.line.biz/assets/images/services/bot-designer-icon.png", 
+                size: "full",
+                aspectRatio: "20:13",
+                aspectMode: "cover"
+              },
+              body: {
+                type: "box",
+                layout: "vertical",
+                contents: [
+                  {
+                    type: "text",
+                    text: "Adobe 知識王挑戰賽",
+                    weight: "bold",
+                    size: "xl"
+                  },
+                  {
+                    type: "text",
+                    text: "我已經完成挑戰了，換你來試試看！還能領取專屬獎勵喔！",
+                    wrap: true,
+                    size: "sm",
+                    color: "#666666",
+                    margin: "md"
+                  }
+                ]
+              },
+              footer: {
+                type: "box",
+                layout: "vertical",
+                spacing: "sm",
+                contents: [
+                  {
+                    type: "button",
+                    style: "primary",
+                    height: "sm",
+                    action: {
+                      type: "uri",
+                      label: "立即挑戰",
+                      uri: "https://liff.line.me/" + LIFF_ID
+                    },
+                    color: "#ec4899"
+                  }
+                ]
+              }
+            }
+          }
+        ];
+        
+        // 檢查 shareTargetPicker 是否可用 (請確認 Developers Console 有開啟)
+        if (liff.isApiAvailable('shareTargetPicker')) {
+          try {
+            await liff.shareTargetPicker(shareContent);
+          } catch (error) {
+            console.error("LIFF 分享失敗", error);
+            // 403 Forbidden 通常代表後台沒開權限
+            if (error.code === "403" || error.message.includes("Forbidden")) {
+               alert("分享功能未開啟，請檢查 LINE Developers 後台是否已啟用 shareTargetPicker。");
+            }
+          }
+        } else {
+          // Fallback: 使用 Web Share API
+          if (navigator.share) {
+            try {
+              await navigator.share({
+                title: "Adobe 知識王挑戰賽",
+                text: "我已經完成挑戰了，換你來試試看！",
+                url: "https://liff.line.me/" + LIFF_ID
+              });
+            } catch (err) {
+              console.log("Web Share 取消");
+            }
+          } else {
+            // 最慘情況：複製連結
+            copyToClipboard("https://liff.line.me/" + LIFF_ID);
+            alert("已複製活動連結，請手動分享給好友！");
+          }
+        }
+      };
+
+      // ========= Start 畫面 =========
+      if (gameState === "start") {
+        return (
+          <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+            <div className="w-full max-w-md px-4">
+              <div className="relative w-full aspect-[9/16] mx-auto shadow-2xl">
+                {/* 封面圖 */}
+                <img
+                  src={getImagePath(COVER_IMAGE)}
+                  className="w-full h-full object-contain rounded-xl"
+                  onError={(e) => {
+                    // 只有當圖片真的讀不到時，才顯示替代圖，避免空白
+                    e.target.src = "https://placehold.co/600x1067/333/FFF?text=封面載入中";
+                  }}
+                />
+                
+                {/* 歡迎文字 */}
+                {userName && (
+                  <div className="absolute top-4 left-0 w-full text-center text-white/90 text-sm font-bold drop-shadow-md z-20">
+                    Hi, {userName}
+                  </div>
+                )}
+
+                {/* START 按鈕 */}
+                <div
+                  onClick={startGame}
+                  className={
+                    "absolute touch-highlight cursor-pointer" +
+                    (DEV_MODE ? " border border-emerald-300/80" : "")
+                  }
+                  style={{
+                    top: "80%",
+                    height: "8%",
+                    left: "32%",
+                    width: "36%"
+                  }}
+                ></div>
+
+                {DEV_MODE && (
+                  <div className="absolute top-2 left-2 bg-black/70 text-[10px] text-white px-2 py-1 rounded-full z-50">
+                    DEV MODE
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // ========= 作答畫面 =========
+      if (gameState === "playing") {
+        const currentQ = QUESTIONS[currentQIndex];
+
+        return (
+          <div className="w-full h-full bg-gray-800 flex items-center justify-center overflow-hidden relative">
+            <div className="w-full max-w-md px-4">
+              <div className="relative w-full aspect-[9/16] mx-auto">
+                <img
+                  src={getImagePath(currentQ.image)}
+                  className="w-full h-full object-contain rounded-xl shadow-xl"
+                  onError={(e) => {
+                    e.target.src = "https://placehold.co/600x1067/333/FFF?text=題目圖載入中";
+                  }}
+                />
+
+                {/* 分數徽章 */}
+                <div className="absolute top-3 right-3 bg-black/70 text-white text-xs px-3 py-1 rounded-full">
+                  分數：{score}
+                </div>
+
+                {/* 點擊區域 */}
+                <div
+                  className={
+                    "absolute grid grid-cols-2 grid-rows-2" +
+                    (DEV_MODE ? " bg-yellow-300/10" : "")
+                  }
+                  style={{
+                    top: `${topPercent}%`,
+                    height: `${heightPercent}%`,
+                    left: `${leftPercent}%`,
+                    width: `${widthPercent}%`
+                  }}
+                >
+                  <div
+                    onClick={() => handleAnswer(0)}
+                    className={
+                      "touch-highlight" +
+                      (DEV_MODE ? " border border-red-300/80" : "")
+                    }
+                  ></div>
+                  <div
+                    onClick={() => handleAnswer(1)}
+                    className={
+                      "touch-highlight" +
+                      (DEV_MODE ? " border border-green-300/80" : "")
+                    }
+                  ></div>
+                  <div
+                    onClick={() => handleAnswer(2)}
+                    className={
+                      "touch-highlight" +
+                      (DEV_MODE ? " border border-blue-300/80" : "")
+                    }
+                  ></div>
+                  <div
+                    onClick={() => handleAnswer(3)}
+                    className={
+                      "touch-highlight" +
+                      (DEV_MODE ? " border border-purple-300/80" : "")
+                    }
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            {/* 開發用滑桿 */}
+            {DEV_MODE && (
+              <div className="fixed bottom-2 left-1/2 -translate-x-1/2 w-full max-w-md px-3 z-[900]">
+                 <div className="bg-black/80 text-white text-[10px] rounded-xl px-3 py-2 text-center">
+                    DEV MODE: {topPercent}/{heightPercent}/{leftPercent}/{widthPercent}
+                 </div>
+              </div>
+            )}
+
+            {/* 解析浮層 */}
+            <div className={`overlay ${showExplanation ? "show" : ""}`}>
+              <div className={
+                "explanation-card " +
+                (lastIsCorrect ? "correct" : "wrong")
+              }>
+                <div className="flex items-center">
+                  <div
+                    className={
+                      "w-10 h-10 rounded-full flex items-center justify-center text-xl font-bold " +
+                      (lastIsCorrect
+                        ? "bg-emerald-500/20 border border-emerald-300 text-emerald-300"
+                        : "bg-rose-500/20 border border-rose-300 text-rose-300")
+                    }
+                  >
+                    {lastIsCorrect ? "✓" : "✕"}
+                  </div>
+                  <div className="ml-3">
+                    <div className="explanation-title">
+                      {lastIsCorrect ? "答對了！🎉" : "答錯了"}
+                    </div>
+                    <div className="explanation-subtitle">
+                      第 {currentQIndex + 1} 題 / 共 {QUESTIONS.length} 題
+                    </div>
+                  </div>
+                </div>
+
+                <div className="explanation-text">
+                  {QUESTIONS[currentQIndex].explanation}
+                </div>
+
+                <div className="explanation-footer">
+                  <span>目前分數：{score} 分</span>
+                  <button
+                    type="button"
+                    className="explanation-next-btn"
+                    onClick={goNextQuestion}
+                  >
+                    {currentQIndex === QUESTIONS.length - 1 ? "看結果 ▶" : "下一題 ▶"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // ========= 結果畫面 =========
+      if (gameState === "result") {
+        const isFullScore = score === 100;
+
+        return (
+          <div className="w-full h-full bg-gray-900 flex flex-col items-center justify-center p-4 text-white relative overflow-hidden">
+            {/* 背景微漸層 & 光暈 */}
+            <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 opacity-90 pointer-events-none"></div>
+            <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[280px] h-[280px] bg-amber-400/10 blur-3xl rounded-full pointer-events-none"></div>
+
+            <div className="relative z-10 flex flex-col items-center w-full max-w-sm">
+              <div className="text-xs mb-2 text-gray-300 tracking-wide">
+                本週挑戰完成！
+              </div>
+
+              <div className="text-6xl font-black mb-3">{score} 分</div>
+
+              {isFullScore ? (
+                <>
+                  <div className="mb-2 text-amber-300 text-sm text-center leading-relaxed px-4 font-bold">
+                    太厲害了！全部答對 🎉
+                  </div>
+                  <div className="mb-6 text-gray-300 text-xs text-center px-4 opacity-80">
+                    點擊下方按鈕領取您的專屬獎勵
+                  </div>
+
+                  {/* 領取獎勵按鈕 */}
+                  <button
+                    onClick={handleClaimReward}
+                    className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg w-full mb-3 transform transition hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+                  >
+                    <span>🎁 領取獎勵</span>
+                  </button>
+
+                  {/* 分享按鈕 */}
+                  <button
+                    onClick={handleShare}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg w-full mb-3 flex items-center justify-center gap-2"
+                  >
+                    <span>📤 分享給好友</span>
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="mb-6 text-gray-400 text-xs text-center px-8 max-w-[260px] mx-auto">
+                    差一點點就滿分了！<br/>請重新挑戰直到 100 分才能領獎喔。
+                  </div>
+
+                  {/* 未滿分：再玩一次 */}
+                  <button
+                    onClick={() => {
+                      setGameState("start"); 
+                      setScore(0);
+                      setCurrentQIndex(0);
+                    }}
+                    className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-xl w-full mb-3"
+                  >
+                    🔄 再玩一次
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        );
+      }
+
+      return null;
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
