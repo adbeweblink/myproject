@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW"> 
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -15,10 +15,9 @@
                         adobeDarkRed: '#D40D00',
                         adobeBlack: '#1A1A1A',
                         adobeBlue: '#1473E6',
-                        // 定義背景色 (更淡一點以確保文字清晰)
-                        bgGray: '#F9FAFB',     // 入門版背景
-                        bgBlue: '#F0F7FF',     // 完整版背景 (微調更藍一點點區隔)
-                        bgRed: '#FFF0F0'       // 旗艦版背景 (微調更紅一點點區隔)
+                        bgGray: '#F9FAFB',
+                        bgBlue: '#F0F7FF',
+                        bgRed: '#FFF0F0'
                     },
                     screens: { 'print': {'raw': 'print'} },
                     animation: { 
@@ -45,41 +44,94 @@
         
         body { font-family: 'Noto Sans TC', sans-serif; -webkit-tap-highlight-color: transparent; }
 
-        /* 隱藏 Scrollbar 但保留功能 */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Orientation Alert Logic */
         #orientation-alert { display: none; }
         @media screen and (max-width: 768px) and (orientation: portrait) {
             #orientation-alert:not(.dismissed) { display: flex !important; }
         }
-
-        /* Modal Transition Helper */
         .modal-active { display: flex !important; }
 
-        /* Print Settings */
+        /* =========================================
+           列印專用設定 (A4 直式優化)
+           ========================================= */
         @media print {
-            @page { size: A4 landscape; margin: 5mm; }
-            body { 
-                background: white; color: black; font-size: 10pt; 
-                -webkit-print-color-adjust: exact; print-color-adjust: exact;
+            @page { 
+                size: A4 portrait; /* 強制直式 */
+                margin: 8mm;       /* 邊界留白 */
             }
-            .no-print { display: none !important; }
+            
+            html, body {
+                width: 100%;
+                background: white;
+                color: black;
+                margin: 0;
+                padding: 0;
+            }
+
+            /* 全局強制背景色列印 */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                box-shadow: none !important; /* 移除陰影以節省墨水並保持乾淨 */
+            }
+
+            /* 隱藏網頁互動元素 */
+            .no-print, 
+            #header-container, 
+            .nav-arrow, 
+            #orientation-alert,
+            #feature-modal, 
+            #contact-modal { 
+                display: none !important; 
+            }
+
             .print-only { display: block !important; }
+
+            /* 主容器與縮放設定 */
+            #app {
+                display: block !important;
+                width: 100% !important;
+                padding: 0 !important;
+            }
+
+            #table-container {
+                display: block !important;
+                width: 100% !important;
+                border: none !important;
+                
+                /* ★ 核心縮放：為了塞入3欄+標題，縮小至 65% */
+                zoom: 0.65; 
+                
+                /* Firefox 不支援 zoom，使用 transform 作為備案 (但在大多數桌面列印環境 zoom 效果較好) */
+                -moz-transform: scale(0.65);
+                -moz-transform-origin: top left;
+            }
+
+            /* 移除 sticky 定位，避免列印時標題遮擋或斷裂 */
+            .sticky {
+                position: static !important;
+                border: none !important;
+            }
+
+            /* 壓縮垂直空間，盡量塞進一頁 */
+            .p-3, .p-4, .p-6 { padding: 6px 8px !important; } /* 減少內距 */
+            .mb-4, .mb-6 { margin-bottom: 8px !important; }   /* 減少邊距 */
             
-            /* Force full grid display in print */
-            .nav-arrow { display: none !important; }
+            /* 強制字體大小調整，避免縮放後過小，稍微加粗以利閱讀 */
+            .text-xs, .text-[10px], .text-[9px] { font-size: 10pt !important; }
+            .text-sm { font-size: 11pt !important; }
             
-            /* Reset Styles */
-            .shadow-xl, .shadow-lg, .shadow-md, .shadow-sm { box-shadow: none !important; }
+            /* 表格格線優化 */
+            .border-b, .border-r {
+                border-color: #ddd !important;
+            }
             
-            /* Colors */
-            .bg-adobeRed { background-color: #FA0F00 !important; }
-            .text-adobeRed { color: #FA0F00 !important; }
-            
-            #comparison-table { zoom: 0.75; }
-            #feature-modal, #contact-modal, #orientation-alert { display: none !important; }
+            /* 推薦框列印樣式優化 */
+            .border-adobeRed {
+                border-width: 2px !important;
+            }
         }
         .print-only { display: none; }
     </style>
@@ -93,13 +145,15 @@
 
         <!-- Main Content -->
         <div class="max-w-7xl mx-auto p-1 md:p-6 w-full flex-grow">
-            <!-- Print Header -->
-            <div class="print-only text-center mb-4 border-b-2 border-adobeRed pb-2">
-                <h1 class="text-2xl font-bold text-black">Adobe Creative Cloud 企業方案比較表</h1>
-                <p class="text-xs text-gray-500" id="print-date"></p>
+            <!-- Print Header (只在列印時出現) -->
+            <div class="print-only text-center mb-2 border-b-2 border-adobeRed pb-2">
+                <div class="flex items-center justify-between px-4">
+                    <h1 class="text-3xl font-bold text-black">Adobe Creative Cloud 企業方案比較表</h1>
+                    <span class="text-sm text-gray-500" id="print-date"></span>
+                </div>
             </div>
 
-            <!-- Legend -->
+            <!-- Legend (螢幕顯示用) -->
             <div class="no-print mb-6 flex flex-wrap gap-2 md:gap-4 justify-center md:justify-start items-center text-xs font-medium text-gray-500 px-2">
                 <div class="flex items-center bg-white px-3 py-1.5 rounded-md shadow-sm border border-gray-200">
                     <div class="flex items-center text-adobeRed font-bold mr-1.5">
@@ -119,6 +173,14 @@
             <!-- Comparison Table -->
             <div id="table-container" class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden flex flex-col w-full">
                 <!-- Grid will be injected here -->
+            </div>
+            
+            <!-- Print Footer -->
+             <div class="print-only mt-4 px-4">
+                <p class="text-[10pt] text-gray-500 leading-tight">
+                    * 本表內容僅供參考，實際產品規格與授權條款請以 Adobe 官方最新公告與合約為準。<br>
+                    * Creative Cloud 企業版 (Edition 4) 包含完整資安管控與 IP 保障，適合對資安有嚴格要求之企業。
+                </p>
             </div>
         </div>
     </div>
@@ -148,14 +210,36 @@
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full relative p-6 border-none overflow-hidden animate-fade-in">
             <button onclick="App.closeContactModal()" class="absolute top-4 right-4 text-gray-400 hover:text-black transition-colors p-2 rounded-full hover:bg-gray-200"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg></button>
             <h3 class="text-xl font-black text-adobeBlack mb-2 text-center">聯繫諮詢</h3>
-            <p class="text-gray-500 text-sm text-center mb-6">感謝您的興趣！請填寫以下資訊，我們將由專人聯繫您，或為您推薦合適的經銷商。</p>
-            <form class="space-y-4" onsubmit="event.preventDefault(); alert('感謝您的填寫，我們將盡快聯繫您！'); App.closeContactModal();">
-                <div><label class="block text-sm font-bold text-gray-700 mb-1">姓名</label><input type="text" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required></div>
-                <div><label class="block text-sm font-bold text-gray-700 mb-1">公司</label><input type="text" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required></div>
-                <div><label class="block text-sm font-bold text-gray-700 mb-1">Email</label><input type="email" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required></div>
-                <div><label class="block text-sm font-bold text-gray-700 mb-1">電話</label><input type="tel" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required></div>
-                <div><label class="block text-sm font-bold text-gray-700 mb-1">感興趣的方案</label><select class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none"><option>Creative Cloud 團隊完整版</option><option>Creative Cloud 企業旗艦版</option><option>尚未確定，需要建議</option></select></div>
-                <button type="submit" class="w-full bg-adobeRed text-white py-3 rounded-lg font-bold hover:bg-adobeDarkRed transition-colors flex items-center justify-center"><svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg> 送出諮詢</button>
+            <p class="text-gray-500 text-sm text-center mb-6">感謝您的興趣！請填寫以下資訊，我們將協助開啟您的郵件軟體進行發送。</p>
+            <form id="contact-form" class="space-y-4" onsubmit="App.sendEmail(event)">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1" for="c_name">姓名</label>
+                    <input type="text" id="c_name" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required placeholder="您的姓名">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1" for="c_company">公司</label>
+                    <input type="text" id="c_company" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required placeholder="公司全名">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1" for="c_email">Email</label>
+                    <input type="email" id="c_email" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required placeholder="example@company.com">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1" for="c_phone">電話</label>
+                    <input type="tel" id="c_phone" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required placeholder="聯絡電話/分機">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1" for="c_plan">感興趣的方案</label>
+                    <select id="c_plan" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none">
+                        <option>Creative Cloud 團隊完整版</option>
+                        <option>Creative Cloud 企業旗艦版</option>
+                        <option>尚未確定，需要建議</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-adobeRed text-white py-3 rounded-lg font-bold hover:bg-adobeDarkRed transition-colors flex items-center justify-center">
+                    <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/><rect width="20" height="16" x="2" y="4" rx="2"/></svg> 
+                    開啟郵件軟體送出
+                </button>
             </form>
         </div>
     </div>
@@ -174,7 +258,6 @@
                     support: '標準技術支援', security_policy: '標準',
                     desktop_apps: '包含 20+ 款\n應用程式', storage: '1TB', admin_console: '基本管理後台', sign: '無限基本\n電子簽署',
                     firefly_boards: '包含',
-                    // New Updates
                     cloud_service: '支援',
                     pdf_apps: '包含 Acrobat Pro',
                     substance: '未包含\n(需額外加購)'
@@ -189,7 +272,6 @@
                     support: '標準技術支援', security_policy: '標準',
                     desktop_apps: '包含 20+ 款\n應用程式', storage: '1TB', admin_console: '基本管理後台', sign: '無限基本\n電子簽署',
                     firefly_boards: '包含',
-                    // New Updates
                     cloud_service: '支援',
                     pdf_apps: '包含 Acrobat Pro',
                     substance: '未包含\n(需額外加購)'
@@ -205,7 +287,6 @@
                     security_policy: '進階管控 (週期/強度)',
                     desktop_apps: '包含 20+ 款\n應用程式', storage: '1TB\n(可集中管理)', admin_console: '完整管理後台', sign: '無限基本\n電子簽署',
                     firefly_boards: '包含',
-                    // New Updates
                     cloud_service: '支援',
                     pdf_apps: '包含 Acrobat Pro',
                     substance: '未包含\n(需額外加購)'
@@ -308,7 +389,7 @@
             init() {
                 this.handleResize();
                 window.addEventListener('resize', () => this.handleResize());
-                document.getElementById('print-date').innerText = `製表日期：${AppData.currentDate} | 供採購商業用戶整理參考，實際內容仍以官網實際公告為主`;
+                document.getElementById('print-date').innerText = `製表日期：${AppData.currentDate}`;
                 this.render();
             },
 
@@ -560,6 +641,26 @@
             closeContactModal() {
                 document.getElementById('contact-modal').classList.add('hidden');
                 document.getElementById('contact-modal').classList.remove('flex');
+            },
+            sendEmail(e) {
+                e.preventDefault();
+                const name = document.getElementById('c_name').value;
+                const company = document.getElementById('c_company').value;
+                const email = document.getElementById('c_email').value;
+                const phone = document.getElementById('c_phone').value;
+                const plan = document.getElementById('c_plan').value;
+
+                const recipient = 'mark.tsao@weblink.com.tw';
+                const subject = `Adobe 企業方案諮詢需求 - ${company} ${name}`;
+                const body = `Mark 您好，%0D%0A%0D%0A我對於 Adobe 企業方案有興趣，詳細需求如下，請協助聯繫：%0D%0A---------------------------------------------%0D%0A姓名：${name}%0D%0A公司：${company}%0D%0AEmail：${email}%0D%0A電話：${phone}%0D%0A感興趣的方案：${plan}%0D%0A---------------------------------------------%0D%0A（此郵件由方案比較表自動生成）`;
+
+                window.location.href = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${body}`; // body is already partially encoded with %0D%0A but let's be safe for content
+                
+                // Small delay to allow mail client to trigger before closing modal
+                setTimeout(() => {
+                    alert('已呼叫您的郵件軟體。\n請在開啟的郵件視窗中確認內容後按下「傳送」即可！');
+                    App.closeContactModal();
+                }, 500);
             }
         };
 
