@@ -217,7 +217,6 @@
             <form id="contact-form" class="space-y-4" onsubmit="App.submitForm(event)">
                 
                 <!-- Honeypot 欄位 (防止機器人) -->
-                <!-- 真人使用者看不到此欄位，如果此欄位有值，代表是機器人 -->
                 <div class="hidden" aria-hidden="true">
                     <label for="honeypot_field">請勿填寫此欄位</label>
                     <input type="text" name="_honey" id="honeypot_field" tabindex="-1" autocomplete="off">
@@ -240,9 +239,10 @@
                     <label class="block text-sm font-bold text-gray-700 mb-1" for="c_email">學校 Email</label>
                     <input type="email" id="c_email" name="email" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required placeholder="name@school.edu.tw">
                 </div>
+                <!-- 手機欄位 -->
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1" for="c_phone">電話</label>
-                    <input type="tel" id="c_phone" name="phone" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required placeholder="聯絡電話/分機">
+                    <label class="block text-sm font-bold text-gray-700 mb-1" for="c_phone">手機</label>
+                    <input type="tel" id="c_phone" name="phone" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required placeholder="0912-345-678">
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1" for="c_plan">感興趣的方案</label>
@@ -253,7 +253,7 @@
                         <option>尚未確定，需要建議</option>
                     </select>
                 </div>
-                <!-- 更新按鈕文字 -->
+                <!-- 按鈕 -->
                 <button type="submit" class="w-full bg-adobeRed text-white py-3 rounded-lg font-bold hover:bg-adobeDarkRed transition-colors flex items-center justify-center">
                     送出 採購方案諮詢 我們將盡快與您聯繫
                 </button>
@@ -700,8 +700,9 @@
 
                 // Basic Phone Validation
                 const phone = formData.get('phone');
-                if (!/^\d{7,15}$/.test(phone.replace(/[- ]/g, ''))) {
-                     alert('請輸入有效的電話號碼');
+                const cleanPhone = phone.replace(/[- ]/g, '');
+                if (!/^09\d{8}$/.test(cleanPhone)) {
+                     alert('請輸入有效的台灣手機號碼 (例如：0912-345-678)');
                      return;
                 }
 
