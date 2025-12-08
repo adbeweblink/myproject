@@ -1,0 +1,1210 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { 
+  Plus, Trash2, Calculator, ShoppingCart, Film, Image as ImageIcon, Music, 
+  Zap, X, ChevronRight, ChevronLeft, Check, AlertCircle, BarChart3, Menu,
+  HelpCircle, ExternalLink, Star, Award, ShieldCheck, Type, PenTool, Layout,
+  Wand2, Info, User, Building, Briefcase, Phone, Send, FileText, RotateCcw,
+  TableProperties, TrendingUp, Crown, MousePointerClick, Grid, Lightbulb,
+  ArrowRight, Copy, CheckCircle2
+} from 'lucide-react';
+
+// ==========================================
+// 核心資料庫 (2025-12 官方費率 - 最終校正)
+// ==========================================
+
+// 1. 影片模型 (Video Models)
+const VIDEO_MODELS = {
+  adobe: {
+    name: 'Adobe Firefly',
+    desc: '【首選推薦】保證商業安全，完美整合 Adobe 生態系。注意：生成式延伸的費率依幀率 (FPS) 不同。',
+    tags: ['商業安全', '版權保障', '企業首選'],
+    models: [
+      { 
+        id: 'firefly_vid', name: 'Firefly Video', type: 'gen',
+        desc: '標準 Adobe 影片模型，產生全新影片片段 (預設 24 FPS)。',
+        rates: { '540p': 20, '720p': 50, '1080p': 100 }
+      },
+      { 
+        id: 'firefly_extend', name: 'Premiere 生成式延伸 (Generative Extend)', type: 'gen',
+        desc: '在 Premiere Pro 中延伸現有素材，費率取決於解析度與幀率。',
+        rates: { 
+          '720p_24fps': 50, '1080p_24fps': 100, '4k_24fps': 150,
+          '720p_30fps': 75, '1080p_30fps': 125, '4k_30fps': 175
+        }
+      }
+    ]
+  },
+  luma: {
+    name: 'Luma AI',
+    desc: '以強大的動態運鏡與物理模擬著稱，適合動作激烈的場面。',
+    tags: ['運鏡流暢', '動作片首選'],
+    models: [
+      { 
+        id: 'ray3', name: 'Ray3', type: 'gen',
+        desc: 'Luma 最新一代標準版，動態細節豐富。',
+        rates: { '360p': 25, '540p': 75, '720p': 100, '1080p': 125, '4k': 150 }
+      },
+      { 
+        id: 'ray2', name: 'Ray2', type: 'gen',
+        desc: '上一代標準版，平衡了畫質與動態穩定性。',
+        rates: { '540p': 20, '720p': 50, '1080p': 100, '4k': 150 }
+      }
+    ]
+  },
+  runway: {
+    name: 'Runway',
+    desc: '專精於藝術風格與創意轉場，適合 MV、廣告等。',
+    tags: ['藝術風格', '創意轉場'],
+    models: [
+      { id: 'gen4_video', name: 'Runway Gen-4 Video', type: 'gen', rates: { '720p': 20, '1080p': 40 }, desc: '【限時優惠】經典模型，擅長風格化影片生成。' },
+      { id: 'aleph', name: 'Runway Aleph', type: 'gen', rates: { '720p': 50 }, desc: '【限時優惠】Runway 實驗性模型。' }
+    ]
+  },
+  openai: {
+    name: 'OpenAI',
+    desc: 'Sora 模型震撼業界，具備驚人的場景一致性與長鏡頭穩定度。',
+    tags: ['長鏡頭', '場景一致性'],
+    models: [
+      { id: 'sora2', name: 'Sora 2', type: 'gen', rates: { 'all': 30 }, desc: '【限時優惠】OpenAI 經典模型，物理一致性極高，目前統一費率每秒 30 點。' }
+    ]
+  },
+  google: {
+    name: 'Google',
+    desc: 'Veo 系列具備極佳的語意理解力，畫面細膩且寫實。',
+    tags: ['高解析度', '語意理解強'],
+    models: [
+      { id: 'veo31', name: 'Veo 3.1', type: 'gen', rates: { '720p': 50, '1080p': 50 }, desc: '【限時優惠】旗艦畫質，細節豐富。' },
+      { id: 'veo31_fast', name: 'Veo 3.1 Fast', type: 'gen', rates: { '720p': 10, '1080p': 10 }, desc: '【限時優惠】極速生成，每秒僅需 10 點。' },
+      { id: 'veo2', name: 'Veo 2', type: 'gen', rates: { '720p': 100 }, desc: 'Google 上一代影片模型。' }
+    ]
+  },
+  pika: {
+    name: 'Pika Labs',
+    desc: '擅長動漫風格與特定的物體動態控制。',
+    tags: ['動漫風格', '動態控制'],
+    models: [
+      { id: 'pika22', name: 'Pika 2.2', type: 'gen', rates: { '720p': 25, '1080p': 50 }, desc: '最新 Pika 模型，動態流暢。' }
+    ]
+  },
+  marey: {
+    name: 'Marey',
+    desc: 'Moonvalley 開發，特定藝術風格表現優異。',
+    tags: ['藝術風格'],
+    models: [
+      { id: 'marey', name: 'Marey', type: 'gen', rates: { '1080p': 100 }, desc: '【限時優惠】高畫質藝術影片生成。' }
+    ]
+  }
+};
+
+// 2. 圖像模型 (Image Models)
+const IMAGE_MODELS_RAW = [
+  // Adobe
+  { 
+    id: 'ps_partner', provider: 'Adobe', name: 'Photoshop 合作夥伴模型 (生成式填色)', cost: 10, type: 'gen',
+    desc: '【熱門功能】在 Photoshop 中選用非 Firefly 模型 (如 Google/Flux 等) 進行填色。', tags: ['第三方填色', '高頻使用']
+  },
+  { 
+    id: 'firefly_v5', provider: 'Adobe', name: 'Firefly Image 5 (preview)', cost: 5, type: 'gen',
+    desc: '【最新模型】細節與寫實度大幅提升，光影更自然。', tags: ['最新標準', '高細節']
+  },
+  { 
+    id: 'firefly_v4_ultra', provider: 'Adobe', name: 'Firefly Image 4 Ultra', cost: 20, type: 'gen',
+    desc: '【商業畫質】極致解析度，適合大型印刷與精細修圖。', tags: ['超高畫質', '商業級']
+  },
+  { 
+    id: 'firefly_v4', provider: 'Adobe', name: 'Firefly Image 4', cost: 1, type: 'std',
+    desc: '【高性價比】上一代標準模型，平衡畫質與點數消耗。', tags: ['標準模型']
+  },
+  { 
+    id: 'firefly_v3', provider: 'Adobe', name: 'Firefly Image 3', cost: 1, type: 'std',
+    desc: '【基礎模型】適合快速發想、擴充版面與生成式填色。', tags: ['基礎必備', '低消耗']
+  },
+  { 
+    id: 'firefly_v3_fast', provider: 'Adobe', name: 'Firefly Image 3 (Fast)', cost: 1, type: 'std',
+    desc: '【極速生成】犧牲少許細節換取更快的生成速度。', tags: ['極速', '低消耗']
+  },
+  
+  // Black Forest Labs (FLUX)
+  { 
+    id: 'flux_kontext_max', provider: 'Black Forest Labs', name: 'FLUX.1 Kontext [max]', cost: 10, type: 'gen',
+    desc: '【極致細節】Flux 系列中細節表現最強的版本，適合複雜紋理。', tags: ['細節王者', 'Boards']
+  },
+  { 
+    id: 'flux_kontext_pro', provider: 'Black Forest Labs', name: 'FLUX.1 Kontext [pro]', cost: 10, type: 'gen',
+    desc: '【專業通用】在細節與構圖間取得平衡的專業版本。', tags: ['專業通用', 'Boards']
+  },
+  { 
+    id: 'flux_1_1_pro', provider: 'Black Forest Labs', name: 'FLUX1.1 [pro]', cost: 10, type: 'gen',
+    desc: '【高速高品質】生成速度快，同時保有極高畫質。', tags: ['高速生成', 'Boards']
+  },
+  { 
+    id: 'flux_1_1_pro_ultra', provider: 'Black Forest Labs', name: 'FLUX1.1 [pro] Ultra', cost: 20, type: 'gen',
+    desc: '【頂規畫質】Flux 系列最高解析度，適合商業海報輸出。', tags: ['頂規畫質', 'Boards']
+  },
+  { 
+    id: 'flux_1_1_pro_ultra_raw', provider: 'Black Forest Labs', name: 'FLUX1.1 [pro] Ultra Raw', cost: 20, type: 'gen',
+    desc: '【攝影原始檔】模擬相機 RAW 檔質感，保留真實攝影顆粒與光影。', tags: ['攝影寫實', 'Boards']
+  },
+
+  // Google
+  { 
+    id: 'gemini_3', provider: 'Google', name: 'Gemini 3 (w/ Nano Banana Pro)', cost: 10, type: 'gen',
+    desc: '【語意理解】具備極強的多模態理解，能精準執行複雜指令。', tags: ['語意理解', 'Boards']
+  },
+  { 
+    id: 'gemini_2_5', provider: 'Google', name: 'Gemini 2.5 (w/ Nano Banana)', cost: 10, type: 'gen',
+    desc: '【快速發想】生成速度快，適合概念草圖與腦力激盪。', tags: ['快速', 'Boards']
+  },
+  { 
+    id: 'imagen_4', provider: 'Google', name: 'Imagen 4', cost: 20, type: 'gen',
+    desc: '【最新寫實】Google 最新一代繪圖模型，光影與材質表現再進化。', tags: ['最新寫實', 'Boards']
+  },
+  { 
+    id: 'imagen_3', provider: 'Google', name: 'Imagen 3', cost: 20, type: 'gen',
+    desc: '【經典寫實】照片寫實感強，適合擬真攝影風格。', tags: ['照片寫實', 'Boards']
+  },
+
+  // OpenAI
+  { 
+    id: 'gpt_img', provider: 'OpenAI', name: 'GPT Image', cost: 60, type: 'gen', badge: '高消耗',
+    desc: '【DALL-E 3】擅長聽懂自然語言，簡單描述即可生成精美構圖。', tags: ['容易上手', 'Boards']
+  },
+
+  // Ideogram
+  { 
+    id: 'ideogram', provider: 'Ideogram', name: 'Ideogram 3.0', cost: 20, type: 'gen',
+    desc: '【文字排版】能精準在圖片中生成正確的英文字母與排版設計。', tags: ['文字排版', 'Boards']
+  },
+
+  // Runway
+  { 
+    id: 'runway_gen4', provider: 'Runway', name: 'Runway Gen-4 Image', cost: 20, type: 'gen',
+    desc: '【藝術風格】獨特的美學風格，適合電影美術與概念設計。', tags: ['概念藝術', 'Boards']
+  }
+];
+
+// 3. 畫質修復 (Enhance) - 獨立處理
+const ENHANCE_MODELS = [
+  { id: 'topaz_std', provider: 'Topaz Labs', name: 'Gigapixel/Sharpen (<25MP)', cost: 10, desc: '【標準修復】一般照片放大與降噪。', type: 'gen' },
+  { id: 'topaz_high', provider: 'Topaz Labs', name: 'Gigapixel (>25MP)', cost: 20, desc: '【高畫素修復】針對 25MP 以上高畫素照片的進階處理。', type: 'gen' },
+  { id: 'topaz_bloom', provider: 'Topaz Labs', name: 'Bloom', cost: 35, desc: '【創意放大】不僅放大，還能增加原本不存在的細節與紋理。', badge: '高消耗', type: 'gen' }
+];
+
+// 4. 向量生成 (Vector) - 獨立處理
+const VECTOR_MODELS = [
+  { id: 'firefly_vec', provider: 'Adobe', name: 'Firefly Vector', cost: 1, type: 'std', desc: '【Adobe 原生】生成 SVG 向量檔，可直接在 Illustrator 編輯。' }, 
+  { id: 'gemini_vec', provider: 'Google', name: 'Gemini 2.5 Flash', cost: 20, type: 'gen', desc: '快速生成向量圖示與簡單插畫。', tags: ['Boards'] },
+  { id: 'gpt_vec', provider: 'OpenAI', name: 'GPT Image (Vector)', cost: 60, type: 'gen', desc: '使用 GPT 強大的理解力生成向量圖概念。', badge: '高消耗', tags: ['Boards'] },
+  { id: 'ideogram_vec', provider: 'Ideogram', name: 'Ideogram 3.0', cost: 20, type: 'gen', desc: '擅長生成帶有文字設計的向量圖形。', tags: ['Boards'] }
+];
+
+// 3. 音訊生成 (Audio) - 右邊
+const AUDIO_SERVICES = [
+  { id: 'trans_base', label: '翻譯影片/音訊 (無對嘴)', cost: 5, unit: '秒', desc: '【基礎翻譯】僅翻譯語音內容，不含 AI 嘴型同步。', type: 'gen' }, 
+  { id: 'trans_1080', label: '翻譯/對嘴 (1080p)', cost: 10, unit: '秒', desc: '【進階翻譯】影片語音翻譯 + AI 自動對嘴 (1080p畫質)。', type: 'gen' },
+  { id: 'trans_4k', label: '翻譯/對嘴 (4K)', cost: 15, unit: '秒', desc: '【高畫質翻譯】影片語音翻譯 + AI 自動對嘴 (4K畫質)。', type: 'gen' },
+  { id: 'avatar', label: '文字轉虛擬人偶', cost: 10, unit: '秒', desc: '以文字建立虛擬人偶影片 (最高1080p)。', type: 'gen' },
+  { id: 'sfx', label: '生成音效', cost: 10, unit: '次', desc: '輸入文字描述產生簡短音效 (48kHz)。', type: 'gen' },
+  { id: 'music', label: 'GenMusic (生成音樂)', cost: 20, unit: '分', desc: '生成可商用的背景音樂 (每分鐘計費)。', type: 'gen' }
+];
+
+// ==========================================
+// 主類別定義 (Categories)
+// ==========================================
+// 修改順序: 圖像設計(左) -> 影片(中) -> 音訊(右)
+const CATEGORIES = {
+  image: {
+    id: 'image',
+    title: '圖像設計 (Image)', // 改名
+    subtitle: '包含 Firefly Image 3/4, Photoshop 生成式填色, FLUX 等。',
+    icon: <ImageIcon size={32} className="text-white" />,
+    bg: 'bg-gradient-to-br from-orange-400 to-pink-600',
+    color: 'text-orange-600',
+    type: 'image'
+  },
+  video: {
+    id: 'video',
+    title: '影片生成 (Video)',
+    subtitle: '包含 Adobe Firefly Video, Luma, Runway, OpenAI Sora 等主流模型。',
+    icon: <Film size={32} className="text-white" />,
+    bg: 'bg-gradient-to-br from-blue-500 to-indigo-600',
+    color: 'text-blue-600',
+    type: 'video'
+  },
+  audio: {
+    id: 'audio',
+    title: '音訊與音樂 (Audio)',
+    subtitle: '影片翻譯對嘴、音樂生成、音效製作等服務。',
+    icon: <Music size={32} className="text-white" />,
+    bg: 'bg-gradient-to-br from-yellow-400 to-orange-500',
+    color: 'text-yellow-600',
+    type: 'audio'
+  }
+};
+
+// ==========================================
+// 方案建議邏輯
+// ==========================================
+const getRecommendation = (total, userPlan, standardCreditsPotential) => {
+  if (total <= 25) return { 
+    name: "免費體驗 (Free)", 
+    color: "bg-gray-100 text-gray-600 border border-gray-200",
+    desc: "適合輕度試用。" 
+  };
+  if (total <= 500) return { 
+    name: "單一應用程式 (Single App)", 
+    color: "bg-blue-50 text-blue-800 border border-blue-100",
+    desc: "適合專注於 Ps 或 Ai 的平面設計師。" 
+  };
+  
+  if (total <= 2000) return { 
+    name: "Firefly Standard (2,000點)", 
+    color: "bg-green-50 text-green-800 border border-green-100",
+    desc: "適合每月有固定生圖需求的創作者。" 
+  };
+  
+  if (total <= 4000) return { 
+    name: "Firefly Pro / CC Pro (4,000點)", 
+    color: "bg-gradient-to-r from-[#0265DC] to-[#5143E6] text-white shadow-lg",
+    desc: "【推薦】專業用戶首選，涵蓋影片與高品質輸出需求。" 
+  };
+  
+  return { 
+    name: "Firefly Premium (50,000點)", 
+    color: "bg-gradient-to-r from-orange-500 via-red-500 to-purple-600 text-white shadow-lg",
+    desc: "適合需要大量 4K 影片生成的商業工作室。" 
+  };
+};
+
+// ==========================================
+// UI 組件
+// ==========================================
+
+const Toast = ({ message, isVisible, onClose }) => {
+  useEffect(() => {
+    if (isVisible) {
+      const timer = setTimeout(onClose, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [isVisible, onClose]);
+
+  if (!isVisible) return null;
+
+  return (
+    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-xl z-50 flex items-center gap-2 animate-fadeInDown">
+      <Check size={18} className="text-green-400" />
+      <span className="font-bold">{message}</span>
+    </div>
+  );
+};
+
+const ResetConfirmModal = ({ isOpen, onClose, onConfirm }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn">
+      <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl scale-100 animate-zoomIn">
+        <h3 className="text-xl font-bold mb-2 text-slate-900">確定要清空目前身分的清單嗎？</h3>
+        <p className="text-gray-500 mb-6">這將會移除<span className="text-red-600 font-bold">目前身分</span>的所有項目，其他身分的清單將保留。</p>
+        <div className="flex gap-3">
+          <button onClick={onClose} className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-bold hover:bg-gray-200 transition-colors">取消</button>
+          <button onClick={onConfirm} className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 transition-colors">確認清空</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const InquiryForm = ({ isOpen, onClose, cartData }) => {
+  if (!isOpen) return null;
+  
+  const total = cartData.reduce((sum, item) => sum + item.totalCost, 0);
+  const recommendation = getRecommendation(total);
+
+  return (
+    <div className="fixed inset-0 bg-white z-50 overflow-y-auto animate-slideUp">
+      <div className="max-w-2xl mx-auto p-6 md:p-12">
+        <button onClick={onClose} className="absolute top-6 right-6 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+          <X size={24} className="text-gray-600" />
+        </button>
+
+        <div className="text-center mb-10">
+          <div className="inline-block p-3 bg-blue-50 rounded-full mb-4">
+            <Send size={32} className="text-[#0265DC]" />
+          </div>
+          <h2 className="text-3xl font-bold text-slate-900 mb-2">採購諮詢單</h2>
+          <p className="text-gray-500">請填寫基本資料，專員將為您提供詳細報價。</p>
+        </div>
+
+        <div className="bg-gray-50 rounded-2xl p-6 mb-8 border border-gray-100">
+          <h3 className="font-bold text-gray-700 mb-4 flex items-center gap-2"><BarChart3 size={18} /> 需求摘要</h3>
+          <div className="space-y-2 mb-4 text-sm">
+             {cartData.map(item => (
+               <div key={item.uniqueId} className="flex justify-between border-b border-gray-200/50 pb-2 last:border-0">
+                 <span className="text-gray-600">{item.subname}</span>
+                 <span className="font-mono font-bold">{item.totalCost.toLocaleString()} 點</span>
+               </div>
+             ))}
+          </div>
+          <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+            <span className="font-bold text-gray-900">總預估用量</span>
+            <span className="text-2xl font-bold text-[#0265DC]">{total.toLocaleString()} 點</span>
+          </div>
+          <div className="mt-2 text-right text-sm text-gray-500">建議方案：{recommendation.name}</div>
+        </div>
+
+        <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-gray-700 flex items-center gap-2"><User size={16} /> 聯絡人姓名</label>
+              <input type="text" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" placeholder="王小明" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-gray-700 flex items-center gap-2"><Building size={16} /> 公司名稱</label>
+              <input type="text" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" placeholder="某某科技有限公司" />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-gray-700 flex items-center gap-2"><Phone size={16} /> 聯絡電話</label>
+              <input type="tel" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" placeholder="0912-345-678" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-gray-700 flex items-center gap-2"><Briefcase size={16} /> 職稱</label>
+              <input type="text" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" placeholder="設計總監" />
+            </div>
+          </div>
+
+          <button className="w-full bg-[#0265DC] hover:bg-[#0256BD] text-white font-bold py-4 rounded-xl shadow-lg transition-all transform active:scale-[0.99] mt-4 flex items-center justify-center gap-2">
+            送出諮詢 <ChevronRight size={18} />
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// ConfigModal: 負責處理所有類型的輸入邏輯
+const ConfigModal = ({ category, isOpen, onClose, onAdd, userPlan }) => {
+  const [step1Selection, setStep1Selection] = useState(null); 
+  const [selectedBrand, setSelectedBrand] = useState(null);
+  const [selectedModel, setSelectedModel] = useState(null);
+  
+  const [selectedResolution, setSelectedResolution] = useState(null);
+  const [amount, setAmount] = useState(1);
+  const [unit, setUnit] = useState('張');
+  const [step, setStep] = useState(1);
+
+  useEffect(() => {
+    // Reset state when category changes or modal opens
+    if (isOpen) {
+      setStep(1);
+      setStep1Selection(null);
+      setSelectedBrand(null);
+      setSelectedModel(null);
+      setSelectedResolution(null);
+      setAmount(1);
+      setUnit('張');
+    }
+  }, [isOpen, category]);
+
+  if (!isOpen || !category) return null;
+
+  // --- Step 1 Options ---
+  const getStep1Options = () => {
+    if (category.type === 'video') return Object.keys(VIDEO_MODELS); // Providers
+    if (category.type === 'image') return ['image_gen', 'enhance', 'vector']; // Types
+    if (category.type === 'audio') return ['audio_services']; // Single List
+    return [];
+  };
+
+  const getStep1Label = (key) => {
+    if (category.type === 'video') return VIDEO_MODELS[key].name;
+    if (category.type === 'image') {
+      const map = { 'image_gen': '圖像生成 (GenAI)', 'enhance': '畫質修復 (Enhance)', 'vector': '向量/Logo (Vector)' };
+      return map[key];
+    }
+    if (category.type === 'audio') return '音訊服務列表';
+    return key;
+  };
+
+  // --- Helper to fetch models based on current selections ---
+  const getModels = () => {
+    if (category.type === 'video') return VIDEO_MODELS[step1Selection]?.models || [];
+    if (category.type === 'audio') return AUDIO_SERVICES;
+    if (category.type === 'image') {
+        let models = [];
+        if (step1Selection === 'image_gen') models = IMAGE_MODELS_RAW;
+        else if (step1Selection === 'enhance') models = ENHANCE_MODELS;
+        else if (step1Selection === 'vector') models = VECTOR_MODELS;
+        
+        // If brand selected, filter by brand
+        if (selectedBrand) {
+            return models.filter(m => m.provider === selectedBrand);
+        }
+        return models;
+    }
+    return [];
+  };
+
+  // --- Step 2 (Image Only): Get Brands ---
+  const getImageBrands = () => {
+      const models = getModels(); // Gets all models for subCategory
+      const brands = [...new Set(models.map(m => m.provider))];
+      return brands;
+  };
+
+  // --- Handlers ---
+  const handleStep1Select = (key) => {
+    setStep1Selection(key);
+    // Logic Branching
+    if (category.type === 'image') {
+        setStep(2); // Go to Brand Selection
+    } else {
+        setStep(2); // Go to Model Selection (Video/Audio skip brand step essentially or brand was step 1)
+    }
+  };
+
+  const handleBrandSelect = (brand) => {
+      setSelectedBrand(brand);
+      setStep(3); // Go to Model Selection for Image
+  };
+
+  const handleModelSelect = (model) => {
+    setSelectedModel(model);
+    
+    if (category.type === 'video') setUnit('秒 (seconds)');
+    else if (category.type === 'audio') setUnit(model.unit || '次');
+    else setUnit('張 (images)');
+    
+    if (model.rates) {
+       setSelectedResolution(Object.keys(model.rates)[0]);
+    } else {
+       setSelectedResolution(null);
+    }
+    
+    // Logic Branching for Config Step
+    if (category.type === 'image') setStep(4);
+    else setStep(3);
+  };
+
+  const calculateCost = () => {
+    if (!selectedModel) return 0;
+    
+    let rate = 0;
+    if (selectedModel.rates && selectedResolution) {
+      rate = selectedModel.rates[selectedResolution];
+    } else {
+      rate = selectedModel.cost;
+    }
+
+    if (userPlan === 'pro' && selectedModel.type === 'std') {
+        rate = 0;
+    }
+
+    return rate * amount;
+  };
+
+  const handleConfirm = () => {
+    const cost = calculateCost();
+    let rate = 0;
+    if (selectedModel.rates && selectedResolution) {
+        rate = selectedModel.rates[selectedResolution];
+    } else {
+        rate = selectedModel.cost;
+    }
+    
+    const finalRate = (userPlan === 'pro' && selectedModel.type === 'std') ? 0 : rate;
+
+    const item = {
+      type: selectedModel.type || 'gen',
+      name: category.title.split(' ')[0],
+      subname: `${selectedModel.name} ${selectedResolution ? `(${selectedResolution})` : ''}`,
+      qty: amount,
+      unit: unit,
+      originalCost: rate, 
+      costPerUnit: finalRate,
+      totalCost: cost,
+      formula: `${finalRate} 點/${unit} × ${amount}`,
+      detail: selectedModel.desc,
+      badge: selectedModel.badge
+    };
+    onAdd(item);
+    onClose();
+  };
+
+  const maxSteps = category.type === 'image' ? 4 : 3;
+
+  return (
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn">
+      <div className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        {/* Header */}
+        <div className={`p-6 ${category.bg} text-white flex justify-between items-center`}>
+          <div className="flex items-center gap-3">
+             <div className="bg-white/20 p-2 rounded-xl backdrop-blur-md">{category.icon}</div>
+             <div>
+               <h3 className="text-xl font-bold">{category.title}</h3>
+               <p className="text-white/80 text-sm">步驟 {step} / {maxSteps}</p>
+             </div>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-white/20 rounded-full transition-colors"><X size={24} /></button>
+        </div>
+
+        {/* Body */}
+        <div className="p-6 overflow-y-auto flex-1 bg-slate-50">
+           
+           {/* Step 1: Select Type / Provider */}
+           {step === 1 && (
+             <div className="space-y-3 animate-slideLeft">
+               <h4 className="font-bold text-gray-700 mb-4 text-lg">
+                   {category.type === 'image' ? '請選擇服務類型：' : '請選擇服務供應商或類型：'}
+               </h4>
+               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                 {getStep1Options().map(key => (
+                   <button 
+                     key={key} 
+                     onClick={() => handleStep1Select(key)}
+                     className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-400 hover:bg-blue-50 transition-all text-left group"
+                   >
+                     <div className="font-bold text-lg text-slate-800 mb-1 group-hover:text-blue-700">{getStep1Label(key)}</div>
+                     {category.type === 'video' && VIDEO_MODELS[key].tags && (
+                       <div className="flex gap-1 mt-2">
+                         {VIDEO_MODELS[key].tags.map(t => <span key={t} className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">{t}</span>)}
+                       </div>
+                     )}
+                     {category.type === 'video' && <p className="text-xs text-gray-400 mt-2 line-clamp-2">{VIDEO_MODELS[key].desc}</p>}
+                   </button>
+                 ))}
+               </div>
+             </div>
+           )}
+
+           {/* Step 2: Brand Selection (Image) OR Model Selection (Video/Audio) */}
+           {step === 2 && (
+             <div className="space-y-4 animate-slideLeft">
+               <button onClick={() => setStep(1)} className="text-sm text-gray-500 hover:text-gray-800 flex items-center gap-1 mb-2"><ChevronLeft size={16} /> 返回上一頁</button>
+               
+               {/* BRANCH: IMAGE (Select Brand) */}
+               {category.type === 'image' ? (
+                   <>
+                    <h4 className="font-bold text-gray-700 mb-2 text-lg">請選擇模型品牌：</h4>
+                    <div className="grid grid-cols-2 gap-3">
+                        {getImageBrands().map(brand => (
+                            <button
+                                key={brand}
+                                onClick={() => handleBrandSelect(brand)}
+                                className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-orange-400 hover:bg-orange-50 transition-all text-left font-bold text-slate-800 flex items-center justify-between group"
+                            >
+                                {brand}
+                                <ChevronRight size={18} className="text-gray-300 group-hover:text-orange-500" />
+                            </button>
+                        ))}
+                    </div>
+                   </>
+               ) : (
+                   /* BRANCH: VIDEO/AUDIO (Select Model) */
+                   <>
+                    <h4 className="font-bold text-gray-700 mb-2 text-lg">選擇具體模型：</h4>
+                    <div className="space-y-3">
+                        {getModels().map(model => (
+                        <button 
+                            key={model.id} 
+                            onClick={() => handleModelSelect(model)}
+                            className="w-full bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-400 hover:bg-blue-50 transition-all text-left flex justify-between items-center group"
+                        >
+                            <div className="flex-1 pr-2">
+                                <div className="font-bold text-slate-800 flex items-center gap-2 flex-wrap">
+                                    {model.name}
+                                    {model.badge && <span className="bg-red-100 text-red-600 text-[10px] px-1.5 py-0.5 rounded border border-red-200">{model.badge}</span>}
+                                    {model.type === 'std' && <span className="bg-green-100 text-green-700 text-[10px] px-1.5 py-0.5 rounded border border-green-200">標準模型</span>}
+                                </div>
+                                <div className="text-xs text-gray-500 mt-1">{model.desc}</div>
+                            </div>
+                            
+                            {/* Cost Display Logic */}
+                            <div className="flex items-center gap-2">
+                                {model.rates ? (
+                                    <span className="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded whitespace-nowrap">依規格計費</span>
+                                ) : (userPlan === 'pro' && model.type === 'std') ? (
+                                    <span className="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded whitespace-nowrap flex items-center gap-1"><Check size={12}/> 無限使用</span>
+                                ) : (
+                                    <span className="text-sm font-bold text-slate-900 whitespace-nowrap">{model.cost} 點<span className="text-[10px] font-normal text-gray-400">/{model.unit || (category.type === 'video' ? '秒' : '張')}</span></span>
+                                )}
+                                <ChevronRight size={20} className="text-gray-300 group-hover:text-blue-500" />
+                            </div>
+                        </button>
+                        ))}
+                    </div>
+                   </>
+               )}
+             </div>
+           )}
+
+           {/* Step 3: Model Selection (Image) OR Config (Video/Audio) */}
+           {step === 3 && (
+               <div className="space-y-4 animate-slideLeft">
+                   
+                   {/* BRANCH: IMAGE (Select Model) */}
+                   {category.type === 'image' ? (
+                       <>
+                        <button onClick={() => setStep(2)} className="text-sm text-gray-500 hover:text-gray-800 flex items-center gap-1 mb-2"><ChevronLeft size={16} /> 返回品牌列表</button>
+                        <h4 className="font-bold text-gray-700 mb-2 text-lg">選擇具體模型：</h4>
+                        <div className="space-y-3">
+                            {getModels().map(model => (
+                            <button 
+                                key={model.id} 
+                                onClick={() => handleModelSelect(model)}
+                                className="w-full bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-orange-400 hover:bg-orange-50 transition-all text-left flex justify-between items-center group"
+                            >
+                                <div className="flex-1 pr-2">
+                                    <div className="font-bold text-slate-800 flex items-center gap-2 flex-wrap">
+                                        {model.name}
+                                        {model.badge && <span className="bg-red-100 text-red-600 text-[10px] px-1.5 py-0.5 rounded border border-red-200">{model.badge}</span>}
+                                        {model.type === 'std' && <span className="bg-green-100 text-green-700 text-[10px] px-1.5 py-0.5 rounded border border-green-200">標準模型</span>}
+                                    </div>
+                                    <div className="text-xs text-gray-500 mt-1">{model.desc}</div>
+                                </div>
+                                
+                                {/* Cost Display Logic for Image */}
+                                <div className="flex items-center gap-2">
+                                    {(userPlan === 'pro' && model.type === 'std') ? (
+                                        <span className="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded whitespace-nowrap flex items-center gap-1"><Check size={12}/> 無限使用</span>
+                                    ) : (
+                                        <span className="text-sm font-bold text-slate-900 whitespace-nowrap">{model.cost} 點<span className="text-[10px] font-normal text-gray-400">/張</span></span>
+                                    )}
+                                    <ChevronRight size={20} className="text-gray-300 group-hover:text-orange-500" />
+                                </div>
+                            </button>
+                            ))}
+                        </div>
+                       </>
+                   ) : (
+                       /* BRANCH: VIDEO/AUDIO (Config) - Reusing Config UI logic */
+                       <ConfigUI 
+                            selectedModel={selectedModel} 
+                            selectedResolution={selectedResolution} 
+                            setSelectedResolution={setSelectedResolution} 
+                            amount={amount} 
+                            setAmount={setAmount} 
+                            unit={unit} 
+                            calculateCost={calculateCost} 
+                            handleConfirm={handleConfirm}
+                            onBack={() => setStep(2)}
+                       />
+                   )}
+               </div>
+           )}
+
+           {/* Step 4: Config (Image Only) */}
+           {step === 4 && selectedModel && (
+                <div className="space-y-6 animate-slideLeft">
+                    <ConfigUI 
+                        selectedModel={selectedModel} 
+                        selectedResolution={selectedResolution} 
+                        setSelectedResolution={setSelectedResolution} 
+                        amount={amount} 
+                        setAmount={setAmount} 
+                        unit={unit} 
+                        calculateCost={calculateCost} 
+                        handleConfirm={handleConfirm}
+                        onBack={() => setStep(3)}
+                    />
+                </div>
+           )}
+
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Extracted Config UI to reuse across steps
+const ConfigUI = ({ selectedModel, selectedResolution, setSelectedResolution, amount, setAmount, unit, calculateCost, handleConfirm, onBack }) => (
+    <>
+        <button onClick={onBack} className="text-sm text-gray-500 hover:text-gray-800 flex items-center gap-1 mb-2"><ChevronLeft size={16} /> 返回模型列表</button>
+        
+        <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+            <h4 className="font-bold text-xl text-slate-900 mb-1">{selectedModel.name}</h4>
+            <p className="text-gray-500 text-sm mb-6 pb-6 border-b border-gray-100">{selectedModel.desc}</p>
+
+            {/* Resolution Selector for Video */}
+            {selectedModel.rates && (
+            <div className="mb-6">
+                <label className="block text-sm font-bold text-gray-700 mb-2">解析度 / 規格</label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {Object.entries(selectedModel.rates).map(([res, cost]) => (
+                    <button
+                    key={res}
+                    onClick={() => setSelectedResolution(res)}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${selectedResolution === res ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                    >
+                    {res}
+                    <div className="text-[10px] opacity-80">{cost} 點/秒</div>
+                    </button>
+                ))}
+                </div>
+            </div>
+            )}
+
+            {/* Quantity Input */}
+            <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">預估產量 ({unit})</label>
+            <div className="flex items-center gap-4">
+                <input 
+                type="number" 
+                min="1" 
+                value={amount} 
+                onChange={(e) => setAmount(Math.max(1, parseInt(e.target.value) || 0))}
+                className="w-full text-3xl font-bold p-3 border-b-2 border-gray-200 focus:border-blue-500 outline-none bg-transparent font-mono text-center"
+                />
+            </div>
+            <input 
+                type="range" 
+                min="1" 
+                max="1000" 
+                value={amount} 
+                onChange={(e) => setAmount(parseInt(e.target.value))}
+                className="w-full mt-4 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" 
+            />
+            </div>
+        </div>
+
+        {/* Summary */}
+        <div className="bg-slate-900 text-white p-5 rounded-2xl flex justify-between items-center shadow-lg">
+            <div>
+            <div className="text-xs text-slate-400 uppercase font-bold tracking-wider mb-1">本項預估扣點</div>
+            <div className="text-3xl font-bold font-mono text-yellow-400">{calculateCost().toLocaleString()}</div>
+            </div>
+            <button onClick={handleConfirm} className="bg-white text-slate-900 px-6 py-3 rounded-xl font-bold hover:bg-blue-50 transition-colors flex items-center gap-2">
+            <Plus size={18} /> 加入清單
+            </button>
+        </div>
+    </>
+);
+
+const CartDrawer = ({ isOpen, onClose, cart, onRemove, onInquiry, onReset, userPlan }) => {
+  const [copied, setCopied] = useState(false);
+  
+  // 分開計算：
+  // 1. 實際總扣點（用於顯示目前邏輯下的消耗）
+  const total = cart.reduce((sum, item) => sum + item.totalCost, 0);
+
+  // 2. 潛在「標準點數」負載（僅用於一般用戶）
+  const potentialFreeLoad = useMemo(() => {
+    if (userPlan === 'pro') return 0;
+    return cart
+        .filter(item => item.type === 'std')
+        .reduce((sum, item) => sum + item.totalCost, 0);
+  }, [cart, userPlan]);
+
+  const workloadTotal = total; 
+  const recommendation = getRecommendation(workloadTotal, userPlan, potentialFreeLoad);
+  
+  const standardLimit = 4000;
+  const percentage = Math.min((total / standardLimit) * 100, 100);
+  const isOverLimit = total > standardLimit;
+  const overage = total - standardLimit;
+
+  const handleCopySummary = () => {
+    const lines = [
+        "【Adobe AI 點數預估報價單】",
+        `日期: ${new Date().toLocaleDateString()}`,
+        `用戶身分: ${userPlan === 'general' ? '一般用戶' : 'CC Pro 用戶'}`,
+        "--------------------------------",
+        ...cart.map(item => `${item.name} - ${item.subname}: ${item.totalCost} 點 (${item.qty} ${item.unit})`),
+        "--------------------------------",
+        `總計預估點數: ${total.toLocaleString()}`,
+        `建議方案: ${recommendation.name}`,
+        userPlan === 'general' && potentialFreeLoad > 0 ? `* 潛在可節省點數 (標準生成): ${potentialFreeLoad} 點` : ''
+    ].filter(Boolean).join('\n');
+
+    // Create a temporary textarea for copying to clipboard
+    const textArea = document.createElement("textarea");
+    textArea.value = lines;
+    document.body.appendChild(textArea);
+    textArea.select();
+    
+    try {
+      const successful = document.execCommand('copy');
+      if (successful) {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } else {
+        console.error('Fallback copy failed');
+      }
+    } catch (err) {
+      console.error('Fallback copy error', err);
+    }
+    
+    document.body.removeChild(textArea);
+  };
+
+  return (
+    <>
+        <div 
+            className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 backdrop-blur-sm ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+            onClick={onClose}
+        />
+        <div className={`fixed top-0 right-0 h-full w-full sm:w-[480px] bg-white z-50 shadow-2xl transform transition-transform duration-300 cubic-bezier(0.16, 1, 0.3, 1) flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+            
+            {/* 1. Header (Fixed) */}
+            <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-white z-10 shadow-sm flex-none">
+                <div>
+                    <h2 className="text-xl font-bold flex items-center gap-2 text-slate-900">
+                        <ShoppingCart size={20} className="text-[#0265DC]" /> 需求清單 
+                        <span className="bg-[#0265DC] text-white text-xs font-bold px-2 py-0.5 rounded-full">{cart.length}</span>
+                    </h2>
+                    <div className="text-[10px] text-gray-500 font-bold mt-1 bg-gray-100 px-2 py-0.5 rounded-md inline-block">
+                        目前身分：{userPlan === 'general' ? '一般/舊版用戶 (分開計算)' : 'CC Pro/Firefly (分開計算)'}
+                    </div>
+                </div>
+                <div className="flex gap-2">
+                    {cart.length > 0 && (
+                        <button 
+                            onClick={onReset}
+                            className="p-2 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-full transition-colors tooltip"
+                            title="清空重算"
+                        >
+                            <Trash2 size={20} />
+                        </button>
+                    )}
+                    <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full text-slate-500 transition-colors">
+                        <X size={24} />
+                    </button>
+                </div>
+            </div>
+
+            {/* 2. Scrollable Content (Flex-1) */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50 min-h-0">
+                {/* 點數用量儀表板 (僅在 Pro 模式或量大時顯示) */}
+                {(userPlan === 'pro' || total > 100) && (
+                    <div className="bg-slate-900 rounded-xl p-5 text-white shadow-lg relative overflow-hidden shrink-0">
+                        <div className="absolute top-0 right-0 p-4 opacity-10">
+                            <TrendingUp size={80} />
+                        </div>
+                        <div className="relative z-10">
+                            <div className="flex justify-between items-end mb-2">
+                                <span className="text-sm font-bold text-slate-300">每月點數用量預估</span>
+                                <span className="text-2xl font-mono font-bold">{total.toLocaleString()} <span className="text-sm font-normal text-slate-400">/ 4,000</span></span>
+                            </div>
+                            
+                            <div className="h-3 bg-slate-700 rounded-full overflow-hidden mb-2">
+                                <div 
+                                    className={`h-full transition-all duration-500 ${isOverLimit ? 'bg-gradient-to-r from-orange-500 to-red-500' : 'bg-gradient-to-r from-green-400 to-blue-500'}`}
+                                    style={{ width: `${percentage}%` }}
+                                />
+                            </div>
+                            
+                            <div className="flex justify-between text-[10px] uppercase font-bold tracking-wider">
+                                <span className="text-slate-400">CC Pro 基準額度</span>
+                                {isOverLimit ? (
+                                    <span className="text-red-400 flex items-center gap-1"><AlertCircle size={10} /> 已超出標準額度</span>
+                                ) : (
+                                    <span className="text-green-400">額度內</span>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* 邏輯矛盾解決提示框 (僅在一般用戶且有大量標準生成需求時顯示) */}
+                {userPlan === 'general' && potentialFreeLoad > 100 && (
+                    <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-orange-200 rounded-xl p-4 shadow-sm animate-pulse-slow">
+                        <div className="flex gap-3">
+                            <div className="bg-orange-100 p-2 rounded-full h-fit text-orange-600"><Lightbulb size={20} /></div>
+                            <div>
+                                <h4 className="font-bold text-orange-800 text-sm mb-1">專家建議：善用訂閱制優勢</h4>
+                                <p className="text-xs text-orange-700 leading-relaxed mb-2">
+                                    您目前規劃了 <span className="font-bold font-mono text-lg">{potentialFreeLoad.toLocaleString()}</span> 點的標準生成需求。
+                                    雖然此處顯示需扣點，但若您訂閱 <span className="font-bold">Firefly 方案</span>，這部分將轉為 <span className="bg-green-100 text-green-700 px-1 rounded font-bold">無限使用 (不扣點)</span>。
+                                </p>
+                                <div className="text-[10px] text-orange-600/70 font-bold bg-white/50 px-2 py-1 rounded inline-block">
+                                    * 下方總計仍保留此數值，以反映您的真實工作負載。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {cart.length === 0 ? (
+                    <div className="h-40 flex flex-col items-center justify-center text-gray-400 opacity-60">
+                        <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-4">
+                            <BarChart3 size={32} className="text-gray-400" />
+                        </div>
+                        <p className="text-sm font-medium text-gray-500">
+                            {userPlan === 'general' ? '尚未加入任何項目 (一般用戶)' : '尚未加入任何項目 (CC Pro)'}
+                        </p>
+                    </div>
+                ) : (
+                    cart.map((item) => (
+                        <div key={item.uniqueId} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow group relative overflow-hidden shrink-0">
+                            <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${
+                                item.name.includes('Adobe') ? 'bg-[#0265DC]' : 'bg-purple-500'
+                            }`} />
+                            
+                            <div className="flex justify-between items-start pl-3">
+                                <div className="pr-8">
+                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">{item.name}</div>
+                                    <div className="font-bold text-slate-900 text-sm mb-1 leading-tight">
+                                      {item.subname} 
+                                      {item.badge && <span className="ml-1.5 text-[10px] text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-100 font-bold">{item.badge}</span>}
+                                    </div>
+                                </div>
+                                <button 
+                                    onClick={() => onRemove(item.uniqueId)} 
+                                    className="text-gray-300 hover:text-red-500 p-1.5 hover:bg-red-50 rounded-full transition-all absolute top-2 right-2"
+                                >
+                                    <X size={16} />
+                                </button>
+                            </div>
+                            
+                            <div className="pl-3 mt-2 mb-3">
+                                <div className="bg-gray-50 px-2 py-1.5 rounded-md text-[11px] font-mono text-gray-500 break-all border border-gray-100 inline-block">
+                                    {item.formula}
+                                </div>
+                            </div>
+
+                            <div className="flex justify-between items-end pl-3 pt-2 border-t border-gray-50">
+                                <div className="text-xs text-gray-500 font-medium">{item.detail}</div>
+                                <div className="font-bold text-slate-900 text-lg">
+                                    {item.totalCost.toLocaleString()} <span className="text-xs font-normal text-gray-400">點</span>
+                                    {item.totalCost === 0 && <span className="ml-2 text-xs text-green-600 bg-green-50 px-1 rounded">無限使用</span>}
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                )}
+            </div>
+
+            {/* 3. Footer (Fixed at bottom of flex container) */}
+            <div className="p-6 bg-white shadow-[0_-5px_30px_rgba(0,0,0,0.08)] border-t border-gray-100 z-20 flex-none">
+                <div className="flex justify-between items-end mb-5">
+                    <div>
+                        <span className="text-gray-500 text-xs font-bold uppercase tracking-wider">每月總點數需求</span>
+                    </div>
+                    <span className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 via-red-600 to-purple-600">{total.toLocaleString()}</span>
+                </div>
+                
+                {/* 建議方案區塊 */}
+                <div className={`p-4 rounded-xl mb-4 transition-all duration-300 ${recommendation.color}`}>
+                    <div className="text-[10px] uppercase font-bold opacity-80 mb-1 flex items-center gap-1.5">
+                        <Zap size={12} fill="currentColor" /> 建議搭配方案
+                    </div>
+                    <div className="font-bold text-lg leading-tight mb-1">{recommendation.name}</div>
+                    <div className="text-xs opacity-90 leading-relaxed">{recommendation.desc}</div>
+                </div>
+
+                {/* 動態決策建議 (Dynamic Tip) */}
+                <div className={`flex gap-3 items-start text-[12px] p-3 rounded-xl mb-4 border transition-colors duration-300 ${
+                    isOverLimit 
+                    ? 'bg-red-50 border-red-100 text-red-900' 
+                    : 'bg-blue-50 border-blue-100 text-blue-900'
+                }`}>
+                    {isOverLimit ? (
+                        <AlertCircle size={16} className="flex-shrink-0 mt-0.5 text-red-600" />
+                    ) : (
+                        <Check size={16} className="flex-shrink-0 mt-0.5 text-blue-600" />
+                    )}
+                    <span className="leading-relaxed">
+                        {isOverLimit ? (
+                            <>
+                                <strong className="block text-red-700 mb-0.5 text-sm">已超出 CC Pro 額度 {overage.toLocaleString()} 點</strong>
+                                您的需求已超過標準方案提供的 4,000 點。建議您除訂閱主方案外，另行加購 <strong>Firefly 點數方案</strong> 以滿足用量。
+                            </>
+                        ) : (
+                            <>
+                                <strong className="block text-blue-700 mb-0.5 text-sm">額度充足，無需加購</strong>
+                                Creative Cloud Pro 方案每月皆含 <strong>4,000 點</strong> 生成式點數，足以覆蓋您目前的預估用量 ({total.toLocaleString()} 點)。
+                            </>
+                        )}
+                    </span>
+                </div>
+
+                <div className="flex gap-2">
+                    <button 
+                        onClick={handleCopySummary}
+                        className="flex-1 bg-gray-100 hover:bg-gray-200 text-slate-700 font-bold py-4 rounded-full flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm"
+                    >
+                        {copied ? <CheckCircle2 size={20} className="text-green-600" /> : <Copy size={20} />} 複製摘要
+                    </button>
+                    <button 
+                        onClick={onInquiry}
+                        className="flex-[2] bg-[#0265DC] hover:bg-[#0256BD] text-white font-bold py-4 rounded-full flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg hover:shadow-xl"
+                    >
+                        <FileText size={20} /> 填寫諮詢單
+                    </button>
+                </div>
+            </div>
+        </div>
+    </>
+  );
+};
+
+const AdobeCreditCalculator = () => {
+  const [activeCategory, setActiveCategory] = useState(null);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isInquiryOpen, setIsInquiryOpen] = useState(false);
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const [toast, setToast] = useState({ show: false, message: '' });
+  
+  // Logic Fix: Split carts by plan
+  const [carts, setCarts] = useState({
+      general: [],
+      pro: []
+  });
+
+  const [userPlan, setUserPlan] = useState('general');
+  const [showGuide, setShowGuide] = useState(true); 
+  const [guideStep, setGuideStep] = useState(1); 
+
+  // Helper to access current active cart
+  const currentCart = carts[userPlan];
+
+  // Calculate totalCredits here to resolve the ReferenceError
+  const totalCredits = currentCart.reduce((sum, item) => sum + item.totalCost, 0);
+
+  const addToCart = (item) => {
+    // Improve uniqueID using random
+    setCarts(prev => ({
+        ...prev,
+        [userPlan]: [...prev[userPlan], { ...item, uniqueId: Date.now() + Math.random() }]
+    }));
+    setToast({ show: true, message: `已加入 (${userPlan === 'general' ? '一般' : 'Pro'})：${item.subname}` });
+    if (showGuide && guideStep === 2) setGuideStep(3);
+  };
+
+  const removeFromCart = (id) => {
+    setCarts(prev => ({
+        ...prev,
+        [userPlan]: prev[userPlan].filter(c => c.uniqueId !== id)
+    }));
+  };
+
+  const handleResetClick = () => setIsResetModalOpen(true);
+  const handleConfirmReset = () => {
+    setCarts(prev => ({
+        ...prev,
+        [userPlan]: []
+    }));
+    setIsResetModalOpen(false);
+  };
+  const handlePlanChange = (plan) => {
+    setUserPlan(plan);
+    if (showGuide && guideStep === 1) setGuideStep(2);
+  };
+  const handleOpenCart = () => {
+    setIsCartOpen(true);
+    if (showGuide && guideStep === 3) setShowGuide(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-200 text-slate-800 font-sans pb-24 sm:pb-0 selection:bg-[#0265DC] selection:text-white">
+      {/* Header */}
+      <header className="bg-white/95 backdrop-blur-md p-4 px-6 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-center sticky top-0 z-40 gap-4 sm:gap-0 shadow-sm">
+        <h1 className="text-xl font-bold flex items-center gap-3">
+            <div className="bg-gradient-to-br from-orange-500 via-red-500 to-purple-600 text-white p-2 rounded-lg shadow-md">
+                <Calculator size={20} className="text-white" />
+            </div>
+            <span className="text-slate-800 font-extrabold tracking-tight">
+                Adobe AI <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 via-red-600 to-purple-600">點數計算機</span>
+            </span>
+        </h1>
+        
+        <div className="flex flex-col items-center relative">
+            <div className={`bg-gray-100 p-1.5 rounded-full flex items-center shadow-inner border border-gray-200 relative overflow-hidden ${showGuide && guideStep === 1 ? 'ring-4 ring-[#0265DC]/30 animate-pulse' : ''}`}>
+                <button onClick={() => handlePlanChange('general')} className={`px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 relative z-10 flex items-center gap-2 ${userPlan === 'general' ? 'bg-white text-slate-900 shadow-md transform scale-105' : 'text-gray-500 hover:text-gray-700'}`}><User size={16} /> 一般/舊版用戶</button>
+                <button onClick={() => handlePlanChange('pro')} className={`px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 relative z-10 flex items-center gap-2 ${userPlan === 'pro' ? 'bg-gradient-to-r from-[#0265DC] to-[#5143E6] text-white shadow-md transform scale-105' : 'text-gray-500 hover:text-gray-700'}`}><Crown size={16} /> CC Pro / Firefly 用戶</button>
+            </div>
+            {showGuide && guideStep === 1 && (
+                <div className="absolute top-full mt-3 bg-slate-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-xl animate-bounce z-50">
+                    <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45"></div>第一步：請先確認您的身分
+                </div>
+            )}
+        </div>
+
+        <div className="flex gap-4 items-center">
+            <a href="https://adbeweblink.github.io/myproject/firefly-biz-matrix.html" target="_blank" rel="noopener noreferrer" className="hidden sm:flex items-center gap-2 text-slate-600 hover:text-[#0265DC] font-medium text-sm transition-colors hover:bg-slate-100 px-3 py-2 rounded-lg"><TableProperties size={18} /> 比較方案</a>
+            <button onClick={handleOpenCart} className="hidden sm:flex items-center gap-2 bg-[#0265DC] hover:bg-[#0256BD] text-white px-5 py-2.5 rounded-full font-bold transition-all shadow-md hover:shadow-lg active:scale-95 group relative">
+                <div className="relative"><ShoppingCart size={18} />{currentCart.length > 0 && (<span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-white animate-bounce-short">{currentCart.length}</span>)}</div>
+                <span>需求清單</span>
+                {totalCredits > 0 && <span className="bg-white/20 px-2 py-0.5 rounded text-xs font-mono">{totalCredits.toLocaleString()}</span>}
+                {showGuide && guideStep === 3 && (<div className="absolute top-full right-0 mt-3 bg-slate-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-xl min-w-max z-50"><div className="absolute -top-1 right-6 w-2 h-2 bg-slate-900 rotate-45"></div>最後一步：查看統計結果</div>)}
+            </button>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-6xl mx-auto p-6 sm:p-12 relative">
+        <div className="text-center mb-16 animate-fadeIn">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-3 tracking-tight">規劃您的 AI 創意預算</h2>
+            <p className="text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">選擇您的創作類型，精準估算 Adobe Firefly 與第三方模型所需的生成式點數。</p>
+        </div>
+        
+        <div className="relative">
+            {showGuide && guideStep === 2 && (
+                <div className="absolute -top-12 left-0 right-0 flex justify-center z-50 pointer-events-none">
+                     <div className="bg-slate-900 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm font-bold animate-bounce">
+                        <MousePointerClick size={18} /> 第二步：點擊下方卡片開始估算
+                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45"></div>
+                    </div>
+                </div>
+            )}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+                {/* 依據 CATEGORIES 的順序渲染：Image -> Video -> Audio */}
+                {Object.entries(CATEGORIES).map(([key, cat], idx) => (
+                    <button key={key} onClick={() => setActiveCategory(cat)} className="group relative bg-white rounded-[2rem] p-8 shadow-sm hover:shadow-2xl transition-all duration-500 text-left overflow-hidden border border-transparent hover:border-gray-100" style={{ animationDelay: `${idx * 100}ms` }}>
+                        <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-50 opacity-100 transition-opacity" />
+                        <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 ${cat.bg.replace('bg-', 'bg-gradient-to-br from-white to-')}`} />
+                        <div className="relative z-10">
+                            <div className={`w-16 h-16 rounded-2xl ${cat.bg} ${cat.color} flex items-center justify-center mb-6 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-sm`}>{cat.icon}</div>
+                            <h3 className="text-2xl font-bold text-slate-900 mb-2 group-hover:text-[#0265DC] transition-colors">{cat.title}</h3>
+                            <p className="text-sm text-gray-500 font-medium mb-8 leading-relaxed">{cat.subtitle}</p>
+                            <div className="flex items-center text-sm font-bold text-gray-400 group-hover:text-[#0265DC] transition-colors">開始估算 <ChevronRight size={16} className="ml-1 group-hover:translate-x-1 transition-transform" /></div>
+                        </div>
+                        <div className={`absolute -bottom-12 -right-12 w-40 h-40 rounded-full ${cat.bg} opacity-50 blur-2xl group-hover:scale-150 transition-transform duration-700 ease-out`} />
+                    </button>
+                ))}
+            </div>
+        </div>
+
+        {/* Data Source */}
+        <div className="mt-16 bg-white rounded-2xl p-8 text-sm text-gray-500 flex flex-col sm:flex-row gap-6 items-start border border-gray-100 shadow-sm mb-12">
+            <div className="p-3 bg-blue-50 rounded-full text-[#0265DC]"><Info className="w-6 h-6" /></div>
+            <div className="flex-1">
+                <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
+                    <p className="font-bold text-slate-900 text-base">關於費率計算與資料來源</p>
+                    <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded font-mono">費率基準：2025 年 12 月官方公告</span>
+                </div>
+                <p className="mb-4 leading-relaxed text-gray-600">本工具整合 Firefly 與合作夥伴模型 (Google, OpenAI, Luma 等)。<br/><span className="text-red-500 font-bold">*注意：</span>部分第三方模型可能因限時優惠結束而調整扣點費率，報價時請務必以官方最新頁面為準。</p>
+                <div className="flex flex-wrap gap-4">
+                    <a href="https://helpx.adobe.com/tw/creative-cloud/apps/generative-ai/generative-credits-faq.html#free-users" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-slate-700 hover:text-[#0265DC] font-bold bg-gray-50 hover:bg-blue-50 px-4 py-2.5 rounded-lg transition-colors">Firefly 官方費率表 <ExternalLink size={14} /></a>
+                    <a href="https://helpx.adobe.com/tw/firefly/web/get-started/learn-the-basics/non-adobe-models-in-adobe-products.html" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-slate-700 hover:text-[#0265DC] font-bold bg-gray-50 hover:bg-blue-50 px-4 py-2.5 rounded-lg transition-colors">第三方模型費率表 <ExternalLink size={14} /></a>
+                </div>
+            </div>
+        </div>
+      </main>
+
+      {/* Mobile Floating Action Bar */}
+      <div className="sm:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[92%] max-w-sm">
+        <button onClick={handleOpenCart} className="w-full bg-[#1E1E1E] text-white shadow-2xl rounded-2xl p-4 flex justify-between items-center backdrop-blur-md border border-white/10">
+            <div className="flex items-center gap-3">
+                <div className="bg-white/10 p-2.5 rounded-xl backdrop-blur-sm relative">
+                    <ShoppingCart size={22} />
+                    {currentCart.length > 0 && <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-[#1E1E1E]">{currentCart.length}</span>}
+                </div>
+                <div className="text-left"><div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">預估總點數</div><div className="font-bold text-xl leading-none font-mono tracking-tight">{totalCredits.toLocaleString()}</div></div>
+            </div>
+            <div className="flex items-center gap-2 text-sm font-bold text-white bg-white/10 px-4 py-2 rounded-lg">查看 <ChevronRight size={16} /></div>
+        </button>
+      </div>
+
+      {activeCategory && <ConfigModal category={activeCategory} isOpen={!!activeCategory} onClose={() => setActiveCategory(null)} onAdd={addToCart} userPlan={userPlan} />}
+      <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} cart={currentCart} onRemove={removeFromCart} onReset={handleResetClick} onInquiry={() => { setIsCartOpen(false); setIsInquiryOpen(true); }} userPlan={userPlan} />
+      <ResetConfirmModal isOpen={isResetModalOpen} onClose={() => setIsResetModalOpen(false)} onConfirm={handleConfirmReset} />
+      <InquiryForm isOpen={isInquiryOpen} onClose={() => setIsInquiryOpen(false)} cartData={currentCart} />
+      <Toast message={toast.message} isVisible={toast.show} onClose={() => setToast({ ...toast, show: false })} />
+    </div>
+  );
+};
+
+export default AdobeCreditCalculator;
