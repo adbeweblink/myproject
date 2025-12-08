@@ -1,9 +1,9 @@
-<!DOCTYPE html> 
-<html lang="zh-TW"> 
+<!DOCTYPE html>
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adobe AI 點數計算機</title>
+    <title>Adobe AI 點數計算機 (商用旗艦版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
@@ -13,30 +13,13 @@
         }
 
         /* Custom Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        @keyframes slideLeft {
-            from { transform: translateX(20px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes fadeInDown {
-            from { transform: translate(-50%, 20px); opacity: 0; }
-            to { transform: translate(-50%, 0); opacity: 1; }
-        }
-        @keyframes zoomIn {
-            from { transform: scale(0.95); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-        @keyframes pulse-slow {
-            0%, 100% { opacity: 1; }
-            50% { opacity: .8; }
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideLeft { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeInDown { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+        @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes pulse-slow { 0%, 100% { opacity: 1; } 50% { opacity: .8; } }
+        @keyframes bounce-gentle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
         .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
         .animate-slideUp { animation: slideUp 0.3s ease-out; }
@@ -44,15 +27,11 @@
         .animate-fadeInDown { animation: fadeInDown 0.3s ease-out; }
         .animate-zoomIn { animation: zoomIn 0.2s ease-out; }
         .animate-pulse-slow { animation: pulse-slow 3s infinite; }
+        .animate-bounce-gentle { animation: bounce-gentle 2s infinite; }
 
-        /* Scrollbar hiding for clean UI */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+        /* Scrollbar hiding */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
@@ -80,7 +59,6 @@
     <header class="bg-white/95 backdrop-blur-md p-4 px-6 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-center sticky top-0 z-40 gap-4 sm:gap-0 shadow-sm">
         <h1 class="text-xl font-bold flex items-center gap-3">
             <div class="bg-gradient-to-br from-orange-500 via-red-500 to-purple-600 text-white p-2 rounded-lg shadow-md">
-                <!-- Calculator Icon -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
             </div>
             <span class="text-slate-800 font-extrabold tracking-tight">
@@ -88,8 +66,8 @@
             </span>
         </h1>
         
-        <div class="flex flex-col items-center relative">
-            <div id="plan-switcher" class="bg-gray-100 p-1.5 rounded-full flex items-center shadow-inner border border-gray-200 relative overflow-hidden">
+        <div class="flex flex-col items-center relative group">
+            <div id="plan-switcher" class="bg-gray-100 p-1.5 rounded-full flex items-center shadow-inner border border-gray-200 relative overflow-hidden transition-all duration-300">
                 <button onclick="setPlan('general')" id="btn-general" class="px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 relative z-10 flex items-center gap-2 bg-white text-slate-900 shadow-md transform scale-105">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> 
                     一般/舊版用戶
@@ -99,33 +77,57 @@
                     CC Pro / Firefly 用戶
                 </button>
             </div>
+            
+            <!-- Guide Step 1 -->
+            <div id="guide-step-1" class="absolute top-full mt-3 bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-lg shadow-xl animate-bounce-gentle z-50 hidden whitespace-nowrap">
+                <div class="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45"></div>
+                第一步：請先確認您的身分
+            </div>
         </div>
 
-        <div class="flex gap-4 items-center">
+        <div class="flex gap-4 items-center relative">
             <a href="https://adbeweblink.github.io/myproject/firefly-biz-matrix.html" target="_blank" rel="noopener noreferrer" class="hidden sm:flex items-center gap-2 text-slate-600 hover:text-[#0265DC] font-medium text-sm transition-colors hover:bg-slate-100 px-3 py-2 rounded-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/></svg> 
                 比較方案
             </a>
-            <button onclick="openCart()" class="hidden sm:flex items-center gap-2 bg-[#0265DC] hover:bg-[#0256BD] text-white px-5 py-2.5 rounded-full font-bold transition-all shadow-md hover:shadow-lg active:scale-95 group relative">
-                <div class="relative">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
-                    <span id="cart-badge-desktop" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-white animate-bounce">0</span>
+            <div class="relative">
+                <button onclick="openCart()" id="cart-btn-desktop" class="hidden sm:flex items-center gap-2 bg-[#0265DC] hover:bg-[#0256BD] text-white px-5 py-2.5 rounded-full font-bold transition-all shadow-md hover:shadow-lg active:scale-95 group relative">
+                    <div class="relative">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                        <span id="cart-badge-desktop" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-white animate-bounce">0</span>
+                    </div>
+                    <span>需求清單</span>
+                    <span id="total-badge-desktop" class="hidden bg-white/20 px-2 py-0.5 rounded text-xs font-mono">0</span>
+                </button>
+                
+                <!-- Guide Step 3 (Desktop) -->
+                <div id="guide-step-3-desktop" class="absolute top-full right-0 mt-3 bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-lg shadow-xl min-w-max z-50 hidden animate-bounce-gentle">
+                    <div class="absolute -top-1 right-10 w-2 h-2 bg-slate-900 rotate-45"></div>
+                    最後一步：查看統計結果
                 </div>
-                <span>需求清單</span>
-                <span id="total-badge-desktop" class="hidden bg-white/20 px-2 py-0.5 rounded text-xs font-mono">0</span>
-            </button>
+            </div>
         </div>
     </header>
 
     <!-- Main Content -->
     <main class="max-w-6xl mx-auto p-6 sm:p-12 relative">
-        <div class="text-center mb-16 animate-fadeIn">
+        <div class="text-center mb-16 animate-fadeIn relative">
             <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-3 tracking-tight">規劃您的 AI 創意預算</h2>
             <p class="text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">選擇您的創作類型，精準估算 Adobe Firefly 與第三方模型所需的生成式點數。</p>
         </div>
         
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-8" id="category-grid">
-            <!-- Categories will be injected here -->
+        <div class="relative">
+            <!-- Guide Step 2 -->
+            <div id="guide-step-2" class="hidden absolute -top-14 left-0 right-0 flex justify-center z-50 pointer-events-none">
+                 <div class="bg-slate-900 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm font-bold animate-bounce-gentle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg> 第二步：點擊下方卡片開始估算
+                    <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45"></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-8" id="category-grid">
+                <!-- Categories will be injected here -->
+            </div>
         </div>
 
         <!-- Data Source Info -->
@@ -149,6 +151,12 @@
 
     <!-- Mobile Floating Action Bar -->
     <div class="sm:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[92%] max-w-sm">
+        <!-- Guide Step 3 (Mobile) -->
+        <div id="guide-step-3-mobile" class="absolute -top-12 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-lg shadow-xl whitespace-nowrap hidden animate-bounce-gentle z-50">
+            最後一步：點此查看統計
+            <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45"></div>
+        </div>
+
         <button onclick="openCart()" class="w-full bg-[#1E1E1E] text-white shadow-2xl rounded-2xl p-4 flex justify-between items-center backdrop-blur-md border border-white/10">
             <div class="flex items-center gap-3">
                 <div class="bg-white/10 p-2.5 rounded-xl backdrop-blur-sm relative">
@@ -278,10 +286,10 @@
         </div>
     </div>
 
-    <!-- Toast -->
-    <div id="toast" class="hidden fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-xl z-50 flex items-center gap-2 animate-fadeInDown">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400"><path d="M20 6 9 17l-5-5"/></svg>
-        <span id="toast-message" class="font-bold"></span>
+    <!-- Toast Notification (Fixed Position to clear mobile nav) -->
+    <div id="toast" class="hidden fixed bottom-28 sm:bottom-6 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-xl z-50 flex items-center gap-2 animate-fadeInDown transition-all">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400"><path d="M20 6 9 17l-5-5"/></svg>
+        <span id="toast-message" class="font-bold whitespace-nowrap"></span>
     </div>
 
     <script>
@@ -293,7 +301,7 @@
             adobe: { name: 'Adobe Firefly', desc: '【首選推薦】保證商業安全，完美整合 Adobe 生態系。注意：生成式延伸的費率依幀率 (FPS) 不同。', tags: ['商業安全', '版權保障', '企業首選'], models: [{ id: 'firefly_vid', name: 'Firefly Video', type: 'gen', desc: '標準 Adobe 影片模型，產生全新影片片段 (預設 24 FPS)。', rates: { '540p': 20, '720p': 50, '1080p': 100 } }, { id: 'firefly_extend', name: 'Premiere 生成式延伸', type: 'gen', desc: '在 Premiere Pro 中延伸現有素材，費率取決於解析度與幀率。', rates: { '720p_24fps': 50, '1080p_24fps': 100, '4k_24fps': 150, '720p_30fps': 75, '1080p_30fps': 125, '4k_30fps': 175 } }] },
             luma: { name: 'Luma AI', desc: '以強大的動態運鏡與物理模擬著稱，適合動作激烈的場面。', tags: ['運鏡流暢', '動作片首選'], models: [{ id: 'ray3', name: 'Ray3', type: 'gen', desc: 'Luma 最新一代標準版，動態細節豐富。', rates: { '360p': 25, '540p': 75, '720p': 100, '1080p': 125, '4k': 150 } }, { id: 'ray2', name: 'Ray2', type: 'gen', desc: '上一代標準版，平衡了畫質與動態穩定性。', rates: { '540p': 20, '720p': 50, '1080p': 100, '4k': 150 } }] },
             runway: { name: 'Runway', desc: '專精於藝術風格與創意轉場，適合 MV、廣告等。', tags: ['藝術風格', '創意轉場'], models: [{ id: 'gen4_video', name: 'Runway Gen-4 Video', type: 'gen', rates: { '720p': 20, '1080p': 40 }, desc: '【限時優惠】經典模型，擅長風格化影片生成。' }, { id: 'aleph', name: 'Runway Aleph', type: 'gen', rates: { '720p': 50 }, desc: '【限時優惠】Runway 實驗性模型。' }] },
-            openai: { name: 'OpenAI', desc: 'Sora 模型震撼業界，具備驚人的場景一致性與長鏡頭穩定度。', tags: ['長鏡頭', '場景一致性'], models: [{ id: 'sora2', name: 'Sora 2', type: 'gen', rates: { 'all': 30 }, desc: '【限時優惠】OpenAI 經典模型，物理一致性極高，目前統一費率每秒 30 點。' }] },
+            openai: { name: 'OpenAI', desc: 'Sora 模型震撼業界，具備驚人的場景一致性與長鏡頭穩定度。', tags: ['長鏡頭', '場景一致性'], models: [{ id: 'sora2', name: 'Sora 2', type: 'gen', rates: { '全解析度': 30 }, desc: '【限時優惠】OpenAI 經典模型，物理一致性極高，目前統一費率每秒 30 點。' }] },
             google: { name: 'Google', desc: 'Veo 系列具備極佳的語意理解力，畫面細膩且寫實。', tags: ['高解析度', '語意理解強'], models: [{ id: 'veo31', name: 'Veo 3.1', type: 'gen', rates: { '720p': 50, '1080p': 50 }, desc: '【限時優惠】旗艦畫質，細節豐富。' }, { id: 'veo31_fast', name: 'Veo 3.1 Fast', type: 'gen', rates: { '720p': 10, '1080p': 10 }, desc: '【限時優惠】極速生成，每秒僅需 10 點。' }, { id: 'veo2', name: 'Veo 2', type: 'gen', rates: { '720p': 100 }, desc: 'Google 上一代影片模型。' }] },
             pika: { name: 'Pika Labs', desc: '擅長動漫風格與特定的物體動態控制。', tags: ['動漫風格', '動態控制'], models: [{ id: 'pika22', name: 'Pika 2.2', type: 'gen', rates: { '720p': 25, '1080p': 50 }, desc: '最新 Pika 模型，動態流暢。' }] },
             marey: { name: 'Marey', desc: 'Moonvalley 開發，特定藝術風格表現優異。', tags: ['藝術風格'], models: [{ id: 'marey', name: 'Marey', type: 'gen', rates: { '1080p': 100 }, desc: '【限時優惠】高畫質藝術影片生成。' }] }
@@ -373,7 +381,7 @@
         
         let state = {
             carts: { general: [], pro: [] },
-            userPlan: 'general', // 'general' or 'pro'
+            userPlan: 'general',
             activeCategory: null,
             modalStep: 1,
             modalSelections: {
@@ -383,16 +391,49 @@
                 resolution: null,
                 amount: 1,
                 unit: '張'
-            }
+            },
+            showGuide: true,
+            guideStep: 1
         };
 
         // ============================
-        // 3. Core Logic
+        // 3. Guide Logic
+        // ============================
+
+        function updateGuide() {
+            // Hide all
+            document.getElementById('guide-step-1').classList.add('hidden');
+            document.getElementById('guide-step-2').classList.add('hidden');
+            document.getElementById('guide-step-3-desktop').classList.add('hidden');
+            document.getElementById('guide-step-3-mobile').classList.add('hidden');
+            document.getElementById('plan-switcher').classList.remove('ring-4', 'ring-[#0265DC]/30', 'animate-pulse');
+
+            if (!state.showGuide) return;
+
+            if (state.guideStep === 1) {
+                document.getElementById('guide-step-1').classList.remove('hidden');
+                document.getElementById('plan-switcher').classList.add('ring-4', 'ring-[#0265DC]/30', 'animate-pulse');
+            } else if (state.guideStep === 2) {
+                document.getElementById('guide-step-2').classList.remove('hidden');
+            } else if (state.guideStep === 3) {
+                document.getElementById('guide-step-3-desktop').classList.remove('hidden');
+                document.getElementById('guide-step-3-mobile').classList.remove('hidden');
+            }
+        }
+
+        // ============================
+        // 4. Core Logic
         // ============================
 
         function setPlan(plan) {
             state.userPlan = plan;
             
+            // Guide Logic: Advance if user manually clicks
+            if (state.showGuide && state.guideStep === 1) {
+                state.guideStep = 2;
+                updateGuide();
+            }
+
             // Update UI buttons
             const btnGeneral = document.getElementById('btn-general');
             const btnPro = document.getElementById('btn-pro');
@@ -415,8 +456,17 @@
         function addToCart(item) {
             item.uniqueId = Date.now() + Math.random();
             state.carts[state.userPlan].push(item);
+            
+            // Guide Logic
+            if (state.showGuide && state.guideStep === 2) {
+                state.guideStep = 3;
+                updateGuide();
+            }
+
             updateCartDisplay();
-            showToast(`已加入 (${state.userPlan === 'general' ? '一般' : 'Pro'})：${item.subname}`);
+            
+            const displayName = item.subname || item.name || '未知項目';
+            showToast(`已新增：${displayName} (${item.qty} ${item.unit})`);
         }
 
         function removeCartItem(id) {
@@ -444,7 +494,7 @@
         }
 
         // ============================
-        // 4. Modal Logic
+        // 5. Modal Logic
         // ============================
 
         function openCategoryModal(catKey) {
@@ -453,7 +503,12 @@
             state.modalStep = 1;
             state.modalSelections = { step1: null, brand: null, model: null, resolution: null, amount: 1, unit: '張' };
             
-            // Header Update
+            // Auto-advance guide if user skips plan selection (Step 1 -> 2)
+            if (state.showGuide && state.guideStep === 1) {
+                state.guideStep = 2;
+                updateGuide();
+            }
+
             const header = document.getElementById('config-modal-header');
             header.className = `p-6 text-white flex justify-between items-center transition-colors ${category.bg}`;
             document.getElementById('config-modal-icon').innerHTML = category.icon;
@@ -474,7 +529,6 @@
             
             body.innerHTML = ''; // Clear
 
-            // --- STEP 1 ---
             if (step === 1) {
                 let options = [];
                 let labelFn = (k) => k;
@@ -516,10 +570,7 @@
                 });
                 body.appendChild(grid);
             }
-
-            // --- STEP 2 ---
             else if (step === 2) {
-                // Back Button
                 const backBtn = document.createElement('button');
                 backBtn.className = "text-sm text-gray-500 hover:text-gray-800 flex items-center gap-1 mb-2";
                 backBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg> 返回上一頁`;
@@ -527,13 +578,11 @@
                 body.appendChild(backBtn);
 
                 if (catType === 'image') {
-                    // Brand Selection
                     const title = document.createElement('h4');
                     title.className = "font-bold text-gray-700 mb-2 text-lg";
                     title.innerText = "請選擇模型品牌：";
                     body.appendChild(title);
 
-                    // Get Brands logic
                     let models = [];
                     const s1 = state.modalSelections.step1;
                     if (s1 === 'image_gen') models = IMAGE_MODELS_RAW;
@@ -557,7 +606,6 @@
                     body.appendChild(grid);
 
                 } else {
-                    // Video/Audio Model Selection
                     const title = document.createElement('h4');
                     title.className = "font-bold text-gray-700 mb-2 text-lg";
                     title.innerText = "選擇具體模型：";
@@ -573,7 +621,6 @@
                         const btn = document.createElement('button');
                         btn.className = "w-full bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-400 hover:bg-blue-50 transition-all text-left flex justify-between items-center group";
                         
-                        // Cost Logic
                         let costDisplay = '';
                         if (model.rates) costDisplay = `<span class="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded whitespace-nowrap">依規格計費</span>`;
                         else if (state.userPlan === 'pro' && model.type === 'std') costDisplay = `<span class="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded whitespace-nowrap flex items-center gap-1">無限使用</span>`;
@@ -599,11 +646,8 @@
                     body.appendChild(list);
                 }
             }
-
-            // --- STEP 3 (Image Model List) OR STEP 3 (Video/Audio Config) ---
             else if (step === 3) {
                 if (catType === 'image') {
-                    // Back
                     const backBtn = document.createElement('button');
                     backBtn.className = "text-sm text-gray-500 hover:text-gray-800 flex items-center gap-1 mb-2";
                     backBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg> 返回品牌列表`;
@@ -615,7 +659,6 @@
                     title.innerText = "選擇具體模型：";
                     body.appendChild(title);
 
-                    // Filter models
                     let models = [];
                     const s1 = state.modalSelections.step1;
                     if (s1 === 'image_gen') models = IMAGE_MODELS_RAW;
@@ -653,12 +696,9 @@
                     body.appendChild(list);
 
                 } else {
-                    // Video/Audio Config
                     renderConfigUI(body, 2);
                 }
             }
-
-            // --- STEP 4 (Image Config) ---
             else if (step === 4) {
                 renderConfigUI(body, 3);
             }
@@ -666,20 +706,16 @@
 
         function selectModel(model) {
             state.modalSelections.model = model;
-            
-            // Set unit
             if (state.activeCategory.type === 'video') state.modalSelections.unit = '秒';
             else if (state.activeCategory.type === 'audio') state.modalSelections.unit = model.unit || '次';
             else state.modalSelections.unit = '張';
 
-            // Set Resolution if available
             if (model.rates) {
                 state.modalSelections.resolution = Object.keys(model.rates)[0];
             } else {
                 state.modalSelections.resolution = null;
             }
 
-            // Next Step
             if (state.activeCategory.type === 'image') state.modalStep = 4;
             else state.modalStep = 3;
             
@@ -689,7 +725,6 @@
         function renderConfigUI(container, backStep) {
             const model = state.modalSelections.model;
             
-            // Back Button
             const backBtn = document.createElement('button');
             backBtn.className = "text-sm text-gray-500 hover:text-gray-800 flex items-center gap-1 mb-2";
             backBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg> 返回模型列表`;
@@ -704,7 +739,6 @@
                 <p class="text-gray-500 text-sm mb-6 pb-6 border-b border-gray-100">${model.desc}</p>
             `;
 
-            // Resolution
             if (model.rates) {
                 html += `
                     <div class="mb-6">
@@ -714,7 +748,6 @@
                 `;
             }
 
-            // Input
             html += `
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">預估產量 (${state.modalSelections.unit})</label>
@@ -728,7 +761,6 @@
             card.innerHTML = html;
             container.appendChild(card);
 
-            // Summary Bar
             const summary = document.createElement('div');
             summary.className = "bg-slate-900 text-white p-5 rounded-2xl flex justify-between items-center shadow-lg mt-6 animate-slideLeft";
             summary.innerHTML = `
@@ -742,7 +774,6 @@
             `;
             container.appendChild(summary);
 
-            // Event Listeners for inputs
             const input = document.getElementById('amount-input');
             const slider = document.getElementById('amount-slider');
             const costDisplay = document.getElementById('config-cost');
@@ -769,7 +800,6 @@
             input.oninput = (e) => { slider.value = e.target.value; updateCalc(); };
             slider.oninput = (e) => { input.value = e.target.value; updateCalc(); };
 
-            // Resolution Buttons
             if (model.rates) {
                 const resGrid = document.getElementById('res-grid');
                 Object.entries(model.rates).forEach(([res, cost]) => {
@@ -779,11 +809,6 @@
                     btn.innerHTML = `${res}<div class="text-[10px] opacity-80">${cost} 點/秒</div>`;
                     btn.onclick = () => {
                         state.modalSelections.resolution = res;
-                        // Re-render config UI to update active state (lazy way, or manually toggle classes)
-                        renderConfigUI(container, backStep); 
-                        // Note: Removing children then appending again might flicker, but fine for this.
-                        // Actually, let's just use recursion carefully. 
-                        // Better: just clear and rebuild.
                         container.innerHTML = '';
                         renderConfigUI(container, backStep);
                     };
@@ -818,12 +843,41 @@
                 closeModal('config-modal');
             };
 
-            updateCalc(); // Init
+            updateCalc();
         }
 
         // ============================
-        // 5. UI Updates
+        // 6. Helpers
         // ============================
+
+        function openCart() {
+            // Guide Logic
+            if (state.showGuide && state.guideStep === 3) {
+                state.showGuide = false;
+                updateGuide();
+            }
+
+            document.getElementById('cart-drawer').classList.remove('translate-x-full');
+            document.getElementById('cart-drawer-backdrop').classList.remove('hidden');
+            setTimeout(() => document.getElementById('cart-drawer-backdrop').classList.remove('opacity-0'), 10);
+        }
+
+        function closeCart() {
+            document.getElementById('cart-drawer').classList.add('translate-x-full');
+            document.getElementById('cart-drawer-backdrop').classList.add('opacity-0');
+            setTimeout(() => document.getElementById('cart-drawer-backdrop').classList.add('hidden'), 300);
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 2500);
+        }
 
         function initCategories() {
             const grid = document.getElementById('category-grid');
@@ -833,7 +887,7 @@
                 btn.style.animationDelay = `${idx * 100}ms`;
                 btn.onclick = () => openCategoryModal(key);
                 
-                const hoverBg = cat.bg.replace('bg-', 'from-white to-'); // Hacky gradient fix for hover, simplistic
+                const hoverBg = cat.bg.replace('bg-', 'from-white to-');
                 
                 btn.innerHTML = `
                     <div class="absolute inset-0 bg-gradient-to-br from-white to-gray-50 opacity-100 transition-opacity"></div>
@@ -854,7 +908,6 @@
             const count = cart.length;
             const total = cart.reduce((acc, item) => acc + item.totalCost, 0);
 
-            // Badges
             const badges = ['cart-badge-desktop', 'cart-badge-mobile'];
             badges.forEach(id => {
                 const el = document.getElementById(id);
@@ -862,25 +915,20 @@
                 el.classList.toggle('hidden', count === 0);
             });
 
-            // Total Labels
             document.getElementById('total-badge-desktop').innerText = total.toLocaleString();
             document.getElementById('total-badge-mobile').innerText = total.toLocaleString();
             document.getElementById('total-badge-desktop').classList.toggle('hidden', total === 0);
 
-            // Drawer List
             const container = document.getElementById('cart-content');
             container.innerHTML = '';
 
-            // User Label in Drawer
             document.getElementById('cart-user-label').innerText = state.userPlan === 'general' ? '一般/舊版用戶 (分開計算)' : 'CC Pro/Firefly (分開計算)';
             document.getElementById('cart-count').innerText = count;
 
-            // Calc for Logic
             const potentialFreeLoad = state.userPlan === 'general' 
                 ? cart.filter(i => i.type === 'std').reduce((sum, i) => sum + i.totalCost, 0)
                 : 0;
             
-            // Logic Dashboard (Pro or High Load)
             if (state.userPlan === 'pro' || total > 100) {
                 const limit = 4000;
                 const pct = Math.min((total / limit) * 100, 100);
@@ -906,7 +954,6 @@
                 container.appendChild(dash);
             }
 
-            // General User Hint
             if (state.userPlan === 'general' && potentialFreeLoad > 100) {
                 const hint = document.createElement('div');
                 hint.className = "bg-gradient-to-r from-amber-50 to-orange-50 border border-orange-200 rounded-xl p-4 shadow-sm animate-pulse-slow";
@@ -922,7 +969,6 @@
                 container.appendChild(hint);
             }
 
-            // Empty State
             if (count === 0) {
                 const empty = document.createElement('div');
                 empty.className = "h-40 flex flex-col items-center justify-center text-gray-400 opacity-60";
@@ -932,7 +978,6 @@
                 `;
                 container.appendChild(empty);
             } else {
-                // List Items
                 cart.forEach(item => {
                     const el = document.createElement('div');
                     el.className = "bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow group relative overflow-hidden shrink-0";
@@ -957,7 +1002,6 @@
                 });
             }
 
-            // Footer Update
             const footer = document.getElementById('cart-footer');
             const rec = getRecommendation(total, state.userPlan, potentialFreeLoad);
             const isOverLimit = total > 4000;
@@ -993,94 +1037,11 @@
             `;
         }
 
-        function openInquiry() {
-            closeCart();
-            const cart = getCurrentCart();
-            const total = cart.reduce((sum, item) => sum + item.totalCost, 0);
-            const rec = getRecommendation(total, state.userPlan, 0);
-            
-            const summary = document.getElementById('inquiry-summary');
-            let html = `
-                <div class="space-y-2 mb-4 text-sm">
-                    ${cart.map(item => `
-                        <div class="flex justify-between border-b border-gray-200/50 pb-2 last:border-0">
-                            <span class="text-gray-600">${item.subname}</span>
-                            <span class="font-mono font-bold">${item.totalCost.toLocaleString()} 點</span>
-                        </div>
-                    `).join('')}
-                </div>
-                <div class="flex justify-between items-center pt-4 border-t border-gray-200">
-                    <span class="font-bold text-gray-900">總預估用量</span>
-                    <span class="text-2xl font-bold text-[#0265DC]">${total.toLocaleString()} 點</span>
-                </div>
-                <div class="mt-2 text-right text-sm text-gray-500">建議方案：${rec.name}</div>
-            `;
-            summary.innerHTML = html;
-            document.getElementById('inquiry-modal').classList.remove('hidden');
-        }
-
-        function copySummary() {
-            const cart = getCurrentCart();
-            const total = cart.reduce((sum, item) => sum + item.totalCost, 0);
-            const potentialFree = state.userPlan === 'general' ? cart.filter(i => i.type === 'std').reduce((sum, i) => sum + i.totalCost, 0) : 0;
-            const rec = getRecommendation(total, state.userPlan, potentialFree);
-
-            const lines = [
-                "【Adobe AI 點數預估報價單】",
-                `日期: ${new Date().toLocaleDateString()}`,
-                `用戶身分: ${state.userPlan === 'general' ? '一般用戶' : 'CC Pro 用戶'}`,
-                "--------------------------------",
-                ...cart.map(item => `${item.name} - ${item.subname}: ${item.totalCost} 點 (${item.qty} ${item.unit})`),
-                "--------------------------------",
-                `總計預估點數: ${total.toLocaleString()}`,
-                `建議方案: ${rec.name}`,
-                state.userPlan === 'general' && potentialFree > 0 ? `* 潛在可節省點數 (標準生成): ${potentialFree} 點` : ''
-            ].filter(Boolean).join('\n');
-
-            const ta = document.createElement("textarea");
-            ta.value = lines;
-            document.body.appendChild(ta);
-            ta.select();
-            try {
-                document.execCommand('copy');
-                showToast("已複製到剪貼簿");
-            } catch(e) {
-                console.error(e);
-            }
-            document.body.removeChild(ta);
-        }
-
-        // ============================
-        // 6. Helpers
-        // ============================
-
-        function openCart() {
-            document.getElementById('cart-drawer').classList.remove('translate-x-full');
-            document.getElementById('cart-drawer-backdrop').classList.remove('hidden');
-            setTimeout(() => document.getElementById('cart-drawer-backdrop').classList.remove('opacity-0'), 10);
-        }
-
-        function closeCart() {
-            document.getElementById('cart-drawer').classList.add('translate-x-full');
-            document.getElementById('cart-drawer-backdrop').classList.add('opacity-0');
-            setTimeout(() => document.getElementById('cart-drawer-backdrop').classList.add('hidden'), 300);
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
-        }
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-message').innerText = msg;
-            toast.classList.remove('hidden');
-            setTimeout(() => toast.classList.add('hidden'), 2500);
-        }
-
         // Init
         window.onload = function() {
             initCategories();
-            setPlan('general'); // Trigger initial render
+            updateCartDisplay();
+            updateGuide(); // Ensure guide step 1 shows on load
         }
 
     </script>
