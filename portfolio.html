@@ -1,399 +1,488 @@
-import React, { useState } from 'react';
-import { ExternalLink, Code, Gamepad2, Wrench, Trophy, Clock, Zap, Target, Heart, Layout, Github, Linkedin, Mail, CheckCircle, FileText, Calculator, MousePointer2, Printer, Table, School, Box, Grid3x3, RefreshCcw, FileDown, Palette, BrainCircuit, Users, Cuboid } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>商業加速實驗室 | Business Acceleration Lab</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Google Fonts: Inter (西文) & Noto Sans TC (中文) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // Adobe Spectrum Inspired Grays
+                        gray: {
+                            50: '#f8f8f8',
+                            100: '#e1e1e1',
+                            200: '#c8c8c8', // Border default
+                            300: '#b5b5b5',
+                            400: '#9e9e9e',
+                            500: '#8e8e8e',
+                            600: '#6e6e6e', // Subtitles
+                            700: '#4b4b4b',
+                            800: '#323232', // Card Bg
+                            900: '#1d1d1d', // App Bg
+                            950: '#151515', // Header Bg
+                        },
+                        // Adobe Brand Blue (Tools)
+                        adobeBlue: {
+                            400: '#5aa7ff',
+                            500: '#1473e6', // Primary
+                            600: '#0d66d0', // Hover
+                        },
+                        // Game Accent (Vibrant Orange)
+                        adobeGame: {
+                            400: '#fb923c', // orange-400
+                            500: '#f97316', // orange-500
+                            600: '#ea580c', // orange-600
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Inter"', '"Noto Sans TC"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
 
-const initialProjects = [
-  // --- 生產力工具 (Tools) ---
-  {
-    id: 1,
-    type: 'tool',
-    title: "Adobe 軟體採購規格生成器",
-    description: "專為政府教育單位設計，一鍵生成合規的軟體採購硬體規格書。",
-    link: "https://adbeweblink.github.io/myproject/adbespec2026.html",
-    tags: ["Vanilla JS", "Automation", "GovTech"],
-    purpose: "自動產出合規標案規格文件，避免人為失誤。",
-    problemSolved: "解決人工查閱數十款軟體規格耗時易錯痛點。",
-    efficiency: "撰寫時間從數小時縮短至30秒，準確率100%。"
-  },
-  {
-    id: 2,
-    type: 'tool',
-    title: "Adobe Firefly 點數計算機",
-    description: "整合官方與第三方模型費率，精準預估每月 AI 算力成本與額度。",
-    link: "https://adbeweblink.github.io/myproject/aipointcalculator.html",
-    tags: ["JavaScript", "Cost Analysis", "UI/UX"],
-    purpose: "協助團隊精算生成式 AI 的每月點數消耗預算。",
-    problemSolved: "解決不同模型解析度與幀率計費複雜難算困擾。",
-    efficiency: "內建動態購物車試算，三分鐘內完成年度預算表。"
-  },
-  {
-    id: 10,
-    type: 'tool',
-    title: "Adobe CC 最新功能電子報",
-    description: "針對 A4 列印優化的功能快報，前端即時生成 PDF，資訊零時差。",
-    link: "https://adbeweblink.github.io/myproject/newfeatures.html",
-    tags: ["html2pdf.js", "Print CSS", "RWD"],
-    purpose: "提供一鍵生成 PDF 的功能週報，資訊傳遞標準化。",
-    problemSolved: "克服網頁轉存 PDF 常見的破版與排版錯亂問題。",
-    efficiency: "無需後端，前端即時渲染列印級高解析度文件。"
-  },
-  {
-    id: 13,
-    type: 'tool',
-    title: "Adobe 台灣經銷商搜尋器",
-    description: "整合全台經銷商資料庫，支援地區與專業領域篩選，快速媒合廠商。",
-    link: "https://adbeweblink.github.io/myproject/reseller.html",
-    tags: ["Vanilla JS", "Real-time Filtering", "RWD"],
-    purpose: "建立透明的經銷商名錄，快速找到在地服務窗口。",
-    problemSolved: "解決官方列表缺乏在地篩選與專業標籤資訊落差。",
-    efficiency: "即時關鍵字過濾，將廠商搜尋時間縮短至數秒鐘。"
-  },
-  {
-    id: 4,
-    type: 'tool',
-    title: "Adobe 企業方案規格比較",
-    description: "專為 B2B 銷售設計，針對橫式列印優化，清晰呈現團隊與企業版差異。",
-    link: "https://adbeweblink.github.io/myproject/cc-biz-matrix.html",
-    tags: ["Print CSS", "Serverless", "Tailwind"],
-    purpose: "協助企業客戶快速釐清團隊版與企業版功能差異。",
-    problemSolved: "解決複雜授權權益與資安規範難以一目了然問題。",
-    efficiency: "整合 Serverless 詢價表單，自動化收集潛在商機。"
-  },
-  {
-    id: 5,
-    type: 'tool',
-    title: "Adobe 教育授權方案比較",
-    description: "專為校園採購設計，深度解析裝置授權與指名授權差異，適合校務提案。",
-    link: "https://adbeweblink.github.io/myproject/cc-edu-matrix.html",
-    tags: ["Print CSS", "Serverless", "Tailwind"],
-    purpose: "協助學校單位釐清裝置授權與指名授權權益差異。",
-    problemSolved: "解決電腦教室與教職員 BYOD 環境授權選擇難題。",
-    efficiency: "提供清晰的 A4 列印版面，大幅縮短溝通成本。"
-  },
-  {
-    id: 6,
-    type: 'tool',
-    title: "Firefly 點數方案比較表",
-    description: "支援獨立訂閱與加購包切換，協助企業精算 AI 算力成本與版權權益。",
-    link: "https://adbeweblink.github.io/myproject/firefly-biz-matrix.html",
-    tags: ["Print CSS", "Google Apps Script", "Cost"],
-    purpose: "協助高用量創作者釐清點數消耗規則與加購差異。",
-    problemSolved: "解決企業對點數重置規則與商用版權保障資訊焦慮。",
-    efficiency: "將複雜的 AI 計費邏輯視覺化，加速採購決策流程。"
-  },
+    <style>
+        body { 
+            font-family: 'Inter', 'Noto Sans TC', sans-serif; 
+            -webkit-font-smoothing: antialiased;
+        }
+        /* 平滑過渡 */
+        .theme-transition { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* 隱藏捲軸但保留功能 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-  // --- 互動小遊戲 (Games) ---
-  {
-    id: 14,
-    type: 'game',
-    title: "奧多比轉轉樂",
-    description: "基於 Three.js 的 3D 魔術方塊，將軟體圖示映射至六面，考驗空間邏輯。",
-    link: "https://adbeweblink.github.io/myproject/twist.html",
-    tags: ["Three.js", "WebGL", "3D Logic"],
-    appeal: "將品牌圖示與經典魔術方塊結合，強化產品印象。",
-    stickiness: "競速解謎玩法具極高重玩性，內建計時與排行榜。",
-    features: "WebGL 3D 渲染、四元數旋轉運算、觸控滑鼠雙支援。"
-  },
-  {
-    id: 7,
-    type: 'game',
-    title: "奧多比跳跳樂",
-    description: "基於 Three.js 的 3D 蓄力跳躍，玩家需控制角色在軟體積木間精準跳躍。",
-    link: "https://adbeweblink.github.io/myproject/jump.html",
-    tags: ["Three.js", "Physics", "Particle"],
-    appeal: "透過沉浸式 3D 互動，建立使用者對品牌色的認知。",
-    stickiness: "結合蓄力手感與連擊加分機制，大幅提升重玩意願。",
-    features: "正交投影相機運鏡、物理拋物線模擬、粒子特效系統。"
-  },
-  {
-    id: 9,
-    type: 'game',
-    title: "奧多比合合樂",
-    description: "類西瓜遊戲的物理合成玩法，利用碰撞機制將低階圖示進化為高階圖示。",
-    link: "https://adbeweblink.github.io/myproject/merge.html",
-    tags: ["Matter.js", "2D Physics", "Canvas"],
-    appeal: "結合合成快感與物理不確定性，延長使用者互動時間。",
-    stickiness: "隨機生成的炸彈道具與危險模式，增加變數與張力。",
-    features: "Matter.js 物理引擎、動態碰撞判定、危險區域特效。"
-  },
-  {
-    id: 3,
-    type: 'game',
-    title: "奧多比碰碰樂",
-    description: "經典 2048 玩法，滑動合併圖示，從 Acrobat 一路進化至 Creative Cloud。",
-    link: "https://adbeweblink.github.io/myproject/bump.html",
-    tags: ["Game Logic", "Web Audio API"],
-    appeal: "將枯燥的產品列表轉化為趣味進化，潛移默化品牌記憶。",
-    stickiness: "內建進化圖鑑收集與積分排行榜，有效延長遊玩時間。",
-    features: "原生 Web Audio 音效、手勢滑動操作、戰績保存機制。"
-  },
-  {
-    id: 8,
-    type: 'game',
-    title: "奧多比消消樂",
-    description: "結合 LINE 生態圈的消除遊戲，遊玩中置入軟體冷知識，達到寓教於樂。",
-    link: "https://adbeweblink.github.io/myproject/matchBox.html",
-    tags: ["Match-3", "LINE LIFF", "Gamification"],
-    appeal: "將品牌圖示轉化為遊戲元素，置入實用軟體快捷鍵教學。",
-    stickiness: "具備連擊視覺回饋與好友分享功能，激發社群競爭心理。",
-    features: "LINE LIFF 整合、Web Audio 音效、RWD 觸控優化。"
-  },
-  {
-    id: 11,
-    type: 'game',
-    title: "Pantone 色彩極限挑戰",
-    description: "考驗色彩敏銳度，找出差異色塊。失敗時透過學習年度代表色獲得復活。",
-    link: "https://adbeweblink.github.io/myproject/pantone.html",
-    tags: ["Color Theory", "Gamification"],
-    appeal: "結合色彩學訓練與品牌科普，自然記住歷年年度代表色。",
-    stickiness: "隨著關卡推進色差值指數級縮小，激發設計師好勝心。",
-    features: "動態色差生成演算法、稱號系統、年度色資料庫百科。"
-  },
-  {
-    id: 12,
-    type: 'game',
-    title: "Adobe 知識王挑戰賽",
-    description: "結合 LINE LIFF 的問答遊戲，測試品牌知識，滿分可獲得專屬獎勵誘因。",
-    link: "https://adbeweblink.github.io/myproject/quiz.html",
-    tags: ["React", "LINE LIFF", "Quiz"],
-    appeal: "將生硬產品知識轉化為挑戰賽，利用獎勵誘因提高參與度。",
-    stickiness: "即時回饋解析與滿分彩帶特效，增強使用者成就感。",
-    features: "React 互動介面、Canvas 慶祝特效、BotBonnie 串接。"
-  }
-];
+        /* 卡片懸浮特效微調 */
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+        }
+    </style>
+</head>
+<body id="app-body" class="min-h-screen bg-gray-900 text-gray-100 theme-transition overflow-x-hidden">
 
-const Portfolio = () => {
-  const [filter, setFilter] = useState('tool');
-  const [projects, setProjects] = useState(initialProjects);
-
-  const filteredProjects = projects.filter(project => project.type === filter);
-
-  // Theme configuration based on filter
-  const theme = filter === 'tool' ? {
-    bgMain: 'bg-slate-900',
-    bgCard: 'bg-slate-800',
-    borderCard: 'border-slate-700',
-    textMain: 'text-slate-100',
-    textSub: 'text-slate-400',
-    accent: 'indigo', // for selection etc
-    headerBg: 'bg-slate-950',
-    headerBorder: 'border-slate-800',
-    buttonActive: 'bg-blue-600 shadow-blue-500/30',
-    buttonInactive: 'bg-slate-800 text-slate-400 hover:bg-slate-700',
-    cardHoverBorder: 'hover:border-blue-500',
-    iconHeader: 'text-blue-400/80',
-    gradient: 'from-blue-900 to-slate-900',
-    tagBg: 'bg-slate-900/50',
-    tagText: 'text-slate-400',
-    metricIcon1: 'text-blue-400',
-    metricIcon2: 'text-yellow-400',
-    metricIcon3: 'text-green-400',
-    metricText3: 'text-green-300',
-    actionBtn: 'bg-blue-600 hover:bg-blue-500 hover:shadow-blue-500/25'
-  } : {
-    // Game Theme: Darker Purple/Cyberpunk vibe
-    bgMain: 'bg-[#0f0518]', 
-    bgCard: 'bg-[#1a0b2e]',
-    borderCard: 'border-[#2d1b4e]',
-    textMain: 'text-fuchsia-50',
-    textSub: 'text-fuchsia-200/60',
-    accent: 'fuchsia',
-    headerBg: 'bg-[#0a0310]',
-    headerBorder: 'border-[#2d1b4e]',
-    buttonActive: 'bg-fuchsia-600 shadow-fuchsia-500/30 text-white',
-    buttonInactive: 'bg-[#1a0b2e] text-fuchsia-200/40 hover:bg-[#2d1b4e]',
-    cardHoverBorder: 'hover:border-fuchsia-500',
-    iconHeader: 'text-fuchsia-400/80',
-    gradient: 'from-purple-900/40 to-[#1a0b2e]',
-    tagBg: 'bg-[#0f0518]/50',
-    tagText: 'text-fuchsia-200/50',
-    metricIcon1: 'text-pink-400',
-    metricIcon2: 'text-purple-400',
-    metricIcon3: 'text-yellow-400',
-    metricText3: 'text-yellow-200',
-    actionBtn: 'bg-fuchsia-600 hover:bg-fuchsia-500 hover:shadow-fuchsia-500/25'
-  };
-
-  return (
-    <div className={`min-h-screen ${theme.bgMain} ${theme.textMain} font-sans selection:bg-${theme.accent}-500 selection:text-white transition-colors duration-500`}>
-      {/* Header */}
-      <header className={`${theme.headerBg} border-b ${theme.headerBorder} sticky top-0 z-50 bg-opacity-90 backdrop-blur-sm transition-colors duration-500`}>
-        <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-            <div className={`p-2 rounded-lg ${filter === 'game' ? 'bg-fuchsia-500/10' : 'bg-indigo-500/10'}`}>
-               <Layout className={`${filter === 'game' ? 'text-fuchsia-400' : 'text-indigo-400'} w-6 h-6`} />
+    <!-- Header -->
+    <header id="main-header" class="bg-gray-950/90 border-b border-gray-800 sticky top-0 z-50 backdrop-blur-md theme-transition">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+                <!-- Simple Logo -->
+                <svg class="w-6 h-6 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="M15 9h6"/><path d="M15 15h6"/><path d="M3 9h6"/><path d="M3 15h6"/></svg>
+                <h1 class="text-lg font-bold tracking-wide text-gray-100">商業加速實驗室</h1>
             </div>
-            <h1 className="text-xl font-bold tracking-tight">商業加速實驗室</h1>
-          </div>
-          <nav className="flex space-x-4">
-            <a href="#" className={`hover:text-${theme.accent}-400 transition-colors`}><Github className="w-5 h-5" /></a>
-            <a href="#" className={`hover:text-${theme.accent}-400 transition-colors`}><Linkedin className="w-5 h-5" /></a>
-            <a href="#" className={`hover:text-${theme.accent}-400 transition-colors`}><Mail className="w-5 h-5" /></a>
-          </nav>
+            
+            <nav class="flex items-center space-x-5">
+                <a href="#" class="text-gray-400 hover:text-white transition-colors" title="GitHub"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors" title="Contact"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></a>
+            </nav>
         </div>
-      </header>
+    </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-12">
-        {/* Intro */}
-        <section className="mb-16 text-center">
-          <h2 className={`text-4xl md:text-5xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r ${filter === 'tool' ? 'from-indigo-400 to-cyan-400' : 'from-fuchsia-400 to-purple-400'}`}>
-            {filter === 'tool' ? '企業級生產力工具' : '品牌互動遊戲體驗'}
-          </h2>
-          <p className={`${theme.textSub} max-w-2xl mx-auto text-lg leading-relaxed`}>
-            {filter === 'tool' 
-              ? "專注於解決商業流程中的痛點，提供自動化、標準化與資訊透明化的解決方案。" 
-              : "將品牌元素轉化為沉浸式互動體驗，透過遊戲化機制提升使用者黏著度與品牌認知。"}
-          </p>
+    <main class="max-w-7xl mx-auto px-4 pb-20">
+        
+        <!-- Hero Section -->
+        <section class="py-12 md:py-16 text-center">
+            <h2 id="hero-title" class="text-3xl md:text-5xl font-extrabold mb-4 text-white tracking-tight theme-transition">
+                企業級生產力工具
+            </h2>
+            <p id="hero-desc" class="text-gray-400 max-w-2xl mx-auto text-base md:text-lg leading-relaxed theme-transition px-4">
+                解決商業流程痛點，提供自動化與標準化解決方案。
+            </p>
         </section>
 
-        {/* Filter Tabs */}
-        <section className="mb-12 flex justify-center space-x-4">
-          <button 
-            onClick={() => setFilter('tool')}
-            className={`px-8 py-3 rounded-full font-medium transition-all duration-300 flex items-center space-x-2 ${filter === 'tool' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30 ring-2 ring-blue-400/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}
-          >
-            <Wrench className="w-4 h-4" /> <span>生產力工具</span>
-          </button>
-          <button 
-            onClick={() => setFilter('game')}
-            className={`px-8 py-3 rounded-full font-medium transition-all duration-300 flex items-center space-x-2 ${filter === 'game' ? 'bg-fuchsia-600 text-white shadow-lg shadow-fuchsia-500/30 ring-2 ring-fuchsia-400/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}
-          >
-            <Gamepad2 className="w-4 h-4" /> <span>互動小遊戲</span>
-          </button>
-        </section>
+        <!-- Sticky Filter Tabs (UX Optimization) -->
+        <div class="sticky top-16 z-40 py-4 -mx-4 px-4 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800/50 mb-8 flex justify-center theme-transition" id="sticky-tabs">
+            <div class="inline-flex bg-gray-800 p-1 rounded-lg border border-gray-700 shadow-sm">
+                <button id="btn-tool" onclick="setFilter('tool')" class="px-6 py-2 rounded-md text-sm font-bold transition-all duration-200 flex items-center space-x-2 bg-adobeBlue-500 text-white shadow-md">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                    <span>生產力工具</span>
+                </button>
+                <button id="btn-game" onclick="setFilter('game')" class="px-6 py-2 rounded-md text-sm font-bold transition-all duration-200 flex items-center space-x-2 text-gray-400 hover:text-white hover:bg-gray-700">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="10" y1="12" y2="12"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="15" x2="15.01" y1="13" y2="13"/><line x1="18" x2="18.01" y1="11" y2="11"/><rect width="20" height="12" x="2" y="6" rx="2"/></svg>
+                    <span>互動小遊戲</span>
+                </button>
+            </div>
+        </div>
 
-        {/* Projects Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredProjects.map((project) => (
-            <div key={project.id} className={`${theme.bgCard} rounded-xl overflow-hidden border ${theme.borderCard} ${theme.cardHoverBorder} transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group flex flex-col`}>
-              
-              {/* Card Header */}
-              <div className={`h-40 w-full flex items-center justify-center relative overflow-hidden bg-gradient-to-br ${theme.gradient}`}>
-                 {/* Background Pattern */}
-                 <div className="absolute inset-0 opacity-10">
-                    <svg className="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                      <path d="M0 100 L100 0 L100 100 Z" fill="currentColor" />
-                    </svg>
-                 </div>
-                 
-                 {/* Icon */}
-                 <div className="z-10 transform group-hover:scale-110 transition-transform duration-500">
-                   {project.title.includes('規格') ? <FileText className={`w-16 h-16 ${theme.iconHeader}`} /> :
-                    project.title.includes('計算機') ? <Calculator className={`w-16 h-16 ${theme.iconHeader}`} /> :
-                    project.title.includes('比較表') ? <Table className={`w-16 h-16 ${theme.iconHeader}`} /> :
-                    project.title.includes('教育') ? <School className={`w-16 h-16 ${theme.iconHeader}`} /> :
-                    project.title.includes('功能概覽') ? <FileDown className={`w-16 h-16 ${theme.iconHeader}`} /> :
-                    project.title.includes('經銷商') ? <Users className={`w-16 h-16 ${theme.iconHeader}`} /> :
-                    project.title.includes('跳跳樂') ? <Box className={`w-16 h-16 ${theme.iconHeader}`} /> :
-                    project.title.includes('消消樂') ? <Grid3x3 className={`w-16 h-16 ${theme.iconHeader}`} /> :
-                    project.title.includes('合合樂') ? <RefreshCcw className={`w-16 h-16 ${theme.iconHeader}`} /> :
-                    project.title.includes('轉轉樂') ? <Cuboid className={`w-16 h-16 ${theme.iconHeader}`} /> :
-                    project.title.includes('Pantone') ? <Palette className={`w-16 h-16 ${theme.iconHeader}`} /> :
-                    project.title.includes('知識王') ? <BrainCircuit className={`w-16 h-16 ${theme.iconHeader}`} /> :
-                    <Gamepad2 className={`w-16 h-16 ${theme.iconHeader}`} />}
-                 </div>
-              </div>
+        <!-- Projects Grid -->
+        <!-- UX: Added sm:grid-cols-2 for landscape mobile support -->
+        <div id="projects-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            <!-- Cards will be injected here -->
+        </div>
+    </main>
 
-              {/* Content */}
-              <div className="p-6 flex-1 flex flex-col">
-                
-                {/* Action Button */}
-                <a 
-                  href={project.link} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className={`w-full flex items-center justify-center space-x-2 text-white py-3 rounded-lg transition-all duration-300 font-bold mb-6 shadow-md ${theme.actionBtn}`}
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  <span>{project.type === 'tool' ? '開啟工具連結' : '開啟遊戲連結'}</span>
-                </a>
+    <footer class="bg-gray-950 py-10 border-t border-gray-800 text-center theme-transition" id="main-footer">
+        <p class="text-gray-500 text-xs mb-2">Built for Business Acceleration</p>
+        <p class="text-gray-600 text-xs">
+            © <script>document.write(new Date().getFullYear())</script> Lab. All rights reserved.<br>
+            <span class="mt-2 inline-block opacity-70">Vibe Coders：Mark Tsao</span>
+        </p>
+    </footer>
 
-                {/* Title & Badge */}
-                <div className="flex justify-between items-start mb-3">
-                  <div className="w-full">
-                    <div className="flex justify-between items-center mb-2">
-                       <span className={`text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider ${filter === 'tool' ? 'bg-blue-900/30 text-blue-300' : 'bg-fuchsia-900/30 text-fuchsia-300'}`}>
-                        {project.type === 'tool' ? 'Utility' : 'Game'}
-                      </span>
+    <!-- Scripts -->
+    <script>
+        // --- 1. Data Source ---
+        const projects = [
+            // --- Tools ---
+            {
+                id: 1, type: 'tool', title: "Adobe 軟體採購規格生成器",
+                description: "專為政府教育單位設計，一鍵生成合規的軟體採購硬體規格書。",
+                link: "https://adbeweblink.github.io/myproject/adbespec2026.html",
+                purpose: "自動產出合規標案規格文件。",
+                problemSolved: "解決人工查閱規格耗時易錯。",
+                efficiency: "撰寫時間從數小時縮短至30秒。"
+            },
+            {
+                id: 2, type: 'tool', title: "Adobe Firefly 點數計算機",
+                description: "整合官方與第三方模型費率，精準預估每月 AI 算力成本與額度。",
+                link: "https://adbeweblink.github.io/myproject/aipointcalculator.html",
+                purpose: "協助團隊精算 AI 點數消耗預算。",
+                problemSolved: "解決複雜模型費率難以計算困擾。",
+                efficiency: "內建動態試算，三分鐘完成預算表。"
+            },
+            {
+                id: 10, type: 'tool', title: "Adobe CC 最新功能電子報",
+                description: "針對 A4 列印優化的功能快報，前端即時生成 PDF，資訊零時差。",
+                link: "https://adbeweblink.github.io/myproject/newfeatures.html",
+                purpose: "提供標準化的一鍵生成功能週報。",
+                problemSolved: "克服網頁轉存 PDF 常見的排版錯亂。",
+                efficiency: "前端即時渲染高解析度列印文件。"
+            },
+            {
+                id: 13, type: 'tool', title: "Adobe 台灣經銷商搜尋器",
+                description: "整合全台經銷商資料庫，支援地區與專業領域篩選，快速媒合廠商。",
+                link: "https://adbeweblink.github.io/myproject/reseller.html",
+                purpose: "建立透明名錄，快速找到在地窗口。",
+                problemSolved: "解決官方列表缺乏在地篩選資訊落差。",
+                efficiency: "即時關鍵字過濾，秒速媒合服務商。"
+            },
+            {
+                id: 4, type: 'tool', title: "Adobe 企業方案規格比較",
+                description: "專為 B2B 銷售設計，針對橫式列印優化，清晰呈現團隊與企業版差異。",
+                link: "https://adbeweblink.github.io/myproject/cc-biz-matrix.html",
+                purpose: "協助客戶快速釐清版本功能權益差異。",
+                problemSolved: "解決複雜授權與資安規範難以理解。",
+                efficiency: "整合詢價表單，自動化收集潛在商機。"
+            },
+            {
+                id: 5, type: 'tool', title: "Adobe 教育授權方案比較",
+                description: "專為校園採購設計，深度解析裝置授權與指名授權差異，適合校務提案。",
+                link: "https://adbeweblink.github.io/myproject/cc-edu-matrix.html",
+                purpose: "協助學校釐清裝置與指名授權差異。",
+                problemSolved: "解決電腦教室與 BYOD 環境授權難題。",
+                efficiency: "提供清晰 A4 版面，縮短溝通成本。"
+            },
+            {
+                id: 6, type: 'tool', title: "Firefly 點數方案比較表",
+                description: "支援獨立訂閱與加購包切換，協助企業精算 AI 算力成本與版權權益。",
+                link: "https://adbeweblink.github.io/myproject/firefly-biz-matrix.html",
+                purpose: "協助釐清點數消耗規則與加購差異。",
+                problemSolved: "解決企業對點數重置與商用版權焦慮。",
+                efficiency: "將複雜計費邏輯視覺化，加速決策。"
+            },
+
+            // --- Games ---
+            {
+                id: 14, type: 'game', title: "奧多比轉轉樂",
+                description: "基於 Three.js 的 3D 魔術方塊，將軟體圖示映射至六面，考驗空間邏輯。",
+                link: "https://adbeweblink.github.io/myproject/twist.html",
+                appeal: "結合經典魔術方塊，強化產品印象。",
+                stickiness: "競速解謎具高重玩性，內建計時與排行榜。",
+                features: "WebGL 3D 渲染、觸控滑鼠雙支援。"
+            },
+            {
+                id: 7, type: 'game', title: "奧多比跳跳樂",
+                description: "基於 Three.js 的 3D 蓄力跳躍，玩家需控制角色在軟體積木間精準跳躍。",
+                link: "https://adbeweblink.github.io/myproject/jump.html",
+                appeal: "沉浸式 3D 互動，建立品牌色認知。",
+                stickiness: "蓄力手感與連擊機制，提升重玩意願。",
+                features: "正交投影運鏡、物理拋物線模擬。"
+            },
+            {
+                id: 9, type: 'game', title: "奧多比合合樂",
+                description: "類西瓜遊戲的物理合成玩法，利用碰撞機制將低階圖示進化為高階圖示。",
+                link: "https://adbeweblink.github.io/myproject/merge.html",
+                appeal: "合成快感結合物理碰撞，延長互動時間。",
+                stickiness: "炸彈道具與危險模式，增加變數張力。",
+                features: "Matter.js 物理引擎、動態碰撞判定。"
+            },
+            {
+                id: 3, type: 'game', title: "奧多比碰碰樂",
+                description: "經典 2048 玩法，滑動合併圖示，從 Acrobat 一路進化至 Creative Cloud。",
+                link: "https://adbeweblink.github.io/myproject/bump.html",
+                appeal: "將枯燥列表轉化為趣味進化，強化記憶。",
+                stickiness: "內建圖鑑收集與排行榜，延長遊玩時間。",
+                features: "原生音效合成、RWD 手勢滑動操作。"
+            },
+            {
+                id: 8, type: 'game', title: "奧多比消消樂",
+                description: "結合 LINE 生態圈的消除遊戲，遊玩中置入軟體冷知識，達到寓教於樂。",
+                link: "https://adbeweblink.github.io/myproject/matchBox.html",
+                appeal: "轉化圖示為遊戲元素，置入實用教學。",
+                stickiness: "連擊回饋與好友分享，激發社群競爭。",
+                features: "LINE LIFF 整合、Web Audio 音效。"
+            },
+            {
+                id: 11, type: 'game', title: "Pantone 色彩極限挑戰",
+                description: "考驗色彩敏銳度，找出差異色塊。失敗時透過學習年度代表色獲得復活。",
+                link: "https://adbeweblink.github.io/myproject/pantone.html",
+                appeal: "結合色彩訓練與科普，推廣年度代表色。",
+                stickiness: "難度指數級縮小，激發設計師好勝心。",
+                features: "動態色差演算法、年度色資料庫百科。"
+            },
+            {
+                id: 12, type: 'game', title: "Adobe 知識王挑戰賽",
+                description: "結合 LINE LIFF 的問答遊戲，測試品牌知識，滿分可獲得專屬獎勵誘因。",
+                link: "https://adbeweblink.github.io/myproject/quiz.html",
+                appeal: "將生硬知識轉化為挑戰，利用獎勵誘因。",
+                stickiness: "即時回饋與滿分特效，增強成就感。",
+                features: "React 互動介面、Canvas 慶祝特效。"
+            }
+        ];
+
+        // --- 2. SVGs ---
+        const ICONS = {
+            FileText: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>',
+            Calculator: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="8" x2="16" y1="10" y2="10"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/><path d="M8 18h.01"/></svg>',
+            Table: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/></svg>',
+            School: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 22v-4a2 2 0 1 0-4 0v4"/><path d="m18 10 4 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8l4-2"/><path d="M18 5v17"/><path d="m4 6 8-4 8 4"/><path d="M6 5v17"/><circle cx="12" cy="9" r="2"/></svg>',
+            FileDown: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg>',
+            Users: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+            Box: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" x2="12" y1="22.08" y2="12"/></svg>',
+            Grid3x3: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>',
+            RefreshCcw: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>',
+            Palette: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>',
+            BrainCircuit: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.97-3.284"/><path d="M17.97 14.716A4 4 0 0 1 18 18"/></svg>',
+            Cuboid: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.12 6.4-6.05-4.06a2 2 0 0 0-2.17-.05L2.95 8.41a2 2 0 0 0-.95 1.7v5.36a2 2 0 0 0 .95 1.7l9.93 6.12a2 2 0 0 0 2.17.05l6.05-4.06a2 2 0 0 0 .89-1.67V8.06a2 2 0 0 0-.89-1.67z"/><path d="M2 9l10 5 10-5"/><path d="M12 22V14"/></svg>',
+            Gamepad2: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="10" y1="12" y2="12"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="15" x2="15.01" y1="13" y2="13"/><line x1="18" x2="18.01" y1="11" y2="11"/><rect width="20" height="12" x="2" y="6" rx="2"/></svg>',
+            // Metrics Icons (20x20)
+            Target: '<svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+            CheckCircle: '<svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+            Zap: '<svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+            Heart: '<svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>',
+            Clock: '<svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+            MousePointer2: '<svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 6 4 6-2 2-2-2-4 4"/></svg>',
+            Code: '<svg class="w-12 h-12 mb-4 opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
+            ExternalLink: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>'
+        };
+
+        // --- 3. Render Functions ---
+
+        function getHeaderIcon(title) {
+            if (title.includes('規格')) return ICONS.FileText;
+            if (title.includes('計算機')) return ICONS.Calculator;
+            if (title.includes('比較表')) return ICONS.Table;
+            if (title.includes('教育')) return ICONS.School;
+            if (title.includes('功能概覽')) return ICONS.FileDown;
+            if (title.includes('經銷商')) return ICONS.Users;
+            if (title.includes('跳跳樂')) return ICONS.Box;
+            if (title.includes('消消樂')) return ICONS.Grid3x3;
+            if (title.includes('合合樂')) return ICONS.RefreshCcw;
+            if (title.includes('轉轉樂')) return ICONS.Cuboid;
+            if (title.includes('Pantone')) return ICONS.Palette;
+            if (title.includes('知識王')) return ICONS.BrainCircuit;
+            return ICONS.Gamepad2;
+        }
+
+        function createCard(project, filter) {
+            const isTool = filter === 'tool';
+            const iconSvg = getHeaderIcon(project.title);
+            
+            // Colors based on theme - New Orange Theme for Games
+            const accentText = isTool ? 'text-adobeBlue-400' : 'text-adobeGame-400';
+            const iconColor = 'text-gray-100'; // Icons in header are white
+            const gradStart = isTool ? 'from-adobeBlue-600' : 'from-adobeGame-600';
+            const gradEnd = 'to-gray-900';
+            const btnBg = isTool ? 'bg-adobeBlue-600 hover:bg-adobeBlue-500' : 'bg-adobeGame-500 hover:bg-adobeGame-400';
+            const btnShadow = isTool ? 'shadow-blue-500/20' : 'shadow-orange-500/20';
+            
+            // Metrics Icons colors
+            const mIcon1 = isTool ? 'text-blue-400' : 'text-orange-400';
+            const mIcon2 = isTool ? 'text-yellow-400' : 'text-amber-400';
+            const mIcon3 = isTool ? 'text-green-400' : 'text-yellow-400';
+            const mText3 = isTool ? 'text-green-300' : 'text-yellow-200';
+
+            // Metrics Content
+            let metricsHtml = '';
+            if (isTool) {
+                metricsHtml = `
+                    <div class="flex items-start space-x-3">
+                        <div class="${mIcon1} mt-0.5">${ICONS.Target}</div>
+                        <div>
+                            <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-0.5">用途 / 目的</p>
+                            <p class="text-sm text-gray-300 leading-snug">${project.purpose}</p>
+                        </div>
                     </div>
-                    <h3 className={`text-lg font-bold group-hover:text-${filter === 'tool' ? 'blue' : 'fuchsia'}-400 transition-colors leading-snug line-clamp-1`}>{project.title}</h3>
-                  </div>
+                    <div class="flex items-start space-x-3">
+                        <div class="${mIcon2} mt-0.5">${ICONS.CheckCircle}</div>
+                        <div>
+                            <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-0.5">解決困難</p>
+                            <p class="text-sm text-gray-300 leading-snug">${project.problemSolved}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <div class="${mIcon3} mt-0.5">${ICONS.Zap}</div>
+                        <div>
+                            <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-0.5">效率提升</p>
+                            <p class="text-sm font-bold ${mText3} leading-snug">${project.efficiency}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                 metricsHtml = `
+                    <div class="flex items-start space-x-3">
+                        <div class="${mIcon1} mt-0.5">${ICONS.Heart}</div>
+                        <div>
+                            <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-0.5">主要訴求</p>
+                            <p class="text-sm text-gray-300 leading-snug">${project.appeal}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <div class="${mIcon2} mt-0.5">${ICONS.Clock}</div>
+                        <div>
+                            <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-0.5">遊戲黏著度</p>
+                            <p class="text-sm font-bold ${mText3} leading-snug">${project.stickiness}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <div class="${mIcon3} mt-0.5">${ICONS.MousePointer2}</div>
+                        <div>
+                            <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-0.5">特色功能</p>
+                            <p class="text-sm text-gray-300 leading-snug">${project.features}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="bg-gray-800 rounded-lg overflow-hidden border border-gray-700 hover:border-gray-500 card-hover transition-all duration-300 flex flex-col group">
+                    <!-- Card Header Image -->
+                    <div class="h-40 w-full flex items-center justify-center relative overflow-hidden bg-gradient-to-br ${gradStart} ${gradEnd}">
+                        <div class="absolute inset-0 opacity-10">
+                            <!-- Background Pattern SVG -->
+                            <svg class="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0 100 L100 0 L100 100 Z" fill="currentColor" /></svg>
+                        </div>
+                        <div class="z-10 transform group-hover:scale-110 transition-transform duration-500 ${iconColor}">
+                            ${iconSvg}
+                        </div>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="p-5 flex-1 flex flex-col">
+                        <!-- Action Button (Primary) -->
+                        <a href="${project.link}" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center space-x-2 text-white py-2.5 rounded-md transition-all duration-300 font-bold mb-5 shadow-md ${btnBg} ${btnShadow} transform active:scale-95">
+                            ${ICONS.ExternalLink}
+                            <span>${isTool ? '開啟工具連結' : '開啟遊戲連結'}</span>
+                        </a>
+
+                        <div class="mb-4">
+                            <div class="flex items-center mb-1">
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider bg-gray-700 text-gray-300 border border-gray-600">
+                                    ${isTool ? 'Utility' : 'Game'}
+                                </span>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-100 group-hover:${accentText} transition-colors leading-snug">${project.title}</h3>
+                        </div>
+
+                        <p class="text-gray-400 text-sm mb-6 leading-relaxed line-clamp-2 min-h-[2.5rem]">
+                            ${project.description}
+                        </p>
+
+                        <!-- Metrics Grid -->
+                        <div class="mt-auto grid grid-cols-1 gap-y-4 pt-4 border-t border-gray-700/50">
+                            ${metricsHtml}
+                        </div>
+                    </div>
                 </div>
+            `;
+        }
 
-                <p className={`${theme.textSub} text-sm mb-6 leading-relaxed line-clamp-2 min-h-[2.5rem]`}>
-                  {project.description}
-                </p>
-
-                {/* Metrics Grid (Aligned Heights) */}
-                <div className={`mt-auto ${filter === 'tool' ? 'bg-slate-900/50 border-slate-800/50' : 'bg-[#130725] border-[#2d1b4e]'} rounded-lg p-4 space-y-4 mb-2 border`}>
-                  {project.type === 'tool' ? (
-                    <>
-                      <div className="flex items-start space-x-3">
-                        <Target className={`w-5 h-5 ${theme.metricIcon1} flex-shrink-0 mt-0.5`} />
-                        <div>
-                          <p className={`text-xs ${theme.textSub} uppercase font-semibold mb-0.5`}>用途 / 目的</p>
-                          <p className={`text-sm ${theme.textMain} leading-snug`}>{project.purpose}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start space-x-3">
-                        <CheckCircle className={`w-5 h-5 ${theme.metricIcon2} flex-shrink-0 mt-0.5`} />
-                        <div>
-                          <p className={`text-xs ${theme.textSub} uppercase font-semibold mb-0.5`}>解決困難</p>
-                          <p className={`text-sm ${theme.textMain} leading-snug`}>{project.problemSolved}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start space-x-3">
-                        <Zap className={`w-5 h-5 ${theme.metricIcon3} flex-shrink-0 mt-0.5`} />
-                        <div>
-                          <p className={`text-xs ${theme.textSub} uppercase font-semibold mb-0.5`}>效率提升</p>
-                          <p className={`text-sm font-bold ${theme.metricText3} leading-snug`}>{project.efficiency}</p>
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                       <div className="flex items-start space-x-3">
-                        <Heart className={`w-5 h-5 ${theme.metricIcon1} flex-shrink-0 mt-0.5`} />
-                        <div>
-                          <p className={`text-xs ${theme.textSub} uppercase font-semibold mb-0.5`}>主要訴求</p>
-                          <p className={`text-sm ${theme.textMain} leading-snug`}>{project.appeal}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start space-x-3">
-                        <Clock className={`w-5 h-5 ${theme.metricIcon2} flex-shrink-0 mt-0.5`} />
-                        <div>
-                          <p className={`text-xs ${theme.textSub} uppercase font-semibold mb-0.5`}>遊戲黏著度</p>
-                          <p className={`text-sm font-bold ${theme.metricText3} leading-snug`}>{project.stickiness}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start space-x-3">
-                        <MousePointer2 className={`w-5 h-5 ${theme.metricIcon3} flex-shrink-0 mt-0.5`} />
-                        <div>
-                          <p className={`text-xs ${theme.textSub} uppercase font-semibold mb-0.5`}>特色功能</p>
-                          <p className={`text-sm ${theme.textMain} leading-snug`}>{project.features}</p>
-                        </div>
-                      </div>
-                    </>
-                  )}
+        function createPlaceholder(filter) {
+            const isTool = filter === 'tool';
+            const borderColor = isTool ? 'border-gray-700' : 'border-gray-700';
+            const iconColor = isTool ? 'text-gray-600' : 'text-gray-600';
+            return `
+                <div class="border-2 border-dashed ${borderColor} rounded-lg flex flex-col items-center justify-center p-8 transition-colors cursor-default min-h-[400px] hover:bg-gray-800/30 group">
+                    <div class="${iconColor} group-hover:text-gray-500 transition-colors">${ICONS.Code}</div>
+                    <p class="text-sm font-medium text-gray-500 mt-4">Lab Experiment In Progress...</p>
                 </div>
+            `;
+        }
 
-              </div>
-            </div>
-          ))}
-          
-          {/* Add Project Placeholder (Visual Only) */}
-          <div className={`border-2 border-dashed ${filter === 'tool' ? 'border-slate-800 text-slate-600 hover:border-slate-700 hover:text-slate-500' : 'border-[#2d1b4e] text-fuchsia-900/40 hover:border-fuchsia-900/60 hover:text-fuchsia-800/60'} rounded-xl flex flex-col items-center justify-center p-8 transition-colors cursor-default min-h-[400px]`}>
-            <Code className="w-12 h-12 mb-4 opacity-50" />
-            <p className="text-sm font-medium">Lab Experiment In Progress...</p>
-          </div>
+        // --- 4. Logic ---
+        let currentFilter = 'tool';
 
-        </div>
-      </main>
+        function setFilter(filter) {
+            currentFilter = filter;
+            render();
+        }
 
-      <footer className={`${theme.headerBg} py-8 mt-12 border-t ${theme.headerBorder} text-center ${theme.textSub} text-sm transition-colors duration-500`}>
-        <p>© {new Date().getFullYear()} Business Acceleration Lab. Built with React & Tailwind CSS.</p>
-      </footer>
-    </div>
-  );
-};
+        function render() {
+            const grid = document.getElementById('projects-grid');
+            const btnTool = document.getElementById('btn-tool');
+            const btnGame = document.getElementById('btn-game');
+            const heroTitle = document.getElementById('hero-title');
+            const heroDesc = document.getElementById('hero-desc');
+            const bgBody = document.getElementById('app-body');
+            const stickyTabs = document.getElementById('sticky-tabs');
 
-export default Portfolio;
+            // 1. Update State styles (Spectrum Dark Mode Logic)
+            if (currentFilter === 'tool') {
+                // Tool State (Blue Theme)
+                btnTool.className = "px-6 py-2 rounded-md text-sm font-bold transition-all duration-200 flex items-center space-x-2 bg-adobeBlue-500 text-white shadow-md shadow-adobeBlue-500/20";
+                btnGame.className = "px-6 py-2 rounded-md text-sm font-bold transition-all duration-200 flex items-center space-x-2 text-gray-400 hover:text-white hover:bg-gray-700";
+                
+                heroTitle.innerHTML = "企業級生產力工具";
+                heroTitle.className = "text-3xl md:text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-adobeBlue-400 to-cyan-300 tracking-tight theme-transition";
+                heroDesc.innerHTML = "專注於解決商業流程中的痛點，提供自動化、標準化與資訊透明化的解決方案。";
+                
+                // Keep background dark gray (Spectrum Dark)
+                bgBody.classList.remove('bg-[#1a0500]');
+                bgBody.classList.add('bg-gray-900');
+                
+            } else {
+                // Game State (Orange Theme)
+                btnTool.className = "px-6 py-2 rounded-md text-sm font-bold transition-all duration-200 flex items-center space-x-2 text-gray-400 hover:text-white hover:bg-gray-700";
+                btnGame.className = "px-6 py-2 rounded-md text-sm font-bold transition-all duration-200 flex items-center space-x-2 bg-adobeGame-500 text-white shadow-md shadow-adobeGame-500/20";
+
+                heroTitle.innerHTML = "品牌互動遊戲體驗";
+                heroTitle.className = "text-3xl md:text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-adobeGame-400 to-yellow-400 tracking-tight theme-transition";
+                // Updated description here
+                heroDesc.innerHTML = "將品牌轉化為沉浸式互動體驗，透過遊戲化機制提升黏著度與品牌認知。";
+                
+                // Slightly darker orange/brown tint for games
+                bgBody.classList.remove('bg-gray-900');
+                bgBody.classList.add('bg-[#1a0500]');
+            }
+
+            // 2. Filter & Render Projects
+            const filteredProjects = projects.filter(p => p.type === currentFilter);
+            const cardsHtml = filteredProjects.map(p => createCard(p, currentFilter)).join('');
+            grid.innerHTML = cardsHtml + createPlaceholder(currentFilter);
+        }
+
+        // Initialize
+        render();
+
+        // Sticky Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('main-header');
+            if (window.scrollY > 10) {
+                header.classList.add('shadow-lg');
+            } else {
+                header.classList.remove('shadow-lg');
+            }
+        });
+    </script>
+</body>
+</html>
