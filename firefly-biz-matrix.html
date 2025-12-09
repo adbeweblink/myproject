@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Adobe Firefly 生成式點數方案比較表</title>
     <!-- 引入 Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script> 
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -231,6 +231,7 @@
                     <label class="block text-sm font-bold text-gray-700 mb-1" for="c_company">公司全名 <span class="text-red-500">*</span></label>
                     <input type="text" id="c_company" name="company" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required placeholder="公司全名" maxlength="100">
                 </div>
+                <!-- 新增：職務欄位 -->
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1" for="c_job">職務 <span class="text-red-500">*</span></label>
                     <input type="text" id="c_job" name="job" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required placeholder="例如：設計總監、IT經理" maxlength="50">
@@ -425,8 +426,9 @@
                 'film': '<rect width="18" height="18" x="3" y="3" rx="2" /><path d="M7 3v18"/><path d="M3 7.5h4"/><path d="M3 12h18"/><path d="M3 16.5h4"/><path d="M17 3v18"/><path d="M17 7.5h4"/><path d="M17 16.5h4"/>',
                 'mic': '<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>',
                 'music': '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
-                'touch': '<path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S7 9.33 7 8.5v-5c0-.83-.67-1.5-1.5-1.5S4 2.67 4 3.5v5c0 .83-.67 1.5-1.5 1.5S1 9.33 1 8.5v-5c0-.83.67-1.5 1.5-1.5S4 2.67 4 3.5v5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5c0-.83.67-1.5 1.5-1.5S10 2.67 10 3.5v5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5c0-.83.67-1.5 1.5-1.5S16 2.67 16 3.5v5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5c0-.83.67-1.5 1.5-1.5S22 2.67 22 3.5v5c0 .83-.67 1.5-1.5 1.5S19 9.33 19 8.5v-5c0-.83-.67-1.5-1.5-1.5S16 2.67 16 3.5v5c0 .83-.67 1.5-1.5 1.5z"/>',
-                'layout': '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="9" x2="9" y1="21" y2="9"/>'
+                'touch': '<path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S7 9.33 7 8.5v-5c0-.83-.67-1.5-1.5-1.5S4 2.67 4 3.5v5c0 .83.67 1.5 1.5 1.5S1 9.33 1 8.5v-5c0-.83.67-1.5 1.5-1.5S4 2.67 4 3.5v5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5c0-.83.67-1.5 1.5-1.5S10 2.67 10 3.5v5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5c0-.83.67-1.5 1.5-1.5S16 2.67 16 3.5v5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5c0-.83.67-1.5 1.5-1.5S22 2.67 22 3.5v5c0 .83-.67 1.5-1.5 1.5S19 9.33 19 8.5v-5c0-.83-.67-1.5-1.5-1.5S16 2.67 16 3.5v5c0 .83-.67 1.5-1.5 1.5z"/>',
+                'layout': '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="9" x2="9" y1="21" y2="9"/>',
+                'calculator': '<rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="8" x2="16" y1="10" y2="10"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/><path d="M8 18h.01"/>'
             };
             const d = paths[name] || '<circle cx="12" cy="12" r="10"/>';
             return `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${d}</svg>`;
@@ -610,24 +612,28 @@
                              <div class="flex flex-col md:flex-row items-center gap-4 order-1 xl:order-2 w-full xl:w-auto justify-center xl:justify-end">
                                  
                                  <!-- Toggles -->
-                                 <div class="flex items-center gap-2 bg-[#2A2A2A] rounded-lg p-1 border border-[#333]">
+                                 <div class="flex items-center gap-2 bg-[#2A2A2A] rounded-lg p-1 border border-[#333] whitespace-nowrap overflow-x-auto max-w-full">
                                     <span class="text-[10px] text-gray-400 font-bold px-2 hidden sm:inline">自訂比較顯示</span>
                                     ${togglesHtml}
                                  </div>
 
                                  <!-- Actions -->
-                                 <div class="flex items-center gap-2">
+                                 <div class="flex items-center gap-2 whitespace-nowrap">
                                      <button onclick="App.toggleFontSize()" class="flex items-center px-3 py-1.5 rounded-lg text-xs font-bold transition-all border h-[34px] ${fontBtnClass} hover:bg-[#2A2A2A] hover:text-white" title="切換字體大小">
                                         ${getIcon('type', 'w-4 h-4 mr-1.5')} ${fontLabels[fontSizeMode]}
                                      </button>
                                      
-                                     <button onclick="App.toggleHideCommon()" class="flex items-center px-3 py-1.5 rounded-lg text-xs font-bold transition-all border h-[34px] whitespace-nowrap ${hideCommonClass}">
+                                     <button onclick="App.toggleHideCommon()" class="flex items-center px-3 py-1.5 rounded-lg text-xs font-bold transition-all border h-[34px] ${hideCommonClass}">
                                         ${getIcon('list-filter', 'w-3 h-3 mr-1.5 ' + (hideCommon ? 'fill-white' : ''))} ${hideCommon?'只看差異':'顯示全部'}
                                      </button>
                                      
                                      <button onclick="window.print()" class="flex items-center px-3 py-1.5 bg-transparent border border-[#444] text-gray-300 rounded-lg text-xs font-bold hover:bg-[#2A2A2A] hover:text-white transition-colors h-[34px]">
                                         ${getIcon('printer', 'w-4 h-4 mr-1.5')} 列印/PDF
                                      </button>
+
+                                     <a href="https://adbeweblink.github.io/myproject/aipointcalculator.html" target="_blank" class="flex items-center px-3 py-1.5 bg-transparent border border-[#444] text-gray-300 rounded-lg text-xs font-bold hover:bg-[#2A2A2A] hover:text-white transition-colors h-[34px] no-underline">
+                                        ${getIcon('calculator', 'w-4 h-4 mr-1.5')} 點數計算機
+                                     </a>
                                      
                                      <button onclick="App.openContactModal()" class="flex items-center px-4 py-1.5 bg-adobeRed text-white rounded-lg text-xs font-bold hover:bg-adobeDarkRed transition-colors shadow-md h-[34px] animate-pulse hover:animate-none whitespace-nowrap">
                                         ${getIcon('mail', 'w-4 h-4 mr-1.5')} 商業諮詢
@@ -731,19 +737,20 @@
                                 displayVal = val.replace(/X/g, '<span class="text-gray-400 font-bold">X</span>');
                             }
                             
-                            let contentHtml = `<span class="${contentTextClass} text-center block whitespace-pre-line text-[#2D2D2D] font-medium leading-relaxed">${displayVal}</span>`;
+                            // 表格內容設定為靠左對齊，符合您的圖片參考
+                            let contentHtml = `<span class="${contentTextClass} text-left pl-4 block whitespace-pre-line text-[#2D2D2D] font-medium leading-relaxed">${displayVal}</span>`;
                             
                             if (isWin) {
                                 contentHtml = `
-                                <div class="relative border-2 border-adobeRed bg-white rounded-lg p-3 w-full text-center shadow-[0_2px_8px_rgba(250,15,0,0.1)]">
+                                <div class="relative border-2 border-adobeRed bg-white rounded-lg p-3 w-full text-left shadow-[0_2px_8px_rgba(250,15,0,0.1)]">
                                     <div class="absolute -top-2.5 right-1 bg-adobeRed text-white text-[9px] px-1.5 py-0.5 rounded-full flex items-center shadow-sm font-bold tracking-tight">
                                         ${getIcon('star', 'w-2 h-2 mr-1 fill-white')} 推薦
                                     </div>
-                                    <span class="text-adobeRed font-bold ${contentTextClass} whitespace-pre-line">${displayVal}</span>
+                                    <span class="text-adobeRed font-bold ${contentTextClass} whitespace-pre-line block pl-1">${displayVal}</span>
                                 </div>`;
                             }
                             
-                            html += `<div onclick="App.openFeatureModal('${col.key}')" class="p-2 flex items-center justify-center border-r border-gray-300 last:border-r-0 cursor-pointer ${plan.bgColor}">${contentHtml}</div>`;
+                            html += `<div onclick="App.openFeatureModal('${col.key}')" class="p-2 flex items-center justify-start border-r border-gray-300 last:border-r-0 cursor-pointer ${plan.bgColor}">${contentHtml}</div>`;
                         });
                         html += `</div>`;
                     });
