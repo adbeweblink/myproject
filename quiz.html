@@ -3,15 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Adobe 知識王挑戰賽</title> 
+  <title>Adobe 知識王挑戰賽</title>
   
+  <!-- React / Babel / Tailwind -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   
+  <!-- 彩帶套件 -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
   
+  <!-- LINE LIFF SDK -->
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
   <style>
@@ -135,11 +138,9 @@
     
     // LIFF ID 設定
     const MY_LIFF_ID = "2008592497-M8lBAPJW"; 
-    
-    // ❗ BotBonnie 連結 (已更新)
-    const BOTBONNIE_LINK = "https://r.botbonnie.com/-uTNU";
-    
-    // 通關密語 (此版本因改為直接跳轉，此變數暫時備而不用，但保留以防未來需要)
+    // BotBonnie 連結 (Fallback用)
+    const BOTBONNIE_LINK = "https://r.botbonnie.com/bX0JL";
+    // 通關密語
     const REWARD_KEYWORD = "Adobe知識王2025";
 
     // 題目資料
@@ -265,77 +266,122 @@
         }, 200);
       };
 
-      // === 核心功能：領取獎勵 (修改版：直接跳轉) ===
-      const handleClaimReward = () => {
-        // 直接導向到指定的 BotBonnie 連結
-        window.location.href = BOTBONNIE_LINK;
-      };
-
-      // === 核心功能：分享好友 ===
-      const handleShare = () => {
-        if (isLiffReady && liff.isApiAvailable('shareTargetPicker')) {
-          liff.shareTargetPicker([
-            {
-              type: "flex",
-              altText: "快來挑戰 Adobe 知識王！",
-              contents: {
-                type: "bubble",
-                hero: {
-                  type: "image",
-                  url: COVER_IMAGE, // 直接使用封面圖作為分享圖
-                  size: "full",
-                  aspectRatio: "9:16", // 調整為符合封面圖比例，或用 cover 裁切
-                  aspectMode: "cover"
-                },
-                body: {
-                  type: "box",
-                  layout: "vertical",
-                  contents: [
-                    {
-                      type: "text",
-                      text: "Adobe 知識王挑戰賽",
-                      weight: "bold",
-                      size: "xl"
+      // 取得分享訊息內容 (共用)
+      const getShareContent = () => {
+        return [
+          {
+            type: "flex",
+            altText: "快來挑戰 Adobe 知識王！",
+            contents: {
+              type: "bubble",
+              hero: {
+                type: "image",
+                url: COVER_IMAGE, // 直接使用封面圖作為分享圖
+                size: "full",
+                aspectRatio: "9:16",
+                aspectMode: "cover"
+              },
+              body: {
+                type: "box",
+                layout: "vertical",
+                contents: [
+                  {
+                    type: "text",
+                    text: "Adobe 知識王挑戰賽",
+                    weight: "bold",
+                    size: "xl"
+                  },
+                  {
+                    type: "text",
+                    text: `我獲得了 ${score} 分！你能贏過我嗎？`,
+                    size: "md",
+                    wrap: true,
+                    color: "#666666",
+                    margin: "sm"
+                  }
+                ]
+              },
+              footer: {
+                type: "box",
+                layout: "vertical",
+                contents: [
+                  {
+                    type: "button",
+                    style: "primary",
+                    action: {
+                      type: "uri",
+                      label: "立即挑戰",
+                      uri: `https://liff.line.me/${MY_LIFF_ID}`
                     },
-                    {
-                      type: "text",
-                      text: `我獲得了 ${score} 分！你能贏過我嗎？`,
-                      size: "md",
-                      wrap: true,
-                      color: "#666666",
-                      margin: "sm"
-                    }
-                  ]
-                },
-                footer: {
-                  type: "box",
-                  layout: "vertical",
-                  contents: [
-                    {
-                      type: "button",
-                      style: "primary",
-                      action: {
-                        type: "uri",
-                        label: "立即挑戰",
-                        uri: `https://liff.line.me/${MY_LIFF_ID}`
-                      },
-                      color: "#EC4899"
-                    }
-                  ]
-                }
+                    color: "#EC4899"
+                  }
+                ]
               }
             }
-          ]).then((res) => {
+          }
+        ];
+      };
+
+      // === 核心功能：分享並領取獎勵 (100分專用) ===
+      const handleShareAndClaim = async () => {
+        // 情境 A：在 LINE App 內，且支援分享功能
+        if (isLiffReady && liff.isInClient() && liff.isApiAvailable('shareTargetPicker')) {
+          try {
+            // 1. 喚起分享視窗
+            const res = await liff.shareTargetPicker(getShareContent());
+            
             if (res) {
-              console.log(`[ShareTargetPicker] Message sent!`);
+              // 2. 分享成功 -> 發送通關密語領取獎勵
+              try {
+                await liff.sendMessages([
+                  {
+                    type: 'text',
+                    text: REWARD_KEYWORD
+                  }
+                ]);
+                // 發送成功後關閉視窗，讓使用者看到聊天室的 Bot 回覆
+                liff.closeWindow();
+              } catch (error) {
+                console.error("Error sending reward message:", error);
+                // 萬一發送失敗，導向連結作為補救
+                window.location.href = BOTBONNIE_LINK;
+              }
+            } else {
+              // 3. 使用者取消分享或分享未完成
+              alert("必須完成分享才能領取獎勵喔！");
             }
-          }).catch((err) => {
+          } catch (err) {
             console.log('ShareTargetPicker error', err);
-            // 失敗或用戶取消時，不一定要 alert，也可以安靜處理
-            // alert("分享未完成");
+            alert("分享功能發生錯誤，請稍後再試");
+          }
+        } 
+        // 情境 B：外部瀏覽器或不支援分享 API
+        else {
+          // Fallback: 複製連結 -> 提示分享 -> 跳轉 BotBonnie
+          const url = `https://liff.line.me/${MY_LIFF_ID}`;
+          navigator.clipboard.writeText(url).then(() => {
+            alert("已複製活動連結！請貼上分享給好友後，將為您跳轉領取獎勵。");
+            window.location.href = BOTBONNIE_LINK;
+          }).catch(() => {
+            // 複製失敗直接跳轉
+             window.location.href = BOTBONNIE_LINK;
           });
+        }
+      };
+
+      // === 一般分享功能 (未滿分用) ===
+      const handleShareOnly = () => {
+        if (isLiffReady && liff.isApiAvailable('shareTargetPicker')) {
+          liff.shareTargetPicker(getShareContent())
+            .then((res) => {
+              if (res) {
+                console.log(`[ShareTargetPicker] Message sent!`);
+              }
+            })
+            .catch((err) => {
+              console.log('ShareTargetPicker error', err);
+            });
         } else {
-          // Fallback: 複製連結
           const url = `https://liff.line.me/${MY_LIFF_ID}`;
           navigator.clipboard.writeText(url).then(() => {
             alert("已複製活動連結，請直接貼上分享給好友！");
@@ -444,15 +490,22 @@
                     🏆 恭喜獲得滿分！
                   </div>
                   <div className="mb-6 text-gray-400 text-xs text-center px-4 leading-relaxed">
-                    點擊下方按鈕領取您的專屬獎勵，<br/>並將好成績分享給朋友吧！
+                    請分享給好友，完成分享後<br/>即可自動領取獎勵！
                   </div>
 
-                  {/* 滿分：顯示領取獎勵 (直接跳轉) */}
+                  {/* 滿分：顯示【分享並領取獎勵】合併按鈕 */}
                   <button
-                    onClick={handleClaimReward}
+                    onClick={handleShareAndClaim}
                     className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg mb-3 flex items-center justify-center gap-2 transform active:scale-95 transition-all"
                   >
-                    <span>🎁 領取獎勵</span>
+                    <span>🎁 分享並領取獎勵</span>
+                  </button>
+                  
+                   <button
+                    onClick={() => window.location.reload()}
+                    className="mt-4 text-gray-500 text-sm hover:text-gray-300 underline decoration-gray-600 underline-offset-4"
+                  >
+                    再玩一次
                   </button>
                 </>
               ) : (
@@ -471,25 +524,15 @@
                   >
                     🔄 再玩一次
                   </button>
-                </>
-              )}
 
-              {/* 通用：分享按鈕 */}
-              <button
-                onClick={handleShare}
-                className="w-full bg-emerald-600/90 hover:bg-emerald-600 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg flex items-center justify-center gap-2 transform active:scale-95 transition-all"
-              >
-                <span>📤 分享好友</span>
-              </button>
-
-              {/* 如果是滿分，把再玩一次變成次要按鈕放在最下面 */}
-              {isFullScore && (
-                 <button
-                    onClick={() => window.location.reload()}
-                    className="mt-4 text-gray-500 text-sm hover:text-gray-300 underline decoration-gray-600 underline-offset-4"
+                  {/* 未滿分：一般的分享好友 */}
+                  <button
+                    onClick={handleShareOnly}
+                    className="w-full bg-emerald-600/90 hover:bg-emerald-600 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg flex items-center justify-center gap-2 transform active:scale-95 transition-all"
                   >
-                    再玩一次
+                    <span>📤 分享好友</span>
                   </button>
+                </>
               )}
             </div>
           </div>
