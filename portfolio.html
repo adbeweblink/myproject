@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>商業加速實驗室 | Business Acceleration Lab</title> 
+    <title>商業加速實驗室 | Business Acceleration Lab</title>
     <!-- 引入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入 Google Fonts: Inter (西文) & Noto Sans TC (中文) -->
@@ -65,8 +65,16 @@
 
         /* 卡片懸浮特效微調 */
         .card-hover:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 圖片過渡效果 */
+        .img-zoom {
+            transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .group:hover .img-zoom {
+            transform: scale(1.1);
         }
     </style>
 </head>
@@ -81,7 +89,9 @@
                 <h1 class="text-lg font-bold tracking-wide text-gray-100">商業加速實驗室</h1>
             </div>
             
-            <!-- 右上角圖示已移除 -->
+            <nav class="flex items-center space-x-5">
+                <!-- No Icons as requested -->
+            </nav>
         </div>
     </header>
 
@@ -112,7 +122,6 @@
         </div>
 
         <!-- Projects Grid -->
-        <!-- UX: Added sm:grid-cols-2 for landscape mobile support -->
         <div id="projects-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             <!-- Cards will be injected here -->
         </div>
@@ -128,7 +137,7 @@
 
     <!-- Scripts -->
     <script>
-        // --- 1. Data Source ---
+        // --- 1. Data Source (Simplified - No Images needed) ---
         const projects = [
             // --- Tools ---
             {
@@ -190,12 +199,20 @@
 
             // --- Games ---
             {
+                id: 15, type: 'game', title: "設計師職場生存模擬器",
+                description: "這不是普通的計算機，這是一場職場生存遊戲。輸入數值，系統將判定你的「真實身價」與「生存機率」。",
+                link: "https://adbeweblink.github.io/myproject/survivaltest.html",
+                appeal: "將枯燥的薪資計算轉化為一場「職場生存遊戲」，讓設計師透過互動數據重新審視自己的價值。",
+                stickiness: "透過「隱形虧損」的視覺化衝擊與「老闆洞察」的毒雞湯，引發強烈共鳴與社群轉發慾望。",
+                features: "互動式數值滑桿、動態 ROI 運算、結果診斷系統、Tailwind 響應式介面。"
+            },
+            {
                 id: 14, type: 'game', title: "奧多比轉轉樂",
                 description: "基於 Three.js 的 3D 魔術方塊，將軟體圖示映射至六面，考驗空間邏輯。",
                 link: "https://adbeweblink.github.io/myproject/twist.html",
                 appeal: "結合經典魔術方塊，強化產品印象。",
-                stickiness: "競速解謎具高重玩性，內建計時與排行榜。",
-                features: "WebGL 3D 渲染、觸控滑鼠雙支援。"
+                stickiness: "競速解謎具高重玩性，內建排行榜。",
+                features: "WebGL 3D 渲染、四元數旋轉運算、觸控滑鼠雙支援。"
             },
             {
                 id: 7, type: 'game', title: "奧多比跳跳樂",
@@ -210,8 +227,8 @@
                 description: "類西瓜遊戲的物理合成玩法，利用碰撞機制將低階圖示進化為高階圖示。",
                 link: "https://adbeweblink.github.io/myproject/merge.html",
                 appeal: "合成快感結合物理碰撞，延長互動時間。",
-                stickiness: "炸彈道具與危險模式，增加變數張力。",
-                features: "Matter.js 物理引擎、動態碰撞判定。"
+                stickiness: "隨機生成的炸彈道具與危險模式，增加變數與張力。",
+                features: "Matter.js 物理引擎、動態碰撞判定、危險區域特效。"
             },
             {
                 id: 3, type: 'game', title: "奧多比碰碰樂",
@@ -219,15 +236,15 @@
                 link: "https://adbeweblink.github.io/myproject/bump.html",
                 appeal: "將枯燥列表轉化為趣味進化，強化記憶。",
                 stickiness: "內建圖鑑收集與排行榜，延長遊玩時間。",
-                features: "原生音效合成、RWD 手勢滑動操作。"
+                features: "原生音效合成、RWD 手勢滑動操作、戰績保存機制。"
             },
             {
                 id: 8, type: 'game', title: "奧多比消消樂",
                 description: "結合 LINE 生態圈的消除遊戲，遊玩中置入軟體冷知識，達到寓教於樂。",
                 link: "https://adbeweblink.github.io/myproject/matchBox.html",
                 appeal: "轉化圖示為遊戲元素，置入實用教學。",
-                stickiness: "連擊回饋與好友分享，激發社群競爭。",
-                features: "LINE LIFF 整合、Web Audio 音效。"
+                stickiness: "具備連擊視覺回饋與好友分享功能，激發社群競爭心理。",
+                features: "LINE LIFF 整合、Web Audio 音效、RWD 觸控優化。"
             },
             {
                 id: 11, type: 'game', title: "Pantone 色彩極限挑戰",
@@ -247,22 +264,8 @@
             }
         ];
 
-        // --- 2. SVGs ---
+        // --- 2. SVGs Icons ---
         const ICONS = {
-            FileText: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>',
-            Calculator: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="8" x2="16" y1="10" y2="10"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/><path d="M8 18h.01"/></svg>',
-            Table: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/></svg>',
-            School: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 22v-4a2 2 0 1 0-4 0v4"/><path d="m18 10 4 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8l4-2"/><path d="M18 5v17"/><path d="m4 6 8-4 8 4"/><path d="M6 5v17"/><circle cx="12" cy="9" r="2"/></svg>',
-            FileDown: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg>',
-            Users: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
-            Box: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" x2="12" y1="22.08" y2="12"/></svg>',
-            Grid3x3: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>',
-            RefreshCcw: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>',
-            Palette: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>',
-            BrainCircuit: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.97-3.284"/><path d="M17.97 14.716A4 4 0 0 1 18 18"/></svg>',
-            Cuboid: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.12 6.4-6.05-4.06a2 2 0 0 0-2.17-.05L2.95 8.41a2 2 0 0 0-.95 1.7v5.36a2 2 0 0 0 .95 1.7l9.93 6.12a2 2 0 0 0 2.17.05l6.05-4.06a2 2 0 0 0 .89-1.67V8.06a2 2 0 0 0-.89-1.67z"/><path d="M2 9l10 5 10-5"/><path d="M12 22V14"/></svg>',
-            Gamepad2: '<svg class="w-12 h-12 text-gray-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="10" y1="12" y2="12"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="15" x2="15.01" y1="13" y2="13"/><line x1="18" x2="18.01" y1="11" y2="11"/><rect width="20" height="12" x="2" y="6" rx="2"/></svg>',
-            // Metrics Icons (20x20)
             Target: '<svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
             CheckCircle: '<svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
             Zap: '<svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
@@ -270,11 +273,27 @@
             Clock: '<svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
             MousePointer2: '<svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 6 4 6-2 2-2-2-4 4"/></svg>',
             Code: '<svg class="w-12 h-12 mb-4 opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
-            ExternalLink: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>'
+            ExternalLink: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>',
+            
+            // Header Icons (Full Size) - kept for fallback or specific usage
+            FileText: '<svg class="w-16 h-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>',
+            Calculator: '<svg class="w-16 h-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="8" x2="16" y1="10" y2="10"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/><path d="M8 18h.01"/></svg>',
+            Table: '<svg class="w-16 h-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/></svg>',
+            School: '<svg class="w-16 h-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 22v-4a2 2 0 1 0-4 0v4"/><path d="m18 10 4 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8l4-2"/><path d="M18 5v17"/><path d="m4 6 8-4 8 4"/><path d="M6 5v17"/><circle cx="12" cy="9" r="2"/></svg>',
+            FileDown: '<svg class="w-16 h-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg>',
+            Users: '<svg class="w-16 h-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+            Box: '<svg class="w-16 h-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" x2="12" y1="22.08" y2="12"/></svg>',
+            Grid3x3: '<svg class="w-16 h-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>',
+            RefreshCcw: '<svg class="w-16 h-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>',
+            Palette: '<svg class="w-16 h-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>',
+            BrainCircuit: '<svg class="w-16 h-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.97-3.284"/><path d="M17.97 14.716A4 4 0 0 1 18 18"/></svg>',
+            Cuboid: '<svg class="w-16 h-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.12 6.4-6.05-4.06a2 2 0 0 0-2.17-.05L2.95 8.41a2 2 0 0 0-.95 1.7v5.36a2 2 0 0 0 .95 1.7l9.93 6.12a2 2 0 0 0 2.17.05l6.05-4.06a2 2 0 0 0 .89-1.67V8.06a2 2 0 0 0-.89-1.67z"/><path d="M2 9l10 5 10-5"/><path d="M12 22V14"/></svg>',
+            Gamepad2: '<svg class="w-16 h-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="10" y1="12" y2="12"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="15" x2="15.01" y1="13" y2="13"/><line x1="18" x2="18.01" y1="11" y2="11"/><rect width="20" height="12" x="2" y="6" rx="2"/></svg>'
         };
 
         // --- 3. Render Functions ---
 
+        // Helper to get an icon if image fails (fallback)
         function getHeaderIcon(title) {
             if (title.includes('規格')) return ICONS.FileText;
             if (title.includes('計算機')) return ICONS.Calculator;
@@ -288,16 +307,15 @@
             if (title.includes('轉轉樂')) return ICONS.Cuboid;
             if (title.includes('Pantone')) return ICONS.Palette;
             if (title.includes('知識王')) return ICONS.BrainCircuit;
-            return ICONS.Gamepad2;
+            if (title.includes('生存')) return ICONS.Calculator; // Survival Test uses Calculator icon as fallback
+            return ICONS.Gamepad2; 
         }
 
         function createCard(project, filter) {
             const isTool = filter === 'tool';
-            const iconSvg = getHeaderIcon(project.title);
             
             // Colors based on theme - New Orange Theme for Games
             const accentText = isTool ? 'text-adobeBlue-400' : 'text-adobeGame-400';
-            const iconColor = 'text-gray-100'; // Icons in header are white
             const gradStart = isTool ? 'from-adobeBlue-600' : 'from-adobeGame-600';
             const gradEnd = 'to-gray-900';
             const btnBg = isTool ? 'bg-adobeBlue-600 hover:bg-adobeBlue-500' : 'bg-adobeGame-500 hover:bg-adobeGame-400';
@@ -361,35 +379,38 @@
                 `;
             }
 
+            const iconSvg = getHeaderIcon(project.title);
+            // Inject class into icon for coloring/sizing
+            const styledIcon = iconSvg.replace('<svg', `<svg class="w-16 h-16 text-white drop-shadow-md"`);
+
             return `
                 <div class="bg-gray-800 rounded-lg overflow-hidden border border-gray-700 hover:border-gray-500 card-hover transition-all duration-300 flex flex-col group">
-                    <!-- Card Header Image -->
-                    <div class="h-40 w-full flex items-center justify-center relative overflow-hidden bg-gradient-to-br ${gradStart} ${gradEnd}">
-                        <div class="absolute inset-0 opacity-10">
-                            <!-- Background Pattern SVG -->
-                            <svg class="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0 100 L100 0 L100 100 Z" fill="currentColor" /></svg>
+                    <!-- Card Header (Simple Gradient + Icon) -->
+                    <div class="h-40 w-full relative overflow-hidden bg-gradient-to-br ${gradStart} ${gradEnd}">
+                        <!-- Icon Layer -->
+                        <div class="absolute inset-0 flex items-center justify-center z-10 transform group-hover:scale-110 transition-transform duration-500">
+                             ${styledIcon}
                         </div>
-                        <div class="z-10 transform group-hover:scale-110 transition-transform duration-500 ${iconColor}">
-                            ${iconSvg}
-                        </div>
+                        
+                        <!-- Overlay Gradient -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900/60 to-transparent"></div>
                     </div>
 
                     <!-- Content -->
-                    <div class="p-5 flex-1 flex flex-col">
+                    <div class="p-5 flex-1 flex flex-col relative">
                         <!-- Action Button (Primary) -->
                         <a href="${project.link}" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center space-x-2 text-white py-2.5 rounded-md transition-all duration-300 font-bold mb-5 shadow-md ${btnBg} ${btnShadow} transform active:scale-95">
                             ${ICONS.ExternalLink}
                             <span>${isTool ? '開啟工具連結' : '開啟遊戲連結'}</span>
                         </a>
 
-                        <div class="mb-4">
-                            <div class="flex items-center mb-1">
-                                <span class="text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider bg-gray-700 text-gray-300 border border-gray-600">
-                                    ${isTool ? 'Utility' : 'Game'}
-                                </span>
-                            </div>
-                            <h3 class="text-lg font-bold text-gray-100 group-hover:${accentText} transition-colors leading-snug">${project.title}</h3>
+                        <div class="mb-3">
+                             <span class="text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider bg-gray-700 text-gray-300 border border-gray-600 inline-block mb-2">
+                                ${isTool ? 'Utility' : 'Game'}
+                            </span>
                         </div>
+
+                        <h3 class="text-lg font-bold text-gray-100 group-hover:${accentText} transition-colors leading-snug mb-2">${project.title}</h3>
 
                         <p class="text-gray-400 text-sm mb-6 leading-relaxed line-clamp-2 min-h-[2.5rem]">
                             ${project.description}
@@ -454,7 +475,6 @@
 
                 heroTitle.innerHTML = "品牌互動遊戲體驗";
                 heroTitle.className = "text-3xl md:text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-adobeGame-400 to-yellow-400 tracking-tight theme-transition";
-                // Updated description here
                 heroDesc.innerHTML = "將品牌轉化為沉浸式互動體驗，透過遊戲化機制提升黏著度與品牌認知。";
                 
                 // Slightly darker orange/brown tint for games
