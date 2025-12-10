@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"> 
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pantone 色彩極限挑戰 (Pantone Color Challenge)</title>
     <!-- Tailwind CSS CDN -->
@@ -386,24 +386,20 @@
 
         // BotBonnie Share Revive Handler
         const handleShareRevive = () => {
+            // 嚴格檢查：是否在 LINE Client 內
+            if (!liff.isInClient()) {
+                showToast("請在 LINE App 內開啟以使用好友分享功能", "error");
+                return;
+            }
+
             if (!liff.isLoggedIn()) {
                 liff.login();
                 return;
             }
 
-            // Check if shareTargetPicker is available (required per updated logic)
             if (!liff.isApiAvailable('shareTargetPicker')) {
-                // If not available (e.g. not in LINE app or permission issue), 
-                // you might want to fallback or alert. 
-                // Since the request strictly wants share first, we try to share.
-                // If strictly not available, we can't force share. 
-                // We'll show an alert or toast.
-                console.warn("shareTargetPicker not available");
-                // Fallback attempt or just proceed? 
-                // Let's assume user is in correct environment for now, 
-                // but if not, we might block or just let them pass if we want to be nice.
-                // Given the requirement "Must complete share", we should try to enforce it.
-                // alert("您的環境不支援直接分享，將直接前往集點頁面。");
+                showToast("您的 LINE 版本不支援分享功能，請更新", "error");
+                return;
             }
 
             const message = [
@@ -413,32 +409,31 @@
                 }
             ];
 
-            // 1. First Share
+            // 1. 執行分享
             liff.shareTargetPicker(message)
                 .then(function (res) {
+                    // 2. 嚴格驗證：res 存在且 status 為 sent 才算成功
                     if (res) {
-                        // 2. Share Success -> Open Link
                         console.log(`[${res.status}] Message sent!`);
                         
+                        // 3. 分享成功後，開啟外部連結
                         liff.openWindow({
                             url: BOTBONNIE_URL,
                             external: true
                         });
 
-                        // 3. Grant Revive
+                        // 4. 給予接關獎勵 (樂觀更新：假設用戶去了連結回來會想繼續玩)
                         setTimeout(() => {
                             confirmRevive();
                         }, 500);
                     } else {
-                        // Share Cancelled
+                        // 5. 使用者取消或關閉視窗 -> 拒絕接關
                         console.log("TargetPicker was closed!");
                         showToast("需完成分享才能接關喔！", "error");
                     }
                 })
                 .catch(function (error) {
                     console.log("something wrong happen", error);
-                    // Fallback: If share fails (e.g. user config), maybe allow valid users?
-                    // Or strictly block. Let's block to follow instructions "must complete share".
                     showToast("分享失敗，請確認 LINE 權限設定", "error");
                 });
         };
