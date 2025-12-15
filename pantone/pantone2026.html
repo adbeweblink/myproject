@@ -1,513 +1,530 @@
-import React, { useState, useRef } from 'react';
-import { ArrowRight, Play, Layers, ShieldCheck, ShoppingBag, Menu, X, ChevronRight, MousePointer2, Calendar, Gift, MessageCircle, ChevronLeft, ExternalLink, Newspaper } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pantone 2026 Cloud Dancer | Weblink International</title>
+    <meta name="description" content="Pantone 2026 年度代表色 Cloud Dancer 雲上舞白，由台灣授權代理商展碁國際為您呈現。">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 
-// --- 元件：圖片 (支援遮罩與載入效果) ---
-const FeatureImage = ({ src, alt, className, overlay = false }) => {
-  return (
-    <div className={`relative overflow-hidden ${className}`}>
-      <img 
-        src={src} 
-        alt={alt} 
-        className="w-full h-full object-cover transition-transform duration-1000 hover:scale-105" 
-      />
-      {overlay && (
-        <div className="absolute inset-0 bg-black/10"></div>
-      )}
-    </div>
-  );
-};
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 1s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .scrollbar-hide {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-stone-900 font-sans selection:bg-stone-900 selection:text-white overflow-x-hidden antialiased">
 
-// --- 元件：Pantone 色票卡風格元件 ---
-const PantoneChip = ({ code, name, color, size = "md", className }) => {
-  const sizeClasses = {
-    sm: "w-24 h-32 text-[10px]",
-    md: "w-40 h-56 text-xs",
-    lg: "w-64 h-[26rem] text-sm", 
-    xl: "w-80 h-[32rem] text-base"
-  };
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-white/90 backdrop-blur-xl z-50 border-b border-stone-100/50 transition-all duration-300">
+        <div class="max-w-[1440px] mx-auto px-6 lg:px-12">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center gap-4">
+                    <!-- 代理商 Logo -->
+                    <div class="w-10 h-10 rounded-md overflow-hidden border border-stone-100 bg-white relative flex-shrink-0 shadow-sm">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRk0f-cuMjB_d8weRx7-5KsdadvD26vGJD1LQ&s" alt="展碁國際" class="w-full h-full object-contain p-0.5">
+                    </div>
+                    
+                    <!-- Pantone Logo -->
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Pantone_logo.svg" alt="Pantone" class="h-6 w-auto">
+                    
+                    <div class="hidden sm:flex flex-col border-l border-stone-300 pl-4 ml-2">
+                        <span class="font-bold tracking-tight text-xs uppercase text-stone-600">Authorized Distributor</span>
+                        <span class="text-[10px] text-stone-400 tracking-widest uppercase">Weblink International</span>
+                    </div>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-10 text-sm font-medium text-stone-500 tracking-wide">
+                    <a href="#hero" class="hover:text-black transition-colors">2026 年度色</a>
+                    <a href="#events" class="hover:text-black transition-colors flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                        在地活動
+                    </a>
+                    <a href="#game" class="hover:text-black transition-colors">色彩挑戰</a>
+                    <a href="#connect" class="px-5 py-2 bg-stone-900 text-white rounded-full hover:bg-stone-700 transition-all text-xs tracking-wider">
+                        Connect 優惠
+                    </a>
+                </div>
 
-  return (
-    <div className={`bg-white shadow-2xl flex flex-col ${sizeClasses[size]} ${className} relative group transition-transform duration-700 hover:-translate-y-2`}>
-      <div className="flex-grow w-full relative overflow-hidden" style={{ backgroundColor: color }}>
-        <div className="absolute inset-0 opacity-10 bg-gradient-to-b from-white/20 to-black/5 pointer-events-none"></div>
-      </div>
-      <div className="pb-4 pt-3 px-4 bg-white">
-        <div className="font-bold text-black opacity-90 leading-none mb-1">PANTONE®</div>
-        <div className="font-mono text-stone-500 mb-1">{code}</div>
-        <div className="font-serif text-black text-lg leading-tight">{name}</div>
-      </div>
-    </div>
-  );
-};
-
-// --- 資料：新聞連結 ---
-const newsItems = [
-  { media: "VOGUE", title: "Pantone 2026 年度代表色：Cloud Dancer 雲上舞白，一抹高潔輕盈", link: "https://www.vogue.com.tw/article/pantone-color-of-the-year-2026-cloud-dancer" },
-  { media: "GQ", title: "清透明亮且純淨！Pantone 公布 2026 年度代表色", link: "https://www.gq.com.tw/article/%E6%B8%85%E9%80%8F%E6%98%8E%E4%BA%AE%E4%B8%94%E7%B4%94%E6%B7%A8pantone-%E5%85%AC%E5%B8%83-2026-%E5%B9%B4%E5%BA%A6%E4%BB%A3%E8%A1%A8%E8%89%B2%E9%9B%B2%E6%9C%B5%E7%99%BD" },
-  { media: "ELLE", title: "2026 Pantone 年度色揭曉！時尚精品包款推薦", link: "https://www.elle.com/tw/fashion/luxury/g69694211/2026-pantone-color-watch-recommend/" },
-  { media: "Shopping Design", title: "2026 年度代表色 Cloud Dancer：為喧囂世界留白", link: "https://www.shoppingdesign.com.tw/post/view/12893" },
-  { media: "La Vie", title: "Pantone 2026 年度代表色 Cloud Dancer 象徵意義解析", link: "https://www.wowlavie.com/article/250026507" },
-  { media: "Popbee", title: "2026 Pantone Colour of the Year: Cloud Dancer", link: "https://popbee.com/lifestyle/2026-pantone-colour-of-the-year-cloud-dancer" },
-  { media: "Bella", title: "Pantone 2026 白色包款 Top 10 推薦", link: "https://www.bella.tw/articles/handbags/55064/pantone-2026-cloud-dancer-white-bags-top10" },
-  { media: "Cosmopolitan", title: "Pantone 2026 Cloud Dancer 穿搭與單品推薦", link: "https://www.cosmopolitan.com/tw/fashion/bag-shoe-accessories/g69668711/pantone-2026-cloud-dancer/" },
-  { media: "DQ 地球圖輯隊", title: "為何是雲上舞白？Pantone 2026 年度色深度報導", link: "https://dq.yam.com/post/16766" },
-  { media: "UDN 聯合新聞網", title: "2026 年度代表色：雲上舞白 Cloud Dancer", link: "https://woman.udn.com/woman/story/123163/9188413" },
-];
-
-const App = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false); // 控制影片播放狀態
-  const scrollRef = useRef(null);
-
-  const scroll = (direction) => {
-    if (scrollRef.current) {
-      const { current } = scrollRef;
-      const scrollAmount = 350; // 每次捲動的距離
-      if (direction === 'left') {
-        current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-      } else {
-        current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-      }
-    }
-  };
-
-  // 圖片資源連結
-  const images = {
-    logo: "https://upload.wikimedia.org/wikipedia/commons/c/cc/Pantone_logo.svg",
-    hero_leap: "https://adbeweblink.github.io/myproject/pantone/Cloud%20Dancer%20Leap.jpg",
-    room: "https://adbeweblink.github.io/myproject/pantone/Cloud%20Dancer%20Room.jpg",
-    swatch: "https://adbeweblink.github.io/myproject/pantone/Cloud%20Dancer%20Swatch.jpg",
-    // 更新：Pantone Connect 圖片
-    campaign: "https://www.pantone.com/media/wysiwyg/pages/connect/Pantone-Connect-V2-Image-1.jpg?auto=webp&format=pjpg&quality=85",
-    // 新增：Pantone Connect Icon
-    connect_icon: "https://www.quickly.com.tw/img/pantone-connect.jpg",
-    // 更新：影片縮圖 (轉換為 raw 連結以確保顯示)
-    video_thumb: "https://raw.githubusercontent.com/adbeweblink/myproject/main/pantone/Pantone%20Cloud%20Dancer.jpg",
-    distributor_logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRk0f-cuMjB_d8weRx7-5KsdadvD26vGJD1LQ&s"
-  };
-
-  return (
-    <div className="min-h-screen bg-[#FAFAFA] text-stone-900 font-sans selection:bg-stone-900 selection:text-white overflow-x-hidden">
-      
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-white/90 backdrop-blur-xl z-50 border-b border-stone-100/50 transition-all duration-300">
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
-          <div className="flex justify-between items-center h-20">
-            <div className="flex items-center gap-4">
-              {/* 代理商 Logo */}
-              <div className="w-10 h-10 rounded-md overflow-hidden border border-stone-100 bg-white relative flex-shrink-0 shadow-sm">
-                <img 
-                  src={images.distributor_logo} 
-                  alt="展碁國際" 
-                  className="w-full h-full object-contain p-0.5" 
-                />
-              </div>
-              
-              {/* Pantone Logo */}
-              <img src={images.logo} alt="Pantone" className="h-6 w-auto" />
-              
-              <div className="hidden sm:flex flex-col border-l border-stone-300 pl-4 ml-2">
-                <span className="font-bold tracking-tight text-xs uppercase text-stone-600">Authorized Distributor</span>
-                <span className="text-[10px] text-stone-400 tracking-widest uppercase">Weblink International</span>
-              </div>
+                <div class="md:hidden">
+                    <button id="menu-btn" class="p-2">
+                        <i data-lucide="menu" id="menu-icon"></i>
+                    </button>
+                </div>
             </div>
-            
-            <div className="hidden md:flex items-center space-x-10 text-sm font-medium text-stone-500 tracking-wide">
-              <a href="#hero" className="hover:text-black transition-colors">2026 年度色</a>
-              <a href="#events" className="hover:text-black transition-colors flex items-center gap-2">
-                 <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                 在地活動
-              </a>
-              <a href="#game" className="hover:text-black transition-colors">色彩挑戰</a>
-              <a href="#connect" className="px-5 py-2 bg-stone-900 text-white rounded-full hover:bg-stone-700 transition-all text-xs tracking-wider">
-                Connect 優惠
-              </a>
-            </div>
-
-            <div className="md:hidden">
-              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2">
-                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-              </button>
-            </div>
-          </div>
         </div>
-      </nav>
+        <!-- Mobile Menu (Hidden by default) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-stone-100 absolute w-full left-0 top-20 shadow-lg">
+            <div class="flex flex-col p-6 space-y-4 font-medium text-stone-600">
+                <a href="#hero" class="hover:text-black" onclick="closeMenu()">2026 年度色</a>
+                <a href="#events" class="hover:text-black" onclick="closeMenu()">在地活動</a>
+                <a href="#game" class="hover:text-black" onclick="closeMenu()">色彩挑戰</a>
+                <a href="#connect" class="text-stone-900 font-bold" onclick="closeMenu()">Connect 優惠</a>
+            </div>
+        </div>
+    </nav>
 
-      {/* SECTION 1: Hero 首屏 */}
-      <header id="hero" className="relative w-full min-h-screen flex items-center justify-center pt-20 overflow-hidden bg-[#F0F2F5]">
-        <div className="absolute inset-0 z-0">
-          <FeatureImage 
-            src={images.hero_leap}
-            alt="Pantone 2026 Cloud Dancer Leap" 
-            className="w-full h-full opacity-90"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-white/80 via-white/20 to-transparent sm:from-white/90 sm:via-transparent"></div>
+    <!-- SECTION 1: Hero 首屏 -->
+    <header id="hero" class="relative w-full min-h-screen flex items-center justify-center pt-20 overflow-hidden bg-[#F0F2F5]">
+        <div class="absolute inset-0 z-0">
+            <div class="relative overflow-hidden w-full h-full opacity-90">
+                <img src="https://adbeweblink.github.io/myproject/pantone/Cloud%20Dancer%20Leap.jpg" alt="Pantone 2026 Cloud Dancer Leap" class="w-full h-full object-cover transition-transform duration-1000 hover:scale-105">
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-r from-white/80 via-white/20 to-transparent sm:from-white/90 sm:via-transparent"></div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10 w-full grid lg:grid-cols-12 gap-12 items-center">
-          <div className="lg:col-span-5 space-y-8 animate-fade-in-up mt-20 lg:mt-0">
-            <div className="inline-flex items-center gap-2 border-b border-stone-800 pb-1">
-              <span className="text-xs font-bold tracking-[0.2em] uppercase">Color of the Year</span>
-              <span className="text-xs font-serif italic">2026</span>
-            </div>
-            
-            <h1 className="text-5xl md:text-7xl font-serif font-light leading-[1.1] tracking-tight text-stone-900">
-              Cloud Dancer <br/>
-              <span className="text-2xl md:text-3xl font-sans font-light text-stone-500 block mt-2 tracking-wide">PANTONE 11-4201</span>
-            </h1>
-            
-            <p className="text-lg text-stone-600 font-light leading-relaxed max-w-md pl-4 border-l-2 border-stone-300">
-              一抹高潔、輕盈而內斂的白色。<br/>
-              在喧囂的世界中，為創意與思緒留下呼吸的空間。
-            </p>
+        <div class="max-w-7xl mx-auto px-6 lg:px-12 relative z-10 w-full grid lg:grid-cols-12 gap-12 items-center">
+            <div class="lg:col-span-5 space-y-8 animate-fade-in-up mt-20 lg:mt-0">
+                <div class="inline-flex items-center gap-2 border-b border-stone-800 pb-1">
+                    <span class="text-xs font-bold tracking-[0.2em] uppercase">Color of the Year</span>
+                    <span class="text-xs font-serif italic">2026</span>
+                </div>
+                
+                <h1 class="text-5xl md:text-7xl font-serif font-light leading-[1.1] tracking-tight text-stone-900">
+                    Cloud Dancer <br/>
+                    <span class="text-2xl md:text-3xl font-sans font-light text-stone-500 block mt-2 tracking-wide">PANTONE 11-4201</span>
+                </h1>
+                
+                <p class="text-lg text-stone-600 font-light leading-relaxed max-w-md pl-4 border-l-2 border-stone-300">
+                    一抹高潔、輕盈而內斂的白色。<br/>
+                    在喧囂的世界中，為創意與思緒留下呼吸的空間。
+                </p>
 
-            <div className="pt-4">
-              {/* 更新 CTA 按鈕連結與文字 */}
-              <a 
-                href="https://www.pantone.com/hk/tc/color-of-the-year/2026" 
-                target="_blank" 
-                rel="noreferrer"
-                className="inline-flex items-center gap-3 px-8 py-4 bg-stone-900 text-white text-sm tracking-widest uppercase hover:bg-stone-700 transition-all shadow-lg hover:shadow-xl"
-              >
-                <span>連到官網了解更多</span>
-                <ArrowRight size={16} />
-              </a>
+                <div class="pt-4">
+                    <a href="https://www.pantone.com/hk/tc/color-of-the-year/2026" target="_blank" rel="noreferrer" class="inline-flex items-center gap-3 px-8 py-4 bg-stone-900 text-white text-sm tracking-widest uppercase hover:bg-stone-700 transition-all shadow-lg hover:shadow-xl">
+                        <span>連到官網了解更多</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
             </div>
-          </div>
         </div>
         
-        <div className="absolute bottom-10 right-6 md:right-12 z-20 hidden md:block">
-           <PantoneChip code="11-4201" name="Cloud Dancer" color="#F0F2F5" size="md" />
+        <!-- 右下角浮動色票 -->
+        <div class="absolute bottom-10 right-6 md:right-12 z-20 hidden md:block">
+            <div class="bg-white shadow-2xl flex flex-col w-40 h-56 text-xs relative group transition-transform duration-700 hover:-translate-y-2">
+                <div class="flex-grow w-full relative overflow-hidden" style="background-color: #F0F2F5;">
+                    <div class="absolute inset-0 opacity-10 bg-gradient-to-b from-white/20 to-black/5 pointer-events-none"></div>
+                </div>
+                <div class="pb-4 pt-3 px-4 bg-white">
+                    <div class="font-bold text-black opacity-90 leading-none mb-1">PANTONE®</div>
+                    <div class="font-mono text-stone-500 mb-1">11-4201</div>
+                    <div class="font-serif text-black text-lg leading-tight">Cloud Dancer</div>
+                </div>
+            </div>
         </div>
-      </header>
+    </header>
 
-      {/* SECTION 2: 概念與空間 (影片嵌入) */}
-      <section id="intro-video" className="py-24 bg-white">
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
-          <div className="grid md:grid-cols-2 gap-16 items-center">
-            
-            <div className="relative group cursor-pointer" onClick={() => setIsPlaying(true)}>
-              <div className="absolute -top-4 -left-4 w-24 h-24 border-t-2 border-l-2 border-stone-200 z-0"></div>
-              <div className="relative z-10 aspect-video w-full rounded-lg overflow-hidden shadow-2xl bg-black">
-                 {!isPlaying ? (
-                   <div className="relative w-full h-full group">
-                      <img 
-                        src={images.video_thumb} 
-                        alt="Play Video" 
-                        className="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-700" 
-                      />
-                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                         <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/50 group-hover:scale-110 transition-transform">
-                            <Play fill="white" className="text-white ml-1" size={32} />
-                         </div>
-                      </div>
-                   </div>
-                 ) : (
-                   <iframe 
-                      width="100%" 
-                      height="100%" 
-                      src="https://www.youtube.com/embed/t1UyEA7MiG0?autoplay=1&rel=0" 
-                      title="Pantone Color of the Year 2026 Announcement" 
-                      frameBorder="0" 
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                      allowFullScreen
-                      className="w-full h-full"
-                   ></iframe>
-                 )}
-              </div>
-              <div className="absolute -bottom-6 -right-6 bg-white p-6 shadow-xl max-w-xs hidden md:block z-20 pointer-events-none">
-                  <p className="font-serif italic text-stone-500">"See the color in motion."</p>
-              </div>
+    <!-- SECTION 2: 概念與空間 (影片嵌入) -->
+    <section id="intro-video" class="py-24 bg-white">
+        <div class="max-w-[1440px] mx-auto px-6 lg:px-12">
+            <div class="grid md:grid-cols-2 gap-16 items-center">
+                
+                <!-- Video Container -->
+                <div id="video-wrapper" class="relative group cursor-pointer">
+                    <div class="absolute -top-4 -left-4 w-24 h-24 border-t-2 border-l-2 border-stone-200 z-0"></div>
+                    <div class="relative z-10 aspect-video w-full rounded-lg overflow-hidden shadow-2xl bg-black">
+                        <!-- Initial Cover Image -->
+                        <div id="video-cover" class="relative w-full h-full group">
+                            <img src="https://raw.githubusercontent.com/adbeweblink/myproject/main/pantone/Pantone%20Cloud%20Dancer.jpg" alt="Play Video" class="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-700">
+                            <div class="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                                <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/50 group-hover:scale-110 transition-transform">
+                                    <i data-lucide="play" class="text-white fill-white ml-1 w-8 h-8"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Iframe (Initially Hidden) -->
+                        <iframe id="video-iframe" class="hidden w-full h-full" 
+                            src="" 
+                            title="Pantone Color of the Year 2026 Announcement" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="absolute -bottom-6 -right-6 bg-white p-6 shadow-xl max-w-xs hidden md:block z-20 pointer-events-none">
+                        <p class="font-serif italic text-stone-500">"See the color in motion."</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-8">
+                    <h2 class="text-3xl md:text-4xl font-serif leading-tight">
+                        不只是白色，<br/>而是一種結構性的存在
+                    </h2>
+                    <p class="text-lg leading-relaxed text-stone-600 font-light">
+                        Pantone 2026 年度代表色象徵一種有意識的留白。
+                        它不是空白，而是讓其他色彩得以被看見、被強化、被放大的基底。
+                        在資訊過載的時代，邀請我們回到專注與平衡的起點。
+                    </p>
+                    
+                    <div class="grid grid-cols-2 gap-6 pt-4">
+                        <div class="bg-stone-50 p-4 rounded-lg">
+                            <h4 class="font-bold mb-1">空間應用</h4>
+                            <p class="text-sm text-stone-500">打造寧靜、開放且具呼吸感的氛圍。</p>
+                        </div>
+                        <div class="bg-stone-50 p-4 rounded-lg">
+                            <h4 class="font-bold mb-1">設計應用</h4>
+                            <p class="text-sm text-stone-500">作為乾淨基底，創造現代層次感。</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            
-            <div className="space-y-8">
-              <h2 className="text-3xl md:text-4xl font-serif leading-tight">
-                不只是白色，<br/>而是一種結構性的存在
-              </h2>
-              <p className="text-lg leading-relaxed text-stone-600 font-light">
-                Pantone 2026 年度代表色象徵一種有意識的留白。
-                它不是空白，而是讓其他色彩得以被看見、被強化、被放大的基底。
-                在資訊過載的時代，邀請我們回到專注與平衡的起點。
-              </p>
-              
-              <div className="grid grid-cols-2 gap-6 pt-4">
-                 <div className="bg-stone-50 p-4 rounded-lg">
-                    <h4 className="font-bold mb-1">空間應用</h4>
-                    <p className="text-sm text-stone-500">打造寧靜、開放且具呼吸感的氛圍。</p>
-                 </div>
-                 <div className="bg-stone-50 p-4 rounded-lg">
-                    <h4 className="font-bold mb-1">設計應用</h4>
-                    <p className="text-sm text-stone-500">作為乾淨基底，創造現代層次感。</p>
-                 </div>
-              </div>
-            </div>
-          </div>
         </div>
-      </section>
+    </section>
 
-      {/* SECTION 2.5: 媒體報導輪播 (NEW SECTION) */}
-      <section className="py-20 bg-[#FAFAFA] border-y border-stone-200 overflow-hidden">
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
-          <div className="flex justify-between items-end mb-10">
-            <div>
-              <div className="flex items-center gap-2 text-stone-500 mb-2">
-                 <Newspaper size={16} />
-                 <span className="text-xs font-bold tracking-[0.2em] uppercase">Media Spotlight</span>
-              </div>
-              <h2 className="text-2xl md:text-3xl font-serif">媒體專題報導</h2>
-            </div>
-            {/* Carousel Controls */}
-            <div className="flex gap-2">
-              <button 
-                onClick={() => scroll('left')}
-                className="w-10 h-10 rounded-full border border-stone-300 flex items-center justify-center hover:bg-stone-900 hover:text-white hover:border-transparent transition-all"
-              >
-                <ChevronLeft size={20} />
-              </button>
-              <button 
-                onClick={() => scroll('right')}
-                className="w-10 h-10 rounded-full border border-stone-300 flex items-center justify-center hover:bg-stone-900 hover:text-white hover:border-transparent transition-all"
-              >
-                <ChevronRight size={20} />
-              </button>
-            </div>
-          </div>
-
-          {/* Carousel Container */}
-          <div 
-            ref={scrollRef}
-            className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            {newsItems.map((item, index) => (
-              <a 
-                key={index} 
-                href={item.link} 
-                target="_blank" 
-                rel="noreferrer"
-                className="min-w-[280px] md:min-w-[350px] bg-white p-6 md:p-8 rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 border border-stone-100 flex flex-col justify-between group snap-start"
-              >
+    <!-- SECTION 2.5: 媒體報導輪播 -->
+    <section class="py-20 bg-[#FAFAFA] border-y border-stone-200 overflow-hidden">
+        <div class="max-w-[1440px] mx-auto px-6 lg:px-12">
+            <div class="flex justify-between items-end mb-10">
                 <div>
-                   <span className="text-stone-400 text-xs font-mono mb-4 block group-hover:text-black transition-colors">{item.media}</span>
-                   <h3 className="text-lg md:text-xl font-serif leading-snug mb-4 group-hover:underline decoration-1 underline-offset-4">
-                     {item.title}
+                    <div class="flex items-center gap-2 text-stone-500 mb-2">
+                        <i data-lucide="newspaper" class="w-4 h-4"></i>
+                        <span class="text-xs font-bold tracking-[0.2em] uppercase">Media Spotlight</span>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-serif">媒體專題報導</h2>
+                </div>
+                <!-- Carousel Controls -->
+                <div class="flex gap-2">
+                    <button id="scroll-left" class="w-10 h-10 rounded-full border border-stone-300 flex items-center justify-center hover:bg-stone-900 hover:text-white hover:border-transparent transition-all">
+                        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                    </button>
+                    <button id="scroll-right" class="w-10 h-10 rounded-full border border-stone-300 flex items-center justify-center hover:bg-stone-900 hover:text-white hover:border-transparent transition-all">
+                        <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Carousel Container -->
+            <div id="carousel-container" class="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide scroll-smooth">
+                <!-- News Items generated via JS for cleaner HTML -->
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: 年度在地活動 -->
+    <section id="events" class="py-24 bg-stone-100 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-2/3 h-full bg-[#E8EAE3] -skew-x-12 translate-x-1/3"></div>
+
+        <div class="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+            <div class="text-center mb-16">
+                <span class="text-xs font-bold tracking-[0.2em] text-stone-500 uppercase">Local Events 2026</span>
+                <h2 class="text-4xl md:text-5xl font-serif mt-4 mb-6">台灣區年度色彩系列活動</h2>
+                <p class="text-stone-600 max-w-2xl mx-auto">
+                    展碁國際為合作夥伴與設計師規劃了一系列精彩活動，從線上研討會到社群互動，全面掌握 2026 色彩商機。
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- 活動一 -->
+                <div class="bg-white p-8 md:p-10 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/50 relative group">
+                    <div class="absolute top-0 right-0 bg-[#06C755] text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">LINE POINTS 好禮</div>
+                    <div class="flex items-start gap-6">
+                        <div class="bg-[#E0F2F1] p-4 rounded-full shrink-0">
+                            <i data-lucide="gift" class="text-[#00B900] w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold mb-2 group-hover:text-[#00B900] transition-colors">Adobe 冬季創意遊樂園</h3>
+                            <p class="text-stone-500 text-sm mb-4 font-mono">Adobe x Pantone 聯合企劃</p>
+                            <p class="text-stone-600 mb-6 leading-relaxed">
+                                加入 Adobe 台灣官方 LINE 好友，參與「Pantone 色彩挑戰賽」與「每日簽到」，集滿 10 點即可兌換限量 LINE POINTS！
+                            </p>
+                            <ul class="space-y-2 mb-8 text-sm text-stone-500">
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 bg-[#00B900] rounded-full"></div> 每日簽到摩天輪</li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 bg-[#00B900] rounded-full"></div> 挑戰每週知識王</li>
+                                <li class="flex items-center gap-2"><div class="w-1.5 h-1.5 bg-[#00B900] rounded-full"></div> 分享活動擴音器</li>
+                            </ul>
+                            <a href="https://adbeweblink.github.io/myproject/pantone.html" target="_blank" rel="noreferrer" class="inline-block w-full text-center bg-[#06C755] text-white font-bold py-3 rounded-lg hover:bg-[#05a546] transition-colors">
+                                立即加入活動
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 活動二 -->
+                <div class="bg-white p-8 md:p-10 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/50 relative group">
+                    <div class="absolute top-0 right-0 bg-stone-800 text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">Webinar</div>
+                    <div class="flex items-start gap-6">
+                        <div class="bg-stone-100 p-4 rounded-full shrink-0">
+                            <i data-lucide="calendar" class="text-stone-800 w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold mb-2 group-hover:text-stone-600 transition-colors">2026 年度代表色趨勢解析</h3>
+                            <p class="text-stone-500 text-sm mb-4 font-mono">線上研討會</p>
+                            <p class="text-stone-600 mb-6 leading-relaxed">
+                                邀請<span class="font-bold text-stone-800">原廠色彩專家</span>深入解析 Cloud Dancer 背後的趨勢洞察，以及如何將其應用於數位設計與品牌策略中。
+                            </p>
+                            <div class="bg-stone-50 p-4 rounded-lg mb-8 border border-stone-100">
+                                <p class="text-sm font-bold text-stone-800">精彩議程預告：</p>
+                                <p class="text-sm text-stone-500 mt-1">• 年度色與社會心理學</p>
+                                <p class="text-sm text-stone-500 mt-1">• 數位設計中的留白美學</p>
+                            </div>
+                            <button class="inline-block w-full text-center bg-stone-800 text-white font-bold py-3 rounded-lg hover:bg-black transition-colors">
+                                報名參加研討會
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4: 互動遊戲 (Game) -->
+    <section id="game" class="py-24 bg-white">
+        <div class="max-w-[1440px] mx-auto px-6 lg:px-12">
+            <div class="bg-black text-white rounded-3xl overflow-hidden relative">
+                <div class="absolute inset-0 opacity-40">
+                    <img src="https://adbeweblink.github.io/myproject/pantone/Cloud%20Dancer%20Room.jpg" alt="Game Background" class="w-full h-full object-cover mix-blend-overlay">
+                </div>
+                
+                <div class="relative z-10 grid md:grid-cols-2 gap-12 p-12 md:p-20 items-center">
+                    <div>
+                        <div class="inline-flex items-center gap-2 bg-yellow-400 text-black px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-6">
+                            <i data-lucide="mouse-pointer-2" class="w-3.5 h-3.5"></i> Challenge
+                        </div>
+                        <h2 class="text-4xl md:text-5xl font-bold mb-6">你的色彩敏銳度有多高？</h2>
+                        <p class="text-stone-200 text-lg mb-8 leading-relaxed">
+                            透過趣味的色彩互動遊戲，測試你對 Cloud Dancer 及其搭配色系的直覺。
+                            不僅好玩，還能激發你的設計靈感！
+                        </p>
+                        <button class="px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-yellow-400 transition-colors flex items-center gap-3">
+                            開始色彩挑戰 <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="relative">
+                        <div class="aspect-video bg-stone-800/80 backdrop-blur-sm rounded-xl border border-stone-600 p-2 shadow-2xl transform rotate-2 hover:rotate-0 transition-transform duration-500">
+                            <div class="w-full h-full bg-stone-900 rounded flex items-center justify-center relative overflow-hidden">
+                                <div class="absolute inset-0 flex gap-1">
+                                    <div class="w-1/3 bg-[#F0F2F5]"></div>
+                                    <div class="w-1/3 bg-[#E8DCCA]"></div>
+                                    <div class="w-1/3 bg-[#D4AF37]"></div>
+                                </div>
+                                <span class="relative z-10 text-white font-bold bg-black/50 px-4 py-2 rounded">START</span>
+                            </div>
+                        </div>
+                        <div class="absolute -bottom-6 -left-6 bg-[#06C755] text-white p-4 rounded-lg shadow-lg max-w-[200px]">
+                            <p class="text-xs font-bold flex items-center gap-1">
+                                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                                Line 好友限定
+                            </p>
+                            <p class="text-xs mt-1">玩遊戲還能集點換好禮！</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5: Pantone Connect 促銷 -->
+    <section id="connect" class="py-24 bg-[#F5F5F0]">
+        <div class="max-w-7xl mx-auto px-6 lg:px-12">
+            <div class="grid md:grid-cols-2 gap-16 items-center">
+                
+                <div class="order-2 md:order-1 space-y-8">
+                    <div class="flex items-center gap-3">
+                        <img src="https://www.quickly.com.tw/img/pantone-connect.jpg" alt="Pantone Connect Icon" class="w-12 h-12 rounded-lg shadow-md object-contain bg-black">
+                        <span class="font-bold text-lg text-[#0051B5]">Pantone Connect</span>
+                    </div>
+                    
+                    <h2 class="text-4xl md:text-5xl font-serif leading-tight">
+                        把靈感，<br/>直接帶進 Adobe 工作流程
+                    </h2>
+                    
+                    <div class="space-y-4 text-stone-600">
+                        <p>在 Photoshop、Illustrator、InDesign 中即時存取超過 15,000 種 Pantone 色彩。</p>
+                        <p>確保從螢幕到印刷，團隊協作與品牌色彩的一致性。</p>
+                    </div>
+
+                    <div class="bg-white p-8 rounded-xl border border-stone-200 shadow-lg relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 bg-red-500 text-white px-8 py-1 rotate-45 text-sm font-bold shadow-sm">Hot</div>
+                        
+                        <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                            限時採購優惠 <span class="text-red-500 text-sm font-normal border border-red-500 px-2 py-0.5 rounded">經銷商專屬</span>
+                        </h3>
+                        <div class="flex items-end gap-2 mb-2">
+                            <span class="text-4xl font-bold text-stone-900">95折</span>
+                            <span class="text-stone-400 text-sm mb-2">/ 採購二套起</span>
+                        </div>
+                        <p class="text-sm text-stone-500 mb-6">優惠期間：2025/12/10 – 2026/02/28</p>
+                        
+                        <button class="w-full py-3 bg-black text-white font-bold rounded hover:bg-stone-800 transition-colors flex items-center justify-center gap-2">
+                            <i data-lucide="shopping-bag" class="w-4 h-4"></i> 聯絡業務採購
+                        </button>
+                    </div>
+                </div>
+
+                <div class="order-1 md:order-2">
+                    <div class="relative">
+                        <div class="absolute inset-0 bg-stone-900 rounded-lg transform translate-x-4 translate-y-4"></div>
+                        <div class="relative overflow-hidden rounded-lg shadow-2xl relative z-10 aspect-[4/5]">
+                            <img src="https://www.pantone.com/media/wysiwyg/pages/connect/Pantone-Connect-V2-Image-1.jpg?auto=webp&format=pjpg&quality=85" alt="Campaign Visual" class="w-full h-full object-cover transition-transform duration-1000 hover:scale-105">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-white py-16 border-t border-stone-200">
+        <div class="max-w-[1440px] mx-auto px-6 lg:px-12 flex flex-col md:flex-row justify-between items-end gap-12">
+            <div class="space-y-6">
+                <div class="flex items-center gap-4">
+                    <!-- 代理商 Logo -->
+                    <div class="w-10 h-10 rounded-md overflow-hidden border border-stone-100 bg-white relative flex-shrink-0 shadow-sm">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRk0f-cuMjB_d8weRx7-5KsdadvD26vGJD1LQ&s" alt="展碁國際" class="w-full h-full object-contain p-0.5">
+                    </div>
+                    <div class="h-8 w-[1px] bg-stone-300"></div>
+                    <span class="font-bold text-lg tracking-tight text-stone-700">Pantone Authorized Distributor</span>
+                </div>
+                <p class="text-sm text-stone-500 max-w-sm leading-relaxed">
+                    展碁國際 (Weblink International) 為 Pantone 台灣授權代理商。<br/>
+                    致力於提供最完整的色彩解決方案與在地化服務。
+                </p>
+                <div class="flex gap-4">
+                    <a href="#" class="text-stone-400 hover:text-black transition-colors">Facebook</a>
+                    <a href="#" class="text-stone-400 hover:text-black transition-colors">Instagram</a>
+                    <a href="#" class="text-stone-400 hover:text-black transition-colors">Line OA</a>
+                </div>
+            </div>
+            
+            <div class="text-right text-xs text-stone-400 space-y-2 font-mono">
+                <p>本頁內容所示 Pantone® 為 Pantone LLC 之註冊商標。</p>
+                <p>&copy; 2025 Weblink International Inc. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Interactions -->
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // 1. Mobile Menu Toggle
+        const menuBtn = document.getElementById('menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+        let isMenuOpen = false;
+
+        menuBtn.addEventListener('click', () => {
+            isMenuOpen = !isMenuOpen;
+            mobileMenu.classList.toggle('hidden');
+            
+            // Toggle Icon
+            if(isMenuOpen) {
+                menuIcon.setAttribute('data-lucide', 'x');
+            } else {
+                menuIcon.setAttribute('data-lucide', 'menu');
+            }
+            lucide.createIcons();
+        });
+
+        function closeMenu() {
+            isMenuOpen = false;
+            mobileMenu.classList.add('hidden');
+            menuIcon.setAttribute('data-lucide', 'menu');
+            lucide.createIcons();
+        }
+
+        // 2. Video Player Toggle
+        const videoWrapper = document.getElementById('video-wrapper');
+        const videoCover = document.getElementById('video-cover');
+        const videoIframe = document.getElementById('video-iframe');
+
+        videoWrapper.addEventListener('click', () => {
+            videoCover.classList.add('hidden');
+            videoIframe.classList.remove('hidden');
+            // Add autoplay param
+            videoIframe.src = "https://www.youtube.com/embed/t1UyEA7MiG0?autoplay=1&rel=0";
+        });
+
+        // 3. News Carousel Data & Logic
+        const newsItems = [
+            { media: "VOGUE", title: "Pantone 2026 年度代表色：Cloud Dancer 雲上舞白，一抹高潔輕盈", link: "https://www.vogue.com.tw/article/pantone-color-of-the-year-2026-cloud-dancer" },
+            { media: "GQ", title: "清透明亮且純淨！Pantone 公布 2026 年度代表色", link: "https://www.gq.com.tw/article/%E6%B8%85%E9%80%8F%E6%98%8E%E4%BA%AE%E4%B8%94%E7%B4%94%E6%B7%A8pantone-%E5%85%AC%E5%B8%83-2026-%E5%B9%B4%E5%BA%A6%E4%BB%A3%E8%A1%A8%E8%89%B2%E9%9B%B2%E6%9C%B5%E7%99%BD" },
+            { media: "ELLE", title: "2026 Pantone 年度色揭曉！時尚精品包款推薦", link: "https://www.elle.com/tw/fashion/luxury/g69694211/2026-pantone-color-watch-recommend/" },
+            { media: "Shopping Design", title: "2026 年度代表色 Cloud Dancer：為喧囂世界留白", link: "https://www.shoppingdesign.com.tw/post/view/12893" },
+            { media: "La Vie", title: "Pantone 2026 年度代表色 Cloud Dancer 象徵意義解析", link: "https://www.wowlavie.com/article/250026507" },
+            { media: "Popbee", title: "2026 Pantone Colour of the Year: Cloud Dancer", link: "https://popbee.com/lifestyle/2026-pantone-colour-of-the-year-cloud-dancer" },
+            { media: "Bella", title: "Pantone 2026 白色包款 Top 10 推薦", link: "https://www.bella.tw/articles/handbags/55064/pantone-2026-cloud-dancer-white-bags-top10" },
+            { media: "Cosmopolitan", title: "Pantone 2026 Cloud Dancer 穿搭與單品推薦", link: "https://www.cosmopolitan.com/tw/fashion/bag-shoe-accessories/g69668711/pantone-2026-cloud-dancer/" },
+            { media: "DQ 地球圖輯隊", title: "為何是雲上舞白？Pantone 2026 年度色深度報導", link: "https://dq.yam.com/post/16766" },
+            { media: "UDN 聯合新聞網", title: "2026 年度代表色：雲上舞白 Cloud Dancer", link: "https://woman.udn.com/woman/story/123163/9188413" },
+        ];
+
+        const carouselContainer = document.getElementById('carousel-container');
+
+        // Render News Items
+        newsItems.forEach(item => {
+            const el = document.createElement('a');
+            el.href = item.link;
+            el.target = "_blank";
+            el.rel = "noreferrer";
+            el.className = "min-w-[280px] md:min-w-[350px] bg-white p-6 md:p-8 rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 border border-stone-100 flex flex-col justify-between group snap-start";
+            el.innerHTML = `
+                <div>
+                   <span class="text-stone-400 text-xs font-mono mb-4 block group-hover:text-black transition-colors">${item.media}</span>
+                   <h3 class="text-lg md:text-xl font-serif leading-snug mb-4 group-hover:underline decoration-1 underline-offset-4">
+                     ${item.title}
                    </h3>
                 </div>
-                <div className="flex items-center text-sm font-bold text-stone-300 group-hover:text-stone-900 transition-colors mt-4">
-                   Read Article <ExternalLink size={14} className="ml-2" />
+                <div class="flex items-center text-sm font-bold text-stone-300 group-hover:text-stone-900 transition-colors mt-4">
+                   Read Article <i data-lucide="external-link" class="w-3.5 h-3.5 ml-2"></i>
                 </div>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
+            `;
+            carouselContainer.appendChild(el);
+        });
+        
+        // Re-init icons for dynamic content
+        lucide.createIcons();
 
-      {/* SECTION 3: 年度在地活動 */}
-      <section id="events" className="py-24 bg-stone-100 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-2/3 h-full bg-[#E8EAE3] -skew-x-12 translate-x-1/3"></div>
+        // Scroll Logic
+        const scrollAmount = 350;
+        document.getElementById('scroll-left').addEventListener('click', () => {
+            carouselContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        });
+        document.getElementById('scroll-right').addEventListener('click', () => {
+            carouselContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        });
 
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
-          <div className="text-center mb-16">
-            <span className="text-xs font-bold tracking-[0.2em] text-stone-500 uppercase">Local Events 2026</span>
-            <h2 className="text-4xl md:text-5xl font-serif mt-4 mb-6">台灣區年度色彩系列活動</h2>
-            <p className="text-stone-600 max-w-2xl mx-auto">
-              展碁國際為合作夥伴與設計師規劃了一系列精彩活動，從線上研討會到社群互動，全面掌握 2026 色彩商機。
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-white p-8 md:p-10 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/50 relative group">
-               <div className="absolute top-0 right-0 bg-[#06C755] text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">LINE POINTS 好禮</div>
-               <div className="flex items-start gap-6">
-                  <div className="bg-[#E0F2F1] p-4 rounded-full shrink-0">
-                     <Gift className="text-[#00B900] w-8 h-8" />
-                  </div>
-                  <div>
-                     <h3 className="text-2xl font-bold mb-2 group-hover:text-[#00B900] transition-colors">Adobe 冬季創意遊樂園</h3>
-                     <p className="text-stone-500 text-sm mb-4 font-mono">Adobe x Pantone 聯合企劃</p>
-                     <p className="text-stone-600 mb-6 leading-relaxed">
-                        加入 Adobe 台灣官方 LINE 好友，參與「Pantone 色彩挑戰賽」與「每日簽到」，集滿 10 點即可兌換限量 LINE POINTS！
-                     </p>
-                     <ul className="space-y-2 mb-8 text-sm text-stone-500">
-                        <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-[#00B900] rounded-full"></div> 每日簽到摩天輪</li>
-                        <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-[#00B900] rounded-full"></div> 挑戰每週知識王</li>
-                        <li className="flex items-center gap-2"><div className="w-1.5 h-1.5 bg-[#00B900] rounded-full"></div> 分享活動擴音器</li>
-                     </ul>
-                     <a href="https://adbeweblink.github.io/myproject/pantone.html" target="_blank" rel="noreferrer" className="inline-block w-full text-center bg-[#06C755] text-white font-bold py-3 rounded-lg hover:bg-[#05a546] transition-colors">
-                        立即加入活動
-                     </a>
-                  </div>
-               </div>
-            </div>
-
-            <div className="bg-white p-8 md:p-10 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/50 relative group">
-               <div className="absolute top-0 right-0 bg-stone-800 text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">Webinar</div>
-               <div className="flex items-start gap-6">
-                  <div className="bg-stone-100 p-4 rounded-full shrink-0">
-                     <Calendar className="text-stone-800 w-8 h-8" />
-                  </div>
-                  <div>
-                     <h3 className="text-2xl font-bold mb-2 group-hover:text-stone-600 transition-colors">2026 年度代表色趨勢解析</h3>
-                     <p className="text-stone-500 text-sm mb-4 font-mono">線上研討會</p>
-                     <p className="text-stone-600 mb-6 leading-relaxed">
-                        邀請<span className="font-bold text-stone-800">原廠色彩專家</span>深入解析 Cloud Dancer 背後的趨勢洞察，以及如何將其應用於數位設計與品牌策略中。
-                     </p>
-                     <div className="bg-stone-50 p-4 rounded-lg mb-8 border border-stone-100">
-                        <p className="text-sm font-bold text-stone-800">精彩議程預告：</p>
-                        <p className="text-sm text-stone-500 mt-1">• 年度色與社會心理學</p>
-                        <p className="text-sm text-stone-500 mt-1">• 數位設計中的留白美學</p>
-                     </div>
-                     <button className="inline-block w-full text-center bg-stone-800 text-white font-bold py-3 rounded-lg hover:bg-black transition-colors">
-                        報名參加研討會
-                     </button>
-                  </div>
-               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 4: 互動遊戲 (Game) */}
-      <section id="game" className="py-24 bg-white">
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
-          <div className="bg-black text-white rounded-3xl overflow-hidden relative">
-            <div className="absolute inset-0 opacity-40">
-               <img src={images.room} alt="Game Background" className="w-full h-full object-cover mix-blend-overlay" />
-            </div>
-            
-            <div className="relative z-10 grid md:grid-cols-2 gap-12 p-12 md:p-20 items-center">
-               <div>
-                  <div className="inline-flex items-center gap-2 bg-yellow-400 text-black px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-6">
-                     <MousePointer2 size={14} /> Challenge
-                  </div>
-                  <h2 className="text-4xl md:text-5xl font-bold mb-6">你的色彩敏銳度有多高？</h2>
-                  <p className="text-stone-200 text-lg mb-8 leading-relaxed">
-                     透過趣味的色彩互動遊戲，測試你對 Cloud Dancer 及其搭配色系的直覺。
-                     不僅好玩，還能激發你的設計靈感！
-                  </p>
-                  <button className="px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-yellow-400 transition-colors flex items-center gap-3">
-                     開始色彩挑戰 <Play size={18} fill="currentColor" />
-                  </button>
-               </div>
-               
-               <div className="relative">
-                  <div className="aspect-video bg-stone-800/80 backdrop-blur-sm rounded-xl border border-stone-600 p-2 shadow-2xl transform rotate-2 hover:rotate-0 transition-transform duration-500">
-                     <div className="w-full h-full bg-stone-900 rounded flex items-center justify-center relative overflow-hidden">
-                         <div className="absolute inset-0 flex gap-1">
-                            <div className="w-1/3 bg-[#F0F2F5]"></div>
-                            <div className="w-1/3 bg-[#E8DCCA]"></div>
-                            <div className="w-1/3 bg-[#D4AF37]"></div>
-                         </div>
-                        <span className="relative z-10 text-white font-bold bg-black/50 px-4 py-2 rounded">START</span>
-                     </div>
-                  </div>
-                  <div className="absolute -bottom-6 -left-6 bg-[#06C755] text-white p-4 rounded-lg shadow-lg max-w-[200px]">
-                     <p className="text-xs font-bold flex items-center gap-1">
-                        <MessageCircle size={14} /> 
-                        Line 好友限定
-                     </p>
-                     <p className="text-xs mt-1">玩遊戲還能集點換好禮！</p>
-                  </div>
-               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 5: Pantone Connect 促銷 */}
-      <section id="connect" className="py-24 bg-[#F5F5F0]">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="grid md:grid-cols-2 gap-16 items-center">
-            
-            <div className="order-2 md:order-1 space-y-8">
-               <div className="flex items-center gap-3">
-                  {/* 更新：使用真實的 Pantone Connect Icon 圖片替代原本的 Layers 圖示 */}
-                  <img 
-                    src={images.connect_icon} 
-                    alt="Pantone Connect Icon" 
-                    className="w-12 h-12 rounded-lg shadow-md object-contain bg-black"
-                  />
-                  <span className="font-bold text-lg text-[#0051B5]">Pantone Connect</span>
-               </div>
-               
-               <h2 className="text-4xl md:text-5xl font-serif leading-tight">
-                  把靈感，<br/>直接帶進 Adobe 工作流程
-               </h2>
-               
-               <div className="space-y-4 text-stone-600">
-                  <p>在 Photoshop、Illustrator、InDesign 中即時存取超過 15,000 種 Pantone 色彩。</p>
-                  <p>確保從螢幕到印刷，團隊協作與品牌色彩的一致性。</p>
-               </div>
-
-               <div className="bg-white p-8 rounded-xl border border-stone-200 shadow-lg relative overflow-hidden">
-                  <div className="absolute -right-4 -top-4 bg-red-500 text-white px-8 py-1 rotate-45 text-sm font-bold shadow-sm">Hot</div>
-                  
-                  <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                     限時採購優惠 <span className="text-red-500 text-sm font-normal border border-red-500 px-2 py-0.5 rounded">經銷商專屬</span>
-                  </h3>
-                  <div className="flex items-end gap-2 mb-2">
-                     <span className="text-4xl font-bold text-stone-900">95折</span>
-                     <span className="text-stone-400 text-sm mb-2">/ 採購二套起</span>
-                  </div>
-                  <p className="text-sm text-stone-500 mb-6">優惠期間：2025/12/10 – 2026/02/28</p>
-                  
-                  <button className="w-full py-3 bg-black text-white font-bold rounded hover:bg-stone-800 transition-colors flex items-center justify-center gap-2">
-                     <ShoppingBag size={18} /> 聯絡業務採購
-                  </button>
-               </div>
-            </div>
-
-            <div className="order-1 md:order-2">
-               <div className="relative">
-                  <div className="absolute inset-0 bg-stone-900 rounded-lg transform translate-x-4 translate-y-4"></div>
-                  <FeatureImage 
-                     src={images.campaign}
-                     alt="Campaign Visual"
-                     className="rounded-lg shadow-2xl relative z-10 aspect-[4/5]"
-                  />
-               </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* FOOTER */}
-      <footer className="bg-white py-16 border-t border-stone-200">
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-12 flex flex-col md:flex-row justify-between items-end gap-12">
-          <div className="space-y-6">
-            <div className="flex items-center gap-4">
-               {/* 代理商 Logo */}
-               <div className="w-10 h-10 rounded-md overflow-hidden border border-stone-100 bg-white relative flex-shrink-0 shadow-sm">
-                  <img 
-                    src={images.distributor_logo} 
-                    alt="展碁國際" 
-                    className="w-full h-full object-contain p-0.5" 
-                  />
-               </div>
-               <div className="h-8 w-[1px] bg-stone-300"></div>
-               <span className="font-bold text-lg tracking-tight text-stone-700">Pantone Authorized Distributor</span>
-            </div>
-            <p className="text-sm text-stone-500 max-w-sm leading-relaxed">
-              展碁國際 (Weblink International) 為 Pantone 台灣授權代理商。<br/>
-              致力於提供最完整的色彩解決方案與在地化服務。
-            </p>
-            <div className="flex gap-4">
-               <a href="#" className="text-stone-400 hover:text-black transition-colors">Facebook</a>
-               <a href="#" className="text-stone-400 hover:text-black transition-colors">Instagram</a>
-               <a href="#" className="text-stone-400 hover:text-black transition-colors">Line OA</a>
-            </div>
-          </div>
-          
-          <div className="text-right text-xs text-stone-400 space-y-2 font-mono">
-            <p>本頁內容所示 Pantone® 為 Pantone LLC 之註冊商標。</p>
-            <p>&copy; 2025 Weblink International Inc. All Rights Reserved.</p>
-          </div>
-        </div>
-      </footer>
-
-    </div>
-  );
-};
-
-export default App;
+    </script>
+</body>
+</html>
