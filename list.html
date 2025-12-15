@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --adobe-red: #DA1F26;
+        --brand-blue: #1473E6;
+        --doc-purple: #5514E6;
+        --bg-light: #F5F5F5;
+        --border-color: #E1E1E1;
+        --surface: #FFFFFF;
+        --text-primary: #2C2C2C;
+      }
+      body { font-family: 'Roboto', sans-serif; background: var(--bg-light); display: flex; justify-content: center; margin: 0; padding: 20px; color: var(--text-primary); }
+      .app-wrapper { width: 100%; max-width: 480px; background: var(--surface); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid var(--border-color); position: relative; }
+      
+      /* Header */
+      .header { padding: 15px 24px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; background: #fff; }
+      .header-title { display: flex; align-items: center; gap: 12px; }
+      .logo-icon { width: 32px; height: 32px; background: var(--adobe-red); color: white; font-weight: 900; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+      .header h1 { font-size: 18px; margin: 0; font-weight: 700; color: #333; }
+      .header p { font-size: 12px; color: #666; margin: 2px 0 0 0; }
+      
+      /* Test Button */
+      .test-api-btn { font-size: 11px; color: var(--brand-blue); background: none; border: 1px solid var(--brand-blue); padding: 4px 8px; border-radius: 4px; cursor: pointer; transition: 0.2s; white-space: nowrap;}
+      .test-api-btn:hover { background: #E3F2FD; }
+      
+      /* Content */
+      .content { padding: 24px; }
+      .form-section { background: #fff; border: 1px solid #eee; border-radius: 6px; padding: 16px; margin-bottom: 20px; }
+      .section-label { font-size: 11px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: block; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+      
+      /* Mode Selector */
+      .mode-selector { display: flex; gap: 12px; margin-bottom: 15px; }
+      .mode-selector input { display: none; }
+      .mode-selector label { 
+        flex: 1; text-align: center; padding: 20px 10px; border: 2px solid transparent; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s; color: #555; background: #F0F0F0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      }
+      #modeCC:checked + label { border-color: var(--adobe-red); background: #FFF5F5; color: var(--adobe-red); box-shadow: 0 4px 8px rgba(218, 31, 38, 0.15); transform: translateY(-2px); }
+      #modeDC:checked + label { border-color: var(--doc-purple); background: #F8F5FF; color: var(--doc-purple); box-shadow: 0 4px 8px rgba(85, 20, 230, 0.15); transform: translateY(-2px); }
+      .mode-icon { display: block; font-size: 24px; margin-bottom: 8px; }
+      
+      /* Form Inputs */
+      label.field-label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: #444; }
+      select, input[type=number] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; box-sizing: border-box; background: #fff; transition: border 0.2s; }
+      select:focus, input:focus { outline: none; border-color: var(--brand-blue); }
+      
+      /* Submit Button */
+      .submit-btn { width: 100%; padding: 15px; background: var(--brand-blue); color: white; border: none; border-radius: 25px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 10px; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
+      .submit-btn:hover { background: #0D66D0; transform: scale(1.02); }
+      .submit-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+      
+      /* Tags */
+      .tag-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+      .tag { font-size: 11px; padding: 4px 8px; background: #eee; border-radius: 4px; color: #555; border: 1px solid transparent; }
+      
+      /* Status */
+      #status { margin-top: 20px; padding: 16px; border-radius: 6px; font-size: 13px; text-align: center; display: none; line-height: 1.6; }
+      .success { background: #E9F7EF; color: #1E8449; border: 1px solid #C3E6CB; }
+      .error { background: #FDEDEC; color: #C0392B; border: 1px solid #F5C6CB; }
+      .loading { background: #EBF5FB; color: #007AA8; border: 1px solid #D6EAF8; }
+      .api-ok { color: #2E7D32; font-weight: bold; margin-top:5px; font-size:11px; }
+      .api-err { color: #C62828; font-weight: bold; margin-top:5px; font-size:11px; }
+      
+      .jump-btn { display: inline-block; margin-top: 10px; padding: 8px 16px; background: var(--brand-blue); color: white; text-decoration: none; border-radius: 4px; font-size: 13px; font-weight: 500; }
+      .jump-btn:hover { background: #0D66D0; }
+
+      .footer { text-align: center; font-size: 11px; color: #999; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; }
+      
+      /* Modal Styles (Confirmation) */
+      .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 100; }
+      .modal-box { background: white; width: 85%; max-width: 320px; padding: 24px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center; }
+      .modal-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #333; }
+      .modal-content { text-align: left; font-size: 13px; color: #555; background: #f9f9f9; padding: 15px; border-radius: 6px; margin-bottom: 20px; }
+      .modal-item { margin-bottom: 8px; display: flex; justify-content: space-between; border-bottom: 1px dashed #eee; padding-bottom: 4px; }
+      .modal-item strong { color: #333; }
+      .modal-btns { display: flex; gap: 10px; }
+      .modal-btn { flex: 1; padding: 10px; border-radius: 4px; cursor: pointer; border: none; font-weight: bold; }
+      .btn-cancel { background: #eee; color: #666; }
+      .btn-confirm { background: var(--brand-blue); color: white; }
+
+      /* Animation */
+      @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+      .loading-dots { animation: pulse 1.5s infinite; }
+      
+      /* Progress Bar */
+      .progress-box { margin-top: 12px; text-align: left; }
+      .progress-bg { background: rgba(0,0,0,0.1); border-radius: 4px; height: 6px; width: 100%; overflow: hidden; margin-bottom: 6px; }
+      .progress-fill { background: var(--brand-blue); height: 100%; width: 0%; transition: width 0.3s ease; border-radius: 4px; }
+      .progress-info { display: flex; justify-content: space-between; font-size: 11px; color: #555; font-weight: 500; }
+      .loading-text { font-weight: bold; margin-bottom: 4px; display: block; }
+    </style>
+  </head>
+  <body>
+    <div class="app-wrapper">
+      <!-- Header -->
+      <div class="header">
+        <div class="header-title">
+          <div class="logo-icon">Ad</div>
+          <div>
+            <h1>Adobe 潛在客戶開發</h1>
+            <p>新創名單搜尋引擎</p>
+          </div>
+        </div>
+        <button type="button" class="test-api-btn" onclick="testConnection()">⚡ 測試連線</button>
+      </div>
+      <div id="testStatus" style="text-align:center; display:none;"></div>
+
+      <div class="content">
+        <form id="crawlerForm">
+          
+          <!-- 1. 模式選擇 -->
+          <div class="form-section">
+            <span class="section-label">01. 選擇產品戰略</span>
+            <div class="mode-selector">
+              <input type="radio" name="pMode" id="modeCC" value="CC" checked onchange="setMode('CC')">
+              <label for="modeCC">
+                <span class="mode-icon">🎨</span>
+                Creative Cloud<br><span style="font-size:11px; font-weight:normal;">設計 / 影視 / 行銷</span>
+              </label>
+              
+              <input type="radio" name="pMode" id="modeDC" value="DC" onchange="setMode('DC')">
+              <label for="modeDC">
+                <span class="mode-icon">📄</span>
+                Document Cloud<br><span style="font-size:11px; font-weight:normal;">文件 / 合約 / 流程</span>
+              </label>
+            </div>
+            
+            <div id="ccBlock">
+              <label class="field-label">CC 目標產業</label>
+              <select id="ccSelect" onchange="updateKeys('CC')">
+                <option value="marketing" data-tag="CC-MKT">數位行銷 / 廣告 / 公關公司</option>
+                <option value="video" data-tag="CC-VID">影視製作 / 後期特效 / 自媒體</option>
+                <option value="game" data-tag="CC-GAME">遊戲開發 / VR / 多媒體互動</option>
+                <option value="design" data-tag="CC-PRINT">平面設計 / 印刷 / 出版社</option>
+                <option value="ecommerce" data-tag="CC-ECOM">電商 / 網拍 / 品牌零售</option>
+              </select>
+            </div>
+
+            <div id="dcBlock" style="display:none;">
+               <label class="field-label">DC 目標產業</label>
+               <select id="dcSelect" onchange="updateKeys('DC')">
+                 <option value="acrobat_legal" data-tag="DC-LEGAL">法律事務所 / 會計 / 顧問</option>
+                 <option value="acrobat_eng" data-tag="DC-ENG">工程營造 / 建築師 / 機電</option>
+                 <option value="acrobat_mfg" data-tag="DC-MFG">精密製造 / 生技 / 醫療器材</option>
+                 <option value="acrobat_trade" data-tag="DC-TRADE">進出口貿易 / 物流 / 報關行</option>
+               </select>
+            </div>
+            
+            <div class="tag-container" id="previewTags"></div>
+          </div>
+
+          <!-- 2. 篩選條件 -->
+          <div class="form-section">
+            <span class="section-label">02. 規模與地區</span>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div>
+                <label class="field-label">最低資本額</label>
+                <select id="minCapital">
+                  <option value="1000000">100 萬+</option>
+                  <option value="3000000">300 萬+</option>
+                  <option value="5000000" selected>500 萬+</option>
+                  <option value="10000000">1,000 萬+</option>
+                </select>
+              </div>
+              
+              <div>
+                <label class="field-label">負責區域</label>
+                <select id="region">
+                  <option value="all">全台灣</option>
+                  <option value="north">北部</option>
+                  <option value="central">中部</option>
+                  <option value="south">南部</option>
+                  <option value="east">東部</option>
+                </select>
+              </div>
+            </div>
+            
+            <label class="field-label" style="margin-top:12px;">新創定義</label>
+            <select id="targetYears">
+              <option value="0.083">🔴 近 1 個月 (最新設立)</option>
+              <option value="0.5" selected>🟡 近半年內 (建議)</option>
+              <option value="1">🟢 近 1 年內</option>
+              <option value="3">🔵 近 3 年內</option>
+            </select>
+            
+            <div style="margin-top:12px; display:flex; align-items:center; background:#f9f9f9; padding:8px; border-radius:4px;">
+              <input type="checkbox" id="excludeSmall" checked>
+              <label for="excludeSmall" style="margin-left:8px; font-size:13px; cursor:pointer;">自動排除 企業社/個人工作室</label>
+            </div>
+          </div>
+
+          <button type="button" class="submit-btn" id="preCheckBtn" onclick="showConfirmModal()">
+            <span>🚀 啟動搜尋引擎</span>
+          </button>
+        </form>
+        <div id="status"></div>
+      </div>
+      
+      <div class="footer">Data Source: data.gov.tw | Apps Script Powered</div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmModal">
+      <div class="modal-box">
+        <div class="modal-title">🔍 確認搜尋條件</div>
+        <div class="modal-content">
+          <div class="modal-item"><span>產品模式：</span><strong id="mMode"></strong></div>
+          <div class="modal-item"><span>目標產業：</span><strong id="mTag"></strong></div>
+          <div class="modal-item"><span>最低資本：</span><strong id="mCap"></strong></div>
+          <div class="modal-item"><span>負責區域：</span><strong id="mReg"></strong></div>
+          <div class="modal-item"><span>新創週期：</span><strong id="mYear"></strong></div>
+        </div>
+        <div style="font-size:12px; color:#888; margin-bottom:15px;">確認無誤後將開始連線，過程約需 10-30 秒。</div>
+        <div class="modal-btns">
+          <button class="modal-btn btn-cancel" onclick="closeModal()">取消</button>
+          <button class="modal-btn btn-confirm" onclick="startSearch()">確認執行</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const strategies = {
+        marketing: ["行銷", "廣告", "數位", "傳播", "公關", "策劃", "多媒體"],
+        video: ["影視", "傳媒", "製作", "映像", "動畫", "後期", "視覺"],
+        game: ["遊戲", "電競", "動畫", "虛擬", "軟體開發"],
+        design: ["設計", "印刷", "圖書", "出版", "文創", "美學"],
+        ecommerce: ["電子商務", "國際貿易", "零售", "百貨", "品牌", "網購"],
+        acrobat_legal: ["法律", "會計", "顧問", "專利", "事務所", "人資"],
+        acrobat_eng: ["營造", "建設", "工程", "建築", "機電", "能源"],
+        acrobat_mfg: ["生物科技", "醫療", "精密", "科技", "材料", "製造"],
+        acrobat_trade: ["報關", "物流", "航運", "倉儲", "進出口", "承攬"]
+      };
+
+      let currentKeywords = [];
+      let currentTag = "";
+      let currentMode = "CC";
+      let progressTimer = null;
+
+      function init() {
+        const savedRegion = localStorage.getItem('adobe_region');
+        if (savedRegion) document.getElementById('region').value = savedRegion;
+        setMode('CC');
+      }
+
+      function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('ccBlock').style.display = mode === 'CC' ? 'block' : 'none';
+        document.getElementById('dcBlock').style.display = mode === 'DC' ? 'block' : 'none';
+        updateKeys(mode);
+      }
+
+      function updateKeys(mode) {
+        const selectId = mode === 'CC' ? 'ccSelect' : 'dcSelect';
+        const el = document.getElementById(selectId);
+        const val = el.value;
+        currentTag = el.options[el.selectedIndex].getAttribute('data-tag');
+        currentKeywords = strategies[val] || [];
+        
+        const tagBox = document.getElementById('previewTags');
+        const color = mode === 'CC' ? '#DA1F26' : '#5514E6';
+        tagBox.innerHTML = currentKeywords.map(k => 
+          `<span class="tag" style="color:${color}; border:1px solid ${color}33;">#${k}</span>`
+        ).join('');
+      }
+
+      // 測試連線功能
+      function testConnection() {
+        const statusDiv = document.getElementById('testStatus');
+        const btn = document.querySelector('.test-api-btn');
+        btn.textContent = "連線中...";
+        btn.disabled = true;
+        statusDiv.style.display = 'block';
+        statusDiv.innerHTML = '<span style="color:#666;">正在測試政府 API 回應速度...</span>';
+
+        google.script.run.withSuccessHandler(res => {
+          btn.textContent = "⚡ 測試連線";
+          btn.disabled = false;
+          if (res.success) {
+            statusDiv.innerHTML = `<div class="api-ok">✅ API 連線正常！延遲: ${res.latency}ms</div>`;
+            setTimeout(() => { statusDiv.style.display = 'none'; }, 5000);
+          } else {
+            statusDiv.innerHTML = `<div class="api-err">❌ API 連線異常: ${res.msg}</div>`;
+          }
+        }).testApiConnection();
+      }
+
+      // 顯示確認視窗
+      function showConfirmModal() {
+        // 收集資料
+        const selId = currentMode === 'CC' ? 'ccSelect' : 'dcSelect';
+        const industryText = document.getElementById(selId).options[document.getElementById(selId).selectedIndex].text;
+        const cap = document.getElementById('minCapital');
+        const reg = document.getElementById('region');
+        const year = document.getElementById('targetYears');
+
+        // 填入視窗
+        document.getElementById('mMode').textContent = currentMode === 'CC' ? 'Creative Cloud' : 'Document Cloud';
+        document.getElementById('mTag').textContent = industryText.split('/')[0]; // 取第一個關鍵字當代表
+        document.getElementById('mCap').textContent = cap.options[cap.selectedIndex].text;
+        document.getElementById('mReg').textContent = reg.options[reg.selectedIndex].text;
+        document.getElementById('mYear').textContent = year.options[year.selectedIndex].text;
+
+        // 顯示
+        document.getElementById('confirmModal').style.display = 'flex';
+      }
+
+      function closeModal() {
+        document.getElementById('confirmModal').style.display = 'none';
+      }
+
+      // 正式開始搜尋
+      function startSearch() {
+        closeModal();
+        
+        localStorage.setItem('adobe_region', document.getElementById('region').value);
+
+        const btn = document.getElementById('preCheckBtn');
+        const status = document.getElementById('status');
+        
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading-dots">處理中</span>';
+        
+        // 啟動進度條
+        startProgress();
+
+        const payload = {
+          productMode: currentMode,
+          salesTag: currentTag,
+          keywords: currentKeywords.join(','),
+          minCapital: document.getElementById('minCapital').value,
+          region: document.getElementById('region').value,
+          targetYears: document.getElementById('targetYears').value,
+          excludeSmall: document.getElementById('excludeSmall').checked ? "true" : "false"
+        };
+
+        google.script.run
+          .withSuccessHandler(res => {
+            clearInterval(progressTimer);
+            btn.disabled = false;
+            btn.innerHTML = "🚀 啟動搜尋引擎";
+            
+            // 強制設定 100%
+            const pBar = document.getElementById('pBar');
+            if(pBar) pBar.style.width = '100%';
+            
+            if (res.success) {
+              status.className = 'success';
+              const link = `https://docs.google.com/spreadsheets/d/${res.sheetId}`;
+              status.innerHTML = `<strong>${res.message}</strong><br><a href="${link}" target="_blank" class="jump-btn">開啟 Google 試算表名單</a>`;
+            } else {
+              status.className = 'error';
+              status.textContent = res.message;
+            }
+          })
+          .withFailureHandler(err => {
+            clearInterval(progressTimer);
+            btn.disabled = false;
+            btn.innerHTML = "🚀 啟動搜尋引擎";
+            status.className = 'error';
+            status.textContent = "系統連線錯誤: " + err.message;
+          })
+          .processForm(payload);
+      }
+
+      // 進度條邏輯
+      function startProgress() {
+        const status = document.getElementById('status');
+        let percent = 0;
+        let timeLeft = 20;
+        
+        const messages = [
+          "正在連線政府 API...", "下載最新資料...", "進行產業比對...", "過濾資本額...", "重複檢查中..."
+        ];
+
+        status.style.display = 'block';
+        status.className = 'loading';
+        status.innerHTML = `
+          <span class="loading-text" id="msgText">${messages[0]}</span>
+          <div class="progress-box">
+            <div class="progress-bg"><div class="progress-fill" id="pBar"></div></div>
+            <div class="progress-info">
+              <span id="pPercent">0%</span>
+              <span id="pTime">預計 ${timeLeft} 秒</span>
+            </div>
+          </div>
+        `;
+
+        progressTimer = setInterval(() => {
+          const increment = Math.random() * 5; 
+          percent += increment;
+          if (percent % 10 < 2) timeLeft = Math.max(1, timeLeft - 1);
+          if (percent > 95) { percent = 95; timeLeft = 1; }
+
+          document.getElementById('pBar').style.width = percent + '%';
+          document.getElementById('pPercent').textContent = Math.floor(percent) + '%';
+          document.getElementById('pTime').textContent = `預計 ${timeLeft} 秒`;
+          
+          const msgIndex = Math.min(messages.length - 1, Math.floor(percent / 20));
+          const msgEl = document.getElementById('msgText');
+          if (msgEl) msgEl.textContent = messages[msgIndex];
+        }, 500);
+      }
+
+      init();
+    </script>
+  </body>
+</html>

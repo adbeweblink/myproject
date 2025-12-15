@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8">   
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adobe 經銷商推薦系統</title>
+    <title>Adobe 授權經銷商名錄</title> 
     <style>
         :root {
             --primary-red: #eb1000;
@@ -82,85 +82,6 @@
             }
         }
 
-        /* Intro Section */
-        .intro-section {
-            background: white;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-            margin-bottom: 1rem;
-            max-width: 1100px;
-            margin: 0 auto 2rem auto;
-            width: calc(100% - 2rem); 
-            box-shadow: var(--card-shadow);
-        }
-
-        .intro-header {
-            padding: 1rem;
-            background: #f9fafb;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            font-weight: bold;
-            color: #374151;
-        }
-
-        .intro-content {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-            padding: 1.5rem;
-        }
-
-        @media (min-width: 600px) {
-            .intro-content { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (min-width: 900px) {
-            .intro-content { grid-template-columns: repeat(4, 1fr); }
-        }
-
-        .level-card {
-            border: 1px solid #eee;
-            border-radius: 8px;
-            padding: 1rem;
-            background: #f9fafb;
-            cursor: pointer;
-            transition: all 0.2s;
-            position: relative;
-        }
-
-        .level-card:hover {
-            background: white;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            border-color: #d1d5db;
-        }
-
-        .level-card.active {
-            background: #fef2f2;
-            border-color: #ef4444;
-            box-shadow: 0 0 0 2px #fecaca;
-        }
-
-        .level-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            color: white;
-            margin-bottom: 0.5rem;
-        }
-
-        .level-desc {
-            font-size: 0.75rem;
-            color: var(--text-gray);
-            line-height: 1.4;
-        }
-
         /* Sidebar Filters */
         .sidebar {
             width: 100%;
@@ -192,6 +113,8 @@
             gap: 8px;
             color: #374151;
         }
+        
+        /* Map Container for Visual Cue - REMOVED */
 
         .search-box {
             position: relative;
@@ -238,28 +161,6 @@
         .clear-icon:hover {
             background-color: #eee;
             color: #666;
-        }
-
-        .radio-group label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            color: #4b5563;
-            transition: background 0.1s;
-        }
-
-        .radio-group label:hover {
-            background: #f3f4f6;
-        }
-
-        .radio-group input[type="radio"] {
-            accent-color: var(--primary-red);
-            width: 16px;
-            height: 16px;
         }
 
         select {
@@ -348,27 +249,6 @@
             transform: translateY(-2px);
         }
 
-        .card-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 12px;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            color: white;
-            position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
-        }
-        
-        @media (max-width: 640px) {
-            .card-badge {
-                position: static;
-                margin-bottom: 0.5rem;
-            }
-        }
-
         .reseller-name-tw {
             font-size: 1.25rem;
             font-weight: 700;
@@ -384,30 +264,7 @@
             font-size: 0.875rem;
             color: #6b7280;
             font-weight: 500;
-            margin-bottom: 0.75rem;
-        }
-
-        .reseller-desc {
-            font-size: 0.9rem;
-            color: #4b5563;
-            line-height: 1.5;
-            margin-bottom: 1rem;
-        }
-
-        .tags-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 1rem;
-        }
-
-        .tag {
-            font-size: 0.75rem;
-            padding: 2px 8px;
-            border-radius: 4px;
-            background: #f3f4f6;
-            color: #4b5563;
-            border: 1px solid #e5e7eb;
+            margin-bottom: 1.5rem; /* Increased margin since description is removed */
         }
 
         .contact-grid {
@@ -423,7 +280,7 @@
         @media (min-width: 640px) {
             .contact-grid { grid-template-columns: 1fr 1fr; }
         }
-
+        
         .contact-item {
             display: flex;
             align-items: flex-start;
@@ -552,16 +409,11 @@
 <header>
     <div class="header-content">
         <div class="header-title">
-            <!-- Removed Adobe SVG Icon as requested -->
-            Adobe 經銷商推薦系統
+            Adobe 授權經銷商名錄
         </div>
-        <div class="header-subtitle">台灣授權合作夥伴名錄</div>
+        <div class="header-subtitle">台灣授權合作夥伴名單</div>
     </div>
 </header>
-
-<div class="container" id="intro-container">
-    <!-- Intro Section will be injected here -->
-</div>
 
 <div class="container">
     <!-- Sidebar -->
@@ -585,25 +437,15 @@
                 </div>
             </div>
 
-            <!-- 2. Level Filter -->
-            <div class="filter-group">
-                <div class="filter-title">
-                    <svg class="icon" style="color:#dc2626;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
-                    合作夥伴等級
-                </div>
-                <div class="radio-group" id="level-filters">
-                    <!-- Level options injected via JS -->
-                </div>
-            </div>
-
-            <!-- 3. Region Filter -->
+            <!-- 2. Region Filter -->
             <div class="filter-group">
                 <div class="filter-title">
                     <svg class="icon" style="color:#dc2626;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                     所在地區
                 </div>
+                <!-- Removed: map-cue div -->
                 <select id="region-select">
-                    <option value="All">全台灣 (含跨區)</option>
+                    <option value="All">全台灣 (含服務全台)</option>
                     <option value="North">北區 (台北/新北/基隆)</option>
                     <option value="TaoZhuMiao">桃竹苗區</option>
                     <option value="Central">中區 (台中/彰化/南投)</option>
@@ -644,154 +486,81 @@
 
 <footer>
     <p>© 2025 Adobe Partner Finder System. 資料僅供內部參考。</p>
-    <p style="margin-top: 5px;">資料來源：Adobe Partner Connection Portal & 展碁國際 (Weblink International) 經銷體系 | 更新日期：2025/11/28</p>
+    <p style="margin-top: 5px;">資料來源：Adobe Partner Connection Portal & 授權經銷體系 | 更新日期：2025/11/28</p>
 </footer>
 
 <!-- JS Logic -->
 <script>
     // ==========================================
-    // 經銷商資料庫 (RESELLERS_DATA)
-    // 如需更新資料，請直接修改下方的物件內容
+    // 經銷商資料庫 (RESELLERS_DATA) - 已移除 Email, 標籤與描述 (展碁國際資訊已移除)
     // ==========================================
     const RESELLERS_DATA = [
-        // Distributor
-        { id: 'd1', nameEn: 'Weblink International', nameTw: '展碁國際股份有限公司', level: 'Distributor', tags: 'Full Catalog,Channel Support', targetAudience: 'Resellers,Enterprise,Education,Government', region: 'Taipei,All', address: '台北市南港區南港路三段9號10-12樓', phone: '02-2371-6000', email: 'info@weblink.com.tw', website: 'https://www.weblink.com.tw', description: 'Adobe 台灣區主要代理商 (Distributor)，提供完整的軟硬體通路服務。' },
         // Platinum
-        { id: 'p1', nameEn: 'Systex Software and Service Corporation', nameTw: '精誠軟體服務股份有限公司', level: 'Platinum', tags: 'Enterprise Solution,Government,Digital Transformation', targetAudience: 'Enterprise,Government', region: 'Taipei,All', address: '台北市中正區羅斯福路二段100號17樓', phone: '(02) 2367-0188', email: 'jofang@systexsoftware.com.tw', website: '', description: 'Adobe 白金級合作夥伴，提供大型企業與政府機關完整的軟體資產管理服務。' },
-        { id: 'p2', nameEn: 'Acer E-Enabling Service Business', nameTw: '宏碁資訊服務股份有限公司', level: 'Platinum', tags: 'Cloud Services,Enterprise,Government', targetAudience: 'Enterprise,Government', region: 'Taipei,All', address: '115臺北市南港區南港路三段9號18樓', phone: '(02) 2784-1000', email: 'hqkeb.aa@aceraeb.com.', website: '', description: '專注於企業雲端服務與資安整合，協助大型客戶導入自動化文件流程。' },
+        { id: 'p1', nameEn: 'Systex Software and Service Corporation', nameTw: '精誠軟體服務股份有限公司', region: 'Taipei,All', address: '台北市中正區羅斯福路二段100號17樓', phone: '(02) 2367-0188' },
+        { id: 'p2', nameEn: 'Acer E-Enabling Service Business', nameTw: '宏碁資訊服務股份有限公司', region: 'Taipei,All', address: '115臺北市南港區南港路三段9號18樓', phone: '(02) 2784-1000' },
         // Gold
-        { id: 'n7', nameEn: 'Evertop Information', nameTw: '長峰資訊股份有限公司', level: 'Gold', tags: 'Education,Volume License', targetAudience: 'Education', region: 'Taipei,North', address: '台北市', phone: '(02) 2788-2408', email: 'kary_huang@evertop.com.tw', website: '', description: '專注於教育市場軟體授權與校園服務。' },
-        { id: 'n5', nameEn: 'Jen Hong International', nameTw: '朕宏國際實業有限公司', level: 'Gold', tags: '3D Animation,Creative Cloud,VFX', targetAudience: 'Creative Pros,Media', region: 'Taipei,North', address: '台北市北投區', phone: '(02) 2897-6878', email: 'tina@gemhorn.com', website: '', description: '專精於 3D 動畫與多媒體創作軟體，提供專業技術支援。' },
-        { id: 'n4', nameEn: 'Shin Chi Cloud', nameTw: '昕奇雲端科技股份有限公司', level: 'Gold', tags: 'Cloud SaaS,Startups', targetAudience: 'SMB,Startups', region: 'Taipei,North', address: '台北市內湖區', phone: '(02) 8792-3677', email: 'info@grandtechcloud.com', website: '', description: '專注於雲端服務的新創友善經銷商。' },
-        { id: 'n8', nameEn: 'I-Planet International', nameTw: '智域國際股份有限公司', level: 'Gold', tags: 'Education', targetAudience: 'Education', region: 'Taipei,North', address: '台北市', phone: '(02) 2727-8077', email: 'iplanetpm@i-planet.com.tw', website: '', description: '深耕教育市場，提供各級學校專業軟體授權規劃。' },
-        { id: 'n2', nameEn: 'Tomorrow Info', nameTw: '明日資訊有限公司', level: 'Gold', tags: 'SMB,Consulting', targetAudience: 'SMB', region: 'Taipei,North', address: '台北市', phone: '(03) 317-3742', email: 'service@tomorrow-info.com', website: '', description: '提供專業的軟體諮詢與企業解決方案。' },
-        { id: 'g2', nameEn: 'Otsuka Information Technology', nameTw: '大塚資訊科技股份有限公司', level: 'Gold', tags: 'Manufacturing,CAD/CAM,Enterprise', targetAudience: 'Enterprise,Manufacturing', region: 'NewTaipei,All', address: '新北市', phone: '(02) 8964-6668', email: 'service@otsuka.com.tw', website: '', description: '專精於製造業與設計產業的軟體整合服務。' },
-        { id: 'n1', nameEn: 'Quickly 3C', nameTw: '快克利有限公司', level: 'Gold', tags: 'SMB,Retail', targetAudience: 'SMB,Individual', region: 'Taipei,North', address: '台北市', phone: '(02) 2511-9098', email: 'service@quickly.com.tw', website: '', description: '專注於中小企業軟體授權與採購服務。' },
-        { id: 'new1', nameEn: 'Liso Information Co., Ltd.', nameTw: '力梭資訊股份有限公司', level: 'Gold', tags: 'SMB,ServerBank', targetAudience: 'SMB,Enterprise', region: 'NewTaipei,North', address: '新北市', phone: '(02) 8969-0901', email: 'service@serverbank.com.tw', website: '', description: '知名的 ServerBank 營運商，提供企業軟硬體整合與 Adobe 授權服務。' },
-        { id: 'n3', nameEn: 'Keyi International', nameTw: '科益國際股份有限公司', level: 'Gold', tags: 'SMB,Software', targetAudience: 'SMB', region: 'Taipei,North', address: '台北市', phone: '(02) 2585-8725', email: 'service@techez.com.tw', website: '', description: '提供軟體經銷、技術支援與企業授權規劃。' },
-        { id: 'n6', nameEn: 'Chuangjie International', nameTw: '創捷國際有限公司', level: 'Gold', tags: 'Procurement,SMB', targetAudience: 'SMB,Government', region: 'Taipei,North', address: '台北市', phone: '(02) 2570-3233', email: 'sales@teksource.com.tw', website: '', description: '提供政府共同供應契約與企業採購服務。' },
-        { id: 'new2', nameEn: 'Tyche Information Co., Ltd.', nameTw: '台奇資訊有限公司', level: 'Gold', tags: 'Education,SMB', targetAudience: 'Education,SMB', region: 'NewTaipei,North', address: '新北市', phone: '(02) 8983-3989', email: 'service@tycheinfo.com.tw', website: '', description: '專注於教育市場與中小企業的軟體解決方案提供商。' },
+        { id: 'n7', nameEn: 'Evertop Information', nameTw: '長峰資訊股份有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2788-2408' },
+        { id: 'n5', nameEn: 'Jen Hong International', nameTw: '朕宏國際實業有限公司', region: 'Taipei,North', address: '台北市北投區', phone: '(02) 2897-6878' },
+        { id: 'n4', nameEn: 'Shin Chi Cloud', nameTw: '昕奇雲端科技股份有限公司', region: 'Taipei,North', address: '台北市內湖區', phone: '(02) 8792-3677' },
+        { id: 'n8', nameEn: 'I-Planet International', nameTw: '智域國際股份有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2727-8077' },
+        { id: 'n2', nameEn: 'Tomorrow Info', nameTw: '明日資訊有限公司', region: 'Taipei,North', address: '台北市', phone: '(03) 317-3742' },
+        { id: 'g2', nameEn: 'Otsuka Information Technology', nameTw: '大塚資訊科技股份有限公司', region: 'NewTaipei,All', address: '新北市', phone: '(02) 8964-6668' },
+        { id: 'n1', nameEn: 'Quickly 3C', nameTw: '快克利有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2511-9098' },
+        { id: 'new1', nameEn: 'Liso Information Co., Ltd.', nameTw: '力梭資訊股份有限公司', region: 'NewTaipei,North', address: '新北市', phone: '(02) 8969-0901' },
+        { id: 'n3', nameEn: 'Keyi International', nameTw: '科益國際股份有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2585-8725' },
+        { id: 'n6', nameEn: 'Chuangjie International', nameTw: '創捷國際有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2570-3233' },
+        { id: 'new2', nameEn: 'Tyche Information Co., Ltd.', nameTw: '台奇資訊有限公司', region: 'NewTaipei,North', address: '新北市', phone: '(02) 8983-3989' },
         
         // Certified
-        { id: 'g3', nameEn: 'Yifan Technology', nameTw: '逸凡科技股份有限公司', level: 'Certified', tags: 'System Integration,Enterprise', targetAudience: 'Enterprise,Government', region: 'Taipei,All', address: '台北市', phone: '0800-098-598', email: 'service@yifan.com.tw', website: '', description: '提供全方位的資訊系統整合與企業軟體授權服務。' },
-        { id: 'g4', nameEn: 'BestCom Infotech Corp.', nameTw: '大綜電腦系統股份有限公司', level: 'Certified', tags: 'System Integration,Cloud', targetAudience: 'Enterprise,Manufacturing', region: 'Kaohsiung,All', address: '高雄市', phone: '(07) 345-8011', email: 'sales@bestcom.com.tw', website: '', description: '台灣南部起家的大型系統整合商，服務範圍涵蓋全台。' },
-        { id: 'g5', nameEn: 'Xunda Computer', nameTw: '訊達電腦股份有限公司', level: 'Certified', tags: 'IT Infrastructure,Enterprise', targetAudience: 'Enterprise', region: 'Taipei,All', address: '台北市', phone: '(02) 2501-5568 #2285', email: 'service@xunda.com.tw', website: '', description: '提供企業級資訊基礎建設與軟體解決方案。' },
-        { id: 'n9', nameEn: 'Guanglian International', nameTw: '光聯國際股份有限公司', level: 'Certified', tags: 'SMB', targetAudience: 'SMB', region: 'Taipei,North', address: '台北市', phone: '(02) 8768-1631', email: 'service@guanglian.com.tw', website: '', description: '企業軟體經銷服務。' },
-        { id: 'n10', nameEn: 'Jinte Enterprise', nameTw: '勁特企業有限公司', level: 'Certified', tags: 'Education', targetAudience: 'Education', region: 'NewTaipei,North', address: '新北市', phone: '(02) 8685-4166', email: 'service@jinte.com.tw', website: '', description: '專注於教育機構軟體服務。' },
-        { id: 'n11', nameEn: 'Zhenchuan Info', nameTw: '真傳資訊有限公司', level: 'Certified', tags: 'SMB', targetAudience: 'SMB', region: 'Taipei,North', address: '台北市', phone: '(02) 2754-8510', email: 'jyi@realinfo.com.tw', website: '', description: '資訊軟體經銷。' },
-        { id: 'n12', nameEn: 'Qiaoju Info', nameTw: '僑巨資訊企業有限公司', level: 'Certified', tags: 'SMB', targetAudience: 'SMB', region: 'Taipei,North', address: '台北市', phone: '(02) 2522-1212', email: 'ciccorp@ciccorp.com.tw', website: '', description: '企業資訊解決方案。' },
-        { id: 'n13', nameEn: 'TeraSoft', nameTw: '台灣碩軟軟體有限公司', level: 'Certified', tags: 'Software Licensing,MNC', targetAudience: 'Enterprise,SMB', region: 'Taipei,North', address: '台北市', phone: '(02) 2176-5186', email: 'info.tw@softwareone.com', website: '', description: '全球化軟體授權管理專家。' },
-        { id: 'n14', nameEn: 'Ability International', nameTw: '佳能國際股份有限公司', level: 'Certified', tags: 'Document Solutions', targetAudience: 'Enterprise', region: 'Taipei,North', address: '台北市', phone: '0800-055-056', email: 'jhung@abico.com.tw', website: '', description: '結合硬體與文件解決方案。' },
-        { id: 't1', nameEn: 'Youshuo Computer', nameTw: '又碩電腦科技股份有限公司', level: 'Certified', tags: 'SMB', targetAudience: 'SMB', region: 'TaoZhuMiao,North', address: '桃園市', phone: '(03) 463-9119', email: 'service@youshuo.com.tw', website: '', description: '桃園地區專業電腦與軟體服務。' },
-        { id: 't2', nameEn: 'Weice Computer', nameTw: '威策電腦股份有限公司', level: 'Certified', tags: 'SMB', targetAudience: 'SMB', region: 'TaoZhuMiao,North', address: '桃園市', phone: '(03) 301-9789', email: 'flower.chen@welltake.com.tw', website: '', description: '在地化企業資訊服務。' },
-        { id: 't3', nameEn: 'Kaimo Technology', nameTw: '凱模科技有限公司', level: 'Certified', tags: 'SMB', targetAudience: 'SMB', region: 'TaoZhuMiao,North', address: '桃園市', phone: '(03) 218-0011', email: 'service@kaimo.com.tw', website: '', description: '提供中小企業軟硬體整合服務。' },
-        { id: 'c1', nameEn: 'Se Mai Technology', nameTw: '瑟麥科技事業有限公司', level: 'Certified', tags: 'SMB,Design', targetAudience: 'SMB', region: 'Taichung,Central', address: '台中市', phone: '(04) 2475-0698', email: 'sales@semai.com.tw', website: '', description: '深耕中部中小企業與設計市場。' },
-        { id: 'c2', nameEn: 'Show Yi International', nameTw: '首羿國際股份有限公司', level: 'Certified', tags: 'Education,Maker Education', targetAudience: 'Education', region: 'Taichung,Central', address: '台中市', phone: '(04) 2258-3355', email: 'service@so-easy.com.tw', website: '', description: '專注於創客教育與校園軟體服務。' },
-        { id: 'c3', nameEn: 'Quantai Info', nameTw: '銓太資訊有限公司', level: 'Certified', tags: 'SMB', targetAudience: 'SMB', region: 'Taichung,Central', address: '台中市', phone: '(04) 2312-7008', email: 'ray@chaintek.com.tw', website: '', description: '中部地區資訊服務經銷商。' },
-        { id: 'c4', nameEn: 'Xin-En Technology', nameTw: '昕恩科技有限公司', level: 'Certified', tags: 'SMB', targetAudience: 'SMB', region: 'Taichung,Central', address: '台中市', phone: '(04) 2202-0158', email: 'xinen@xinen.com.tw', website: '', description: '提供專業軟體銷售與諮詢。' },
-        { id: 's1', nameEn: 'Gao Jie Xin', nameTw: '高傑信股份有限公司', level: 'Certified', tags: 'SMB', targetAudience: 'SMB', region: 'Kaohsiung,South', address: '高雄市', phone: '(07) 975-6888', email: 'sales@gjs.com.tw', website: '', description: '高雄地區專業軟體經銷商。' },
-        { id: 's2', nameEn: 'Yunchuan Technology', nameTw: '允傳科技股份有限公司', level: 'Certified', tags: 'SMB', targetAudience: 'SMB', region: 'Kaohsiung,South', address: '高雄市', phone: '(07) 348-5625', email: 'service@yunchuan.com.tw', website: '', description: '南部企業資訊服務夥伴。' },
-        { id: 's3', nameEn: 'Diyiming Computer', nameTw: '帝易明電腦有限公司', level: 'Certified', tags: 'SMB', targetAudience: 'SMB', region: 'Tainan,South', address: '台南市', phone: '(06) 222-4339', email: 'service@diyiming.com.tw', website: '', description: '台南地區電腦與軟體經銷。' },
-        { id: 's4', nameEn: 'Deyuan Computer', nameTw: '德源電腦有限公司', level: 'Certified', tags: 'Retail,SMB', targetAudience: 'SMB,Individual', region: 'Tainan,South', address: '台南市', phone: '(06) 228-4367', email: 'mypc@mypc.com.tw', website: '', description: '提供電腦組裝與軟體銷售服務。' },
-        { id: 's5', nameEn: 'Song Yue International', nameTw: '淞鉞國際有限公司', level: 'Certified', tags: 'SMB', targetAudience: 'SMB', region: 'Kaohsiung,South', address: '高雄市', phone: '(07) 588-5272', email: 'south@song-yue.com', website: '', description: '南部地區軟體經銷商。' },
-        { id: 'e1', nameEn: 'Haoshi Tech Studio', nameTw: '好時科技工作室', level: 'Certified', tags: 'SMB,Studio', targetAudience: 'SMB,Individual', region: 'East', address: '台東縣', phone: '089-311220', email: '', website: '', description: '東部地區在地資訊服務。' }
+        { id: 'g3', nameEn: 'Yifan Technology', nameTw: '逸凡科技股份有限公司', region: 'Taipei,All', address: '台北市', phone: '0800-098-598' },
+        { id: 'g4', nameEn: 'BestCom Infotech Corp.', nameTw: '大綜電腦系統股份有限公司', region: 'Kaohsiung,All', address: '高雄市', phone: '(07) 345-8011' },
+        { id: 'g5', nameEn: 'Xunda Computer', nameTw: '訊達電腦股份有限公司', region: 'Taipei,All', address: '台北市', phone: '(02) 2501-5568 #2285' },
+        { id: 'n9', nameEn: 'Guanglian International', nameTw: '光聯國際股份有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 8768-1631' },
+        { id: 'n10', nameEn: 'Jinte Enterprise', nameTw: '勁特企業有限公司', region: 'NewTaipei,North', address: '新北市', phone: '(02) 8685-4166' },
+        { id: 'n11', nameEn: 'Zhenchuan Info', nameTw: '真傳資訊有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2754-8510' },
+        { id: 'n12', nameEn: 'Qiaoju Info', nameTw: '僑巨資訊企業有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2522-1212' },
+        { id: 'n13', nameEn: 'TeraSoft', nameTw: '台灣碩軟軟體有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2176-5186' },
+        { id: 'n14', nameEn: 'Ability International', nameTw: '佳能國際股份有限公司', region: 'Taipei,North', address: '台北市', phone: '0800-055-056' },
+        { id: 't1', nameEn: 'Youshuo Computer', nameTw: '又碩電腦科技股份有限公司', region: 'TaoZhuMiao,North', address: '桃園市', phone: '(03) 463-9119' },
+        { id: 't2', nameEn: 'Weice Computer', nameTw: '威策電腦股份有限公司', region: 'TaoZhuMiao,North', address: '桃園市', phone: '(03) 301-9789' },
+        { id: 't3', nameEn: 'Kaimo Technology', nameTw: '凱模科技有限公司', region: 'TaoZhuMiao,North', address: '桃園市', phone: '(03) 218-0011' },
+        { id: 'c1', nameEn: 'Se Mai Technology', nameTw: '瑟麥科技事業有限公司', region: 'Taichung,Central', address: '台中市', phone: '(04) 2475-0698' },
+        { id: 'c2', nameEn: 'Show Yi International', nameTw: '首羿國際股份有限公司', region: 'Taichung,Central', address: '台中市', phone: '(04) 2258-3355' },
+        { id: 'c3', nameEn: 'Quantai Info', nameTw: '銓太資訊有限公司', region: 'Taichung,Central', address: '台中市', phone: '(04) 2312-7008' },
+        { id: 'c4', nameEn: 'Xin-En Technology', nameTw: '昕恩科技有限公司', region: 'Taichung,Central', address: '台中市', phone: '(04) 2202-0158' },
+        { id: 's1', nameEn: 'Gao Jie Xin', nameTw: '高傑信股份有限公司', region: 'Kaohsiung,South', address: '高雄市', phone: '(07) 975-6888' },
+        { id: 's2', nameEn: 'Yunchuan Technology', nameTw: '允傳科技股份有限公司', region: 'Kaohsiung,South', address: '高雄市', phone: '(07) 348-5625' },
+        { id: 's3', nameEn: 'Diyiming Computer', nameTw: '帝易明電腦有限公司', region: 'Tainan,South', address: '台南市', phone: '(06) 222-4339' },
+        { id: 's4', nameEn: 'Deyuan Computer', nameTw: '德源電腦有限公司', region: 'Tainan,South', address: '台南市', phone: '(06) 228-4367' },
+        { id: 's5', nameEn: 'Song Yue International', nameTw: '淞鉞國際有限公司', region: 'Kaohsiung,South', address: '高雄市', phone: '(07) 588-5272' },
+        { id: 'e1', nameEn: 'Haoshi Tech Studio', nameTw: '好時科技工作室', region: 'East', address: '台東縣', phone: '089-311220' }
     ];
 
-    // --- 2. 配置 ---
-    const LEVEL_CONFIG = {
-        Platinum: { label: '白金級 (Platinum)', color: '#4f46e5', bgColor: '#e0e7ff', icon: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>', desc: '最高等級合作夥伴，具備最完整的產品專業認證與大型企業服務能力。' },
-        Gold: { label: '金級 (Gold)', color: '#d97706', bgColor: '#fef3c7', icon: '<svg class="icon" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>', desc: '具備特定領域的專業認證，適合中大型企業與特定產業需求。' },
-        Certified: { label: '認證級 (Certified)', color: '#2563eb', bgColor: '#dbeafe', icon: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>', desc: '經過原廠認證，適合中小企業、教育單位與個人工作室採購。' },
-        Distributor: { label: '代理商 (Distributor)', color: '#1f2937', bgColor: '#e5e7eb', icon: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><path d="M9 22v-4h6v4"></path><path d="M8 6h.01"></path><path d="M16 6h.01"></path><path d="M12 6h.01"></path><path d="M12 10h.01"></path><path d="M12 14h.01"></path><path d="M16 10h.01"></path><path d="M16 14h.01"></path><path d="M8 10h.01"></path><path d="M8 14h.01"></path></svg>', desc: '原廠授權之主要通路商，負責支援其他經銷商與大型專案。' }
-    };
-    const LEVEL_ORDER = ['Platinum', 'Gold', 'Certified', 'Distributor'];
-
-    // --- 3. 狀態管理 ---
+    // --- 2. 狀態管理 ---
     let state = {
-        level: 'All',
         region: 'All',
         search: '',
-        showIntro: true
     };
 
-    // --- 4. 初始化 ---
+    // --- 3. 初始化 ---
     function init() {
-        renderIntro();
         renderFilters();
         renderResellers();
         setupEventListeners();
     }
 
-    // --- 5. 渲染函式 ---
-
-    function renderIntro() {
-        const container = document.getElementById('intro-container');
-        const content = document.createElement('div');
-        content.className = 'intro-section';
-        content.innerHTML = `
-            <div class="intro-header" id="toggle-intro">
-                <div style="display:flex; align-items:center; gap:8px; font-size:1rem; color:#b91c1c;">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
-                    經銷商等級說明 (點擊下方方塊可快速篩選)
-                </div>
-                <svg id="intro-chevron" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
-            </div>
-            <div class="intro-content" id="intro-cards">
-                ${LEVEL_ORDER.map(level => {
-                    const config = LEVEL_CONFIG[level];
-                    return `
-                        <div class="level-card" onclick="updateState('level', '${level}')" data-level="${level}">
-                            <div class="level-badge" style="background:${config.color}">
-                                ${config.icon}
-                                <span>${config.label.split(' (')[0]}</span>
-                            </div>
-                            <p class="level-desc">${config.desc}</p>
-                        </div>
-                    `;
-                }).join('')}
-            </div>
-        `;
-        container.innerHTML = '';
-        container.appendChild(content);
-        
-        document.getElementById('toggle-intro').onclick = () => {
-            state.showIntro = !state.showIntro;
-            const cards = document.getElementById('intro-cards');
-            const chevron = document.getElementById('intro-chevron');
-            cards.style.display = state.showIntro ? 'grid' : 'none';
-            chevron.innerHTML = state.showIntro 
-                ? '<polyline points="18 15 12 9 6 15"></polyline>' 
-                : '<polyline points="6 9 12 15 18 9"></polyline>';
-        };
-    }
+    // --- 4. 渲染函式 ---
 
     function renderFilters() {
-        const container = document.getElementById('level-filters');
-        container.innerHTML = `
-            <label>
-                <input type="radio" name="level" value="All" ${state.level === 'All' ? 'checked' : ''} onchange="updateState('level', 'All')">
-                <span style="font-weight:bold">全部等級</span>
-            </label>
-            ${LEVEL_ORDER.map(level => `
-                <label>
-                    <input type="radio" name="level" value="${level}" ${state.level === level ? 'checked' : ''} onchange="updateState('level', '${level}')">
-                    <span>${LEVEL_CONFIG[level].label.split(' (')[0]}</span>
-                </label>
-            `).join('')}
-        `;
-
+        // 更新地區選擇器
         document.getElementById('region-select').value = state.region;
         
-        const hasFilter = state.level !== 'All' || state.region !== 'All' || state.search !== '';
+        // 檢查是否有篩選條件被啟用
+        const hasFilter = state.region !== 'All' || state.search !== '';
         const resetBtns = document.querySelectorAll('#global-reset-btn, #reset-btn-main');
         resetBtns.forEach(btn => {
             if(hasFilter) btn.classList.remove('hidden');
             else btn.classList.add('hidden');
-        });
-
-        document.querySelectorAll('.level-card').forEach(card => {
-            if(card.dataset.level === state.level) card.classList.add('active');
-            else card.classList.remove('active');
         });
     }
 
@@ -805,7 +574,6 @@
 
         // 資料過濾邏輯
         const filtered = RESELLERS_DATA.filter(item => {
-            const matchLevel = state.level === 'All' || item.level === state.level;
             const matchRegion = state.region === 'All' || item.region.includes(state.region) || item.region.includes('All');
             
             let matchSearch = true;
@@ -817,19 +585,16 @@
                     item.nameTw.toLowerCase().includes(term) ||
                     item.nameEn.toLowerCase().includes(term) ||
                     item.address.toLowerCase().includes(term) ||
-                    matchPhone ||
-                    (item.email && item.email.toLowerCase().includes(term)) ||
-                    (item.website && item.website.toLowerCase().includes(term));
+                    matchPhone;
             }
-            return matchLevel && matchRegion && matchSearch;
-        }).sort((a, b) => LEVEL_ORDER.indexOf(a.level) - LEVEL_ORDER.indexOf(b.level));
+            return matchRegion && matchSearch;
+        });
 
         countEl.innerText = `${filtered.length} 家`;
 
         // 標籤顯示
         let tagsHtml = '';
         if (state.search) tagsHtml += `<span class="filter-tag">搜尋: ${state.search} <svg class="icon icon-sm" style="cursor:pointer" onclick="updateState('search', '')" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>`;
-        if (state.level !== 'All') tagsHtml += `<span class="filter-tag" style="background:${LEVEL_CONFIG[state.level].bgColor}; color:${LEVEL_CONFIG[state.level].color}">${LEVEL_CONFIG[state.level].label.split(' (')[0]} <svg class="icon icon-sm" style="cursor:pointer" onclick="updateState('level', 'All')" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>`;
         if (state.region !== 'All') {
             const regionMap = { 'North': '北區', 'TaoZhuMiao': '桃竹苗', 'Central': '中區', 'South': '南區', 'East': '東區' };
             tagsHtml += `<span class="filter-tag" style="background:#dbeafe; color:#1e40af">區域: ${regionMap[state.region] || state.region} <svg class="icon icon-sm" style="cursor:pointer" onclick="updateState('region', 'All')" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>`;
@@ -849,32 +614,20 @@
         }
 
         listContainer.innerHTML = filtered.map(item => {
-            const config = LEVEL_CONFIG[item.level];
-            // 依指示：只有展碁國際(d1)顯示網站按鈕
+            // 依指示：只有展碁國際(d1)顯示網站按鈕 (已移除 d1，故此邏輯已無作用)
             const showWebsite = item.id === 'd1' && item.website; 
-
-            const tagArray = typeof item.tags === 'string' ? item.tags.split(',') : item.tags;
 
             return `
                 <div class="reseller-card">
-                    <div class="card-badge" style="background:${config.color}">
-                        ${config.icon}
-                        <span>${config.label.split(' (')[0]}</span>
-                    </div>
                     
-                    <div style="padding-right: 0; @media(min-width:640px){padding-right:120px;}">
+                    <div>
                         <h2 class="reseller-name-tw">${item.nameTw}</h2>
                         <p class="reseller-name-en">${item.nameEn}</p>
-                        <p class="reseller-desc">${item.description}</p>
-                        
-                        <div class="tags-row">
-                            ${tagArray.map(tag => `<span class="tag">${tag.trim()}</span>`).join('')}
-                        </div>
 
                         <div class="contact-grid">
                             <div class="contact-item">
                                 <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                                <span class="contact-content">${item.address}</span>
+                                <span class="contact-content" style="grid-column: 1 / -1;">${item.address}</span>
                             </div>
                             <div class="contact-item">
                                 <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
@@ -885,16 +638,6 @@
                                     </button>
                                 </div>
                             </div>
-                            ${item.email ? `
-                            <div class="contact-item" style="grid-column: 1 / -1;">
-                                <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                                <div class="contact-content" style="display:flex; align-items:center; overflow:hidden;">
-                                    <a href="mailto:${item.email}" style="color:inherit; text-decoration:none; margin-right:4px; text-overflow:ellipsis; overflow:hidden;">${item.email}</a>
-                                    <button class="copy-btn" onclick="copyToClipboard('${item.email}')" title="複製 Email">
-                                        <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                    </button>
-                                </div>
-                            </div>` : ''}
                         </div>
                     </div>
                     
@@ -910,14 +653,10 @@
         }).join('');
     }
 
-    // --- 6. 互動邏輯 ---
+    // --- 5. 互動邏輯 ---
 
     window.updateState = function(key, value) {
-        if(key === 'level' && state.level === value && value !== 'All') {
-            state.level = 'All'; 
-        } else {
-            state[key] = value;
-        }
+        state[key] = value;
         
         if(key === 'search') document.getElementById('search-input').value = value;
         
@@ -932,7 +671,6 @@
     };
 
     window.resetAll = function() {
-        state.level = 'All';
         state.region = 'All';
         state.search = '';
         document.getElementById('search-input').value = '';
@@ -950,6 +688,7 @@
         textArea.focus();
         textArea.select();
         try {
+            // Use execCommand for broader compatibility in iFrames
             const successful = document.execCommand('copy');
             if (successful) {
                 const toast = document.getElementById('toast');

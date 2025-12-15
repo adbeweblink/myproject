@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adobe AI 點數計算機</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        /* Custom Animations */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideLeft { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeInDown { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+        @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes pulse-slow { 0%, 100% { opacity: 1; } 50% { opacity: .8; } }
+        @keyframes bounce-gentle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+        .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+        .animate-slideUp { animation: slideUp 0.3s ease-out; }
+        .animate-slideLeft { animation: slideLeft 0.3s ease-out; }
+        .animate-fadeInDown { animation: fadeInDown 0.3s ease-out; }
+        .animate-zoomIn { animation: zoomIn 0.2s ease-out; }
+        .animate-pulse-slow { animation: pulse-slow 3s infinite; }
+        .animate-bounce-gentle { animation: bounce-gentle 2s infinite; }
+
+        /* Scrollbar hiding */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 2px solid currentColor;
+            cursor: pointer;
+            margin-top: -8px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #e2e8f0;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="bg-slate-200 text-slate-800 font-sans pb-24 sm:pb-0 selection:bg-[#0265DC] selection:text-white">
+
+    <!-- Header -->
+    <header class="bg-white/95 backdrop-blur-md p-4 px-6 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-center sticky top-0 z-40 gap-4 sm:gap-0 shadow-sm">
+        <h1 class="text-xl font-bold flex items-center gap-3">
+            <div class="bg-gradient-to-br from-orange-500 via-red-500 to-purple-600 text-white p-2 rounded-lg shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
+            </div>
+            <span class="text-slate-800 font-extrabold tracking-tight">
+                Adobe AI <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 via-red-600 to-purple-600">點數計算機</span>
+            </span>
+        </h1>
+        
+        <div class="flex flex-col items-center relative group">
+            <div id="plan-switcher" class="bg-gray-100 p-1.5 rounded-full flex items-center shadow-inner border border-gray-200 relative overflow-hidden transition-all duration-300">
+                <button onclick="setPlan('general')" id="btn-general" class="px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 relative z-10 flex items-center gap-2 bg-white text-slate-900 shadow-md transform scale-105">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> 
+                    一般/舊版用戶
+                </button>
+                <button onclick="setPlan('pro')" id="btn-pro" class="px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 relative z-10 flex items-center gap-2 text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg> 
+                    CC Pro / Firefly 用戶
+                </button>
+            </div>
+            
+            <!-- Guide Step 1 -->
+            <div id="guide-step-1" class="absolute top-full mt-3 bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-lg shadow-xl animate-bounce-gentle z-50 hidden whitespace-nowrap">
+                <div class="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45"></div>
+                第一步：請先確認您的身分
+            </div>
+        </div>
+
+        <div class="flex gap-4 items-center relative">
+            <a href="https://adbeweblink.github.io/myproject/firefly-biz-matrix.html" target="_blank" rel="noopener noreferrer" class="hidden sm:flex items-center gap-2 text-slate-600 hover:text-[#0265DC] font-medium text-sm transition-colors hover:bg-slate-100 px-3 py-2 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/></svg> 
+                比較方案
+            </a>
+            <div class="relative">
+                <button onclick="openCart()" id="cart-btn-desktop" class="hidden sm:flex items-center gap-2 bg-[#0265DC] hover:bg-[#0256BD] text-white px-5 py-2.5 rounded-full font-bold transition-all shadow-md hover:shadow-lg active:scale-95 group relative">
+                    <div class="relative">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                        <span id="cart-badge-desktop" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-white animate-bounce">0</span>
+                    </div>
+                    <span>需求清單</span>
+                    <span id="total-badge-desktop" class="hidden bg-white/20 px-2 py-0.5 rounded text-xs font-mono">0</span>
+                </button>
+                
+                <!-- Guide Step 3 (Desktop) -->
+                <div id="guide-step-3-desktop" class="absolute top-full right-0 mt-3 bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-lg shadow-xl min-w-max z-50 hidden animate-bounce-gentle">
+                    <div class="absolute -top-1 right-10 w-2 h-2 bg-slate-900 rotate-45"></div>
+                    最後一步：查看統計結果
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto p-6 sm:p-12 relative">
+        <div class="text-center mb-16 animate-fadeIn relative">
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-3 tracking-tight">規劃您的 AI 創意預算</h2>
+            <p class="text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">選擇您的創作類型，精準估算 Adobe Firefly 與第三方模型所需的生成式點數。</p>
+        </div>
+        
+        <div class="relative">
+            <!-- Guide Step 2 -->
+            <div id="guide-step-2" class="hidden absolute -top-14 left-0 right-0 flex justify-center z-50 pointer-events-none">
+                 <div class="bg-slate-900 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm font-bold animate-bounce-gentle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg> 第二步：點擊下方卡片開始估算
+                    <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45"></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-8" id="category-grid">
+                <!-- Categories will be injected here -->
+            </div>
+        </div>
+
+        <!-- Data Source Info -->
+        <div class="mt-16 bg-white rounded-2xl p-8 text-sm text-gray-500 flex flex-col sm:flex-row gap-6 items-start border border-gray-100 shadow-sm mb-12">
+            <div class="p-3 bg-blue-50 rounded-full text-[#0265DC]">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            </div>
+            <div class="flex-1">
+                <div class="flex items-center justify-between flex-wrap gap-2 mb-2">
+                    <p class="font-bold text-slate-900 text-base">關於費率計算與資料來源</p>
+                    <span class="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded font-mono">費率基準：2025 年 12 月官方公告</span>
+                </div>
+                <p class="mb-4 leading-relaxed text-gray-600">本工具整合 Firefly 與合作夥伴模型 (Google, OpenAI, Luma 等)。<br/><span class="text-red-500 font-bold">*注意：</span>部分第三方模型可能因限時優惠結束而調整扣點費率，報價時請務必以官方最新頁面為準。</p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="https://helpx.adobe.com/tw/creative-cloud/apps/generative-ai/generative-credits-faq.html#free-users" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-slate-700 hover:text-[#0265DC] font-bold bg-gray-50 hover:bg-blue-50 px-4 py-2.5 rounded-lg transition-colors">Firefly 官方費率表 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg></a>
+                    <a href="https://helpx.adobe.com/tw/firefly/web/get-started/learn-the-basics/non-adobe-models-in-adobe-products.html" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-slate-700 hover:text-[#0265DC] font-bold bg-gray-50 hover:bg-blue-50 px-4 py-2.5 rounded-lg transition-colors">第三方模型費率表 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg></a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Mobile Floating Action Bar -->
+    <div class="sm:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[92%] max-w-sm">
+        <!-- Guide Step 3 (Mobile) -->
+        <div id="guide-step-3-mobile" class="absolute -top-12 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-lg shadow-xl whitespace-nowrap hidden animate-bounce-gentle z-50">
+            最後一步：點此查看統計
+            <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45"></div>
+        </div>
+
+        <button onclick="openCart()" class="w-full bg-[#1E1E1E] text-white shadow-2xl rounded-2xl p-4 flex justify-between items-center backdrop-blur-md border border-white/10">
+            <div class="flex items-center gap-3">
+                <div class="bg-white/10 p-2.5 rounded-xl backdrop-blur-sm relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                    <span id="cart-badge-mobile" class="hidden absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-[#1E1E1E]">0</span>
+                </div>
+                <div class="text-left"><div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">預估總點數</div><div id="total-badge-mobile" class="font-bold text-xl leading-none font-mono tracking-tight">0</div></div>
+            </div>
+            <div class="flex items-center gap-2 text-sm font-bold text-white bg-white/10 px-4 py-2 rounded-lg">查看 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></div>
+        </button>
+    </div>
+
+    <!-- Modals -->
+    <!-- 1. Config Modal -->
+    <div id="config-modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn">
+        <div class="bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div id="config-modal-header" class="p-6 text-white flex justify-between items-center transition-colors">
+                <div class="flex items-center gap-3">
+                    <div id="config-modal-icon" class="bg-white/20 p-2 rounded-xl backdrop-blur-md"></div>
+                    <div>
+                        <h3 id="config-modal-title" class="text-xl font-bold"></h3>
+                        <p id="config-modal-step" class="text-white/80 text-sm">步驟 1 / 3</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('config-modal')" class="p-2 hover:bg-white/20 rounded-full transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+            </div>
+            <div id="config-modal-body" class="p-6 overflow-y-auto flex-1 bg-slate-50">
+                <!-- Dynamic Content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Cart Drawer -->
+    <div id="cart-drawer-backdrop" class="hidden fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 backdrop-blur-sm opacity-0" onclick="closeCart()"></div>
+    <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full sm:w-[480px] bg-white z-50 shadow-2xl transform transition-transform duration-300 translate-x-full flex flex-col">
+        <!-- Header -->
+        <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-white z-10 shadow-sm flex-none">
+            <div>
+                <h2 class="text-xl font-bold flex items-center gap-2 text-slate-900">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[#0265DC]"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                    需求清單 
+                    <span id="cart-count" class="bg-[#0265DC] text-white text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+                </h2>
+                <div id="cart-user-label" class="text-[10px] text-gray-500 font-bold mt-1 bg-gray-100 px-2 py-0.5 rounded-md inline-block">
+                    一般/舊版用戶 (分開計算)
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="confirmReset()" class="p-2 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-full transition-colors" title="清空重算">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                </button>
+                <button onclick="closeCart()" class="p-2 hover:bg-gray-100 rounded-full text-slate-500 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div id="cart-content" class="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50 min-h-0">
+            <!-- Items injected via JS -->
+        </div>
+
+        <!-- Footer -->
+        <div class="p-6 bg-white shadow-[0_-5px_30px_rgba(0,0,0,0.08)] border-t border-gray-100 z-20 flex-none" id="cart-footer">
+            <!-- Footer details injected via JS -->
+        </div>
+    </div>
+
+    <!-- 3. Reset Modal -->
+    <div id="reset-modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl scale-100 animate-zoomIn">
+            <h3 class="text-xl font-bold mb-2 text-slate-900">確定要清空目前身分的清單嗎？</h3>
+            <p class="text-gray-500 mb-6">這將會移除<span class="text-red-600 font-bold">目前身分</span>的所有項目，其他身分的清單將保留。</p>
+            <div class="flex gap-3">
+                <button onclick="closeModal('reset-modal')" class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-bold hover:bg-gray-200 transition-colors">取消</button>
+                <button onclick="executeReset()" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 transition-colors">確認清空</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Inquiry Form -->
+    <div id="inquiry-modal" class="hidden fixed inset-0 bg-white z-50 overflow-y-auto animate-slideUp">
+        <div class="max-w-2xl mx-auto p-6 md:p-12 relative">
+            <button onclick="closeModal('inquiry-modal')" class="absolute top-6 right-6 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+
+            <div class="text-center mb-10">
+                <div class="inline-block p-3 bg-blue-50 rounded-full mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[#0265DC]"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                </div>
+                <h2 class="text-3xl font-bold text-slate-900 mb-2">採購諮詢單</h2>
+                <p class="text-gray-500">請填寫基本資料，專員將為您提供詳細報價。</p>
+            </div>
+
+            <div id="inquiry-summary" class="bg-gray-50 rounded-2xl p-6 mb-8 border border-gray-100">
+                <!-- Summary injected -->
+            </div>
+
+            <form class="space-y-6" onsubmit="event.preventDefault(); alert('表單已送出（模擬）'); closeModal('inquiry-modal');">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-gray-700 flex items-center gap-2">聯絡人姓名</label>
+                        <input type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" placeholder="王小明" required />
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-gray-700 flex items-center gap-2">公司名稱</label>
+                        <input type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" placeholder="某某科技有限公司" required />
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-gray-700 flex items-center gap-2">聯絡電話</label>
+                        <input type="tel" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" placeholder="0912-345-678" required />
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-gray-700 flex items-center gap-2">職稱</label>
+                        <input type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" placeholder="設計總監" />
+                    </div>
+                </div>
+
+                <button class="w-full bg-[#0265DC] hover:bg-[#0256BD] text-white font-bold py-4 rounded-xl shadow-lg transition-all transform active:scale-[0.99] mt-4 flex items-center justify-center gap-2">
+                    送出諮詢 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification (Fixed Position to clear mobile nav) -->
+    <div id="toast" class="hidden fixed bottom-28 sm:bottom-6 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-xl z-50 flex items-center gap-2 animate-fadeInDown transition-all">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400"><path d="M20 6 9 17l-5-5"/></svg>
+        <span id="toast-message" class="font-bold whitespace-nowrap"></span>
+    </div>
+
+    <script>
+        // ============================
+        // 1. Data Models
+        // ============================
+        
+        const VIDEO_MODELS = {
+            adobe: { name: 'Adobe Firefly', desc: '【首選推薦】保證商業安全，完美整合 Adobe 生態系。注意：生成式延伸的費率依幀率 (FPS) 不同。', tags: ['商業安全', '版權保障', '企業首選'], models: [{ id: 'firefly_vid', name: 'Firefly Video', type: 'gen', desc: '標準 Adobe 影片模型，產生全新影片片段 (預設 24 FPS)。', rates: { '540p': 20, '720p': 50, '1080p': 100 } }, { id: 'firefly_extend', name: 'Premiere 生成式延伸', type: 'gen', desc: '在 Premiere Pro 中延伸現有素材，費率取決於解析度與幀率。', rates: { '720p_24fps': 50, '1080p_24fps': 100, '4k_24fps': 150, '720p_30fps': 75, '1080p_30fps': 125, '4k_30fps': 175 } }] },
+            luma: { name: 'Luma AI', desc: '以強大的動態運鏡與物理模擬著稱，適合動作激烈的場面。', tags: ['運鏡流暢', '動作片首選'], models: [{ id: 'ray3', name: 'Ray3', type: 'gen', desc: 'Luma 最新一代標準版，動態細節豐富。', rates: { '360p': 25, '540p': 75, '720p': 100, '1080p': 125, '4k': 150 } }, { id: 'ray2', name: 'Ray2', type: 'gen', desc: '上一代標準版，平衡了畫質與動態穩定性。', rates: { '540p': 20, '720p': 50, '1080p': 100, '4k': 150 } }] },
+            runway: { name: 'Runway', desc: '專精於藝術風格與創意轉場，適合 MV、廣告等。', tags: ['藝術風格', '創意轉場'], models: [{ id: 'gen4_video', name: 'Runway Gen-4 Video', type: 'gen', rates: { '720p': 20, '1080p': 40 }, desc: '【限時優惠】經典模型，擅長風格化影片生成。' }, { id: 'aleph', name: 'Runway Aleph', type: 'gen', rates: { '720p': 50 }, desc: '【限時優惠】Runway 實驗性模型。' }] },
+            openai: { name: 'OpenAI', desc: 'Sora 模型震撼業界，具備驚人的場景一致性與長鏡頭穩定度。', tags: ['長鏡頭', '場景一致性'], models: [{ id: 'sora2', name: 'Sora 2', type: 'gen', rates: { '全解析度': 30 }, desc: '【限時優惠】OpenAI 經典模型，物理一致性極高，目前統一費率每秒 30 點。' }] },
+            google: { name: 'Google', desc: 'Veo 系列具備極佳的語意理解力，畫面細膩且寫實。', tags: ['高解析度', '語意理解強'], models: [{ id: 'veo31', name: 'Veo 3.1', type: 'gen', rates: { '720p': 50, '1080p': 50 }, desc: '【限時優惠】旗艦畫質，細節豐富。' }, { id: 'veo31_fast', name: 'Veo 3.1 Fast', type: 'gen', rates: { '720p': 10, '1080p': 10 }, desc: '【限時優惠】極速生成，每秒僅需 10 點。' }, { id: 'veo2', name: 'Veo 2', type: 'gen', rates: { '720p': 100 }, desc: 'Google 上一代影片模型。' }] },
+            pika: { name: 'Pika Labs', desc: '擅長動漫風格與特定的物體動態控制。', tags: ['動漫風格', '動態控制'], models: [{ id: 'pika22', name: 'Pika 2.2', type: 'gen', rates: { '720p': 25, '1080p': 50 }, desc: '最新 Pika 模型，動態流暢。' }] },
+            marey: { name: 'Marey', desc: 'Moonvalley 開發，特定藝術風格表現優異。', tags: ['藝術風格'], models: [{ id: 'marey', name: 'Marey', type: 'gen', rates: { '1080p': 100 }, desc: '【限時優惠】高畫質藝術影片生成。' }] }
+        };
+
+        const IMAGE_MODELS_RAW = [
+            { id: 'ps_partner', provider: 'Adobe', name: 'Photoshop 合作夥伴模型', cost: 10, type: 'gen', desc: '在 Photoshop 中選用非 Firefly 模型 (如 Google/Flux 等) 進行填色。', tags: ['第三方填色'] },
+            { id: 'firefly_v5', provider: 'Adobe', name: 'Firefly Image 5 (preview)', cost: 5, type: 'gen', desc: '【最新模型】細節與寫實度大幅提升，光影更自然。', tags: ['最新標準'] },
+            { id: 'firefly_v4_ultra', provider: 'Adobe', name: 'Firefly Image 4 Ultra', cost: 20, type: 'gen', desc: '【商業畫質】極致解析度，適合大型印刷與精細修圖。', tags: ['超高畫質'] },
+            { id: 'firefly_v4', provider: 'Adobe', name: 'Firefly Image 4', cost: 1, type: 'std', desc: '【高性價比】上一代標準模型，平衡畫質與點數消耗。', tags: ['標準模型'] },
+            { id: 'firefly_v3', provider: 'Adobe', name: 'Firefly Image 3', cost: 1, type: 'std', desc: '【基礎模型】適合快速發想、擴充版面與生成式填色。', tags: ['基礎必備'] },
+            { id: 'firefly_v3_fast', provider: 'Adobe', name: 'Firefly Image 3 (Fast)', cost: 1, type: 'std', desc: '【極速生成】犧牲少許細節換取更快的生成速度。', tags: ['極速'] },
+            { id: 'flux_kontext_max', provider: 'Black Forest Labs', name: 'FLUX.1 Kontext [max]', cost: 10, type: 'gen', desc: '【極致細節】Flux 系列中細節表現最強的版本。', tags: ['細節王者'] },
+            { id: 'flux_1_1_pro', provider: 'Black Forest Labs', name: 'FLUX1.1 [pro]', cost: 10, type: 'gen', desc: '【高速高品質】生成速度快，同時保有極高畫質。', tags: ['高速生成'] },
+            { id: 'gemini_3', provider: 'Google', name: 'Gemini 3', cost: 10, type: 'gen', desc: '【語意理解】具備極強的多模態理解。', tags: ['語意理解'] },
+            { id: 'imagen_4', provider: 'Google', name: 'Imagen 4', cost: 20, type: 'gen', desc: 'Google 最新一代繪圖模型。', tags: ['最新寫實'] },
+            { id: 'gpt_img', provider: 'OpenAI', name: 'GPT Image', cost: 60, type: 'gen', badge: '高消耗', desc: '【DALL-E 3】擅長聽懂自然語言。', tags: ['容易上手'] },
+            { id: 'ideogram', provider: 'Ideogram', name: 'Ideogram 3.0', cost: 20, type: 'gen', desc: '【文字排版】能精準在圖片中生成正確的英文字母。', tags: ['文字排版'] },
+            { id: 'runway_gen4', provider: 'Runway', name: 'Runway Gen-4 Image', cost: 20, type: 'gen', desc: '【藝術風格】獨特的美學風格。', tags: ['概念藝術'] }
+        ];
+
+        const ENHANCE_MODELS = [
+            { id: 'topaz_std', provider: 'Topaz Labs', name: 'Gigapixel/Sharpen (<25MP)', cost: 10, desc: '【標準修復】一般照片放大與降噪。', type: 'gen' },
+            { id: 'topaz_high', provider: 'Topaz Labs', name: 'Gigapixel (>25MP)', cost: 20, desc: '【高畫素修復】針對 25MP 以上高畫素照片的進階處理。', type: 'gen' },
+            { id: 'topaz_bloom', provider: 'Topaz Labs', name: 'Bloom', cost: 35, desc: '【創意放大】不僅放大，還能增加細節。', badge: '高消耗', type: 'gen' }
+        ];
+
+        const VECTOR_MODELS = [
+            { id: 'firefly_vec', provider: 'Adobe', name: 'Firefly Vector', cost: 1, type: 'std', desc: '【Adobe 原生】生成 SVG 向量檔。' },
+            { id: 'gemini_vec', provider: 'Google', name: 'Gemini 2.5 Flash', cost: 20, type: 'gen', desc: '快速生成向量圖示與簡單插畫。' },
+            { id: 'gpt_vec', provider: 'OpenAI', name: 'GPT Image (Vector)', cost: 60, type: 'gen', desc: '使用 GPT 生成向量圖概念。', badge: '高消耗' },
+            { id: 'ideogram_vec', provider: 'Ideogram', name: 'Ideogram 3.0', cost: 20, type: 'gen', desc: '擅長生成帶有文字設計的向量圖形。' }
+        ];
+
+        const AUDIO_SERVICES = [
+            { id: 'trans_base', label: '翻譯影片/音訊 (無對嘴)', cost: 5, unit: '秒', desc: '【基礎翻譯】僅翻譯語音內容。', type: 'gen' },
+            { id: 'trans_1080', label: '翻譯/對嘴 (1080p)', cost: 10, unit: '秒', desc: '【進階翻譯】影片語音翻譯 + AI 自動對嘴。', type: 'gen' },
+            { id: 'trans_4k', label: '翻譯/對嘴 (4K)', cost: 15, unit: '秒', desc: '【高畫質翻譯】影片語音翻譯 + AI 自動對嘴。', type: 'gen' },
+            { id: 'avatar', label: '文字轉虛擬人偶', cost: 10, unit: '秒', desc: '以文字建立虛擬人偶影片。', type: 'gen' },
+            { id: 'sfx', label: '生成音效', cost: 10, unit: '次', desc: '輸入文字描述產生簡短音效。', type: 'gen' },
+            { id: 'music', label: 'GenMusic (生成音樂)', cost: 20, unit: '分', desc: '生成可商用的背景音樂。', type: 'gen' }
+        ];
+
+        const CATEGORIES = {
+            image: {
+                id: 'image',
+                title: '圖像設計 (Image)',
+                subtitle: '包含 Firefly Image 3/4, Photoshop 生成式填色, FLUX 等。',
+                icon: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>',
+                bg: 'bg-gradient-to-br from-orange-400 to-pink-600',
+                color: 'text-orange-600',
+                type: 'image'
+            },
+            video: {
+                id: 'video',
+                title: '影片生成 (Video)',
+                subtitle: '包含 Adobe Firefly Video, Luma, Runway, OpenAI Sora 等主流模型。',
+                icon: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 3v18"/><path d="M3 7.5h4"/><path d="M3 12h18"/><path d="M3 16.5h4"/><path d="M17 3v18"/><path d="M17 7.5h4"/><path d="M17 16.5h4"/></svg>',
+                bg: 'bg-gradient-to-br from-blue-500 to-indigo-600',
+                color: 'text-blue-600',
+                type: 'video'
+            },
+            audio: {
+                id: 'audio',
+                title: '音訊與音樂 (Audio)',
+                subtitle: '影片翻譯對嘴、音樂生成、音效製作等服務。',
+                icon: '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+                bg: 'bg-gradient-to-br from-yellow-400 to-orange-500',
+                color: 'text-yellow-600',
+                type: 'audio'
+            }
+        };
+
+        // ============================
+        // 2. Application State
+        // ============================
+        
+        let state = {
+            carts: { general: [], pro: [] },
+            userPlan: 'general',
+            activeCategory: null,
+            modalStep: 1,
+            modalSelections: {
+                step1: null,
+                brand: null,
+                model: null,
+                resolution: null,
+                amount: 1,
+                unit: '張'
+            },
+            showGuide: true,
+            guideStep: 1
+        };
+
+        // ============================
+        // 3. Guide Logic
+        // ============================
+
+        function updateGuide() {
+            // Hide all
+            document.getElementById('guide-step-1').classList.add('hidden');
+            document.getElementById('guide-step-2').classList.add('hidden');
+            document.getElementById('guide-step-3-desktop').classList.add('hidden');
+            document.getElementById('guide-step-3-mobile').classList.add('hidden');
+            document.getElementById('plan-switcher').classList.remove('ring-4', 'ring-[#0265DC]/30', 'animate-pulse');
+
+            if (!state.showGuide) return;
+
+            if (state.guideStep === 1) {
+                document.getElementById('guide-step-1').classList.remove('hidden');
+                document.getElementById('plan-switcher').classList.add('ring-4', 'ring-[#0265DC]/30', 'animate-pulse');
+            } else if (state.guideStep === 2) {
+                document.getElementById('guide-step-2').classList.remove('hidden');
+            } else if (state.guideStep === 3) {
+                document.getElementById('guide-step-3-desktop').classList.remove('hidden');
+                document.getElementById('guide-step-3-mobile').classList.remove('hidden');
+            }
+        }
+
+        // ============================
+        // 4. Core Logic
+        // ============================
+
+        function setPlan(plan) {
+            state.userPlan = plan;
+            
+            // Guide Logic: Advance if user manually clicks
+            if (state.showGuide && state.guideStep === 1) {
+                state.guideStep = 2;
+                updateGuide();
+            }
+
+            // Update UI buttons
+            const btnGeneral = document.getElementById('btn-general');
+            const btnPro = document.getElementById('btn-pro');
+            
+            if (plan === 'general') {
+                btnGeneral.className = 'px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 relative z-10 flex items-center gap-2 bg-white text-slate-900 shadow-md transform scale-105';
+                btnPro.className = 'px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 relative z-10 flex items-center gap-2 text-gray-500 hover:text-gray-700';
+            } else {
+                btnPro.className = 'px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 relative z-10 flex items-center gap-2 bg-gradient-to-r from-[#0265DC] to-[#5143E6] text-white shadow-md transform scale-105';
+                btnGeneral.className = 'px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 relative z-10 flex items-center gap-2 text-gray-500 hover:text-gray-700';
+            }
+
+            updateCartDisplay();
+        }
+
+        function getCurrentCart() {
+            return state.carts[state.userPlan];
+        }
+
+        function addToCart(item) {
+            item.uniqueId = Date.now() + Math.random();
+            state.carts[state.userPlan].push(item);
+            
+            // Guide Logic
+            if (state.showGuide && state.guideStep === 2) {
+                state.guideStep = 3;
+                updateGuide();
+            }
+
+            updateCartDisplay();
+            
+            const displayName = item.subname || item.name || '未知項目';
+            showToast(`已新增：${displayName} (${item.qty} ${item.unit})`);
+        }
+
+        function removeCartItem(id) {
+            state.carts[state.userPlan] = state.carts[state.userPlan].filter(c => c.uniqueId !== id);
+            updateCartDisplay();
+        }
+
+        function confirmReset() {
+            if (getCurrentCart().length === 0) return;
+            document.getElementById('reset-modal').classList.remove('hidden');
+        }
+
+        function executeReset() {
+            state.carts[state.userPlan] = [];
+            updateCartDisplay();
+            closeModal('reset-modal');
+        }
+
+        function getRecommendation(total, plan, potentialFree) {
+            if (total <= 25) return { name: "免費體驗 (Free)", color: "bg-gray-100 text-gray-600 border border-gray-200", desc: "適合輕度試用。" };
+            if (total <= 500) return { name: "單一應用程式 (Single App)", color: "bg-blue-50 text-blue-800 border border-blue-100", desc: "適合專注於 Ps 或 Ai 的平面設計師。" };
+            if (total <= 2000) return { name: "Firefly Standard (2,000點)", color: "bg-green-50 text-green-800 border border-green-100", desc: "適合每月有固定生圖需求的創作者。" };
+            if (total <= 4000) return { name: "Firefly Pro / CC Pro (4,000點)", color: "bg-gradient-to-r from-[#0265DC] to-[#5143E6] text-white shadow-lg", desc: "【推薦】專業用戶首選，涵蓋影片與高品質輸出需求。" };
+            return { name: "Firefly Premium (50,000點)", color: "bg-gradient-to-r from-orange-500 via-red-500 to-purple-600 text-white shadow-lg", desc: "適合需要大量 4K 影片生成的商業工作室。" };
+        }
+
+        // ============================
+        // 5. Modal Logic
+        // ============================
+
+        function openCategoryModal(catKey) {
+            const category = CATEGORIES[catKey];
+            state.activeCategory = category;
+            state.modalStep = 1;
+            state.modalSelections = { step1: null, brand: null, model: null, resolution: null, amount: 1, unit: '張' };
+            
+            // Auto-advance guide if user skips plan selection (Step 1 -> 2)
+            if (state.showGuide && state.guideStep === 1) {
+                state.guideStep = 2;
+                updateGuide();
+            }
+
+            const header = document.getElementById('config-modal-header');
+            header.className = `p-6 text-white flex justify-between items-center transition-colors ${category.bg}`;
+            document.getElementById('config-modal-icon').innerHTML = category.icon;
+            document.getElementById('config-modal-title').innerText = category.title;
+            
+            renderModalStep();
+            document.getElementById('config-modal').classList.remove('hidden');
+        }
+
+        function renderModalStep() {
+            const body = document.getElementById('config-modal-body');
+            const stepLabel = document.getElementById('config-modal-step');
+            const catType = state.activeCategory.type;
+            const step = state.modalStep;
+            
+            const maxSteps = catType === 'image' ? 4 : 3;
+            stepLabel.innerText = `步驟 ${step} / ${maxSteps}`;
+            
+            body.innerHTML = ''; // Clear
+
+            if (step === 1) {
+                let options = [];
+                let labelFn = (k) => k;
+                
+                if (catType === 'video') {
+                    options = Object.keys(VIDEO_MODELS);
+                    labelFn = k => VIDEO_MODELS[k].name;
+                } else if (catType === 'image') {
+                    options = ['image_gen', 'enhance', 'vector'];
+                    const map = { 'image_gen': '圖像生成 (GenAI)', 'enhance': '畫質修復 (Enhance)', 'vector': '向量/Logo (Vector)' };
+                    labelFn = k => map[k];
+                } else {
+                    options = ['audio_services'];
+                    labelFn = () => '音訊服務列表';
+                }
+
+                const title = document.createElement('h4');
+                title.className = "font-bold text-gray-700 mb-4 text-lg";
+                title.innerText = catType === 'image' ? '請選擇服務類型：' : '請選擇服務供應商或類型：';
+                body.appendChild(title);
+
+                const grid = document.createElement('div');
+                grid.className = "grid grid-cols-1 sm:grid-cols-2 gap-4 animate-slideLeft";
+                
+                options.forEach(key => {
+                    const btn = document.createElement('button');
+                    btn.className = "bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-400 hover:bg-blue-50 transition-all text-left group";
+                    btn.innerHTML = `
+                        <div class="font-bold text-lg text-slate-800 mb-1 group-hover:text-blue-700">${labelFn(key)}</div>
+                        ${catType === 'video' && VIDEO_MODELS[key].tags ? `<div class="flex gap-1 mt-2">${VIDEO_MODELS[key].tags.map(t => `<span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">${t}</span>`).join('')}</div>` : ''}
+                        ${catType === 'video' ? `<p class="text-xs text-gray-400 mt-2 line-clamp-2">${VIDEO_MODELS[key].desc}</p>` : ''}
+                    `;
+                    btn.onclick = () => {
+                        state.modalSelections.step1 = key;
+                        state.modalStep = 2;
+                        renderModalStep();
+                    };
+                    grid.appendChild(btn);
+                });
+                body.appendChild(grid);
+            }
+            else if (step === 2) {
+                const backBtn = document.createElement('button');
+                backBtn.className = "text-sm text-gray-500 hover:text-gray-800 flex items-center gap-1 mb-2";
+                backBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg> 返回上一頁`;
+                backBtn.onclick = () => { state.modalStep = 1; renderModalStep(); };
+                body.appendChild(backBtn);
+
+                if (catType === 'image') {
+                    const title = document.createElement('h4');
+                    title.className = "font-bold text-gray-700 mb-2 text-lg";
+                    title.innerText = "請選擇模型品牌：";
+                    body.appendChild(title);
+
+                    let models = [];
+                    const s1 = state.modalSelections.step1;
+                    if (s1 === 'image_gen') models = IMAGE_MODELS_RAW;
+                    else if (s1 === 'enhance') models = ENHANCE_MODELS;
+                    else if (s1 === 'vector') models = VECTOR_MODELS;
+                    const brands = [...new Set(models.map(m => m.provider))];
+
+                    const grid = document.createElement('div');
+                    grid.className = "grid grid-cols-2 gap-3 animate-slideLeft";
+                    brands.forEach(brand => {
+                        const btn = document.createElement('button');
+                        btn.className = "bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-orange-400 hover:bg-orange-50 transition-all text-left font-bold text-slate-800 flex items-center justify-between group";
+                        btn.innerHTML = `${brand} <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-300 group-hover:text-orange-500"><path d="m9 18 6-6-6-6"/></svg>`;
+                        btn.onclick = () => {
+                            state.modalSelections.brand = brand;
+                            state.modalStep = 3;
+                            renderModalStep();
+                        };
+                        grid.appendChild(btn);
+                    });
+                    body.appendChild(grid);
+
+                } else {
+                    const title = document.createElement('h4');
+                    title.className = "font-bold text-gray-700 mb-2 text-lg";
+                    title.innerText = "選擇具體模型：";
+                    body.appendChild(title);
+
+                    let models = [];
+                    if (catType === 'video') models = VIDEO_MODELS[state.modalSelections.step1]?.models || [];
+                    else models = AUDIO_SERVICES;
+
+                    const list = document.createElement('div');
+                    list.className = "space-y-3 animate-slideLeft";
+                    models.forEach(model => {
+                        const btn = document.createElement('button');
+                        btn.className = "w-full bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-400 hover:bg-blue-50 transition-all text-left flex justify-between items-center group";
+                        
+                        let costDisplay = '';
+                        if (model.rates) costDisplay = `<span class="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded whitespace-nowrap">依規格計費</span>`;
+                        else if (state.userPlan === 'pro' && model.type === 'std') costDisplay = `<span class="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded whitespace-nowrap flex items-center gap-1">無限使用</span>`;
+                        else costDisplay = `<span class="text-sm font-bold text-slate-900 whitespace-nowrap">${model.cost} 點<span class="text-[10px] font-normal text-gray-400">/${model.unit || (catType === 'video' ? '秒' : '張')}</span></span>`;
+
+                        btn.innerHTML = `
+                            <div class="flex-1 pr-2">
+                                <div class="font-bold text-slate-800 flex items-center gap-2 flex-wrap">
+                                    ${model.name}
+                                    ${model.badge ? `<span class="bg-red-100 text-red-600 text-[10px] px-1.5 py-0.5 rounded border border-red-200">${model.badge}</span>` : ''}
+                                    ${model.type === 'std' ? `<span class="bg-green-100 text-green-700 text-[10px] px-1.5 py-0.5 rounded border border-green-200">標準模型</span>` : ''}
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">${model.desc}</div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                ${costDisplay}
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-300 group-hover:text-blue-500"><path d="m9 18 6-6-6-6"/></svg>
+                            </div>
+                        `;
+                        btn.onclick = () => selectModel(model);
+                        list.appendChild(btn);
+                    });
+                    body.appendChild(list);
+                }
+            }
+            else if (step === 3) {
+                if (catType === 'image') {
+                    const backBtn = document.createElement('button');
+                    backBtn.className = "text-sm text-gray-500 hover:text-gray-800 flex items-center gap-1 mb-2";
+                    backBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg> 返回品牌列表`;
+                    backBtn.onclick = () => { state.modalStep = 2; renderModalStep(); };
+                    body.appendChild(backBtn);
+
+                    const title = document.createElement('h4');
+                    title.className = "font-bold text-gray-700 mb-2 text-lg";
+                    title.innerText = "選擇具體模型：";
+                    body.appendChild(title);
+
+                    let models = [];
+                    const s1 = state.modalSelections.step1;
+                    if (s1 === 'image_gen') models = IMAGE_MODELS_RAW;
+                    else if (s1 === 'enhance') models = ENHANCE_MODELS;
+                    else if (s1 === 'vector') models = VECTOR_MODELS;
+                    models = models.filter(m => m.provider === state.modalSelections.brand);
+
+                    const list = document.createElement('div');
+                    list.className = "space-y-3 animate-slideLeft";
+                    models.forEach(model => {
+                        const btn = document.createElement('button');
+                        btn.className = "w-full bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-orange-400 hover:bg-orange-50 transition-all text-left flex justify-between items-center group";
+                        
+                        let costDisplay = '';
+                        if (state.userPlan === 'pro' && model.type === 'std') costDisplay = `<span class="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded whitespace-nowrap flex items-center gap-1">無限使用</span>`;
+                        else costDisplay = `<span class="text-sm font-bold text-slate-900 whitespace-nowrap">${model.cost} 點<span class="text-[10px] font-normal text-gray-400">/張</span></span>`;
+
+                        btn.innerHTML = `
+                            <div class="flex-1 pr-2">
+                                <div class="font-bold text-slate-800 flex items-center gap-2 flex-wrap">
+                                    ${model.name}
+                                    ${model.badge ? `<span class="bg-red-100 text-red-600 text-[10px] px-1.5 py-0.5 rounded border border-red-200">${model.badge}</span>` : ''}
+                                    ${model.type === 'std' ? `<span class="bg-green-100 text-green-700 text-[10px] px-1.5 py-0.5 rounded border border-green-200">標準模型</span>` : ''}
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">${model.desc}</div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                ${costDisplay}
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-300 group-hover:text-orange-500"><path d="m9 18 6-6-6-6"/></svg>
+                            </div>
+                        `;
+                        btn.onclick = () => selectModel(model);
+                        list.appendChild(btn);
+                    });
+                    body.appendChild(list);
+
+                } else {
+                    renderConfigUI(body, 2);
+                }
+            }
+            else if (step === 4) {
+                renderConfigUI(body, 3);
+            }
+        }
+
+        function selectModel(model) {
+            state.modalSelections.model = model;
+            if (state.activeCategory.type === 'video') state.modalSelections.unit = '秒';
+            else if (state.activeCategory.type === 'audio') state.modalSelections.unit = model.unit || '次';
+            else state.modalSelections.unit = '張';
+
+            if (model.rates) {
+                state.modalSelections.resolution = Object.keys(model.rates)[0];
+            } else {
+                state.modalSelections.resolution = null;
+            }
+
+            if (state.activeCategory.type === 'image') state.modalStep = 4;
+            else state.modalStep = 3;
+            
+            renderModalStep();
+        }
+
+        function renderConfigUI(container, backStep) {
+            const model = state.modalSelections.model;
+            
+            const backBtn = document.createElement('button');
+            backBtn.className = "text-sm text-gray-500 hover:text-gray-800 flex items-center gap-1 mb-2";
+            backBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg> 返回模型列表`;
+            backBtn.onclick = () => { state.modalStep = backStep; renderModalStep(); };
+            container.appendChild(backBtn);
+
+            const card = document.createElement('div');
+            card.className = "bg-white p-6 rounded-2xl border border-gray-200 shadow-sm animate-slideLeft";
+            
+            let html = `
+                <h4 class="font-bold text-xl text-slate-900 mb-1">${model.name}</h4>
+                <p class="text-gray-500 text-sm mb-6 pb-6 border-b border-gray-100">${model.desc}</p>
+            `;
+
+            if (model.rates) {
+                html += `
+                    <div class="mb-6">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">解析度 / 規格</label>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="res-grid"></div>
+                    </div>
+                `;
+            }
+
+            html += `
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">預估產量 (${state.modalSelections.unit})</label>
+                    <div class="flex items-center gap-4">
+                        <input type="number" min="1" id="amount-input" value="${state.modalSelections.amount}" class="w-full text-3xl font-bold p-3 border-b-2 border-gray-200 focus:border-blue-500 outline-none bg-transparent font-mono text-center">
+                    </div>
+                    <input type="range" min="1" max="1000" id="amount-slider" value="${state.modalSelections.amount}" class="w-full mt-4">
+                </div>
+            `;
+            
+            card.innerHTML = html;
+            container.appendChild(card);
+
+            const summary = document.createElement('div');
+            summary.className = "bg-slate-900 text-white p-5 rounded-2xl flex justify-between items-center shadow-lg mt-6 animate-slideLeft";
+            summary.innerHTML = `
+                <div>
+                    <div class="text-xs text-slate-400 uppercase font-bold tracking-wider mb-1">本項預估扣點</div>
+                    <div id="config-cost" class="text-3xl font-bold font-mono text-yellow-400">0</div>
+                </div>
+                <button id="add-to-cart-btn" class="bg-white text-slate-900 px-6 py-3 rounded-xl font-bold hover:bg-blue-50 transition-colors flex items-center gap-2">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5v14"/></svg> 加入清單
+                </button>
+            `;
+            container.appendChild(summary);
+
+            const input = document.getElementById('amount-input');
+            const slider = document.getElementById('amount-slider');
+            const costDisplay = document.getElementById('config-cost');
+            const addBtn = document.getElementById('add-to-cart-btn');
+
+            const updateCalc = () => {
+                const val = parseInt(input.value) || 0;
+                state.modalSelections.amount = val;
+                
+                let rate = 0;
+                if (model.rates && state.modalSelections.resolution) {
+                    rate = model.rates[state.modalSelections.resolution];
+                } else {
+                    rate = model.cost;
+                }
+
+                if (state.userPlan === 'pro' && model.type === 'std') {
+                    rate = 0;
+                }
+
+                costDisplay.innerText = (rate * val).toLocaleString();
+            };
+
+            input.oninput = (e) => { slider.value = e.target.value; updateCalc(); };
+            slider.oninput = (e) => { input.value = e.target.value; updateCalc(); };
+
+            if (model.rates) {
+                const resGrid = document.getElementById('res-grid');
+                Object.entries(model.rates).forEach(([res, cost]) => {
+                    const btn = document.createElement('button');
+                    const isActive = state.modalSelections.resolution === res;
+                    btn.className = `px-3 py-2 rounded-lg text-sm font-medium transition-all ${isActive ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`;
+                    btn.innerHTML = `${res}<div class="text-[10px] opacity-80">${cost} 點/秒</div>`;
+                    btn.onclick = () => {
+                        state.modalSelections.resolution = res;
+                        container.innerHTML = '';
+                        renderConfigUI(container, backStep);
+                    };
+                    resGrid.appendChild(btn);
+                });
+            }
+
+            addBtn.onclick = () => {
+                let rate = 0;
+                if (model.rates && state.modalSelections.resolution) {
+                    rate = model.rates[state.modalSelections.resolution];
+                } else {
+                    rate = model.cost;
+                }
+                const finalRate = (state.userPlan === 'pro' && model.type === 'std') ? 0 : rate;
+                const cost = finalRate * state.modalSelections.amount;
+
+                const item = {
+                    type: model.type || 'gen',
+                    name: state.activeCategory.title.split(' ')[0],
+                    subname: `${model.name} ${state.modalSelections.resolution ? `(${state.modalSelections.resolution})` : ''}`,
+                    qty: state.modalSelections.amount,
+                    unit: state.modalSelections.unit,
+                    originalCost: rate,
+                    costPerUnit: finalRate,
+                    totalCost: cost,
+                    formula: `${finalRate} 點/${state.modalSelections.unit} × ${state.modalSelections.amount}`,
+                    detail: model.desc,
+                    badge: model.badge
+                };
+                addToCart(item);
+                closeModal('config-modal');
+            };
+
+            updateCalc();
+        }
+
+        // ============================
+        // 6. Helpers
+        // ============================
+
+        function openCart() {
+            // Guide Logic
+            if (state.showGuide && state.guideStep === 3) {
+                state.showGuide = false;
+                updateGuide();
+            }
+
+            document.getElementById('cart-drawer').classList.remove('translate-x-full');
+            document.getElementById('cart-drawer-backdrop').classList.remove('hidden');
+            setTimeout(() => document.getElementById('cart-drawer-backdrop').classList.remove('opacity-0'), 10);
+        }
+
+        function closeCart() {
+            document.getElementById('cart-drawer').classList.add('translate-x-full');
+            document.getElementById('cart-drawer-backdrop').classList.add('opacity-0');
+            setTimeout(() => document.getElementById('cart-drawer-backdrop').classList.add('hidden'), 300);
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 2500);
+        }
+
+        function initCategories() {
+            const grid = document.getElementById('category-grid');
+            Object.entries(CATEGORIES).forEach(([key, cat], idx) => {
+                const btn = document.createElement('button');
+                btn.className = "group relative bg-white rounded-[2rem] p-8 shadow-sm hover:shadow-2xl transition-all duration-500 text-left overflow-hidden border border-transparent hover:border-gray-100";
+                btn.style.animationDelay = `${idx * 100}ms`;
+                btn.onclick = () => openCategoryModal(key);
+                
+                const hoverBg = cat.bg.replace('bg-', 'from-white to-');
+                
+                btn.innerHTML = `
+                    <div class="absolute inset-0 bg-gradient-to-br from-white to-gray-50 opacity-100 transition-opacity"></div>
+                    <div class="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 ${cat.bg.replace('bg-', 'bg-gradient-to-br from-white to-')}"></div>
+                    <div class="relative z-10">
+                        <div class="w-16 h-16 rounded-2xl ${cat.bg} ${cat.color} flex items-center justify-center mb-6 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-sm">${cat.icon}</div>
+                        <h3 class="text-2xl font-bold text-slate-900 mb-2 group-hover:text-[#0265DC] transition-colors">${cat.title}</h3>
+                        <p class="text-sm text-gray-500 font-medium mb-8 leading-relaxed">${cat.subtitle}</p>
+                        <div class="flex items-center text-sm font-bold text-gray-400 group-hover:text-[#0265DC] transition-colors">開始估算 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ml-1 group-hover:translate-x-1 transition-transform"><path d="m9 18 6-6-6-6"/></svg></div>
+                    </div>
+                `;
+                grid.appendChild(btn);
+            });
+        }
+
+        function updateCartDisplay() {
+            const cart = getCurrentCart();
+            const count = cart.length;
+            const total = cart.reduce((acc, item) => acc + item.totalCost, 0);
+
+            const badges = ['cart-badge-desktop', 'cart-badge-mobile'];
+            badges.forEach(id => {
+                const el = document.getElementById(id);
+                el.innerText = count;
+                el.classList.toggle('hidden', count === 0);
+            });
+
+            document.getElementById('total-badge-desktop').innerText = total.toLocaleString();
+            document.getElementById('total-badge-mobile').innerText = total.toLocaleString();
+            document.getElementById('total-badge-desktop').classList.toggle('hidden', total === 0);
+
+            const container = document.getElementById('cart-content');
+            container.innerHTML = '';
+
+            document.getElementById('cart-user-label').innerText = state.userPlan === 'general' ? '一般/舊版用戶 (分開計算)' : 'CC Pro/Firefly (分開計算)';
+            document.getElementById('cart-count').innerText = count;
+
+            const potentialFreeLoad = state.userPlan === 'general' 
+                ? cart.filter(i => i.type === 'std').reduce((sum, i) => sum + i.totalCost, 0)
+                : 0;
+            
+            if (state.userPlan === 'pro' || total > 100) {
+                const limit = 4000;
+                const pct = Math.min((total / limit) * 100, 100);
+                const isOver = total > limit;
+                
+                const dash = document.createElement('div');
+                dash.className = "bg-slate-900 rounded-xl p-5 text-white shadow-lg relative overflow-hidden shrink-0";
+                dash.innerHTML = `
+                    <div class="relative z-10">
+                        <div class="flex justify-between items-end mb-2">
+                            <span class="text-sm font-bold text-slate-300">每月點數用量預估</span>
+                            <span class="text-2xl font-mono font-bold">${total.toLocaleString()} <span class="text-sm font-normal text-slate-400">/ 4,000</span></span>
+                        </div>
+                        <div class="h-3 bg-slate-700 rounded-full overflow-hidden mb-2">
+                            <div class="h-full transition-all duration-500 ${isOver ? 'bg-gradient-to-r from-orange-500 to-red-500' : 'bg-gradient-to-r from-green-400 to-blue-500'}" style="width: ${pct}%"></div>
+                        </div>
+                        <div class="flex justify-between text-[10px] uppercase font-bold tracking-wider">
+                            <span class="text-slate-400">CC Pro 基準額度</span>
+                            ${isOver ? '<span class="text-red-400 flex items-center gap-1">已超出標準額度</span>' : '<span class="text-green-400">額度內</span>'}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(dash);
+            }
+
+            if (state.userPlan === 'general' && potentialFreeLoad > 100) {
+                const hint = document.createElement('div');
+                hint.className = "bg-gradient-to-r from-amber-50 to-orange-50 border border-orange-200 rounded-xl p-4 shadow-sm animate-pulse-slow";
+                hint.innerHTML = `
+                    <div class="flex gap-3">
+                        <div class="bg-orange-100 p-2 rounded-full h-fit text-orange-600"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-1 1.5-2 1.5-3.5a6 6 0 0 0-11 0c0 1.5.5 2.5 1.5 3.5.8.8 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg></div>
+                        <div>
+                            <h4 class="font-bold text-orange-800 text-sm mb-1">專家建議：善用訂閱制優勢</h4>
+                            <p class="text-xs text-orange-700 leading-relaxed mb-2">您目前規劃了 <span class="font-bold font-mono text-lg">${potentialFreeLoad.toLocaleString()}</span> 點的標準生成需求。若訂閱 <span class="font-bold">Firefly 方案</span>，這部分將轉為 <span class="bg-green-100 text-green-700 px-1 rounded font-bold">無限使用</span>。</p>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(hint);
+            }
+
+            if (count === 0) {
+                const empty = document.createElement('div');
+                empty.className = "h-40 flex flex-col items-center justify-center text-gray-400 opacity-60";
+                empty.innerHTML = `
+                    <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-4"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></svg></div>
+                    <p class="text-sm font-medium text-gray-500">${state.userPlan === 'general' ? '尚未加入任何項目 (一般用戶)' : '尚未加入任何項目 (CC Pro)'}</p>
+                `;
+                container.appendChild(empty);
+            } else {
+                cart.forEach(item => {
+                    const el = document.createElement('div');
+                    el.className = "bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow group relative overflow-hidden shrink-0";
+                    el.innerHTML = `
+                        <div class="absolute left-0 top-0 bottom-0 w-1.5 ${item.name.includes('Adobe') ? 'bg-[#0265DC]' : 'bg-purple-500'}"></div>
+                        <div class="flex justify-between items-start pl-3">
+                            <div class="pr-8">
+                                <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">${item.name}</div>
+                                <div class="font-bold text-slate-900 text-sm mb-1 leading-tight">${item.subname} ${item.badge ? `<span class="ml-1.5 text-[10px] text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-100 font-bold">${item.badge}</span>` : ''}</div>
+                            </div>
+                            <button onclick="removeCartItem(${item.uniqueId})" class="text-gray-300 hover:text-red-500 p-1.5 hover:bg-red-50 rounded-full transition-all absolute top-2 right-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+                        </div>
+                        <div class="pl-3 mt-2 mb-3">
+                            <div class="bg-gray-50 px-2 py-1.5 rounded-md text-[11px] font-mono text-gray-500 break-all border border-gray-100 inline-block">${item.formula}</div>
+                        </div>
+                        <div class="flex justify-between items-end pl-3 pt-2 border-t border-gray-50">
+                            <div class="text-xs text-gray-500 font-medium">${item.detail}</div>
+                            <div class="font-bold text-slate-900 text-lg">${item.totalCost.toLocaleString()} <span class="text-xs font-normal text-gray-400">點</span> ${item.totalCost === 0 ? '<span class="ml-2 text-xs text-green-600 bg-green-50 px-1 rounded">無限使用</span>' : ''}</div>
+                        </div>
+                    `;
+                    container.appendChild(el);
+                });
+            }
+
+            const footer = document.getElementById('cart-footer');
+            const rec = getRecommendation(total, state.userPlan, potentialFreeLoad);
+            const isOverLimit = total > 4000;
+            const overage = total - 4000;
+
+            footer.innerHTML = `
+                <div class="flex justify-between items-end mb-5">
+                    <div><span class="text-gray-500 text-xs font-bold uppercase tracking-wider">每月總點數需求</span></div>
+                    <span class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 via-red-600 to-purple-600">${total.toLocaleString()}</span>
+                </div>
+                <div class="p-4 rounded-xl mb-4 transition-all duration-300 ${rec.color}">
+                    <div class="text-[10px] uppercase font-bold opacity-80 mb-1 flex items-center gap-1.5"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> 建議搭配方案</div>
+                    <div class="font-bold text-lg leading-tight mb-1">${rec.name}</div>
+                    <div class="text-xs opacity-90 leading-relaxed">${rec.desc}</div>
+                </div>
+                <div class="flex gap-3 items-start text-[12px] p-3 rounded-xl mb-4 border transition-colors duration-300 ${isOverLimit ? 'bg-red-50 border-red-100 text-red-900' : 'bg-blue-50 border-blue-100 text-blue-900'}">
+                    ${isOverLimit ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="flex-shrink-0 mt-0.5 text-red-600"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>' : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="flex-shrink-0 mt-0.5 text-blue-600"><polyline points="20 6 9 17 4 12"/></svg>'}
+                    <span class="leading-relaxed">
+                        ${isOverLimit 
+                            ? `<strong class="block text-red-700 mb-0.5 text-sm">已超出 CC Pro 額度 ${overage.toLocaleString()} 點</strong>您的需求已超過標準方案提供的 4,000 點。`
+                            : `<strong class="block text-blue-700 mb-0.5 text-sm">額度充足，無需加購</strong>Creative Cloud Pro 方案每月皆含 4,000 點，足以覆蓋。`
+                        }
+                    </span>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="copySummary()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-slate-700 font-bold py-4 rounded-full flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg> 複製摘要
+                    </button>
+                    <button onclick="openInquiry()" class="flex-[2] bg-[#0265DC] hover:bg-[#0256BD] text-white font-bold py-4 rounded-full flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg hover:shadow-xl">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg> 填寫諮詢單
+                    </button>
+                </div>
+            `;
+        }
+
+        // Init
+        window.onload = function() {
+            initCategories();
+            updateCartDisplay();
+            updateGuide(); // Ensure guide step 1 shows on load
+        }
+
+    </script>
+</body>
+</html>

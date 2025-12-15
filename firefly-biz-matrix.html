@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Adobe Firefly 生成式點數方案比較表</title> 
+    <!-- 引入 Tailwind CSS --> 
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        adobeRed: '#FA0F00',
+                        adobeDarkRed: '#D40D00',
+                        adobeBlack: '#1A1A1A',
+                        adobeBlue: '#1473E6',
+                        fireflyGradientStart: '#FF5A5F',
+                        fireflyGradientEnd: '#6B46C1',
+                        bgGray: '#F9FAFB',
+                        bgBlue: '#F0F7FF',
+                        bgRed: '#FFF0F0',
+                        bgGreen: '#F0FDF4', 
+                        bgPurple: '#FAF5FF',
+                        bgYellow: '#FEFCE8' 
+                    },
+                    screens: { 'print': {'raw': 'print'} },
+                    animation: { 
+                        'rotate-phone': 'rotate-phone 3s ease-in-out infinite',
+                        'fade-in': 'fadeIn 0.2s ease-out forwards',
+                        'bounce-x': 'bounceX 1s infinite'
+                    },
+                    keyframes: {
+                        'rotate-phone': {
+                            '0%, 10%': { transform: 'rotate(0deg)' },
+                            '40%, 60%': { transform: 'rotate(90deg)' },
+                            '90%, 100%': { transform: 'rotate(0deg)' }
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.95)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' }
+                        },
+                        bounceX: {
+                            '0%, 100%': { transform: 'translateX(0)' },
+                            '50%': { transform: 'translateX(3px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+        
+        body { font-family: 'Noto Sans TC', sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        #orientation-alert { display: none; }
+        @media screen and (max-width: 320px) and (orientation: portrait) {
+            #orientation-alert:not(.dismissed) { display: flex !important; }
+        }
+        .modal-active { display: flex !important; }
+
+        .hp-field {
+            opacity: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 0;
+            width: 0;
+            z-index: -1;
+        }
+
+        /* =========================================
+           列印專用設定 (A4 直式優化)
+           ========================================= */
+        @media print {
+            @page { 
+                size: A4 landscape; 
+                margin: 8mm;       
+            }
+            
+            html, body {
+                width: 100%;
+                background: white;
+                color: black;
+                margin: 0;
+                padding: 0;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                box-shadow: none !important;
+            }
+
+            .no-print, 
+            #header-container, 
+            .nav-arrow, 
+            #orientation-alert,
+            #feature-modal, 
+            #contact-modal { 
+                display: none !important; 
+            }
+
+            .print-only { display: block !important; }
+
+            #app {
+                display: block !important;
+                width: 100% !important;
+                padding: 0 !important;
+            }
+
+            #table-container {
+                display: block !important;
+                width: 100% !important;
+                border: none !important;
+                zoom: 0.75; 
+                -moz-transform: scale(0.75);
+                -moz-transform-origin: top left;
+            }
+
+            .sticky {
+                position: static !important;
+                border: none !important;
+            }
+
+            .p-3, .p-4, .p-6 { padding: 4px 6px !important; }
+            .mb-4, .mb-6 { margin-bottom: 6px !important; }
+            
+            .text-xs, .text-[10px], .text-[9px] { font-size: 9pt !important; }
+            .text-sm { font-size: 10pt !important; }
+            
+            .border-b, .border-r {
+                border-color: #9ca3af !important;
+            }
+            
+            .border-adobeRed {
+                border-width: 2px !important;
+            }
+        }
+        .print-only { display: none; }
+    </style>
+</head>
+<body class="bg-white text-[#2C2C2C] pb-12 selection:bg-purple-100 selection:text-purple-900">
+
+    <!-- App Root -->
+    <div id="app" class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <div id="header-container" class="sticky top-0 z-[60]"></div>
+
+        <!-- Main Content -->
+        <div class="w-full max-w-[1600px] mx-auto p-1 md:p-6 flex-grow">
+            <!-- Print Header -->
+            <div class="print-only text-center mb-2 border-b-2 border-adobeRed pb-2">
+                <div class="flex items-center justify-between px-4">
+                    <h1 class="text-3xl font-bold text-black">Adobe Firefly 生成式點數方案比較表</h1>
+                    <span class="text-sm text-gray-500" id="print-date"></span>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="no-print mb-6 flex flex-wrap gap-2 md:gap-4 justify-center md:justify-start items-center text-xs font-medium text-gray-500 px-2">
+                <div class="flex items-center bg-white px-3 py-1.5 rounded-md shadow-sm border border-gray-300">
+                    <div class="flex items-center text-adobeRed font-bold mr-1.5">
+                        <div class="bg-adobeRed text-white rounded px-1.5 py-0.5 text-[10px] flex items-center">
+                            <svg class="w-2 h-2 mr-1 fill-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            推薦
+                        </div>
+                    </div>
+                    <span>該項目最強優勢 (僅比較勾選項目)</span>
+                </div>
+                <div class="flex items-center bg-white px-3 py-1.5 rounded-md shadow-sm border border-gray-300">
+                    <svg class="w-3 h-3 text-adobeBlue mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/></svg>
+                    <span>點擊格子查看詳解</span>
+                </div>
+            </div>
+
+            <!-- Comparison Table -->
+            <div id="table-container" class="bg-white rounded-2xl shadow-xl border border-gray-300 overflow-hidden flex flex-col w-full">
+                <!-- Grid injected here -->
+            </div>
+            
+            <!-- Print Footer -->
+             <div class="print-only mt-4 px-4">
+                <p class="text-[10pt] text-gray-500 leading-tight">
+                    * 本表內容僅供參考，生成式點數計算方式與第三方模型支援狀況請以 Adobe 官方最新公告為準。<br>
+                    * 生成點數每月重置，未使用完畢之點數無法遞延至下個月。
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orientation Alert -->
+    <div id="orientation-alert" class="fixed inset-0 z-[100] bg-adobeBlack/95 text-white flex flex-col items-center justify-center p-8 text-center backdrop-blur-sm transition-opacity">
+        <div class="w-24 h-24 mb-8 relative flex items-center justify-center">
+            <svg class="w-16 h-16 text-white animate-rotate-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+        </div>
+        <h2 class="text-2xl font-bold mb-3">建議使用橫式瀏覽</h2>
+        <p class="text-gray-300 text-sm mb-8 max-w-xs mx-auto leading-relaxed">目前為單欄檢視模式。<br>轉為橫式 (Landscape) 可同時比較多個方案。</p>
+        <button onclick="document.getElementById('orientation-alert').classList.add('dismissed')" class="border border-white/30 bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-full text-sm font-medium transition-colors">繼續直式瀏覽</button>
+    </div>
+
+    <!-- Feature Modal -->
+    <div id="feature-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity duration-300" onclick="App.closeModal()"></div>
+        <div id="feature-modal-content" class="bg-white rounded-2xl shadow-2xl max-w-md w-full relative p-0 border-none overflow-hidden hidden">
+            <!-- Content -->
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div id="contact-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="App.closeContactModal()"></div>
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full relative p-6 border-none max-h-[90vh] overflow-y-auto animate-fade-in">
+            <button onclick="App.closeContactModal()" class="absolute top-4 right-4 text-gray-400 hover:text-black transition-colors p-2 rounded-full hover:bg-gray-200"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg></button>
+            <h3 class="text-xl font-black text-adobeBlack mb-2 text-center">商業使用諮詢</h3>
+            <p class="text-gray-500 text-sm text-center mb-6">若您需要為整個設計團隊採購 Firefly 點數或完整版方案，請填寫資訊。</p>
+            <form id="contact-form" class="space-y-4" onsubmit="App.submitForm(event)">
+                <div class="hp-field">
+                    <label for="c_website">Website</label>
+                    <input type="text" id="c_website" name="website" autocomplete="off" tabindex="-1">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1" for="c_name">姓名 <span class="text-red-500">*</span></label>
+                    <input type="text" id="c_name" name="name" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required placeholder="您的姓名" maxlength="50">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1" for="c_company">公司全名 <span class="text-red-500">*</span></label>
+                    <input type="text" id="c_company" name="company" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required placeholder="公司全名" maxlength="100">
+                </div>
+                <!-- 新增：職務欄位 -->
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1" for="c_job">職務 <span class="text-red-500">*</span></label>
+                    <input type="text" id="c_job" name="job" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required placeholder="例如：設計總監、IT經理" maxlength="50">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1" for="c_email">Email <span class="text-red-500">*</span></label>
+                    <input type="email" id="c_email" name="email" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required placeholder="example@company.com" maxlength="100">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1" for="c_phone">手機 <span class="text-red-500">*</span></label>
+                    <input type="tel" id="c_phone" name="phone" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required placeholder="0912-345-678" maxlength="20">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1" for="c_plan">感興趣的方案</label>
+                    <select id="c_plan" name="plan" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none">
+                        <option>Firefly 點數方案(單獨訂閱)</option>
+                        <option>Creative Cloud 完整應用程式</option>
+                    </select>
+                </div>
+                <div>
+                    <button type="submit" id="submit-btn" class="w-full bg-adobeRed text-white py-3 rounded-lg font-bold hover:bg-adobeDarkRed transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed shadow-md">
+                        送出諮詢 我們將盡快與您聯繫
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 設定 Google Script URL (選填，若無則為演示模式)
+        const GOOGLE_SCRIPT_URL = ''; 
+
+        // --- Data Logic ---
+        const AppData = {
+            currentDate: new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }),
+            // 定義兩組資料：訂閱制 (Subscription) 與 加購包 (Add-on)
+            subscriptionPlans: [
+                { 
+                    id: 'free', category: '免費版', name: 'Adobe ID (Free)',
+                    bgColor: 'bg-bgGray', 
+                    note: '適合純粹體驗或非商業用途的個人使用者', 
+                    credits: '25 點 / 月', 
+                    watermark: '有\n(網頁版下載)', 
+                    video_gen: 'X', translation: 'X', sfx: 'X', third_party: 'X', fonts: 'X\n(僅基本)', 
+                    firefly_gallery: '有限制', 
+                    app_access: 'Firefly Web App\nExpress Free',
+                    reset: '✔ 每月重置'
+                },
+                { 
+                    id: 'firefly_standard', category: 'Standard', name: 'Firefly Standard',
+                    bgColor: 'bg-bgGreen', 
+                    note: '入門商業方案，具備基礎生成與字體權限', 
+                    credits: '2,000 點 / 月', 
+                    watermark: '✔ 無浮水印', 
+                    video_gen: '最多 20 段\n(5秒)', 
+                    translation: '最長 6 分鐘', 
+                    sfx: '最多 200 種', 
+                    third_party: '✔ 支援', 
+                    fonts: '✔ Adobe Fonts\n(精選集)', 
+                    firefly_gallery: '✔ 無限次數', 
+                    app_access: 'Firefly Web App\nAdobe Fonts',
+                    reset: '✔ 每月重置'
+                },
+                // --- Firefly Pro (更新為 7000點) ---
+                { 
+                    id: 'firefly_pro', category: 'Pro', name: 'Firefly Pro',
+                    bgColor: 'bg-bgPurple', 
+                    note: '初次採購建議，點數與進階功能存取權的平衡', 
+                    credits: '7,000 點 / 月', 
+                    watermark: '✔ 無浮水印', 
+                    video_gen: '最多 70 段\n(5秒)', 
+                    translation: '最長 23 分鐘', 
+                    sfx: '最多 400 種', 
+                    third_party: '✔ 支援', 
+                    fonts: '✔ Adobe Fonts\n(完整版)', 
+                    firefly_gallery: '✔ 無限次數', 
+                    app_access: 'Firefly Web/Mobile\nExpress Premium\nPs Web/Mobile',
+                    reset: '✔ 每月重置'
+                },
+                { 
+                    id: 'premium', category: 'Premium', isHot: true, 
+                    name: 'Firefly Premium',
+                    bgColor: 'bg-bgBlue', 
+                    note: '大量生成首選，無限影片生成存取權限', 
+                    credits: '50,000 點 / 月', 
+                    watermark: '✔ 無浮水印', 
+                    video_gen: '無限制存取\n(Firefly Video Model)', translation: '最長 166 分鐘', sfx: '最多 5,000 種', third_party: '✔ 支援', fonts: '✔ Adobe Fonts\n(完整版)', 
+                    firefly_gallery: '✔ 無限次數', 
+                    app_access: 'Firefly Web/Mobile\nExpress Premium\nPs Web/Mobile',
+                    reset: '✔ 每月重置'
+                },
+                { 
+                    id: 'cc_all', category: '完整版', orientation: '設計師必備', 
+                    name: 'Creative Cloud Pro', 
+                    bgColor: 'bg-bgRed', 
+                    note: '包含所有桌面版專業軟體 (Ps, Ai, Pr...)', 
+                    credits: '4,000 點 / 月', 
+                    watermark: '✔ 無浮水印', 
+                    video_gen: '最多 40 段\n(5秒)', translation: '最長 13 分鐘', sfx: '最多 400 種', third_party: '✔ 支援', fonts: '✔ Adobe Fonts\n(完整版)', 
+                    firefly_gallery: '✔ 無限次數', 
+                    app_access: '20+ 款應用程式\n(Ps, Ai, Pr, Ae...)',
+                    reset: '✔ 每月重置'
+                }
+            ],
+            // 加購包資料
+            addonPlans: [
+                { 
+                    id: 'addon_2k', category: '加購包', name: '加購 2,000 點',
+                    bgColor: 'bg-bgGreen', 
+                    note: '適合臨時需要少量補充點數。\n注意：每月自動續訂，未使用完畢無法遞延。', 
+                    credits: '2,000 點 / 月', 
+                    watermark: '✔ 無浮水印', 
+                    video_gen: '最多 20 段\n(5秒)', translation: '最長 6 分鐘', sfx: '最多 200 種', third_party: '✔ 支援', fonts: '需依原方案', 
+                    firefly_gallery: '✔ 無限次數', 
+                    app_access: '需搭配現有方案',
+                    reset: '✔ 每月歸零\n(不遞延)'
+                },
+                { 
+                    id: 'addon_7k', category: '加購包', name: '加購 7,000 點',
+                    bgColor: 'bg-bgYellow', 
+                    isHot: true,
+                    note: '中高用量補充首選。\n注意：未使用完畢之點數月底歸零。', 
+                    credits: '7,000 點 / 月', 
+                    watermark: '✔ 無浮水印', 
+                    video_gen: '最多 70 段\n(5秒)', translation: '最長 23 分鐘', sfx: '最多 400 種+', third_party: '✔ 支援', fonts: '需依原方案', 
+                    firefly_gallery: '✔ 無限次數', 
+                    app_access: '需搭配現有方案',
+                    reset: '✔ 每月歸零\n(不遞延)'
+                },
+                { 
+                    id: 'addon_50k', category: '加購包', name: '加購 50,000 點',
+                    bgColor: 'bg-bgBlue', 
+                    note: '巨量補充。\n注意：影片生成有500段上限(非無限)，且點數不遞延。', 
+                    credits: '50,000 點 / 月', 
+                    watermark: '✔ 無浮水印', 
+                    video_gen: '最多 500 段\n(5秒)', // 加購包是 500 段，非無限
+                    translation: '最長 166 分鐘', sfx: '最多 5,000 種', third_party: '✔ 支援', fonts: '需依原方案', 
+                    firefly_gallery: '✔ 無限次數', 
+                    app_access: '需搭配現有方案',
+                    reset: '✔ 每月歸零\n(不遞延)'
+                }
+            ],
+            columns: [
+                { key: 'credits', label: '每月生成點數', icon: 'zap', section: '核心權益', description: '生成式點數是用於 Firefly 功能的「貨幣」。\n\n- 文字產生影像：消耗 1 點\n- 生成填色/擴展：消耗 1 點\n- 高解析度生成：消耗更多點數', url: 'https://helpx.adobe.com/tw/firefly/using/generative-credits-faq.html' },
+                { 
+                    key: 'standard_access', 
+                    label: '標準影像功能', 
+                    icon: 'image', 
+                    section: '核心權益', 
+                    description: '無限制地存取標準影像與向量功能，例如以文字建立影像、生成式填色等。此為所有付費方案的基礎權益。', 
+                    valueKey: 'credits', // 保持顯示為 credits，但用於描述功能
+                    customCheck: '無限制存取', // 針對所有付費方案
+                    url: '' 
+                },
+                { key: 'video_audio_access', label: '進階影片和音訊功能', icon: 'film', section: '生成能力', description: '存取進階影片和音訊功能，例如文字轉影片、翻譯等 (使用您每月的生成式點數)。', customCheck: '✔', url: '' },
+                { key: 'video_gen', label: '產生 5 秒鐘影片', icon: 'film', section: '生成能力', description: '使用 Firefly 影片模型生成影片的能力。\n\n**注意差異：**\n訂閱制 Premium 為「無限制」存取。\n加購包 50,000 點為「最多 500 段」。', url: '' },
+                { key: 'translation', label: '音訊與影片翻譯', icon: 'mic', section: '生成能力', description: '可翻譯的音訊或影片總長度限制。', url: '' },
+                { key: 'sfx', label: '產生音效', icon: 'music', section: '生成能力', description: '使用文字提示生成音效的數量限制。', url: '' },
+                { key: 'firefly_gallery', label: 'Firefly 展示板', icon: 'layout', section: '生成能力', description: '盡情探索靈感，無限次數存取 Firefly 展示板。\n\n免費版可能有存取限制。', url: '' }, 
+                { key: 'third_party', label: '第三方模型', icon: 'layers', section: '生成能力', description: '在 Firefly 中存取合作夥伴生成式 AI 模型 (如 Google, OpenAI, Flux)。', url: '' },
+                
+                { key: 'watermark', label: '無浮水印下載', icon: 'image', section: '使用權限', description: '付費版方案下載的圖片不含可見浮水印，並附帶 Content Credentials (內容憑證)。', url: '' },
+                { key: 'app_access', label: '包含應用程式', icon: 'monitor', section: '軟體生態', description: '訂閱制包含相應軟體權限。\n加購包需依附於既有的 Adobe 帳號與方案使用。', url: '' },
+                { key: 'fonts', label: 'Adobe Fonts', icon: 'type', section: '軟體生態', description: 'Adobe Fonts 提供數千種高品質字體。\n加購包不改變原方案的字體權限。', url: 'https://fonts.adobe.com/' },
+                { key: 'reset', label: '點數遞延規則', icon: 'clock', section: '重要條款', description: '所有方案（含加購包）的點數皆會於每個月的結算日重置。\n\n**未使用的點數會歸零，無法累積至下個月。**', url: 'https://helpx.adobe.com/firefly/using/generative-credits-faq.html' },
+                { key: 'note', label: '一句話總結', icon: 'info', section: '其他', description: '快速總結' }
+            ],
+            // 更新計分板以反映 7000 點和新的功能描述
+            scoreMap: {
+                credits: { '25 點 / 月': 0, '2,000 點 / 月': 1, '4,000 點 / 月': 2, '7,000 點 / 月': 3, '50,000 點 / 月': 4 },
+                video_gen: { 'X': 0, '最多 20 段\n(5秒)': 1, '最多 40 段\n(5秒)': 2, '最多 70 段\n(5秒)': 3, '最多 500 段\n(5秒)': 4, '無限制存取\n(Firefly Video Model)': 5 },
+                translation: { 'X': 0, '最長 6 分鐘': 1, '最長 13 分鐘': 2, '最長 23 分鐘': 3, '最長 166 分鐘': 4 },
+                sfx: { 'X': 0, '最多 200 種': 1, '最多 400 種': 2, '最多 400 種+': 3, '最多 5,000 種': 4 },
+                watermark: { '有\n(網頁版下載)': 0, '✔ 無浮水印': 1 },
+                fonts: { 'X\n(僅基本)': 0, '✔ Adobe Fonts\n(精選集)': 1, '✔ Adobe Fonts\n(完整版)': 2, '需依原方案': 0 },
+                firefly_gallery: { '有限制': 0, '✔ 無限次數': 1 },
+                app_access: { 
+                    'Firefly Web App\nExpress Free': 0, 
+                    'Firefly Web App\nAdobe Fonts': 1,
+                    'Firefly Web/Mobile\nExpress Premium\nPs Web/Mobile': 2, 
+                    '20+ 款應用程式\n(Ps, Ai, Pr, Ae...)': 3,
+                    '需搭配現有方案': 0
+                },
+                reset: { '✔ 每月重置': 0, '✔ 每月歸零\n(不遞延)': 0 }
+            }
+        };
+
+        const getIcon = (name, cls="w-4 h-4") => {
+            const paths = {
+                'eye': '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+                'eye-off': '<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/>',
+                'list-filter': '<path d="M3 6h18"/><path d="M7 12h10"/><path d="M10 18h4"/>',
+                'printer': '<polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2-2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/>',
+                'mail': '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+                'chevron-left': '<polyline points="15 18 9 12 15 6"/>',
+                'chevron-right': '<polyline points="9 18 15 12 9 6"/>',
+                'star': '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+                'check': '<polyline points="20 6 9 17 4 12"/>',
+                'flame': '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.115.385-2.256 1-3.24.265.45.535.96.5 1.74Z"/>',
+                'zap': '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+                'calendar': '<rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/>',
+                'monitor': '<rect width="20" height="14" x="2" y="3" rx="2" ry="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/>',
+                'image': '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>',
+                'layers': '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
+                'database': '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>',
+                'hard-drive': '<line x1="22" x2="2" y1="12" y2="12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" x2="6.01" y1="16" y2="16"/><line x1="10" x2="10.01" y1="16" y2="16"/>',
+                'file-text': '<path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/>',
+                'shield': '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+                'clock': '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+                'type': '<polyline points="4 7 4 4 20 4 20 7"/><line x1="9" x2="15" y1="20" y2="20"/><line x1="12" x2="12" y1="4" y2="20"/>',
+                'info': '<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/>',
+                'x': '<line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/>',
+                'film': '<rect width="18" height="18" x="3" y="3" rx="2" /><path d="M7 3v18"/><path d="M3 7.5h4"/><path d="M3 12h18"/><path d="M3 16.5h4"/><path d="M17 3v18"/><path d="M17 7.5h4"/><path d="M17 16.5h4"/>',
+                'mic': '<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>',
+                'music': '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+                'touch': '<path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S7 9.33 7 8.5v-5c0-.83-.67-1.5-1.5-1.5S4 2.67 4 3.5v5c0 .83.67 1.5 1.5 1.5S1 9.33 1 8.5v-5c0-.83.67-1.5 1.5-1.5S4 2.67 4 3.5v5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5c0-.83.67-1.5 1.5-1.5S10 2.67 10 3.5v5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5c0-.83.67-1.5 1.5-1.5S16 2.67 16 3.5v5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5c0-.83.67-1.5 1.5-1.5S22 2.67 22 3.5v5c0 .83-.67 1.5-1.5 1.5S19 9.33 19 8.5v-5c0-.83-.67-1.5-1.5-1.5S16 2.67 16 3.5v5c0 .83-.67 1.5-1.5 1.5z"/>',
+                'layout': '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="9" x2="9" y1="21" y2="9"/>',
+                'calculator': '<rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="8" x2="16" y1="10" y2="10"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/><path d="M8 18h.01"/>'
+            };
+            const d = paths[name] || '<circle cx="12" cy="12" r="10"/>';
+            return `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${d}</svg>`;
+        };
+
+        const getPlanVal = (plan, key) => plan[key] || '無';
+
+        // --- Core Application Logic ---
+        const App = {
+            state: {
+                mode: 'subscription', // 'subscription' 或 'addon'
+                visiblePlans: { 
+                    // Subscription 預設顯示 Standard, Pro, Premium
+                    free: false, firefly_standard: true, firefly_pro: true, premium: true, cc_all: false,
+                    // Addon 預設全顯示
+                    addon_2k: true, addon_7k: true, addon_50k: true
+                },
+                hideCommon: false,
+                startIndex: 0, 
+                columnsToShow: 3,
+                fontSizeMode: 0
+            },
+
+            init() {
+                this.handleResize();
+                window.addEventListener('resize', () => this.handleResize());
+                document.getElementById('print-date').innerText = `製表日期：${AppData.currentDate}`;
+                this.render();
+            },
+
+            handleResize() {
+                const w = window.innerWidth;
+                let newCols = 3;
+                
+                // Adjusted logic:
+                if (w < 640) {
+                    newCols = 1; // Mobile Portrait -> 1 col
+                } else if (w < 1024) {
+                    newCols = 2; // Mobile Landscape / Tablet Portrait -> 2 cols
+                } else {
+                    newCols = 5; // Desktop -> Max cols to show all (100% width proportional)
+                }
+                
+                if (this.state.columnsToShow !== newCols) {
+                    this.state.columnsToShow = newCols;
+                    this.state.startIndex = 0; 
+                    this.render();
+                }
+            },
+            
+            toggleMode(newMode) {
+                if (this.state.mode === newMode) return;
+                this.state.mode = newMode;
+                this.state.startIndex = 0;
+                this.render();
+            },
+
+            toggleFontSize() {
+                this.state.fontSizeMode = (this.state.fontSizeMode + 1) % 3;
+                this.renderGrid();
+                this.renderHeader();
+            },
+            
+            getTextSizeClass(type) {
+                const mode = this.state.fontSizeMode;
+                switch (type) {
+                    case 'header': return mode === 2 ? 'text-xs md:text-xl' : (mode === 1 ? 'text-xs md:text-lg' : 'text-xs md:text-base');
+                    case 'label': return mode === 2 ? 'text-[11px] md:text-lg' : (mode === 1 ? 'text-[11px] md:text-base' : 'text-[11px] md:text-sm');
+                    case 'content': return mode === 2 ? 'text-xs md:text-lg' : (mode === 1 ? 'text-xs md:text-base' : 'text-xs md:text-sm');
+                    case 'note': return mode === 2 ? 'text-xs md:text-lg' : (mode === 1 ? 'text-xs md:text-base' : 'text-xs md:text-sm');
+                    default: return '';
+                }
+            },
+
+            getActivePlans() {
+                const source = this.state.mode === 'subscription' ? AppData.subscriptionPlans : AppData.addonPlans;
+                return source.filter(p => this.state.visiblePlans[p.id]);
+            },
+
+            getVisibleSlice() {
+                const active = this.getActivePlans();
+                if (this.state.startIndex >= active.length) this.state.startIndex = Math.max(0, active.length - this.state.columnsToShow);
+                return active.slice(this.state.startIndex, this.state.startIndex + this.state.columnsToShow);
+            },
+
+            nextPage() {
+                const active = this.getActivePlans();
+                if (this.state.startIndex + this.state.columnsToShow < active.length) {
+                    this.state.startIndex++;
+                    this.renderGrid();
+                }
+            },
+
+            prevPage() {
+                if (this.state.startIndex > 0) {
+                    this.state.startIndex--;
+                    this.renderGrid();
+                }
+            },
+
+            togglePlan(id) {
+                const newState = { ...this.state.visiblePlans, [id]: !this.state.visiblePlans[id] };
+                const currentModePlans = this.state.mode === 'subscription' ? AppData.subscriptionPlans : AppData.addonPlans;
+                const visibleCount = currentModePlans.filter(p => newState[p.id]).length;
+                
+                if (visibleCount === 0) return;
+
+                this.state.visiblePlans = newState;
+                this.state.startIndex = 0; 
+                this.render();
+            },
+
+            toggleHideCommon() {
+                this.state.hideCommon = !this.state.hideCommon;
+                this.render();
+            },
+
+            isCommon(key) {
+                const active = this.getActivePlans();
+                if (active.length < 2) return false;
+                const firstVal = getPlanVal(active[0], key);
+                return active.every(p => getPlanVal(p, key) === firstVal);
+            },
+
+            render() {
+                this.renderHeader();
+                this.renderGrid();
+            },
+
+            renderHeader() {
+                const container = document.getElementById('header-container');
+                const { hideCommon, visiblePlans, fontSizeMode, mode } = this.state;
+                
+                const currentPlans = mode === 'subscription' ? AppData.subscriptionPlans : AppData.addonPlans;
+                
+                const togglesHtml = currentPlans.map(p => {
+                    const isActive = visiblePlans[p.id];
+                    return `<button onclick="App.togglePlan('${p.id}')" class="px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-bold rounded-md flex items-center justify-center transition-all ${isActive ? 'bg-[#4B4B4B] text-white shadow-md' : 'text-gray-500 hover:text-gray-300'}">${getIcon(isActive ? 'eye' : 'eye-off', 'w-3 h-3 mr-1.5')} ${p.category === '加購包' ? p.name.replace('加購 ','') : p.category}</button>`;
+                }).join('');
+                
+                const hideCommonClass = hideCommon ? 'bg-adobeRed border-adobeRed text-white shadow-lg hover:bg-adobeDarkRed' : 'bg-transparent border-[#444] text-gray-300 hover:bg-[#2A2A2A] hover:text-white';
+                const fontLabels = ['Aa 標準', 'Aa 大', 'Aa 特大'];
+                const fontBtnClass = fontSizeMode > 0 ? 'bg-white/10 text-white border-white/30' : 'bg-transparent text-gray-400 border-[#444]';
+
+                container.innerHTML = `
+                <div class="bg-adobeBlack text-white shadow-xl sticky top-0 z-[60]">
+                    <div class="max-w-[1600px] mx-auto px-4 py-3">
+                        
+                        <!-- Row 1: Title + Mode Switch (Left Aligned) -->
+                        <div class="flex flex-col md:flex-row items-center gap-4 mb-2">
+                            <h1 class="text-xl md:text-2xl font-bold tracking-tight text-white whitespace-nowrap">
+                                Adobe Firefly 生成式點數方案比較表
+                            </h1>
+                            <div class="flex items-center gap-2 bg-[#333] p-1 rounded-lg">
+                                <button onclick="App.toggleMode('subscription')" class="px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center ${mode === 'subscription' ? 'bg-adobeBlue text-white shadow-md' : 'text-gray-400 hover:text-white'}">
+                                    🌟 獨立訂閱 (主方案)
+                                </button>
+                                <button onclick="App.toggleMode('addon')" class="px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center ${mode === 'addon' ? 'bg-[#F59E0B] text-white shadow-md' : 'text-gray-400 hover:text-white'}">
+                                    ⚡ 點數加購包 (補充用)
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Row 2: Warning -->
+                        <div class="text-[10px] text-red-400 font-bold bg-red-900/30 px-2 py-1 rounded border border-red-800/50 text-left mb-3 inline-block">
+                            注意：所有方案(含加購包)之點數均為每月歸零，不遞延。請留意下單日期以免下單當月能使用的時間過於緊迫
+                        </div>
+
+                        <!-- Row 3: Consolidated Toolbar (Right Aligned) -->
+                        <div class="flex flex-col xl:flex-row items-center justify-end gap-3 border-t border-gray-700/50 pt-2">
+                             
+                             <!-- Group 1: Metadata (Text) -->
+                             <div class="text-[10px] text-gray-400 text-center xl:text-right leading-tight whitespace-nowrap">
+                                資料來源：Adobe 官網 由代理商更新整理僅供參考，相關訊息仍以原廠即時訊息為主<br>
+                                <span class="text-gray-500">製表日期：${AppData.currentDate}</span>
+                             </div>
+
+                             <div class="h-4 w-px bg-gray-700 hidden xl:block"></div>
+
+                             <!-- Group 2: Toggles -->
+                             <div class="flex items-center gap-2 bg-[#2A2A2A] rounded-lg p-1 border border-[#333] whitespace-nowrap overflow-x-auto max-w-full">
+                                <span class="text-[10px] text-gray-400 font-bold px-2 hidden sm:inline">自訂比較顯示</span>
+                                ${togglesHtml}
+                             </div>
+
+                             <!-- Group 3: Actions -->
+                             <div class="flex items-center gap-2 whitespace-nowrap">
+                                 <button onclick="App.toggleFontSize()" class="flex items-center px-3 py-1.5 rounded-lg text-xs font-bold transition-all border h-[34px] ${fontBtnClass} hover:bg-[#2A2A2A] hover:text-white" title="切換字體大小">
+                                    ${getIcon('type', 'w-4 h-4 mr-1.5')} ${fontLabels[fontSizeMode]}
+                                 </button>
+                                 
+                                 <button onclick="App.toggleHideCommon()" class="flex items-center px-3 py-1.5 rounded-lg text-xs font-bold transition-all border h-[34px] ${hideCommonClass}">
+                                    ${getIcon('list-filter', 'w-3 h-3 mr-1.5 ' + (hideCommon ? 'fill-white' : ''))} ${hideCommon?'只看差異':'顯示全部'}
+                                 </button>
+                                 
+                                 <button onclick="window.print()" class="flex items-center px-3 py-1.5 bg-transparent border border-[#444] text-gray-300 rounded-lg text-xs font-bold hover:bg-[#2A2A2A] hover:text-white transition-colors h-[34px]">
+                                    ${getIcon('printer', 'w-4 h-4 mr-1.5')} 列印/PDF
+                                 </button>
+
+                                 <a href="https://adbeweblink.github.io/myproject/aipointcalculator.html" target="_blank" class="flex items-center px-3 py-1.5 bg-transparent border border-[#444] text-gray-300 rounded-lg text-xs font-bold hover:bg-[#2A2A2A] hover:text-white transition-colors h-[34px] no-underline">
+                                    ${getIcon('calculator', 'w-4 h-4 mr-1.5')} 點數計算機
+                                 </a>
+                                 
+                                 <button onclick="App.openContactModal()" class="flex items-center px-4 py-1.5 bg-adobeRed text-white rounded-lg text-xs font-bold hover:bg-adobeDarkRed transition-colors shadow-md h-[34px] animate-pulse hover:animate-none whitespace-nowrap">
+                                    ${getIcon('mail', 'w-4 h-4 mr-1.5')} 商業諮詢
+                                 </button>
+                             </div>
+                        </div>
+
+                    </div>
+                </div>`;
+            },
+
+            renderGrid() {
+                const container = document.getElementById('table-container');
+                const activeAll = this.getActivePlans();
+                const visibleSlice = this.getVisibleSlice();
+                const { columnsToShow, startIndex } = this.state;
+                
+                const labelWidth = window.innerWidth < 768 ? '110px' : (this.state.fontSizeMode === 2 ? '240px' : (this.state.fontSizeMode === 1 ? '200px' : '180px'));
+                const gridStyle = `grid-template-columns: ${labelWidth} repeat(${visibleSlice.length}, 1fr); display: grid;`;
+
+                const canPrev = startIndex > 0;
+                const canNext = startIndex + columnsToShow < activeAll.length;
+                
+                const headerTextClass = this.getTextSizeClass('header');
+                const labelTextClass = this.getTextSizeClass('label');
+                const contentTextClass = this.getTextSizeClass('content');
+                const noteTextClass = this.getTextSizeClass('note');
+
+                let html = `<div class="w-full relative"><div class="sticky top-0 left-0 z-20 bg-[#F5F5F5] border-b border-gray-300 shadow-sm" style="${gridStyle}"><div class="flex items-center justify-start p-2 pl-4 border-r border-gray-300 text-xs font-bold text-gray-500 uppercase tracking-widest bg-white">方案特性</div>`;
+                
+                visibleSlice.forEach((plan, idx) => {
+                    let preContent = '';
+                    if (idx === 0 && canPrev) preContent = `<button onclick="App.prevPage()" class="absolute left-1 top-1/2 -translate-y-1/2 bg-white shadow rounded-full p-1 text-adobeBlack z-30 nav-arrow w-8 h-8 flex items-center justify-center hover:bg-gray-100 transition-colors" title="查看左側方案">${getIcon('chevron-left', 'w-5 h-5')}</button>`;
+                    let postContent = '';
+                    if (idx === visibleSlice.length - 1 && canNext) postContent = `<button onclick="App.nextPage()" class="absolute right-1 top-1/2 -translate-y-1/2 bg-white shadow rounded-full p-1 text-adobeBlack z-30 nav-arrow w-8 h-8 flex items-center justify-center hover:bg-gray-100 transition-colors" title="查看右側方案">${getIcon('chevron-right', 'w-5 h-5')}</button>`;
+
+                    html += `<div class="relative p-3 text-center border-r border-gray-300 last:border-r-0 ${plan.bgColor}">
+                        ${preContent} ${postContent}
+                        ${plan.isHot ? `<div class="absolute top-1 right-1 z-20"><div class="bg-gradient-to-r from-fireflyGradientStart to-fireflyGradientEnd text-white text-[9px] px-1.5 py-0.5 rounded shadow-sm font-bold flex items-center">${getIcon('flame', 'w-3 h-3 mr-1 fill-white')} 熱門</div></div>` : ''}
+                        <div class="inline-flex items-center px-2 py-0.5 rounded text-[9px] md:text-[10px] font-bold mb-1 tracking-wide uppercase ${plan.id === 'cc_all' ? 'bg-adobeRed text-white' : (plan.id === 'premium' ? 'bg-adobeBlue text-white' : (plan.id === 'firefly_standard' || plan.id === 'addon_2k' ? 'bg-[#059669] text-white' : (plan.id === 'firefly_pro' ? 'bg-[#7C3AED] text-white' : (plan.id === 'addon_7k' ? 'bg-[#D97706] text-white' : 'bg-gray-200 text-gray-600'))))}">
+                            ${plan.category} ${plan.orientation ? `<span class="mx-1 opacity-60">|</span><span class="text-[9px]">${plan.orientation}</span>` : ''}
+                        </div>
+                        <h3 class="${headerTextClass} font-extrabold text-adobeBlack leading-tight break-words">${plan.name}</h3>
+                    </div>`;
+                });
+                html += `</div>`;
+
+                const groups = {};
+                AppData.columns.forEach(col => {
+                    if (this.state.hideCommon && this.isCommon(col.key)) return;
+                    if (!groups[col.section]) groups[col.section] = [];
+                    groups[col.section].push(col);
+                });
+
+                Object.keys(groups).forEach(sec => {
+                    let iconName = 'star';
+                    if (sec === '軟體生態') iconName = 'monitor';
+                    if (sec === '核心權益') iconName = 'zap';
+                    if (sec === '生成能力') iconName = 'layers';
+                    if (sec === '重要條款') iconName = 'clock';
+                    html += `<div class="col-span-full bg-white px-4 md:px-6 py-3 text-[10px] md:text-xs font-bold text-gray-800 flex items-center border-y border-gray-300 uppercase tracking-wider sticky left-0 shadow-[0_1px_2px_rgba(0,0,0,0.05)]" style="grid-column: 1 / -1;">${getIcon(iconName, 'w-3 h-3 mr-2')} ${sec}</div>`;
+                    
+                    groups[sec].forEach(col => {
+                        const isCommon = this.isCommon(col.key);
+                        const isNote = col.key === 'note';
+                        
+                        // Custom logic for standard_access and video_audio_access
+                        let customValue = getPlanVal(visibleSlice[0], col.key); // Default to first visible plan value
+                        if (col.key === 'standard_access') {
+                            const isPaid = (plan) => plan.id !== 'free';
+                            const isFree = (plan) => plan.id === 'free';
+
+                            visibleSlice.forEach((plan, cellIndex) => {
+                                let displayVal = 'X';
+                                if (isPaid(plan)) {
+                                    displayVal = '✔ 無限制存取';
+                                } else if (isFree(plan)) {
+                                    displayVal = 'X';
+                                }
+                                
+                                // Since this row is purely descriptive and shared, we will put it outside the normal content loop
+                                // But if we must include it, we determine the value here:
+                                customValue = isPaid(visibleSlice[0]) ? '✔ 無限制存取' : 'X';
+                            });
+                        }
+                        
+                        // Custom row handling outside the loop if necessary, but we stick to the provided structure:
+                        if (col.key === 'standard_access' || col.key === 'video_audio_access') {
+                            const isPaid = (plan) => plan.id !== 'free';
+                            
+                            html += `<div class="border-b border-gray-200 group hover:bg-black/5 transition-colors" style="${gridStyle}">`;
+                            html += `<div onclick="App.openFeatureModal('${col.key}')" class="p-3 flex items-center border-r border-gray-200 cursor-pointer bg-white ${isCommon ? 'bg-gray-50/30' : ''}"><div class="text-gray-300 shrink-0 hidden md:block mr-2">${getIcon('info', 'w-3 h-3')}</div><span class="${labelTextClass} font-bold text-gray-700 break-words leading-snug">${col.label}</span></div>`;
+                            
+                            visibleSlice.forEach(plan => {
+                                let valToDisplay;
+                                if (col.key === 'standard_access') {
+                                    valToDisplay = isPaid(plan) ? '✔ 無限制存取' : 'X (有限試用)';
+                                } else { // video_audio_access
+                                    valToDisplay = isPaid(plan) ? '✔' : 'X (有限試用)';
+                                }
+                                
+                                // Apply the specific text format for display
+                                let contentHtml = `<span class="${contentTextClass} text-left pl-4 block whitespace-pre-line text-[#2D2D2D] font-medium leading-relaxed">${valToDisplay.replace(/✔/g, '<span class="text-[#059669] text-base font-bold">✔</span>').replace(/X/g, '<span class="text-gray-400 font-bold">X</span>')}</span>`;
+
+                                html += `<div onclick="App.openFeatureModal('${col.key}')" class="p-2 flex items-center justify-start border-r border-gray-300 last:border-r-0 cursor-pointer ${plan.bgColor}">${contentHtml}</div>`;
+                            });
+                            html += `</div>`;
+                            return;
+                        }
+                        
+                        // Standard Row rendering:
+                        
+                        if (isNote) {
+                            html += `<div style="${gridStyle}"><div class="bg-adobeBlack border-b border-[#333] border-r border-[#333] p-4 flex items-center justify-center md:justify-start md:pl-6"><div class="flex items-center gap-2"><div class="text-adobeRed">${getIcon('info', 'w-4 h-4')}</div><div class="text-xs md:text-sm font-bold text-white uppercase tracking-wider">總結</div></div></div>`;
+                            visibleSlice.forEach(plan => {
+                                html += `<div class="bg-adobeBlack p-4 md:p-6 text-center border-b border-[#333] border-r border-[#333] last:border-r-0 flex items-center justify-center"><span class="${noteTextClass} font-black text-white leading-relaxed">${plan.note}</span></div>`;
+                            });
+                            html += `</div>`;
+                            return;
+                        }
+
+                        html += `<div class="border-b border-gray-200 group hover:bg-black/5 transition-colors" style="${gridStyle}">`;
+                        html += `<div onclick="App.openFeatureModal('${col.key}')" class="p-3 flex items-center border-r border-gray-200 cursor-pointer bg-white ${isCommon ? 'bg-gray-50/30' : ''}"><div class="text-gray-300 shrink-0 hidden md:block mr-2">${getIcon('info', 'w-3 h-3')}</div><span class="${labelTextClass} font-bold text-gray-700 break-words leading-snug">${col.label}</span></div>`;
+                        
+                        visibleSlice.forEach(plan => {
+                            const val = getPlanVal(plan, col.key);
+                            
+                            // Winner Logic based on CURRENT mode plans
+                            let maxScore = -1;
+                            const scores = activeAll.map(p => {
+                                const v = getPlanVal(p, col.key);
+                                const scoreMap = AppData.scoreMap[col.key];
+                                return scoreMap ? (scoreMap[v] ?? 0) : 0;
+                            });
+                            maxScore = Math.max(...scores);
+                            
+                            const currentPlanScore = AppData.scoreMap[col.key] ? (AppData.scoreMap[col.key][val] ?? 0) : 0;
+                            const winnersCount = scores.filter(s => s === maxScore).length;
+                            const isTie = winnersCount === activeAll.length;
+                            let isWin = (currentPlanScore === maxScore && maxScore > 0 && !isTie);
+
+                            let displayVal = val;
+                            if (val.includes('✔')) {
+                                displayVal = val.replace(/✔/g, '<span class="text-[#059669] text-base font-bold">✔</span>');
+                            } else if (val.includes('X')) {
+                                displayVal = val.replace(/X/g, '<span class="text-gray-400 font-bold">X</span>');
+                            }
+                            
+                            // 表格內容設定為靠左對齊，符合您的圖片參考
+                            let contentHtml = `<span class="${contentTextClass} text-left pl-4 block whitespace-pre-line text-[#2D2D2D] font-medium leading-relaxed">${displayVal}</span>`;
+                            
+                            if (isWin) {
+                                contentHtml = `
+                                <div class="relative border-2 border-adobeRed bg-white rounded-lg p-3 w-full text-left shadow-[0_2px_8px_rgba(250,15,0,0.1)]">
+                                    <div class="absolute -top-2.5 right-1 bg-adobeRed text-white text-[9px] px-1.5 py-0.5 rounded-full flex items-center shadow-sm font-bold tracking-tight">
+                                        ${getIcon('star', 'w-2 h-2 mr-1 fill-white')} 推薦
+                                    </div>
+                                    <span class="text-adobeRed font-bold ${contentTextClass} whitespace-pre-line block pl-1">${displayVal}</span>
+                                </div>`;
+                            }
+                            
+                            html += `<div onclick="App.openFeatureModal('${col.key}')" class="p-2 flex items-center justify-start border-r border-gray-300 last:border-r-0 cursor-pointer ${plan.bgColor}">${contentHtml}</div>`;
+                        });
+                        html += `</div>`;
+                    });
+                });
+
+                html += `</div>`;
+                container.innerHTML = html;
+            },
+            
+            // ... (rest of methods unchanged)
+            openFeatureModal(key) {
+                const col = AppData.columns.find(c => c.key === key);
+                if(!col) return;
+                
+                const contentDiv = document.getElementById('feature-modal-content');
+                const modalDiv = document.getElementById('feature-modal');
+
+                contentDiv.innerHTML = `
+                    <div class="bg-[#FAFAFA] p-6 flex justify-center border-b border-gray-100 relative">
+                        <button onclick="App.closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-black transition-colors p-2 rounded-full hover:bg-gray-200">${getIcon('x', 'w-5 h-5')}</button>
+                        <div class="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-adobeRed border border-gray-100">${getIcon(col.icon, "w-8 h-8")}</div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 text-center text-adobeBlack">${col.label}</h3>
+                        <div class="h-1 w-10 bg-adobeRed mb-4 mx-auto rounded-full"></div>
+                        <p class="text-sm text-gray-600 mb-4 whitespace-pre-line leading-relaxed text-center">${col.description}</p>
+                        ${col.key === 'credits' ? `<div class="mb-4 bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded-r"><p class="text-yellow-700 text-xs font-bold">*點數會於每月重置，請記得使用。</p></div>` : ''}
+                        ${col.url ? `<a href="${col.url}" target="_blank" class="block w-full text-center bg-adobeRed text-white py-3 rounded-xl font-bold shadow-lg shadow-red-500/20 hover:bg-adobeDarkRed transition-colors">了解更多 (Adobe 官方說明)</a>` : '<button onclick="App.closeModal()" class="block w-full text-center bg-adobeBlack text-white py-3 rounded-xl font-bold">關閉</button>'}
+                    </div>`;
+                
+                modalDiv.classList.remove('hidden');
+                modalDiv.classList.add('flex');
+                contentDiv.classList.remove('hidden');
+                contentDiv.classList.add('animate-fade-in');
+            },
+            closeModal() {
+                 const modalDiv = document.getElementById('feature-modal');
+                 const contentDiv = document.getElementById('feature-modal-content');
+                 
+                 modalDiv.classList.add('hidden');
+                 modalDiv.classList.remove('flex');
+                 contentDiv.classList.add('hidden');
+                 contentDiv.classList.remove('animate-fade-in');
+            },
+            openContactModal() {
+                document.getElementById('contact-modal').classList.remove('hidden');
+                document.getElementById('contact-modal').classList.add('flex');
+            },
+            closeContactModal() {
+                document.getElementById('contact-modal').classList.add('hidden');
+                document.getElementById('contact-modal').classList.remove('flex');
+            },
+            submitForm(e) {
+                e.preventDefault();
+                const form = document.getElementById('contact-form');
+                const btn = document.getElementById('submit-btn');
+                const originalBtnText = btn.innerHTML;
+
+                const honeypot = document.getElementById('c_website').value;
+                if (honeypot) {
+                    setTimeout(() => { form.reset(); App.closeContactModal(); }, 500);
+                    return;
+                }
+
+                const phoneInput = document.getElementById('c_phone');
+                let phoneVal = phoneInput.value;
+                const cleanPhone = phoneVal.replace(/[\-\s]/g, '');
+                const phoneRegex = /^09\d{8}$/;
+
+                if (!phoneRegex.test(cleanPhone)) {
+                    alert('請輸入有效的台灣手機號碼格式！\n\n範例：0912-345-678 或 0912345678');
+                    phoneInput.focus();
+                    return;
+                }
+
+                if (!GOOGLE_SCRIPT_URL) {
+                    btn.disabled = true;
+                    btn.innerHTML = '處理中...';
+                    setTimeout(() => {
+                        alert('已送出諮詢！(演示模式：實際串接後將傳送至後台)');
+                        form.reset();
+                        btn.disabled = false;
+                        btn.innerHTML = originalBtnText;
+                        App.closeContactModal();
+                    }, 1500);
+                    return;
+                }
+
+                const formData = new FormData(form);
+                const data = {};
+                formData.forEach((value, key) => { data[key] = value; });
+                delete data['website'];
+                data['phone'] = cleanPhone;
+                data['timestamp'] = new Date().toISOString();
+
+                btn.disabled = true;
+                btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> 資料傳送中...`;
+
+                fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                })
+                .then(() => {
+                    alert('感謝您的諮詢！我們已收到您的需求。');
+                    form.reset();
+                    App.closeContactModal();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('抱歉，送出時發生錯誤。');
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = originalBtnText;
+                });
+            }
+        };
+
+        window.App = App;
+        document.addEventListener('DOMContentLoaded', () => { App.init(); });
+    </script>
+</body>
+</html>
