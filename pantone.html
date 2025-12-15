@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pantone 色彩極限挑戰 </title> 
+    <title>Pantone 色彩極限挑戰 (Pantone Color Challenge)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Noto Sans TC & Inter Font -->
@@ -405,10 +405,63 @@
                 return;
             }
 
+            // Flex Message 結構
+            const passedLevels = Math.max(0, state.level - 1);
             const message = [
                 {
-                    type: "text",
-                    text: `我在 Pantone 色彩極限挑戰玩到了 Level ${state.level}！你能分辨出幾個顏色？\n快來挑戰：https://liff.line.me/${LIFF_ID}`
+                    "type": "flex",
+                    "altText": "Pantone 色彩極限挑戰：眼力大考驗",
+                    "contents": {
+                        "type": "bubble",
+                        "hero": {
+                            "type": "image",
+                            "url": "https://adbeweblink.github.io/myproject/pantone.jpg",
+                            "size": "full",
+                            "aspectRatio": "20:13",
+                            "aspectMode": "cover",
+                            "action": {
+                                "type": "uri",
+                                "uri": "https://liff.line.me/2008592497-pmWyN9om"
+                            }
+                        },
+                        "body": {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "Pantone 色彩極限挑戰",
+                                    "weight": "bold",
+                                    "size": "xl"
+                                },
+                                {
+                                    "type": "text",
+                                    "text": `我過了 ${passedLevels} 關！看你可以過幾關！`,
+                                    "margin": "md",
+                                    "size": "md",
+                                    "wrap": true,
+                                    "color": "#666666"
+                                }
+                            ]
+                        },
+                        "footer": {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "button",
+                                    "style": "primary",
+                                    "color": "#000000",
+                                    "height": "sm",
+                                    "action": {
+                                        "type": "uri",
+                                        "label": "立即挑戰",
+                                        "uri": "https://liff.line.me/2008592497-pmWyN9om"
+                                    }
+                                }
+                            ]
+                        }
+                    }
                 }
             ];
 
