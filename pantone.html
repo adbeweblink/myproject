@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pantone 色彩極限挑戰</title>
+    <title>Pantone 色彩極限挑戰 (Pantone Color Challenge)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Noto Sans TC & Inter Font -->
@@ -149,6 +149,7 @@
         const LOGO_URL = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Pantone_logo.svg/960px-Pantone_logo.svg.png";
         const LIFF_ID = "2008592497-pmWyN9om";
         const BOTBONNIE_URL = "https://r.botbonnie.com/P0LF4";
+        const SHARE_IMAGE_URL = "https://adbeweblink.github.io/myproject/pantone.jpg";
         
         const PANTONE_YEARS = [
             {
@@ -405,7 +406,7 @@
                 return;
             }
 
-            // Flex Message 結構
+            // Flex Message 結構 - 使用 fit 模式確保圖片完整
             const passedLevels = Math.max(0, state.level - 1);
             const message = [
                 {
@@ -415,14 +416,14 @@
                         "type": "bubble",
                         "hero": {
                             "type": "image",
-                            "url": "https://adbeweblink.github.io/myproject/pantone.jpg",
+                            "url": SHARE_IMAGE_URL,
                             "size": "full",
-                            "aspectRatio": "20:13",
-                            "aspectMode": "fit",
-                            "backgroundColor": "#FFFFFF",
+                            "aspectRatio": "20:13", // 配合您圖片的比例
+                            "aspectMode": "fit",    // 確保圖片完整顯示，不裁切
+                            "backgroundColor": "#FFFFFF", // 補白邊
                             "action": {
                                 "type": "uri",
-                                "uri": "https://liff.line.me/2008592497-pmWyN9om"
+                                "uri": `https://liff.line.me/${LIFF_ID}`
                             }
                         },
                         "body": {
@@ -457,7 +458,7 @@
                                     "action": {
                                         "type": "uri",
                                         "label": "立即挑戰",
-                                        "uri": "https://liff.line.me/2008592497-pmWyN9om"
+                                        "uri": `https://liff.line.me/${LIFF_ID}`
                                     }
                                 }
                             ]
