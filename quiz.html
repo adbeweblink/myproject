@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Adobe 知識王挑戰賽</title>  
+  <title>Adobe 知識王挑戰賽</title>
   
   <!-- React / Babel / Tailwind -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -138,9 +138,9 @@
     
     // LIFF ID 設定
     const MY_LIFF_ID = "2008592497-M8lBAPJW"; 
-    // BotBonnie 連結 (Fallback用)
+    // BotBonnie 連結
     const BOTBONNIE_LINK = "https://r.botbonnie.com/-uTNU";
-    // 通關密語
+    // (通關密語已不再使用，但保留變數以免報錯，或供後續參考)
     const REWARD_KEYWORD = "Adobe知識王2025";
 
     // 題目資料
@@ -331,28 +331,19 @@
             const res = await liff.shareTargetPicker(getShareContent());
             
             if (res) {
-              // 2. 分享成功 -> 發送通關密語領取獎勵
-              try {
-                await liff.sendMessages([
-                  {
-                    type: 'text',
-                    text: REWARD_KEYWORD
-                  }
-                ]);
-                // 發送成功後關閉視窗，讓使用者看到聊天室的 Bot 回覆
-                liff.closeWindow();
-              } catch (error) {
-                console.error("Error sending reward message:", error);
-                // 萬一發送失敗，導向連結作為補救
-                window.location.href = BOTBONNIE_LINK;
-              }
+              // 2. 分享成功 -> 直接跳轉 BotBonnie 連結
+              // 不傳送文字訊息，直接導向
+              window.location.href = BOTBONNIE_LINK;
+              
             } else {
               // 3. 使用者取消分享或分享未完成
               alert("必須完成分享才能領取獎勵喔！");
             }
           } catch (err) {
             console.log('ShareTargetPicker error', err);
-            alert("分享功能發生錯誤，請稍後再試");
+            // 發生錯誤，Fallback 到複製連結並跳轉
+            alert("分享功能發生錯誤，將直接為您跳轉頁面。");
+            window.location.href = BOTBONNIE_LINK;
           }
         } 
         // 情境 B：外部瀏覽器或不支援分享 API
