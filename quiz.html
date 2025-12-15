@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-<head> 
+<head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Adobe 知識王</title>  
+  <title>Adobe 知識王挑戰賽</title>
   
   <!-- React / Babel / Tailwind -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -140,8 +140,8 @@
     const MY_LIFF_ID = "2008592497-M8lBAPJW"; 
     // BotBonnie 連結
     const BOTBONNIE_LINK = "https://r.botbonnie.com/-uTNU";
-    // (通關密語已不再使用，但保留變數以免報錯，或供後續參考)
-    const REWARD_KEYWORD = "Adobe知識王2025";
+    
+    // ⚠️ 已移除 REWARD_KEYWORD 變數，確保絕對不會發送文字
 
     // 題目資料
     const QUESTIONS = [
@@ -332,7 +332,7 @@
             
             if (res) {
               // 2. 分享成功 -> 直接跳轉 BotBonnie 連結
-              // 不傳送文字訊息，直接導向
+              // ★★★ 絕對沒有 liff.sendMessages ★★★
               window.location.href = BOTBONNIE_LINK;
               
             } else {
