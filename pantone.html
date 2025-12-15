@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pantone 色彩極限挑戰</title> 
+    <title>Pantone 色彩極限挑戰 (Pantone Color Challenge)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Noto Sans TC & Inter Font -->
@@ -259,7 +259,7 @@
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             const bgClass = type === 'error' ? 'bg-red-500' : 'bg-black';
-            toast.className = `${bgClass} text-white px-6 py-3 shadow-2xl flex items-center gap-3 animate-slide-up mb-2 mx-auto w-fit z-50`;
+            toast.className = `${bgClass} text-white px-6 py-3 shadow-2xl flex items-center gap-3 animate-slide-up mb-2 mx-auto w-fit z-50 rounded`;
             toast.innerHTML = `<span class="font-bold text-sm tracking-wide">${message}</span>`;
             
             container.appendChild(toast);
@@ -390,7 +390,19 @@
 
         // BotBonnie Share Revive Handler
         const handleShareRevive = () => {
-            // 嚴格檢查：是否在 LINE Client 內
+            // MOCK FOR PREVIEW: 如果不在 LIFF 環境（例如在瀏覽器預覽），模擬成功
+            if (typeof liff === 'undefined' || !liff.isInClient()) {
+                console.warn("⚠️ Preview Mode: Simulating Share Success (No Actual LINE Share)");
+                showToast("預覽模式：模擬分享成功！(正式環境需在 LINE 開啟)");
+                
+                state.pendingPointsClaim = true;
+                setTimeout(() => {
+                    confirmRevive();
+                }, 1000);
+                return;
+            }
+
+            // 嚴格檢查：是否在 LINE Client 內 (正式邏輯)
             if (!liff.isInClient()) {
                 showToast("請在 LINE App 內開啟以使用好友分享功能", "error");
                 return;
@@ -418,8 +430,8 @@
                             "type": "image",
                             "url": SHARE_IMAGE_URL,
                             "size": "full",
-                            "aspectRatio": "20:13", // 配合您圖片的比例
-                            "aspectMode": "cover",  // 確保圖片填滿，無白邊
+                            "aspectRatio": "3:4", // 修改為 3:4 直式比例，模擬海報效果
+                            "aspectMode": "cover",
                             "action": {
                                 "type": "uri",
                                 "uri": `https://liff.line.me/${LIFF_ID}`
@@ -433,11 +445,12 @@
                                     "type": "text",
                                     "text": "Pantone 色彩極限挑戰",
                                     "weight": "bold",
-                                    "size": "xl"
+                                    "size": "xl",
+                                    "wrap": true
                                 },
                                 {
                                     "type": "text",
-                                    "text": `我過了 ${passedLevels} 關！看你可以過幾關！`,
+                                    "text": `我獲得了 ${passedLevels} 分！你能贏過我嗎？`,
                                     "margin": "md",
                                     "size": "md",
                                     "wrap": true,
@@ -448,11 +461,12 @@
                         "footer": {
                             "type": "box",
                             "layout": "vertical",
+                            "spacing": "sm",
                             "contents": [
                                 {
                                     "type": "button",
                                     "style": "primary",
-                                    "color": "#000000",
+                                    "color": "#BB2649", // 設定按鈕顏色 (這裡使用 Viva Magenta 洋紅色，類似你的截圖風格)
                                     "height": "sm",
                                     "action": {
                                         "type": "uri",
@@ -460,7 +474,8 @@
                                         "uri": `https://liff.line.me/${LIFF_ID}`
                                     }
                                 }
-                            ]
+                            ],
+                            "flex": 0
                         }
                     }
                 }
@@ -495,6 +510,12 @@
 
         // NEW: Open Points Link
         const handleClaimPoints = () => {
+            // 在預覽模式下模擬開啟連結
+            if (typeof liff === 'undefined' || !liff.isInClient()) {
+                 window.open(BOTBONNIE_URL, '_blank');
+                 return;
+            }
+
              liff.openWindow({
                 url: BOTBONNIE_URL,
                 external: true
@@ -906,19 +927,20 @@
             // Init Game UI
             render();
 
-            // Init LIFF
-            if (liff) {
+            // Init LIFF (with safety check for preview environment)
+            if (typeof liff !== 'undefined') {
                 liff.init({ liffId: LIFF_ID })
                     .then(() => {
                         console.log("LIFF Initialized");
-                        if (!liff.isLoggedIn()) {
-                            // Optional: Auto login or wait for user action
+                        if (!liff.isLoggedIn() && liff.isInClient()) {
                             // liff.login(); 
                         }
                     })
                     .catch((err) => {
-                        console.error("LIFF Init Failed", err);
+                        console.warn("LIFF Init Failed or not in LINE environment", err);
                     });
+            } else {
+                console.warn("LIFF SDK not loaded");
             }
         };
 
