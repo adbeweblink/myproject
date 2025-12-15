@@ -406,7 +406,7 @@
                 return;
             }
 
-            // Flex Message 結構 - 使用 fit 模式確保圖片完整
+            // Flex Message 結構 - 使用 cover 模式確保滿版無白邊
             const passedLevels = Math.max(0, state.level - 1);
             const message = [
                 {
@@ -419,8 +419,7 @@
                             "url": SHARE_IMAGE_URL,
                             "size": "full",
                             "aspectRatio": "20:13", // 配合您圖片的比例
-                            "aspectMode": "fit",    // 確保圖片完整顯示，不裁切
-                            "backgroundColor": "#FFFFFF", // 補白邊
+                            "aspectMode": "cover",  // 確保圖片填滿，無白邊
                             "action": {
                                 "type": "uri",
                                 "uri": `https://liff.line.me/${LIFF_ID}`
