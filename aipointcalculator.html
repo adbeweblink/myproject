@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adobe AI 點數計算機</title>
+    <title>Adobe AI 點數計算機 (商用旗艦版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
@@ -337,12 +337,12 @@
         ];
 
         const AUDIO_SERVICES = [
-            { id: 'trans_base', label: '翻譯影片/音訊 (無對嘴)', cost: 5, unit: '秒', desc: '【基礎翻譯】僅翻譯語音內容。', type: 'gen' },
-            { id: 'trans_1080', label: '翻譯/對嘴 (1080p)', cost: 10, unit: '秒', desc: '【進階翻譯】影片語音翻譯 + AI 自動對嘴。', type: 'gen' },
-            { id: 'trans_4k', label: '翻譯/對嘴 (4K)', cost: 15, unit: '秒', desc: '【高畫質翻譯】影片語音翻譯 + AI 自動對嘴。', type: 'gen' },
-            { id: 'avatar', label: '文字轉虛擬人偶', cost: 10, unit: '秒', desc: '以文字建立虛擬人偶影片。', type: 'gen' },
-            { id: 'sfx', label: '生成音效', cost: 10, unit: '次', desc: '輸入文字描述產生簡短音效。', type: 'gen' },
-            { id: 'music', label: 'GenMusic (生成音樂)', cost: 20, unit: '分', desc: '生成可商用的背景音樂。', type: 'gen' }
+            { id: 'trans_base', name: '翻譯影片/音訊 (無對嘴)', cost: 5, unit: '秒', desc: '【基礎翻譯】僅翻譯語音內容。', type: 'gen' },
+            { id: 'trans_1080', name: '翻譯/對嘴 (1080p)', cost: 10, unit: '秒', desc: '【進階翻譯】影片語音翻譯 + AI 自動對嘴。', type: 'gen' },
+            { id: 'trans_4k', name: '翻譯/對嘴 (4K)', cost: 15, unit: '秒', desc: '【高畫質翻譯】影片語音翻譯 + AI 自動對嘴。', type: 'gen' },
+            { id: 'avatar', name: '文字轉虛擬人偶', cost: 10, unit: '秒', desc: '以文字建立虛擬人偶影片。', type: 'gen' },
+            { id: 'sfx', name: '生成音效', cost: 10, unit: '次', desc: '輸入文字描述產生簡短音效。', type: 'gen' },
+            { id: 'music', name: 'GenMusic (生成音樂)', cost: 20, unit: '分', desc: '生成可商用的背景音樂。', type: 'gen' }
         ];
 
         const CATEGORIES = {
@@ -883,7 +883,7 @@
             const grid = document.getElementById('category-grid');
             Object.entries(CATEGORIES).forEach(([key, cat], idx) => {
                 const btn = document.createElement('button');
-                btn.className = "group relative bg-white rounded-[2rem] p-8 shadow-sm hover:shadow-2xl transition-all duration-500 text-left overflow-hidden border border-transparent hover:border-gray-100";
+                btn.className = "group relative bg-white rounded-[2rem] p-8 shadow-sm hover:shadow-2xl transition-all duration-500 text-left overflow-hidden border border-transparent hover:border-gray-100 flex flex-col justify-start";
                 btn.style.animationDelay = `${idx * 100}ms`;
                 btn.onclick = () => openCategoryModal(key);
                 
