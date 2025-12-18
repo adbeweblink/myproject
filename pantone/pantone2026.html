@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pantone 2026 Cloud Dancer | Weblink International</title>
+    <meta name="description" content="Pantone 2026 年度代表色 Cloud Dancer 雲上舞白，由台灣授權代理商展碁國際為您呈現。">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 1s ease-out forwards',
+                        'float': 'float 6s ease-in-out infinite',
+                        'blob': 'blob 10s infinite',
+                        'grain': 'grain 8s steps(10) infinite',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-15px)' },
+                        },
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        grain: {
+                            '0%, 100%': { transform: 'translate(0, 0)' },
+                            '10%': { transform: 'translate(-5%, -10%)' },
+                            '20%': { transform: 'translate(-15%, 5%)' },
+                            '30%': { transform: 'translate(7%, -25%)' },
+                            '40%': { transform: 'translate(-5%, 25%)' },
+                            '50%': { transform: 'translate(-15%, 10%)' },
+                            '60%': { transform: 'translate(15%, 0%)' },
+                            '70%': { transform: 'translate(0%, 15%)' },
+                            '80%': { transform: 'translate(3%, 35%)' },
+                            '90%': { transform: 'translate(-10%, 10%)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Hide scrollbar */
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Scroll Reveal Base Styles */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Nav Active State */
+        .nav-link.active {
+            color: #000;
+            font-weight: 600;
+        }
+        
+        /* Glassmorphism Utilities */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+        
+        /* Custom Soft Shadow */
+        .shadow-soft {
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Film Grain Texture */
+        .bg-grain {
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9998;
+            animation: grain 8s steps(10) infinite;
+        }
+    </style>
+</head>
+<body class="bg-[#F8F9FA] text-stone-900 font-sans selection:bg-stone-200 selection:text-black overflow-x-hidden antialiased">
+
+    <!-- Grain Texture Overlay (紙張質感) -->
+    <div class="bg-grain"></div>
+
+    <!-- Ambient Background -->
+    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
+        <div class="absolute top-0 left-1/4 w-96 h-96 bg-purple-100 rounded-full mix-blend-multiply filter blur-[80px] opacity-40 animate-blob"></div>
+        <div class="absolute top-0 right-1/4 w-96 h-96 bg-gray-100 rounded-full mix-blend-multiply filter blur-[80px] opacity-40 animate-blob animation-delay-2000"></div>
+        <div class="absolute -bottom-32 left-1/3 w-96 h-96 bg-blue-50 rounded-full mix-blend-multiply filter blur-[80px] opacity-40 animate-blob animation-delay-4000"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-white/60 backdrop-blur-xl z-50 border-b border-white/40 transition-all duration-300">
+        <div class="max-w-[1440px] mx-auto px-6 lg:px-12">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center gap-4">
+                    <!-- 代理商 Logo -->
+                    <div class="w-10 h-10 rounded-md overflow-hidden border border-white/50 bg-white/80 relative flex-shrink-0 shadow-sm transition-transform hover:scale-105 duration-300">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRk0f-cuMjB_d8weRx7-5KsdadvD26vGJD1LQ&s" alt="展碁國際" class="w-full h-full object-contain p-0.5">
+                    </div>
+                    
+                    <!-- Pantone Logo -->
+                    <span class="font-bold text-stone-800 tracking-tight text-lg">Pantone Logo</span>
+                    
+                    <div class="hidden sm:flex flex-col border-l border-stone-300 pl-4 ml-2">
+                        <span class="font-bold tracking-tight text-xs uppercase text-stone-600">Authorized Distributor</span>
+                        <span class="text-[10px] text-stone-400 tracking-widest uppercase">Weblink International</span>
+                    </div>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-12 text-sm font-medium text-stone-500 tracking-wide">
+                    <a href="#hero" class="nav-link hover:text-black transition-colors relative group magnetic-btn">
+                        2026 年度色
+                        <span class="absolute -bottom-1 left-0 w-0 h-px bg-black transition-all group-hover:w-full opacity-0 group-hover:opacity-100"></span>
+                    </a>
+                    <a href="#news" class="nav-link hover:text-black transition-colors relative group magnetic-btn">
+                        專題報導
+                        <span class="absolute -bottom-1 left-0 w-0 h-px bg-black transition-all group-hover:w-full opacity-0 group-hover:opacity-100"></span>
+                    </a>
+                    <a href="#events" class="nav-link hover:text-black transition-colors flex items-center gap-2 relative group magnetic-btn">
+                        <span class="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse"></span>
+                        在地活動
+                        <span class="absolute -bottom-1 left-0 w-0 h-px bg-black transition-all group-hover:w-full opacity-0 group-hover:opacity-100"></span>
+                    </a>
+                    <a href="#game" class="nav-link hover:text-black transition-colors relative group magnetic-btn">
+                        色彩挑戰
+                        <span class="absolute -bottom-1 left-0 w-0 h-px bg-black transition-all group-hover:w-full opacity-0 group-hover:opacity-100"></span>
+                    </a>
+                    <a href="#connect" class="nav-link px-6 py-2 bg-stone-900 text-white rounded-full hover:bg-stone-700 active:scale-95 transition-all text-xs tracking-wider shadow-md hover:shadow-lg magnetic-btn">
+                        Connect 優惠
+                    </a>
+                </div>
+
+                <div class="md:hidden">
+                    <button id="menu-btn" class="p-2 active:scale-90 transition-transform text-stone-600">
+                        <i data-lucide="menu" id="menu-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white/90 backdrop-blur-xl border-b border-stone-100 absolute w-full left-0 top-20 shadow-lg origin-top transition-transform duration-300">
+            <div class="flex flex-col p-6 space-y-6 font-medium text-stone-600">
+                <a href="#hero" class="hover:text-black active:pl-2 transition-all" onclick="closeMenu()">2026 年度色</a>
+                <a href="#news" class="hover:text-black active:pl-2 transition-all" onclick="closeMenu()">專題報導</a>
+                <a href="#events" class="hover:text-black active:pl-2 transition-all" onclick="closeMenu()">在地活動</a>
+                <a href="#game" class="hover:text-black active:pl-2 transition-all" onclick="closeMenu()">色彩挑戰</a>
+                <a href="#connect" class="text-stone-900 font-bold active:pl-2 transition-all" onclick="closeMenu()">Connect 優惠</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- SECTION 1: Hero 首屏 -->
+    <header id="hero" class="relative w-full min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <div class="relative overflow-hidden w-full h-full opacity-80 parallax-container">
+                <img src="https://adbeweblink.github.io/myproject/pantone/Cloud%20Dancer%20Leap.jpg" alt="Pantone 2026 Cloud Dancer Leap" class="w-full h-full object-cover transition-transform duration-[2s] hover:scale-105 parallax-img">
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-r from-white/90 via-white/40 to-white/10 sm:from-white/95 sm:via-white/20"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-6 lg:px-12 relative z-10 w-full grid lg:grid-cols-12 gap-12 items-center">
+            <div class="lg:col-span-5 space-y-10 animate-fade-in-up mt-20 lg:mt-0">
+                <div class="inline-flex items-center gap-3 border-b border-stone-300 pb-2">
+                    <span class="text-xs font-bold tracking-[0.25em] uppercase text-stone-500">Color of the Year</span>
+                    <span class="text-xs font-serif italic text-stone-400">2026</span>
+                </div>
+                
+                <h1 class="text-5xl md:text-7xl font-serif font-light leading-[1.1] tracking-wide text-stone-900">
+                    Cloud Dancer <br/>
+                    <span class="text-xl md:text-2xl font-sans font-light text-stone-400 block mt-4 tracking-[0.15em]">PANTONE 11-4201</span>
+                </h1>
+                
+                <p class="text-lg text-stone-600 font-light leading-loose max-w-md pl-6 border-l border-stone-300">
+                    一抹高潔、輕盈而內斂的白色。<br/>
+                    在喧囂的世界中，為創意與思緒留下呼吸的空間。
+                </p>
+
+                <div class="pt-6">
+                    <a href="https://www.pantone.com/hk/tc/color-of-the-year/2026" target="_blank" rel="noreferrer" class="inline-flex items-center gap-4 px-10 py-4 bg-stone-900 text-white text-xs tracking-[0.2em] uppercase hover:bg-stone-700 active:scale-95 transition-all shadow-soft hover:shadow-lg group rounded-sm magnetic-btn">
+                        <span>到官網了解更多</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform opacity-70"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="absolute bottom-10 right-6 md:right-12 z-20 hidden md:block animate-float">
+            <div class="bg-white/80 backdrop-blur-md shadow-2xl flex flex-col w-48 h-64 text-xs relative group cursor-pointer transition-transform duration-[1.5s] hover:-translate-y-4 hover:rotate-1 border border-white/50 glass-tilt-effect">
+                <div class="flex-grow w-full relative overflow-hidden bg-[#F0F2F5]">
+                    <div class="absolute inset-0 opacity-[0.03] bg-black"></div>
+                </div>
+                <div class="pb-6 pt-5 px-5 bg-white/90">
+                    <div class="font-bold text-black opacity-90 leading-none mb-2 text-sm">PANTONE®</div>
+                    <div class="font-mono text-stone-400 mb-2 tracking-wider">11-4201</div>
+                    <div class="font-serif text-black text-xl leading-tight">Cloud Dancer</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- SECTION 2: 概念與空間 (影片外連) -->
+    <section id="intro-video" class="py-32 relative">
+        <div class="max-w-[1440px] mx-auto px-6 lg:px-12">
+            <div class="grid md:grid-cols-2 gap-20 items-center">
+                
+                <!-- Video Link Container -->
+                <a href="https://youtu.be/t1UyEA7MiG0?si=E62PdtYB44NHXFRK" target="_blank" rel="noreferrer" class="relative group cursor-pointer reveal block magnetic-area">
+                    <div class="absolute -top-6 -left-6 w-32 h-32 border-t border-l border-stone-200 z-0 transition-all duration-700 group-hover:-top-8 group-hover:-left-8 opacity-50"></div>
+                    
+                    <div class="relative z-10 aspect-video w-full rounded-sm overflow-hidden shadow-soft bg-stone-100">
+                        <div class="relative w-full h-full group transition-opacity duration-700">
+                            <img src="https://raw.githubusercontent.com/adbeweblink/myproject/main/pantone/Pantone%20Cloud%20Dancer.jpg" alt="Watch Video" class="w-full h-full object-cover opacity-95 group-hover:scale-105 transition-transform duration-[1.5s]">
+                            <div class="absolute inset-0 bg-white/10 group-hover:bg-black/10 transition-colors duration-500 flex items-center justify-center">
+                                <div class="w-20 h-20 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center border border-white/60 group-hover:scale-110 transition-transform duration-500 shadow-lg group-hover:bg-red-600/80 group-hover:border-red-500">
+                                    <i data-lucide="play" class="text-white fill-white ml-1 w-8 h-8 opacity-90"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute -bottom-8 -right-8 glass-card p-6 shadow-soft max-w-xs hidden md:block z-20 pointer-events-none reveal" style="transition-delay: 100ms;">
+                        <p class="font-serif italic text-stone-500 text-lg">"Watch the story on YouTube."</p>
+                    </div>
+                </a>
+                
+                <div class="space-y-10 reveal" style="transition-delay: 200ms;">
+                    <h2 class="text-4xl md:text-5xl font-serif leading-tight text-stone-800">
+                        不只是白色，<br/>而是一種結構性的存在
+                    </h2>
+                    <p class="text-lg leading-loose text-stone-500 font-light">
+                        Pantone 2026 年度代表色象徵一種有意識的留白。
+                        它不是空白，而是讓其他色彩得以被看見、被強化、被放大的基底。
+                        在資訊過載的時代，邀請我們回到專注與平衡的起點。
+                    </p>
+                    
+                    <div class="grid grid-cols-2 gap-8 pt-4">
+                        <div class="glass-card p-6 rounded-sm hover:bg-white transition-colors duration-500 glass-tilt-effect">
+                            <h4 class="font-bold mb-2 tracking-wide text-stone-800">空間應用</h4>
+                            <p class="text-sm text-stone-500 leading-relaxed">打造寧靜、開放且具呼吸感的氛圍。</p>
+                        </div>
+                        <div class="glass-card p-6 rounded-sm hover:bg-white transition-colors duration-500 glass-tilt-effect">
+                            <h4 class="font-bold mb-2 tracking-wide text-stone-800">設計應用</h4>
+                            <p class="text-sm text-stone-500 leading-relaxed">作為乾淨基底，創造現代層次感。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2.5: 媒體報導輪播 -->
+    <section id="news" class="py-24 border-y border-stone-200/50 overflow-hidden relative">
+        <div class="absolute inset-0 bg-stone-50/50"></div>
+        
+        <div class="max-w-[1440px] mx-auto px-6 lg:px-12 relative z-10">
+            <div class="flex justify-between items-end mb-12 reveal">
+                <div>
+                    <div class="flex items-center gap-2 text-stone-400 mb-3">
+                        <i data-lucide="newspaper" class="w-4 h-4"></i>
+                        <span class="text-xs font-bold tracking-[0.25em] uppercase">Media Spotlight</span>
+                    </div>
+                    <h2 class="text-3xl md:text-4xl font-serif">媒體專題報導</h2>
+                </div>
+                <!-- Carousel Controls -->
+                <div class="flex gap-3">
+                    <button id="scroll-left" class="w-12 h-12 rounded-full border border-stone-200 flex items-center justify-center hover:bg-stone-900 hover:text-white hover:border-transparent active:scale-95 transition-all bg-white shadow-sm magnetic-btn">
+                        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                    </button>
+                    <button id="scroll-right" class="w-12 h-12 rounded-full border border-stone-200 flex items-center justify-center hover:bg-stone-900 hover:text-white hover:border-transparent active:scale-95 transition-all bg-white shadow-sm magnetic-btn">
+                        <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Carousel Container -->
+            <div id="carousel-container" class="flex gap-8 overflow-x-auto pb-12 snap-x snap-mandatory scrollbar-hide scroll-smooth reveal pl-1" style="transition-delay: 200ms;">
+                <!-- News Items -->
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: 年度在地活動 -->
+    <section id="events" class="py-32 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-2/3 h-full bg-[#F3F4F6] -skew-x-12 translate-x-1/3 opacity-70 mix-blend-multiply"></div>
+
+        <div class="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+            <div class="text-center mb-20 reveal">
+                <span class="text-xs font-bold tracking-[0.25em] text-stone-400 uppercase">Local Events 2026</span>
+                <h2 class="text-4xl md:text-5xl font-serif mt-6 mb-8 text-stone-800">台灣區年度色彩系列活動</h2>
+                <p class="text-stone-500 max-w-2xl mx-auto leading-loose text-lg font-light">
+                    展碁國際為合作夥伴與設計師規劃了一系列精彩市場活動，<br>從線上研討會到社群互動，全面掌握 2026 色彩商機。
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-10">
+                <!-- 活動一 -->
+                <div class="glass-card p-10 md:p-12 rounded-lg hover:shadow-soft transition-all duration-500 relative group reveal glass-tilt-effect" style="transition-delay: 100ms;">
+                    <div class="absolute top-0 right-0 bg-[#06C755] text-white text-xs font-bold px-4 py-1.5 rounded-bl-lg rounded-tr-lg shadow-sm">LINE POINTS 好禮</div>
+                    <div class="flex items-start gap-8">
+                        <div class="bg-[#E0F2F1] p-5 rounded-full shrink-0 group-hover:scale-110 transition-transform duration-500">
+                            <i data-lucide="gift" class="text-[#00B900] w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold mb-3 group-hover:text-[#00B900] transition-colors tracking-wide">Adobe 冬季創意遊樂園</h3>
+                            <p class="text-stone-400 text-xs mb-5 font-mono tracking-widest uppercase">Adobe x Pantone</p>
+                            <p class="text-stone-500 mb-8 leading-relaxed">
+                                加入 Adobe 台灣官方 LINE 好友，參與「Pantone 色彩挑戰賽」與「每日簽到」，集滿 10 點即可兌換限量 LINE POINTS！
+                            </p>
+                            <ul class="space-y-3 mb-10 text-sm text-stone-500">
+                                <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 bg-[#00B900] rounded-full"></span> 每日簽到摩天輪</li>
+                                <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 bg-[#00B900] rounded-full"></span> 挑戰每週知識王</li>
+                                <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 bg-[#00B900] rounded-full"></span> 分享活動擴音器</li>
+                            </ul>
+                            <a href="https://line.me/R/ti/p/@910kziej" target="_blank" rel="noreferrer" class="inline-block w-full text-center bg-[#06C755] text-white font-bold py-4 rounded hover:bg-[#05a546] active:scale-95 transition-all shadow-md hover:shadow-lg tracking-widest text-xs magnetic-btn">
+                                立即加入活動
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 活動二 -->
+                <div class="glass-card p-10 md:p-12 rounded-lg hover:shadow-soft transition-all duration-500 relative group reveal glass-tilt-effect" style="transition-delay: 200ms;">
+                    <div class="absolute top-0 right-0 bg-stone-800 text-white text-xs font-bold px-4 py-1.5 rounded-bl-lg rounded-tr-lg shadow-sm">Webinar</div>
+                    <div class="flex items-start gap-8">
+                        <div class="bg-stone-100 p-5 rounded-full shrink-0 group-hover:scale-110 transition-transform duration-500">
+                            <i data-lucide="calendar" class="text-stone-800 w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold mb-3 group-hover:text-stone-600 transition-colors tracking-wide">2026 年度代表色趨勢解析</h3>
+                            <p class="text-stone-400 text-xs mb-5 font-mono tracking-widest uppercase">線上研討會</p>
+                            <p class="text-stone-500 mb-8 leading-relaxed">
+                                邀請<span class="font-bold text-stone-800">原廠色彩專家</span>深入解析 Cloud Dancer 背後的趨勢洞察，以及如何將其應用於數位設計與品牌策略中。
+                            </p>
+                            <div class="bg-stone-50/50 p-6 rounded mb-10 border border-stone-100">
+                                <p class="text-sm font-bold text-stone-800 mb-2">精彩議程預告：</p>
+                                <p class="text-sm text-stone-500 mt-2 flex items-center gap-2"><span class="w-1 h-1 bg-stone-400 rounded-full"></span> 年度色與社會心理學</p>
+                                <p class="text-sm text-stone-500 mt-2 flex items-center gap-2"><span class="w-1 h-1 bg-stone-400 rounded-full"></span> 數位設計中的留白美學</p>
+                            </div>
+                            <button class="inline-block w-full text-center bg-stone-200 text-stone-400 font-bold py-4 rounded cursor-not-allowed opacity-80 tracking-widest text-xs">
+                                即將推出！
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4: 互動遊戲 (Game) -->
+    <section id="game" class="py-32 bg-white relative">
+        <div class="max-w-[1440px] mx-auto px-6 lg:px-12">
+            <div class="bg-black text-white rounded-[2rem] overflow-hidden relative reveal shadow-2xl glass-tilt-effect">
+                <div class="absolute inset-0 opacity-40">
+                    <img src="https://adbeweblink.github.io/myproject/pantone/Cloud%20Dancer%20Room.jpg" alt="Game Background" class="w-full h-full object-cover mix-blend-overlay">
+                </div>
+                
+                <div class="relative z-10 grid md:grid-cols-2 gap-16 p-16 md:p-24 items-center">
+                    <div class="space-y-8">
+                        <div class="inline-flex items-center gap-2 bg-yellow-400 text-black px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
+                            <i data-lucide="mouse-pointer-2" class="w-3.5 h-3.5"></i> Challenge
+                        </div>
+                        <h2 class="text-4xl md:text-6xl font-serif font-bold leading-tight">你的色彩敏銳度<br>有多高？</h2>
+                        <p class="text-stone-300 text-lg leading-loose font-light">
+                            透過趣味的色彩互動遊戲，測試你對 Cloud Dancer 及其搭配色系的直覺。
+                            不僅好玩，還能激發你的設計靈感！
+                        </p>
+                        
+                        <div class="flex flex-col sm:flex-row gap-6 items-center">
+                            <a href="https://liff.line.me/2008592497-pmWyN9om" target="_blank" rel="noreferrer" class="px-10 py-5 bg-white text-black font-bold rounded-full hover:bg-yellow-400 active:scale-95 transition-all flex items-center gap-4 shadow-lg hover:shadow-xl tracking-widest text-sm magnetic-btn">
+                                開始色彩挑戰 <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+                            </a>
+                            
+                            <!-- QR Code Block -->
+                            <div class="flex items-center gap-4 bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-xl">
+                                <div class="bg-white p-1 rounded-lg">
+                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://liff.line.me/2008592497-pmWyN9om" alt="Scan QR Code" class="w-20 h-20">
+                                </div>
+                                <div class="text-xs text-stone-300">
+                                    <span class="block font-bold text-white mb-1"><i data-lucide="smartphone" class="w-3 h-3 inline mr-1"></i>Mobile Preferred</span>
+                                    手機遊玩<br>體驗最佳
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="relative">
+                        <div class="aspect-video bg-stone-800/80 backdrop-blur-md rounded-xl border border-stone-600 p-3 shadow-2xl transform rotate-2 hover:rotate-0 transition-transform duration-700 hover:scale-105">
+                            <div class="w-full h-full bg-stone-900 rounded flex items-center justify-center relative overflow-hidden">
+                                <!-- Replaced image with Pantone Color Guides -->
+                                <img src="https://raw.githubusercontent.com/adbeweblink/myproject/refs/heads/main/pantone/Pantone%20Color%20Guides.jpg" alt="Game Preview" class="w-full h-full object-cover opacity-80">
+                            </div>
+                        </div>
+                        <!-- Line Card (Kept as requested) -->
+                        <div class="absolute -bottom-8 -left-8 bg-[#06C755] text-white p-5 rounded-lg shadow-lg max-w-[200px] animate-bounce" style="animation-duration: 3s;">
+                            <p class="text-xs font-bold flex items-center gap-2 mb-1">
+                                <i data-lucide="message-circle" class="w-4 h-4"></i>
+                                Line 好友限定
+                            </p>
+                            <p class="text-xs opacity-90">玩遊戲還能集點換好禮！</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5: Pantone Connect 促銷 -->
+    <section id="connect" class="py-32 bg-stone-50 relative overflow-hidden">
+        <div class="absolute -left-20 top-20 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-[100px] opacity-30 animate-blob"></div>
+
+        <div class="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+            <div class="grid md:grid-cols-2 gap-20 items-center">
+                
+                <div class="order-2 md:order-1 space-y-10 reveal">
+                    <div class="flex items-center gap-4">
+                        <img src="https://www.quickly.com.tw/img/pantone-connect.jpg" alt="Pantone Connect Icon" class="w-16 h-16 rounded-2xl shadow-lg object-contain bg-black animate-float">
+                        <div>
+                            <span class="font-bold text-xl text-[#0051B5] block">Pantone Connect</span>
+                            <span class="text-xs text-stone-400 tracking-widest uppercase">Premium Tool</span>
+                        </div>
+                    </div>
+                    
+                    <h2 class="text-5xl md:text-6xl font-serif leading-none text-stone-900">
+                        把靈感，<br/><span class="text-3xl md:text-4xl text-stone-400 block mt-2">直接帶進 Adobe 工作流程</span>
+                    </h2>
+                    
+                    <div class="space-y-4 text-stone-500 text-sm leading-loose pl-1 border-l-2 border-stone-200">
+                        <p>在 Photoshop、Illustrator、InDesign 中即時存取超過 15,000 種 Pantone 色彩。</p>
+                        <p>確保從螢幕到印刷，團隊協作與品牌色彩的一致性。</p>
+                    </div>
+
+                    <div class="glass-card p-10 rounded-xl hover:shadow-xl transition-all duration-500 relative overflow-hidden group glass-tilt-effect">
+                        <div class="absolute top-6 -right-10 w-40 rotate-45 bg-red-500 text-white text-center py-1 text-xs font-bold shadow-sm z-10">HOT OFFER</div>
+                        
+                        <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                            限時採購優惠 <span class="text-red-500 text-[10px] font-normal border border-red-500 px-2 py-0.5 rounded tracking-wide">經銷商專屬</span>
+                        </h3>
+                        <div class="flex items-baseline gap-2 mb-3">
+                            <span class="text-5xl font-bold text-stone-900 tracking-tighter">95<span class="text-3xl">%</span></span>
+                            <span class="text-stone-400 text-sm">/ OFF (採購二套起)</span>
+                        </div>
+                        <p class="text-xs text-stone-400 mb-8 font-mono">優惠期間：2025/12/10 – 2026/02/28</p>
+                        
+                        <button class="w-full py-4 bg-stone-900 text-white font-bold rounded hover:bg-black active:scale-95 transition-all flex items-center justify-center gap-3 shadow-md tracking-widest text-sm magnetic-btn">
+                            <i data-lucide="shopping-bag" class="w-4 h-4"></i> 聯絡業務採購
+                        </button>
+                    </div>
+                </div>
+
+                <div class="order-1 md:order-2">
+                    <div class="relative reveal" style="transition-delay: 200ms;">
+                        <div class="absolute inset-0 bg-stone-200 rounded-lg transform translate-x-6 translate-y-6"></div>
+                        <div class="relative overflow-hidden rounded-lg shadow-2xl relative z-10 aspect-[4/5] group">
+                            <img src="https://www.pantone.com/media/wysiwyg/pages/connect/Pantone-Connect-V2-Image-1.jpg?auto=webp&format=pjpg&quality=85" alt="Campaign Visual" class="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-50"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-white py-20 border-t border-stone-100">
+        <div class="max-w-[1440px] mx-auto px-6 lg:px-12 flex flex-col md:flex-row justify-between items-end gap-12">
+            <div class="space-y-8">
+                <div class="flex items-center gap-5">
+                    <!-- 代理商 Logo -->
+                    <div class="w-12 h-12 rounded-lg overflow-hidden border border-stone-100 bg-white relative flex-shrink-0 shadow-sm">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRk0f-cuMjB_d8weRx7-5KsdadvD26vGJD1LQ&s" alt="展碁國際" class="w-full h-full object-contain p-1">
+                    </div>
+                    <div class="h-10 w-px bg-stone-200"></div>
+                    <div>
+                        <span class="font-bold text-lg tracking-tight text-stone-800 block">Pantone Authorized Distributor</span>
+                        <span class="text-[10px] text-stone-400 uppercase tracking-widest">Official Partner</span>
+                    </div>
+                </div>
+                <p class="text-xs text-stone-400 max-w-sm leading-loose">
+                    展碁國際 (Weblink International) 為 Pantone 台灣授權代理商。<br/>
+                    致力於提供最完整的色彩解決方案與在地化服務。
+                </p>
+            </div>
+            
+            <div class="text-right text-[10px] text-stone-300 space-y-2 font-mono uppercase tracking-wider">
+                <p>本頁內容所示 Pantone® 為 Pantone LLC 之註冊商標。</p>
+                <p>&copy; 2026 Weblink International Inc. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Interactions -->
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // 1. Mobile Menu Toggle
+        const menuBtn = document.getElementById('menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+        let isMenuOpen = false;
+
+        menuBtn.addEventListener('click', () => {
+            isMenuOpen = !isMenuOpen;
+            mobileMenu.classList.toggle('hidden');
+            
+            if(isMenuOpen) {
+                menuIcon.setAttribute('data-lucide', 'x');
+            } else {
+                menuIcon.setAttribute('data-lucide', 'menu');
+            }
+            lucide.createIcons();
+        });
+
+        function closeMenu() {
+            isMenuOpen = false;
+            mobileMenu.classList.add('hidden');
+            menuIcon.setAttribute('data-lucide', 'menu');
+            lucide.createIcons();
+        }
+
+        // 2. Magnetic Buttons Logic
+        const magneticBtns = document.querySelectorAll('.magnetic-btn');
+        
+        magneticBtns.forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                
+                // 按鈕本體移動 (強度 0.3)
+                btn.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
+            });
+
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'translate(0, 0)'; // 復原
+            });
+        });
+
+        // 3. 3D Tilt Effect on Cards
+        const glassCards = document.querySelectorAll('.glass-tilt-effect');
+        
+        glassCards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = ((y - centerY) / centerY) * -5;
+                const rotateY = ((x - centerX) / centerX) * 5;
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+            });
+        });
+
+        // 4. News Carousel Data & Logic
+        const newsItems = [
+            { media: "VOGUE", title: "Pantone 2026 年度代表色：Cloud Dancer 雲上舞白，一抹高潔輕盈", link: "https://www.vogue.com.tw/article/pantone-color-of-the-year-2026-cloud-dancer" },
+            { media: "GQ", title: "清透明亮且純淨！Pantone 公布 2026 年度代表色", link: "https://www.gq.com.tw/article/%E6%B8%85%E9%80%8F%E6%98%8E%E4%BA%AE%E4%B8%94%E7%B4%94%E6%B7%A8pantone-%E5%85%AC%E5%B8%83-2026-%E5%B9%B4%E5%BA%A6%E4%BB%A3%E8%A1%A8%E8%89%B2%E9%9B%B2%E6%9C%B5%E7%99%BD" },
+            { media: "ELLE", title: "2026 Pantone 年度色揭曉！時尚精品包款推薦", link: "https://www.elle.com/tw/fashion/luxury/g69694211/2026-pantone-color-watch-recommend/" },
+            { media: "Shopping Design", title: "2026 年度代表色 Cloud Dancer：為喧囂世界留白", link: "https://www.shoppingdesign.com.tw/post/view/12893" },
+            { media: "La Vie", title: "Pantone 2026 年度代表色 Cloud Dancer 象徵意義解析", link: "https://www.wowlavie.com/article/250026507" },
+            { media: "Popbee", title: "2026 Pantone Colour of the Year: Cloud Dancer", link: "https://popbee.com/lifestyle/2026-pantone-colour-of-the-year-cloud-dancer" },
+            { media: "Bella", title: "Pantone 2026 白色包款 Top 10 推薦", link: "https://www.bella.tw/articles/handbags/55064/pantone-2026-cloud-dancer-white-bags-top10" },
+            { media: "Cosmopolitan", title: "Pantone 2026 Cloud Dancer 穿搭與單品推薦", link: "https://www.cosmopolitan.com/tw/fashion/bag-shoe-accessories/g69668711/pantone-2026-cloud-dancer/" },
+            { media: "DQ 地球圖輯隊", title: "為何是雲上舞白？Pantone 2026 年度色深度報導", link: "https://dq.yam.com/post/16766" },
+            { media: "UDN 聯合新聞網", title: "2026 年度代表色：雲上舞白 Cloud Dancer", link: "https://woman.udn.com/woman/story/123163/9188413" },
+        ];
+
+        const carouselContainer = document.getElementById('carousel-container');
+
+        // Render News Items
+        newsItems.forEach(item => {
+            const el = document.createElement('a');
+            el.href = item.link;
+            el.target = "_blank";
+            el.rel = "noreferrer";
+            // 使用 glass-card class
+            el.className = "min-w-[300px] md:min-w-[380px] glass-card p-8 md:p-10 rounded-lg transition-all duration-500 hover:shadow-soft flex flex-col justify-between group snap-start relative overflow-hidden glass-tilt-effect cursor-pointer";
+            el.innerHTML = `
+                <div class="absolute top-0 right-0 w-20 h-20 bg-stone-100 rounded-full mix-blend-multiply filter blur-xl opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
+                <div class="relative z-10">
+                   <span class="text-stone-400 text-[10px] font-mono mb-6 block group-hover:text-stone-800 transition-colors tracking-widest uppercase border-b border-stone-200 pb-2 w-fit">${item.media}</span>
+                   <h3 class="text-xl font-serif leading-snug mb-4 group-hover:text-stone-600 transition-colors">
+                     ${item.title}
+                   </h3>
+                </div>
+                <div class="relative z-10 flex items-center text-xs font-bold text-stone-300 group-hover:text-stone-800 transition-colors mt-6 uppercase tracking-wider">
+                   Read Article <i data-lucide="external-link" class="w-3.5 h-3.5 ml-2 group-hover:translate-x-1 transition-transform"></i>
+                </div>
+            `;
+            carouselContainer.appendChild(el);
+            
+            // Re-bind tilt logic for dynamically created elements
+            el.addEventListener('mousemove', (e) => {
+                const rect = el.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -5;
+                const rotateY = ((x - centerX) / centerX) * 5;
+                el.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
+            el.addEventListener('mouseleave', () => {
+                el.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+            });
+        });
+        
+        lucide.createIcons();
+
+        // Scroll Logic
+        const scrollAmount = 400;
+        document.getElementById('scroll-left').addEventListener('click', () => {
+            carouselContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        });
+        document.getElementById('scroll-right').addEventListener('click', () => {
+            carouselContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        });
+
+        // 5. Scroll Reveal & Nav Active Logic
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const revealObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => {
+            revealObserver.observe(el);
+        });
+
+        // Nav Active State
+        const sections = document.querySelectorAll('section, header');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 200)) {
+                    current = '#' + section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>

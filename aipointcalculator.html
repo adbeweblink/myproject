@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adobe AI 點數計算機</title>
+    <title>Adobe AI 點數計算機</title> 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
@@ -138,9 +138,9 @@
             <div class="flex-1">
                 <div class="flex items-center justify-between flex-wrap gap-2 mb-2">
                     <p class="font-bold text-slate-900 text-base">關於費率計算與資料來源</p>
-                    <span class="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded font-mono">費率基準：2025 年 12 月官方公告</span>
+                    <span class="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded font-mono">費率基準：2025 年 12 月 16 日官方公告</span>
                 </div>
-                <p class="mb-4 leading-relaxed text-gray-600">本工具整合 Firefly 與合作夥伴模型 (Google, OpenAI, Luma 等)。<br/><span class="text-red-500 font-bold">*注意：</span>部分第三方模型可能因限時優惠結束而調整扣點費率，報價時請務必以官方最新頁面為準。</p>
+                <p class="mb-4 leading-relaxed text-gray-600">本工具整合 Firefly 與合作夥伴模型 (Google, OpenAI, Luma 等)。<br/><span class="text-red-500 font-bold">*注意：</span>部分第三方模型費率已更新（如 Gemini 3 調整為 40 點），報價時請務必以官方最新頁面為準。</p>
                 <div class="flex flex-wrap gap-4">
                     <a href="https://helpx.adobe.com/tw/creative-cloud/apps/generative-ai/generative-credits-faq.html#free-users" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-slate-700 hover:text-[#0265DC] font-bold bg-gray-50 hover:bg-blue-50 px-4 py-2.5 rounded-lg transition-colors">Firefly 官方費率表 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg></a>
                     <a href="https://helpx.adobe.com/tw/firefly/web/get-started/learn-the-basics/non-adobe-models-in-adobe-products.html" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-slate-700 hover:text-[#0265DC] font-bold bg-gray-50 hover:bg-blue-50 px-4 py-2.5 rounded-lg transition-colors">第三方模型費率表 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg></a>
@@ -294,17 +294,32 @@
 
     <script>
         // ============================
-        // 1. Data Models
+        // 1. Data Models (Updated 2025-12-16)
         // ============================
         
         const VIDEO_MODELS = {
             adobe: { name: 'Adobe Firefly', desc: '【首選推薦】保證商業安全，完美整合 Adobe 生態系。注意：生成式延伸的費率依幀率 (FPS) 不同。', tags: ['商業安全', '版權保障', '企業首選'], models: [{ id: 'firefly_vid', name: 'Firefly Video', type: 'gen', desc: '標準 Adobe 影片模型，產生全新影片片段 (預設 24 FPS)。', rates: { '540p': 20, '720p': 50, '1080p': 100 } }, { id: 'firefly_extend', name: 'Premiere 生成式延伸', type: 'gen', desc: '在 Premiere Pro 中延伸現有素材，費率取決於解析度與幀率。', rates: { '720p_24fps': 50, '1080p_24fps': 100, '4k_24fps': 150, '720p_30fps': 75, '1080p_30fps': 125, '4k_30fps': 175 } }] },
-            luma: { name: 'Luma AI', desc: '以強大的動態運鏡與物理模擬著稱，適合動作激烈的場面。', tags: ['運鏡流暢', '動作片首選'], models: [{ id: 'ray3', name: 'Ray3', type: 'gen', desc: 'Luma 最新一代標準版，動態細節豐富。', rates: { '360p': 25, '540p': 75, '720p': 100, '1080p': 125, '4k': 150 } }, { id: 'ray2', name: 'Ray2', type: 'gen', desc: '上一代標準版，平衡了畫質與動態穩定性。', rates: { '540p': 20, '720p': 50, '1080p': 100, '4k': 150 } }] },
-            runway: { name: 'Runway', desc: '專精於藝術風格與創意轉場，適合 MV、廣告等。', tags: ['藝術風格', '創意轉場'], models: [{ id: 'gen4_video', name: 'Runway Gen-4 Video', type: 'gen', rates: { '720p': 20, '1080p': 40 }, desc: '【限時優惠】經典模型，擅長風格化影片生成。' }, { id: 'aleph', name: 'Runway Aleph', type: 'gen', rates: { '720p': 50 }, desc: '【限時優惠】Runway 實驗性模型。' }] },
-            openai: { name: 'OpenAI', desc: 'Sora 模型震撼業界，具備驚人的場景一致性與長鏡頭穩定度。', tags: ['長鏡頭', '場景一致性'], models: [{ id: 'sora2', name: 'Sora 2', type: 'gen', rates: { '全解析度': 30 }, desc: '【限時優惠】OpenAI 經典模型，物理一致性極高，目前統一費率每秒 30 點。' }] },
+            luma: { name: 'Luma AI', desc: '以強大的動態運鏡與物理模擬著稱，適合動作激烈的場面。', tags: ['運鏡流暢', '動作片首選'], models: [
+                { id: 'ray3', name: 'Ray3 (SDR)', type: 'gen', desc: 'Luma 最新一代標準版。', rates: { '360p': 25, '540p': 75, '720p': 100, '1080p': 125, '4k': 150 } },
+                { id: 'ray3_hdr', name: 'Ray3 (HDR)', isNew: true, type: 'gen', desc: '高動態範圍版本 (HDR)。', rates: { '360p': 75, '540p': 225, '720p': 300, '1080p': 375, '4k': 450 } },
+                { id: 'ray2', name: 'Ray2', type: 'gen', desc: '上一代標準版，平衡了畫質與動態穩定性。', rates: { '540p': 20, '720p': 50, '1080p': 100, '4k': 150 } },
+                { id: 'ray2_flash', name: 'Ray2 Flash', isNew: true, type: 'gen', desc: '極速生成版本，適合快速預覽。', rates: { '540p': 10, '720p': 25, '1080p': 50, '4k': 75 } }
+            ] },
+            runway: { name: 'Runway', desc: '專精於藝術風格與創意轉場，適合 MV、廣告等。', tags: ['藝術風格', '創意轉場'], models: [
+                { id: 'gen4_video', name: 'Runway Gen-4 Video', type: 'gen', rates: { '720p': 20, '1080p': 40 }, desc: '【限時優惠】經典模型，擅長風格化影片生成。' },
+                { id: 'gen4_5_video', name: 'Runway Gen-4.5', isNew: true, type: 'gen', rates: { '720p': 35 }, desc: '【限時優惠】Runway 最新電影級模型。' },
+                { id: 'aleph', name: 'Runway Aleph', type: 'gen', rates: { '720p': 50 }, desc: '【限時優惠】Runway 實驗性模型。' }
+            ] },
+            openai: { name: 'OpenAI', desc: 'Sora 模型震撼業界，具備驚人的場景一致性與長鏡頭穩定度。', tags: ['長鏡頭', '場景一致性'], models: [
+                { id: 'sora2', name: 'Sora 2', type: 'gen', rates: { '全解析度': 30 }, desc: '【限時優惠】OpenAI 經典模型，物理一致性極高。' },
+                { id: 'sora2_pro', name: 'Sora 2 Pro', isNew: true, type: 'gen', rates: { '全解析度': 90 }, desc: '【限時優惠】Sora 專業版，細節更豐富。' }
+            ] },
             google: { name: 'Google', desc: 'Veo 系列具備極佳的語意理解力，畫面細膩且寫實。', tags: ['高解析度', '語意理解強'], models: [{ id: 'veo31', name: 'Veo 3.1', type: 'gen', rates: { '720p': 50, '1080p': 50 }, desc: '【限時優惠】旗艦畫質，細節豐富。' }, { id: 'veo31_fast', name: 'Veo 3.1 Fast', type: 'gen', rates: { '720p': 10, '1080p': 10 }, desc: '【限時優惠】極速生成，每秒僅需 10 點。' }, { id: 'veo2', name: 'Veo 2', type: 'gen', rates: { '720p': 100 }, desc: 'Google 上一代影片模型。' }] },
             pika: { name: 'Pika Labs', desc: '擅長動漫風格與特定的物體動態控制。', tags: ['動漫風格', '動態控制'], models: [{ id: 'pika22', name: 'Pika 2.2', type: 'gen', rates: { '720p': 25, '1080p': 50 }, desc: '最新 Pika 模型，動態流暢。' }] },
-            marey: { name: 'Marey', desc: 'Moonvalley 開發，特定藝術風格表現優異。', tags: ['藝術風格'], models: [{ id: 'marey', name: 'Marey', type: 'gen', rates: { '1080p': 100 }, desc: '【限時優惠】高畫質藝術影片生成。' }] }
+            marey: { name: 'Marey', desc: 'Moonvalley 開發，特定藝術風格表現優異。', tags: ['藝術風格'], models: [{ id: 'marey', name: 'Marey', type: 'gen', rates: { '1080p': 100 }, desc: '【限時優惠】高畫質藝術影片生成。' }] },
+            topaz: { name: 'Topaz Labs', desc: '影片畫質增強與修復。', tags: ['畫質修復', 'Upscale'], models: [
+                { id: 'topaz_astra', name: 'Topaz Astra', isNew: true, type: 'gen', desc: '影片增強與放大模型。', rates: { 'Fast 1080p': 5, 'Fast 4K': 10, 'Quality 1080p': 10, 'Quality 4K': 20 } }
+            ]}
         };
 
         const IMAGE_MODELS_RAW = [
@@ -313,13 +328,14 @@
             { id: 'firefly_v4_ultra', provider: 'Adobe', name: 'Firefly Image 4 Ultra', cost: 20, type: 'gen', desc: '【商業畫質】極致解析度，適合大型印刷與精細修圖。', tags: ['超高畫質'] },
             { id: 'firefly_v4', provider: 'Adobe', name: 'Firefly Image 4', cost: 1, type: 'std', desc: '【高性價比】上一代標準模型，平衡畫質與點數消耗。', tags: ['標準模型'] },
             { id: 'firefly_v3', provider: 'Adobe', name: 'Firefly Image 3', cost: 1, type: 'std', desc: '【基礎模型】適合快速發想、擴充版面與生成式填色。', tags: ['基礎必備'] },
-            { id: 'firefly_v3_fast', provider: 'Adobe', name: 'Firefly Image 3 (Fast)', cost: 1, type: 'std', desc: '【極速生成】犧牲少許細節換取更快的生成速度。', tags: ['極速'] },
-            { id: 'flux_kontext_max', provider: 'Black Forest Labs', name: 'FLUX.1 Kontext [max]', cost: 10, type: 'gen', desc: '【極致細節】Flux 系列中細節表現最強的版本。', tags: ['細節王者'] },
-            { id: 'flux_1_1_pro', provider: 'Black Forest Labs', name: 'FLUX1.1 [pro]', cost: 10, type: 'gen', desc: '【高速高品質】生成速度快，同時保有極高畫質。', tags: ['高速生成'] },
-            { id: 'gemini_3', provider: 'Google', name: 'Gemini 3', cost: 10, type: 'gen', desc: '【語意理解】具備極強的多模態理解。', tags: ['語意理解'] },
+            { id: 'firefly_v3_fast', provider: 'Adobe', name: 'Firefly Image 3 (Fast)', cost: 1, type: 'std', desc: '【極速生成】犧牲少許細節換取速度。', tags: ['極速'] },
+            { id: 'gemini_3', provider: 'Google', name: 'Gemini 3', isNew: true, cost: 40, type: 'gen', desc: '【語意理解】專業級模型，費率調整為 40 點。', tags: ['語意理解', 'Pro'] },
+            { id: 'gemini_2_5', provider: 'Google', name: 'Gemini 2.5 Flash', cost: 10, type: 'gen', desc: '快速圖像生成模型。', tags: ['快速'] },
             { id: 'imagen_4', provider: 'Google', name: 'Imagen 4', cost: 20, type: 'gen', desc: 'Google 最新一代繪圖模型。', tags: ['最新寫實'] },
+            { id: 'flux_1_1_pro', provider: 'Black Forest Labs', name: 'FLUX1.1 [pro]', cost: 10, type: 'gen', desc: '【高速高品質】生成速度快。', tags: ['高速生成'] },
+            { id: 'flux_2', provider: 'Black Forest Labs', name: 'FLUX.2', isNew: true, cost: 20, type: 'gen', desc: '【生產力級】最新一代 FLUX 模型。', tags: ['最新模型'] },
             { id: 'gpt_img', provider: 'OpenAI', name: 'GPT Image', cost: 60, type: 'gen', badge: '高消耗', desc: '【DALL-E 3】擅長聽懂自然語言。', tags: ['容易上手'] },
-            { id: 'ideogram', provider: 'Ideogram', name: 'Ideogram 3.0', cost: 20, type: 'gen', desc: '【文字排版】能精準在圖片中生成正確的英文字母。', tags: ['文字排版'] },
+            { id: 'ideogram', provider: 'Ideogram', name: 'Ideogram 3.0', cost: 20, type: 'gen', desc: '【文字排版】能精準在圖片中生成文字。', tags: ['文字排版'] },
             { id: 'runway_gen4', provider: 'Runway', name: 'Runway Gen-4 Image', cost: 20, type: 'gen', desc: '【藝術風格】獨特的美學風格。', tags: ['概念藝術'] }
         ];
 
@@ -331,18 +347,19 @@
 
         const VECTOR_MODELS = [
             { id: 'firefly_vec', provider: 'Adobe', name: 'Firefly Vector', cost: 1, type: 'std', desc: '【Adobe 原生】生成 SVG 向量檔。' },
-            { id: 'gemini_vec', provider: 'Google', name: 'Gemini 2.5 Flash', cost: 20, type: 'gen', desc: '快速生成向量圖示與簡單插畫。' },
+            { id: 'gemini_vec', provider: 'Google', name: 'Gemini 2.5 Flash', cost: 10, type: 'gen', desc: '快速生成向量圖示與簡單插畫。' },
             { id: 'gpt_vec', provider: 'OpenAI', name: 'GPT Image (Vector)', cost: 60, type: 'gen', desc: '使用 GPT 生成向量圖概念。', badge: '高消耗' },
             { id: 'ideogram_vec', provider: 'Ideogram', name: 'Ideogram 3.0', cost: 20, type: 'gen', desc: '擅長生成帶有文字設計的向量圖形。' }
         ];
 
         const AUDIO_SERVICES = [
-            { id: 'trans_base', label: '翻譯影片/音訊 (無對嘴)', cost: 5, unit: '秒', desc: '【基礎翻譯】僅翻譯語音內容。', type: 'gen' },
-            { id: 'trans_1080', label: '翻譯/對嘴 (1080p)', cost: 10, unit: '秒', desc: '【進階翻譯】影片語音翻譯 + AI 自動對嘴。', type: 'gen' },
-            { id: 'trans_4k', label: '翻譯/對嘴 (4K)', cost: 15, unit: '秒', desc: '【高畫質翻譯】影片語音翻譯 + AI 自動對嘴。', type: 'gen' },
-            { id: 'avatar', label: '文字轉虛擬人偶', cost: 10, unit: '秒', desc: '以文字建立虛擬人偶影片。', type: 'gen' },
-            { id: 'sfx', label: '生成音效', cost: 10, unit: '次', desc: '輸入文字描述產生簡短音效。', type: 'gen' },
-            { id: 'music', label: 'GenMusic (生成音樂)', cost: 20, unit: '分', desc: '生成可商用的背景音樂。', type: 'gen' }
+            { id: 'elevenlabs', name: 'ElevenLabs Multilingual v2', isNew: true, cost: 15, unit: '1k字', desc: '自然逼真的多語言語音生成 (每 1000 字元)。', type: 'gen' },
+            { id: 'trans_base', name: '翻譯影片/音訊 (無對嘴)', cost: 5, unit: '秒', desc: '【基礎翻譯】僅翻譯語音內容。', type: 'gen' },
+            { id: 'trans_1080', name: '翻譯/對嘴 (1080p)', cost: 10, unit: '秒', desc: '【進階翻譯】影片語音翻譯 + AI 自動對嘴。', type: 'gen' },
+            { id: 'trans_4k', name: '翻譯/對嘴 (4K)', cost: 15, unit: '秒', desc: '【高畫質翻譯】影片語音翻譯 + AI 自動對嘴。', type: 'gen' },
+            { id: 'avatar', name: '文字轉虛擬人偶', cost: 10, unit: '秒', desc: '以文字建立虛擬人偶影片。', type: 'gen' },
+            { id: 'sfx', name: '生成音效', cost: 10, unit: '次', desc: '輸入文字描述產生簡短音效。', type: 'gen' },
+            { id: 'music', name: 'GenMusic (生成音樂)', cost: 20, unit: '分', desc: '生成可商用的背景音樂。', type: 'gen' }
         ];
 
         const CATEGORIES = {
@@ -630,8 +647,9 @@
                             <div class="flex-1 pr-2">
                                 <div class="font-bold text-slate-800 flex items-center gap-2 flex-wrap">
                                     ${model.name}
-                                    ${model.badge ? `<span class="bg-red-100 text-red-600 text-[10px] px-1.5 py-0.5 rounded border border-red-200">${model.badge}</span>` : ''}
-                                    ${model.type === 'std' ? `<span class="bg-green-100 text-green-700 text-[10px] px-1.5 py-0.5 rounded border border-green-200">標準模型</span>` : ''}
+                                    ${model.isNew ? `<span class="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded ml-2 font-bold animate-pulse">NEW</span>` : ''}
+                                    ${model.badge ? `<span class="bg-red-100 text-red-600 text-[10px] px-1.5 py-0.5 rounded border border-red-200 ml-1">${model.badge}</span>` : ''}
+                                    ${model.type === 'std' ? `<span class="bg-green-100 text-green-700 text-[10px] px-1.5 py-0.5 rounded border border-green-200 ml-1">標準模型</span>` : ''}
                                 </div>
                                 <div class="text-xs text-gray-500 mt-1">${model.desc}</div>
                             </div>
@@ -680,8 +698,9 @@
                             <div class="flex-1 pr-2">
                                 <div class="font-bold text-slate-800 flex items-center gap-2 flex-wrap">
                                     ${model.name}
-                                    ${model.badge ? `<span class="bg-red-100 text-red-600 text-[10px] px-1.5 py-0.5 rounded border border-red-200">${model.badge}</span>` : ''}
-                                    ${model.type === 'std' ? `<span class="bg-green-100 text-green-700 text-[10px] px-1.5 py-0.5 rounded border border-green-200">標準模型</span>` : ''}
+                                    ${model.isNew ? `<span class="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded ml-2 font-bold animate-pulse">NEW</span>` : ''}
+                                    ${model.badge ? `<span class="bg-red-100 text-red-600 text-[10px] px-1.5 py-0.5 rounded border border-red-200 ml-1">${model.badge}</span>` : ''}
+                                    ${model.type === 'std' ? `<span class="bg-green-100 text-green-700 text-[10px] px-1.5 py-0.5 rounded border border-green-200 ml-1">標準模型</span>` : ''}
                                 </div>
                                 <div class="text-xs text-gray-500 mt-1">${model.desc}</div>
                             </div>
@@ -883,7 +902,7 @@
             const grid = document.getElementById('category-grid');
             Object.entries(CATEGORIES).forEach(([key, cat], idx) => {
                 const btn = document.createElement('button');
-                btn.className = "group relative bg-white rounded-[2rem] p-8 shadow-sm hover:shadow-2xl transition-all duration-500 text-left overflow-hidden border border-transparent hover:border-gray-100";
+                btn.className = "group relative bg-white rounded-[2rem] p-8 shadow-sm hover:shadow-2xl transition-all duration-500 text-left overflow-hidden border border-transparent hover:border-gray-100 flex flex-col justify-start";
                 btn.style.animationDelay = `${idx * 100}ms`;
                 btn.onclick = () => openCategoryModal(key);
                 
