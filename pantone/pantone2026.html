@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-Hant" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8"> 
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pantone 2026 Cloud Dancer | Weblink International</title>
     <meta name="description" content="Pantone 2026 年度代表色 Cloud Dancer 雲上舞白，由台灣授權代理商展碁國際為您呈現。">
@@ -113,11 +113,135 @@
             z-index: 9998;
             animation: grain 8s steps(10) infinite;
         }
+        
+        /* Product Card Specifics */
+        .product-card-hover:hover .product-overlay {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .product-overlay {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease-out;
+        }
+        
+        .thumbnail-active {
+            border-color: #000 !important;
+            opacity: 1 !important;
+        }
+
+        /* Category Filter Styles */
+        .filter-btn {
+            position: relative;
+            color: #78716c; /* stone-500 */
+            transition: color 0.3s ease;
+        }
+        .filter-btn:hover {
+            color: #1c1917;
+        }
+        .filter-btn.active {
+            color: #1c1917; /* stone-900 */
+            background-color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            font-weight: 600;
+        }
+
+        /* Demand Filter Tags */
+        .demand-tag {
+            border: 1px solid #d6d3d1;
+            color: #78716c;
+            background: transparent;
+            transition: all 0.2s;
+        }
+        .demand-tag:hover, .demand-tag.active {
+            border-color: #1c1917;
+            background: #1c1917;
+            color: white;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+        }
+        .modal-content {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* Compare Checkbox */
+        .compare-checkbox {
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border: 2px solid #e7e5e4;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            background-color: white;
+            transition: all 0.2s;
+        }
+        .compare-checkbox:checked {
+            background-color: #1c1917;
+            border-color: #1c1917;
+        }
+        .compare-checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            color: white;
+            font-size: 14px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .compare-bar {
+            transform: translateY(120%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .compare-bar.visible {
+            transform: translateY(0);
+        }
+        
+        /* Toggle Switch for Connect Bundle */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #10B981;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #10B981;
+        }
+        
+        /* Back to Top Button */
+        #back-to-top {
+            transition: opacity 0.3s, transform 0.3s;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(20px);
+        }
+        #back-to-top.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        /* Software Icons */
+        .sw-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #444;
+            background-color: #f5f5f4;
+            border: 1px solid #e7e5e4;
+        }
     </style>
 </head>
-<body class="bg-[#F8F9FA] text-stone-900 font-sans selection:bg-stone-200 selection:text-black overflow-x-hidden antialiased">
+<body class="bg-[#F8F9FA] text-stone-900 font-sans selection:bg-stone-200 selection:text-black overflow-x-hidden antialiased pb-32">
 
-    <!-- Grain Texture Overlay (紙張質感) -->
+    <!-- Grain Texture Overlay -->
     <div class="bg-grain"></div>
 
     <!-- Ambient Background -->
@@ -146,17 +270,13 @@
                     </div>
                 </div>
                 
-                <div class="hidden md:flex items-center space-x-12 text-sm font-medium text-stone-500 tracking-wide">
+                <div class="hidden md:flex items-center space-x-8 text-sm font-medium text-stone-500 tracking-wide">
                     <a href="#hero" class="nav-link hover:text-black transition-colors relative group magnetic-btn">
                         2026 年度色
                         <span class="absolute -bottom-1 left-0 w-0 h-px bg-black transition-all group-hover:w-full opacity-0 group-hover:opacity-100"></span>
                     </a>
-                    <a href="#news" class="nav-link hover:text-black transition-colors relative group magnetic-btn">
-                        專題報導
-                        <span class="absolute -bottom-1 left-0 w-0 h-px bg-black transition-all group-hover:w-full opacity-0 group-hover:opacity-100"></span>
-                    </a>
-                    <a href="#events" class="nav-link hover:text-black transition-colors flex items-center gap-2 relative group magnetic-btn">
-                        <span class="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse"></span>
+                    
+                    <a href="#events" class="nav-link hover:text-black transition-colors relative group magnetic-btn">
                         在地活動
                         <span class="absolute -bottom-1 left-0 w-0 h-px bg-black transition-all group-hover:w-full opacity-0 group-hover:opacity-100"></span>
                     </a>
@@ -164,8 +284,17 @@
                         色彩挑戰
                         <span class="absolute -bottom-1 left-0 w-0 h-px bg-black transition-all group-hover:w-full opacity-0 group-hover:opacity-100"></span>
                     </a>
-                    <a href="#connect" class="nav-link px-6 py-2 bg-stone-900 text-white rounded-full hover:bg-stone-700 active:scale-95 transition-all text-xs tracking-wider shadow-md hover:shadow-lg magnetic-btn">
+                    <a href="#connect" class="nav-link hover:text-black transition-colors relative group magnetic-btn">
                         Connect 優惠
+                        <span class="absolute -bottom-1 left-0 w-0 h-px bg-black transition-all group-hover:w-full opacity-0 group-hover:opacity-100"></span>
+                    </a>
+                    <a href="#products" class="nav-link px-6 py-2 bg-stone-900 text-white rounded-full hover:bg-stone-700 active:scale-95 transition-all text-xs tracking-wider shadow-md hover:shadow-lg magnetic-btn">
+                        實體產品
+                    </a>
+                    <!-- News Moved to end of list visually in menu if preferred, or keep here -->
+                    <a href="#news" class="nav-link hover:text-black transition-colors relative group magnetic-btn">
+                        專題報導
+                        <span class="absolute -bottom-1 left-0 w-0 h-px bg-black transition-all group-hover:w-full opacity-0 group-hover:opacity-100"></span>
                     </a>
                 </div>
 
@@ -180,10 +309,11 @@
         <div id="mobile-menu" class="hidden md:hidden bg-white/90 backdrop-blur-xl border-b border-stone-100 absolute w-full left-0 top-20 shadow-lg origin-top transition-transform duration-300">
             <div class="flex flex-col p-6 space-y-6 font-medium text-stone-600">
                 <a href="#hero" class="hover:text-black active:pl-2 transition-all" onclick="closeMenu()">2026 年度色</a>
-                <a href="#news" class="hover:text-black active:pl-2 transition-all" onclick="closeMenu()">專題報導</a>
                 <a href="#events" class="hover:text-black active:pl-2 transition-all" onclick="closeMenu()">在地活動</a>
                 <a href="#game" class="hover:text-black active:pl-2 transition-all" onclick="closeMenu()">色彩挑戰</a>
-                <a href="#connect" class="text-stone-900 font-bold active:pl-2 transition-all" onclick="closeMenu()">Connect 優惠</a>
+                <a href="#connect" class="hover:text-black active:pl-2 transition-all" onclick="closeMenu()">Connect 優惠</a>
+                <a href="#products" class="text-stone-900 font-bold active:pl-2 transition-all" onclick="closeMenu()">實體產品</a>
+                <a href="#news" class="hover:text-black active:pl-2 transition-all" onclick="closeMenu()">專題報導</a>
             </div>
         </div>
     </nav>
@@ -192,7 +322,7 @@
     <header id="hero" class="relative w-full min-h-screen flex items-center justify-center pt-20 overflow-hidden">
         <div class="absolute inset-0 z-0">
             <div class="relative overflow-hidden w-full h-full opacity-80 parallax-container">
-                <img src="https://adbeweblink.github.io/myproject/pantone/Cloud%20Dancer%20Leap.jpg" alt="Pantone 2026 Cloud Dancer Leap" class="w-full h-full object-cover transition-transform duration-[2s] hover:scale-105 parallax-img">
+                <img src="https://adbeweblink.github.io/myproject/pantone/Cloud%20Dancer%20Leap.jpg" alt="Pantone 2026 Cloud Dancer Leap" class="w-full h-full object-cover transition-transform duration-[2s] hover:scale-105 parallax-img" loading="lazy">
             </div>
             <div class="absolute inset-0 bg-gradient-to-r from-white/90 via-white/40 to-white/10 sm:from-white/95 sm:via-white/20"></div>
         </div>
@@ -237,18 +367,15 @@
         </div>
     </header>
 
-    <!-- SECTION 2: 概念與空間 (影片外連) -->
+    <!-- SECTION 2: 影片外連 -->
     <section id="intro-video" class="py-32 relative">
         <div class="max-w-[1440px] mx-auto px-6 lg:px-12">
             <div class="grid md:grid-cols-2 gap-20 items-center">
-                
-                <!-- Video Link Container -->
                 <a href="https://youtu.be/t1UyEA7MiG0?si=E62PdtYB44NHXFRK" target="_blank" rel="noreferrer" class="relative group cursor-pointer reveal block magnetic-area">
                     <div class="absolute -top-6 -left-6 w-32 h-32 border-t border-l border-stone-200 z-0 transition-all duration-700 group-hover:-top-8 group-hover:-left-8 opacity-50"></div>
-                    
                     <div class="relative z-10 aspect-video w-full rounded-sm overflow-hidden shadow-soft bg-stone-100">
                         <div class="relative w-full h-full group transition-opacity duration-700">
-                            <img src="https://raw.githubusercontent.com/adbeweblink/myproject/main/pantone/Pantone%20Cloud%20Dancer.jpg" alt="Watch Video" class="w-full h-full object-cover opacity-95 group-hover:scale-105 transition-transform duration-[1.5s]">
+                            <img src="https://raw.githubusercontent.com/adbeweblink/myproject/main/pantone/Pantone%20Cloud%20Dancer.jpg" alt="Watch Video" class="w-full h-full object-cover opacity-95 group-hover:scale-105 transition-transform duration-[1.5s]" loading="lazy">
                             <div class="absolute inset-0 bg-white/10 group-hover:bg-black/10 transition-colors duration-500 flex items-center justify-center">
                                 <div class="w-20 h-20 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center border border-white/60 group-hover:scale-110 transition-transform duration-500 shadow-lg group-hover:bg-red-600/80 group-hover:border-red-500">
                                     <i data-lucide="play" class="text-white fill-white ml-1 w-8 h-8 opacity-90"></i>
@@ -260,7 +387,6 @@
                         <p class="font-serif italic text-stone-500 text-lg">"Watch the story on YouTube."</p>
                     </div>
                 </a>
-                
                 <div class="space-y-10 reveal" style="transition-delay: 200ms;">
                     <h2 class="text-4xl md:text-5xl font-serif leading-tight text-stone-800">
                         不只是白色，<br/>而是一種結構性的存在
@@ -270,7 +396,6 @@
                         它不是空白，而是讓其他色彩得以被看見、被強化、被放大的基底。
                         在資訊過載的時代，邀請我們回到專注與平衡的起點。
                     </p>
-                    
                     <div class="grid grid-cols-2 gap-8 pt-4">
                         <div class="glass-card p-6 rounded-sm hover:bg-white transition-colors duration-500 glass-tilt-effect">
                             <h4 class="font-bold mb-2 tracking-wide text-stone-800">空間應用</h4>
@@ -286,41 +411,9 @@
         </div>
     </section>
 
-    <!-- SECTION 2.5: 媒體報導輪播 -->
-    <section id="news" class="py-24 border-y border-stone-200/50 overflow-hidden relative">
-        <div class="absolute inset-0 bg-stone-50/50"></div>
-        
-        <div class="max-w-[1440px] mx-auto px-6 lg:px-12 relative z-10">
-            <div class="flex justify-between items-end mb-12 reveal">
-                <div>
-                    <div class="flex items-center gap-2 text-stone-400 mb-3">
-                        <i data-lucide="newspaper" class="w-4 h-4"></i>
-                        <span class="text-xs font-bold tracking-[0.25em] uppercase">Media Spotlight</span>
-                    </div>
-                    <h2 class="text-3xl md:text-4xl font-serif">媒體專題報導</h2>
-                </div>
-                <!-- Carousel Controls -->
-                <div class="flex gap-3">
-                    <button id="scroll-left" class="w-12 h-12 rounded-full border border-stone-200 flex items-center justify-center hover:bg-stone-900 hover:text-white hover:border-transparent active:scale-95 transition-all bg-white shadow-sm magnetic-btn">
-                        <i data-lucide="chevron-left" class="w-5 h-5"></i>
-                    </button>
-                    <button id="scroll-right" class="w-12 h-12 rounded-full border border-stone-200 flex items-center justify-center hover:bg-stone-900 hover:text-white hover:border-transparent active:scale-95 transition-all bg-white shadow-sm magnetic-btn">
-                        <i data-lucide="chevron-right" class="w-5 h-5"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Carousel Container -->
-            <div id="carousel-container" class="flex gap-8 overflow-x-auto pb-12 snap-x snap-mandatory scrollbar-hide scroll-smooth reveal pl-1" style="transition-delay: 200ms;">
-                <!-- News Items -->
-            </div>
-        </div>
-    </section>
-
-    <!-- SECTION 3: 年度在地活動 -->
+    <!-- SECTION 3: 在地活動 (Swapped position) -->
     <section id="events" class="py-32 relative overflow-hidden">
         <div class="absolute top-0 right-0 w-2/3 h-full bg-[#F3F4F6] -skew-x-12 translate-x-1/3 opacity-70 mix-blend-multiply"></div>
-
         <div class="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
             <div class="text-center mb-20 reveal">
                 <span class="text-xs font-bold tracking-[0.25em] text-stone-400 uppercase">Local Events 2026</span>
@@ -329,9 +422,7 @@
                     展碁國際為合作夥伴與設計師規劃了一系列精彩市場活動，<br>從線上研討會到社群互動，全面掌握 2026 色彩商機。
                 </p>
             </div>
-
             <div class="grid md:grid-cols-2 gap-10">
-                <!-- 活動一 -->
                 <div class="glass-card p-10 md:p-12 rounded-lg hover:shadow-soft transition-all duration-500 relative group reveal glass-tilt-effect" style="transition-delay: 100ms;">
                     <div class="absolute top-0 right-0 bg-[#06C755] text-white text-xs font-bold px-4 py-1.5 rounded-bl-lg rounded-tr-lg shadow-sm">LINE POINTS 好禮</div>
                     <div class="flex items-start gap-8">
@@ -355,8 +446,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- 活動二 -->
                 <div class="glass-card p-10 md:p-12 rounded-lg hover:shadow-soft transition-all duration-500 relative group reveal glass-tilt-effect" style="transition-delay: 200ms;">
                     <div class="absolute top-0 right-0 bg-stone-800 text-white text-xs font-bold px-4 py-1.5 rounded-bl-lg rounded-tr-lg shadow-sm">Webinar</div>
                     <div class="flex items-start gap-8">
@@ -389,9 +478,8 @@
         <div class="max-w-[1440px] mx-auto px-6 lg:px-12">
             <div class="bg-black text-white rounded-[2rem] overflow-hidden relative reveal shadow-2xl glass-tilt-effect">
                 <div class="absolute inset-0 opacity-40">
-                    <img src="https://adbeweblink.github.io/myproject/pantone/Cloud%20Dancer%20Room.jpg" alt="Game Background" class="w-full h-full object-cover mix-blend-overlay">
+                    <img src="https://adbeweblink.github.io/myproject/pantone/Cloud%20Dancer%20Room.jpg" alt="Game Background" class="w-full h-full object-cover mix-blend-overlay" loading="lazy">
                 </div>
-                
                 <div class="relative z-10 grid md:grid-cols-2 gap-16 p-16 md:p-24 items-center">
                     <div class="space-y-8">
                         <div class="inline-flex items-center gap-2 bg-yellow-400 text-black px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
@@ -402,16 +490,13 @@
                             透過趣味的色彩互動遊戲，測試你對 Cloud Dancer 及其搭配色系的直覺。
                             不僅好玩，還能激發你的設計靈感！
                         </p>
-                        
                         <div class="flex flex-col sm:flex-row gap-6 items-center">
                             <a href="https://liff.line.me/2008592497-pmWyN9om" target="_blank" rel="noreferrer" class="px-10 py-5 bg-white text-black font-bold rounded-full hover:bg-yellow-400 active:scale-95 transition-all flex items-center gap-4 shadow-lg hover:shadow-xl tracking-widest text-sm magnetic-btn">
                                 開始色彩挑戰 <i data-lucide="play" class="w-4 h-4 fill-current"></i>
                             </a>
-                            
-                            <!-- QR Code Block -->
                             <div class="flex items-center gap-4 bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-xl">
                                 <div class="bg-white p-1 rounded-lg">
-                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://liff.line.me/2008592497-pmWyN9om" alt="Scan QR Code" class="w-20 h-20">
+                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://liff.line.me/2008592497-pmWyN9om" alt="Scan QR Code" class="w-20 h-20" loading="lazy">
                                 </div>
                                 <div class="text-xs text-stone-300">
                                     <span class="block font-bold text-white mb-1"><i data-lucide="smartphone" class="w-3 h-3 inline mr-1"></i>Mobile Preferred</span>
@@ -420,15 +505,12 @@
                             </div>
                         </div>
                     </div>
-                    
                     <div class="relative">
                         <div class="aspect-video bg-stone-800/80 backdrop-blur-md rounded-xl border border-stone-600 p-3 shadow-2xl transform rotate-2 hover:rotate-0 transition-transform duration-700 hover:scale-105">
                             <div class="w-full h-full bg-stone-900 rounded flex items-center justify-center relative overflow-hidden">
-                                <!-- Replaced image with Pantone Color Guides -->
-                                <img src="https://raw.githubusercontent.com/adbeweblink/myproject/refs/heads/main/pantone/Pantone%20Color%20Guides.jpg" alt="Game Preview" class="w-full h-full object-cover opacity-80">
+                                <img src="https://raw.githubusercontent.com/adbeweblink/myproject/refs/heads/main/pantone/Pantone%20Color%20Guides.jpg" alt="Game Preview" class="w-full h-full object-cover opacity-80" loading="lazy">
                             </div>
                         </div>
-                        <!-- Line Card (Kept as requested) -->
                         <div class="absolute -bottom-8 -left-8 bg-[#06C755] text-white p-5 rounded-lg shadow-lg max-w-[200px] animate-bounce" style="animation-duration: 3s;">
                             <p class="text-xs font-bold flex items-center gap-2 mb-1">
                                 <i data-lucide="message-circle" class="w-4 h-4"></i>
@@ -445,31 +527,25 @@
     <!-- SECTION 5: Pantone Connect 促銷 -->
     <section id="connect" class="py-32 bg-stone-50 relative overflow-hidden">
         <div class="absolute -left-20 top-20 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-[100px] opacity-30 animate-blob"></div>
-
         <div class="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
             <div class="grid md:grid-cols-2 gap-20 items-center">
-                
                 <div class="order-2 md:order-1 space-y-10 reveal">
                     <div class="flex items-center gap-4">
-                        <img src="https://www.quickly.com.tw/img/pantone-connect.jpg" alt="Pantone Connect Icon" class="w-16 h-16 rounded-2xl shadow-lg object-contain bg-black animate-float">
+                        <img src="https://www.quickly.com.tw/img/pantone-connect.jpg" alt="Pantone Connect Icon" class="w-16 h-16 shadow-lg object-contain bg-black animate-float" loading="lazy">
                         <div>
                             <span class="font-bold text-xl text-[#0051B5] block">Pantone Connect</span>
                             <span class="text-xs text-stone-400 tracking-widest uppercase">Premium Tool</span>
                         </div>
                     </div>
-                    
                     <h2 class="text-5xl md:text-6xl font-serif leading-none text-stone-900">
                         把靈感，<br/><span class="text-3xl md:text-4xl text-stone-400 block mt-2">直接帶進 Adobe 工作流程</span>
                     </h2>
-                    
                     <div class="space-y-4 text-stone-500 text-sm leading-loose pl-1 border-l-2 border-stone-200">
                         <p>在 Photoshop、Illustrator、InDesign 中即時存取超過 15,000 種 Pantone 色彩。</p>
                         <p>確保從螢幕到印刷，團隊協作與品牌色彩的一致性。</p>
                     </div>
-
                     <div class="glass-card p-10 rounded-xl hover:shadow-xl transition-all duration-500 relative overflow-hidden group glass-tilt-effect">
                         <div class="absolute top-6 -right-10 w-40 rotate-45 bg-red-500 text-white text-center py-1 text-xs font-bold shadow-sm z-10">HOT OFFER</div>
-                        
                         <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
                             限時採購優惠 <span class="text-red-500 text-[10px] font-normal border border-red-500 px-2 py-0.5 rounded tracking-wide">經銷商專屬</span>
                         </h3>
@@ -478,26 +554,156 @@
                             <span class="text-stone-400 text-sm">/ OFF (採購二套起)</span>
                         </div>
                         <p class="text-xs text-stone-400 mb-8 font-mono">優惠期間：2025/12/10 – 2026/02/28</p>
-                        
                         <button class="w-full py-4 bg-stone-900 text-white font-bold rounded hover:bg-black active:scale-95 transition-all flex items-center justify-center gap-3 shadow-md tracking-widest text-sm magnetic-btn">
-                            <i data-lucide="shopping-bag" class="w-4 h-4"></i> 聯絡業務採購
+                            <i data-lucide="shopping-bag" class="w-4 h-4"></i> 聯絡經銷商採購
                         </button>
                     </div>
                 </div>
-
                 <div class="order-1 md:order-2">
                     <div class="relative reveal" style="transition-delay: 200ms;">
                         <div class="absolute inset-0 bg-stone-200 rounded-lg transform translate-x-6 translate-y-6"></div>
                         <div class="relative overflow-hidden rounded-lg shadow-2xl relative z-10 aspect-[4/5] group">
-                            <img src="https://www.pantone.com/media/wysiwyg/pages/connect/Pantone-Connect-V2-Image-1.jpg?auto=webp&format=pjpg&quality=85" alt="Campaign Visual" class="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105">
+                            <img src="https://www.pantone.com/media/wysiwyg/pages/connect/Pantone-Connect-V2-Image-1.jpg?auto=webp&format=pjpg&quality=85" alt="Campaign Visual" class="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105" referrerpolicy="no-referrer" loading="lazy">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-50"></div>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </section>
+
+    <!-- SECTION 6: 實體產品 (Combined with Comparison) -->
+    <section id="products" class="py-32 relative">
+        <div class="max-w-[1600px] mx-auto px-6 lg:px-12 relative z-10">
+            <div class="text-center mb-12 reveal">
+                <span class="text-xs font-bold tracking-[0.25em] text-stone-400 uppercase">Physical Products</span>
+                <h2 class="text-4xl md:text-5xl font-serif mt-6 mb-8 text-stone-800">Pantone 專業實體指南</h2>
+                <p class="text-stone-500 max-w-2xl mx-auto leading-loose text-lg font-light">
+                    除了數位色彩解決方案，更可搭配完整的實體色票指南，<br>確保從設計到生產的色彩精準度。
+                </p>
+            </div>
+
+            <!-- Integrated Filters (Category & Demand) -->
+            <div class="flex flex-col items-center gap-6 mb-16 reveal">
+                <!-- Primary Category Tabs -->
+                <div class="inline-flex bg-stone-200/50 p-1 rounded-lg backdrop-blur-sm">
+                    <button onclick="filterProducts('all')" class="filter-btn active px-6 py-2 rounded-md text-xs font-bold tracking-widest uppercase transition-all duration-300" id="btn-all">全部</button>
+                    <button onclick="filterProducts('graphics')" class="filter-btn px-6 py-2 rounded-md text-xs font-bold tracking-widest uppercase transition-all duration-300" id="btn-graphics">平面設計 & 印刷</button>
+                    <button onclick="filterProducts('fhi')" class="filter-btn px-6 py-2 rounded-md text-xs font-bold tracking-widest uppercase transition-all duration-300" id="btn-fhi">時尚、家居 & 室內設計</button>
+                </div>
+
+                <!-- Secondary Demand Tags -->
+                <div class="flex flex-wrap justify-center gap-3">
+                    <button onclick="filterByTag('spot')" class="demand-tag px-3 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase hover:bg-stone-800 hover:text-white transition-all">專色印刷</button>
+                    <button onclick="filterByTag('bridge')" class="demand-tag px-3 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase hover:bg-stone-800 hover:text-white transition-all">RGB/CMYK轉換</button>
+                    <button onclick="filterByTag('pastels')" class="demand-tag px-3 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase hover:bg-stone-800 hover:text-white transition-all">粉彩/霓虹</button>
+                    <button onclick="filterByTag('metallics')" class="demand-tag px-3 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase hover:bg-stone-800 hover:text-white transition-all">金屬色</button>
+                    <button onclick="filterByTag('skin')" class="demand-tag px-3 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase hover:bg-stone-800 hover:text-white transition-all">膚色工具</button>
+                     <button onclick="filterByTag('studio')" class="demand-tag px-3 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase hover:bg-stone-800 hover:text-white transition-all">一次買齊</button>
+                </div>
+            </div>
+
+            <!-- Product Grid -->
+            <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Products render here -->
+            </div>
+        </div>
+        
+        <!-- Comparison Sticky Bar -->
+        <div id="compare-bar" class="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-md border-t border-stone-200 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] p-4 z-50 compare-bar flex flex-col sm:flex-row justify-between items-center px-6 lg:px-12 gap-4">
+            <div class="flex items-center gap-6">
+                <div class="text-sm font-bold text-stone-800">
+                    已選擇 <span id="compare-count" class="text-red-600">0</span>/2 項產品
+                </div>
+                <label class="flex items-center gap-2 cursor-pointer group select-none">
+                    <div class="relative">
+                        <input type="checkbox" id="bundle-toggle" class="sr-only toggle-checkbox" checked onchange="toggleBundleLabel()">
+                        <div class="w-10 h-6 bg-stone-200 rounded-full shadow-inner transition-colors duration-300 toggle-label"></div>
+                        <div class="absolute w-4 h-4 bg-white rounded-full shadow top-1 left-1 transition-all duration-300 toggle-dot"></div>
+                    </div>
+                    <span class="text-xs font-bold text-stone-500 group-hover:text-stone-800 transition-colors">Bundle with Pantone Connect</span>
+                    <span id="bundle-rec-badge" class="bg-blue-600 text-white text-[10px] px-1.5 py-0.5 rounded font-bold transition-opacity">Recommended</span>
+                </label>
+            </div>
+            <div class="flex gap-4">
+                <button onclick="clearCompare()" class="text-xs text-stone-400 underline hover:text-stone-600 transition-colors">清除重選</button>
+                <button onclick="openCompareModal()" id="compare-btn" class="bg-stone-900 text-white px-8 py-3 rounded text-xs font-bold tracking-widest uppercase hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md transform active:scale-95" disabled>
+                    開始比較
+                </button>
+            </div>
+        </div>
+    </section>
+    
+    <!-- SECTION 2.5: 媒體報導 -->
+    <section id="news" class="py-24 border-y border-stone-200/50 overflow-hidden relative">
+        <div class="absolute inset-0 bg-stone-50/50"></div>
+        <div class="max-w-[1440px] mx-auto px-6 lg:px-12 relative z-10">
+            <div class="flex justify-between items-end mb-12 reveal">
+                <div>
+                    <div class="flex items-center gap-2 text-stone-400 mb-3">
+                        <i data-lucide="newspaper" class="w-4 h-4"></i>
+                        <span class="text-xs font-bold tracking-[0.25em] uppercase">Media Spotlight</span>
+                    </div>
+                    <h2 class="text-3xl md:text-4xl font-serif">媒體專題報導</h2>
+                </div>
+                <div class="flex gap-3">
+                    <button id="scroll-left" class="w-12 h-12 rounded-full border border-stone-200 flex items-center justify-center hover:bg-stone-900 hover:text-white hover:border-transparent active:scale-95 transition-all bg-white shadow-sm magnetic-btn">
+                        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                    </button>
+                    <button id="scroll-right" class="w-12 h-12 rounded-full border border-stone-200 flex items-center justify-center hover:bg-stone-900 hover:text-white hover:border-transparent active:scale-95 transition-all bg-white shadow-sm magnetic-btn">
+                        <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="carousel-container" class="flex gap-8 overflow-x-auto pb-12 snap-x snap-mandatory scrollbar-hide scroll-smooth reveal pl-1" style="transition-delay: 200ms;">
+                <!-- News Items -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Product Details Modal -->
+    <div id="product-modal" class="fixed inset-0 z-[100] hidden items-center justify-center modal-overlay opacity-0 transition-opacity duration-300">
+        <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl relative transform scale-95 transition-transform duration-300 modal-content mx-4 overflow-hidden max-h-[90vh] flex flex-col">
+            <button onclick="closeModal()" class="absolute top-4 right-4 p-2 rounded-full bg-white/50 hover:bg-stone-100 transition-colors z-10">
+                <i data-lucide="x" class="w-6 h-6 text-stone-500"></i>
+            </button>
+            <div id="modal-body" class="overflow-y-auto">
+                <!-- Content injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Comparison Modal -->
+    <div id="compare-modal" class="fixed inset-0 z-[101] hidden items-center justify-center modal-overlay opacity-0 transition-opacity duration-300">
+        <div class="bg-white w-full max-w-6xl rounded-2xl shadow-2xl relative transform scale-95 transition-transform duration-300 modal-content mx-4 overflow-hidden h-[85vh] flex flex-col">
+             <div class="p-6 border-b border-stone-100 flex justify-between items-center bg-stone-50/50 backdrop-blur-sm sticky top-0 z-10">
+                <h3 class="text-xl font-serif font-bold text-stone-800">產品比較</h3>
+                <button onclick="closeCompareModal()" class="p-2 rounded-full hover:bg-stone-200 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5 text-stone-500"></i>
+                </button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-8">
+                <div class="grid grid-cols-2 gap-8 h-full" id="compare-content">
+                    <!-- Content -->
+                </div>
+            </div>
+            <!-- Connect Bundle Footer in Modal -->
+             <div class="p-4 bg-stone-50 border-t border-stone-200 flex justify-between items-center sticky bottom-0">
+                <div id="compare-bundle-footer" class="hidden flex items-center gap-3 text-blue-800 px-4 py-2 bg-blue-50 rounded-lg border border-blue-100">
+                    <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                    <span class="text-sm font-bold">包含 Pantone Connect 雲端色彩管理服務 (已預設綁定)</span>
+                 </div>
+                 <button onclick="document.getElementById('connect').scrollIntoView({behavior: 'smooth'}); closeCompareModal();" class="bg-stone-900 text-white px-8 py-3 rounded text-xs font-bold tracking-widest uppercase hover:bg-black transition-all shadow-md transform active:scale-95 ml-auto">
+                    聯繫經銷商採購
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="fixed bottom-36 right-6 p-3 bg-stone-900 text-white rounded-full shadow-lg hover:bg-black transition-all z-40 active:scale-95 magnetic-btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+        <i data-lucide="arrow-up" class="w-5 h-5"></i>
+    </button>
 
     <!-- FOOTER -->
     <footer class="bg-white py-20 border-t border-stone-100">
@@ -506,7 +712,7 @@
                 <div class="flex items-center gap-5">
                     <!-- 代理商 Logo -->
                     <div class="w-12 h-12 rounded-lg overflow-hidden border border-stone-100 bg-white relative flex-shrink-0 shadow-sm">
-                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRk0f-cuMjB_d8weRx7-5KsdadvD26vGJD1LQ&s" alt="展碁國際" class="w-full h-full object-contain p-1">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRk0f-cuMjB_d8weRx7-5KsdadvD26vGJD1LQ&s" alt="展碁國際" class="w-full h-full object-contain p-1" loading="lazy">
                     </div>
                     <div class="h-10 w-px bg-stone-200"></div>
                     <div>
@@ -529,6 +735,25 @@
 
     <!-- JavaScript Interactions -->
     <script>
+        // 5. Scroll Reveal Logic (Defined FIRST)
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const revealObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => {
+            revealObserver.observe(el);
+        });
+
         // Initialize Lucide Icons
         lucide.createIcons();
 
@@ -566,12 +791,11 @@
                 const x = e.clientX - rect.left - rect.width / 2;
                 const y = e.clientY - rect.top - rect.height / 2;
                 
-                // 按鈕本體移動 (強度 0.3)
                 btn.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
             });
 
             btn.addEventListener('mouseleave', () => {
-                btn.style.transform = 'translate(0, 0)'; // 復原
+                btn.style.transform = 'translate(0, 0)'; 
             });
         });
 
@@ -620,7 +844,6 @@
             el.href = item.link;
             el.target = "_blank";
             el.rel = "noreferrer";
-            // 使用 glass-card class
             el.className = "min-w-[300px] md:min-w-[380px] glass-card p-8 md:p-10 rounded-lg transition-all duration-500 hover:shadow-soft flex flex-col justify-between group snap-start relative overflow-hidden glass-tilt-effect cursor-pointer";
             el.innerHTML = `
                 <div class="absolute top-0 right-0 w-20 h-20 bg-stone-100 rounded-full mix-blend-multiply filter blur-xl opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
@@ -652,35 +875,717 @@
             });
         });
         
-        lucide.createIcons();
+        // 6. Product Data (Complete Data with SKU and Category)
+        const products = [
+            {
+                sku: "GP1601B",
+                category: "graphics",
+                tags: ["spot"],
+                name: "配方指南 | 塗層 & 未塗層",
+                nameEn: "Formula Guide Coated & Uncoated",
+                subtitle: "平面設計和印刷色彩溝通的工具",
+                desc: "彩通最暢銷的指南，設計師與印刷商匹配色彩的基礎工具。",
+                features: "兩冊一套，扇形設計，含油墨配方。",
+                colors: "2390 種專色。",
+                apps: "商標與品牌、營銷材料、包裝。",
+                // Comparison Fields
+                usage: "設計師與印刷商色彩溝通的標準工具。",
+                substrate: "C & U (塗層 & 未塗層)",
+                format: "Fan Guide (扇形指南)",
+                target: "平面設計師、印刷商",
+                software: ["Ps", "Ai", "Id"],
+                images: [
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/gp1601b/gp1601b-pantone-pms-formula-guide-coated-uncoated-product-1.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/gp1601b/gp1601b-pantone-pms-formula-guide-coated-uncoated-product-3.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/gp1601b/gp1601b-pantone-pms-formula-guide-coated-uncoated-lifestyle-4.webp?raw=true"
+                ],
+                video: "https://www.youtube.com/watch?v=vTxxgWqLFn0"
+            },
+            {
+                sku: "GG1504B",
+                category: "graphics",
+                tags: ["pastels"],
+                name: "粉彩色 & 霓虹色指南",
+                nameEn: "Pastels & Neons Guide",
+                subtitle: "拓展色彩系列的特殊專色",
+                desc: "提供柔和粉彩與強烈霓虹專色。",
+                features: "單冊扇形指南，含油墨配方。",
+                colors: "154 種粉彩與 56 種霓虹。",
+                apps: "包裝、商標、廣告材料。",
+                usage: "需要柔和粉彩或強烈霓虹色時使用。",
+                substrate: "C & U",
+                format: "Fan Guide (扇形指南)",
+                target: "包裝設計、品牌識別",
+                software: ["Ps", "Ai", "Id"],
+                images: [
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GG1504C/gg1504b-pantone-graphics-pastel-neons-coated-uncoated-guide-product-1_1500x1500_1.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GG1504C/gg1504b-pantone-graphics-pastel-neons-coated-uncoated-guide-product-2_1500x1500_1.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GG1504C/gg1504b-pantone-graphics-pastel-neons-coated-uncoated-guide-product-3_1500x1500_1.webp?raw=true"
+                ],
+                video: "https://www.youtube.com/watch?v=pd2QM5cim5Y"
+            },
+            {
+                sku: "GB1504B",
+                category: "graphics",
+                tags: ["pastels"],
+                name: "粉彩色 & 霓虹色色票",
+                nameEn: "Pastels & Neons Chips",
+                subtitle: "豐富調色板的特殊色票",
+                desc: "活頁式可撕取色票，豐富調色板。",
+                features: "兩冊套裝，打孔式色票。",
+                colors: "154 種粉彩與 56 種霓虹。",
+                apps: "主題氛圍板、產品草圖。",
+                usage: "將粉彩與霓虹色票附在設計稿上。",
+                substrate: "C & U",
+                format: "Chips Book (色票本)",
+                target: "產品設計、色彩溝通",
+                software: ["Ps", "Ai", "Id"],
+                images: [
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GB1504C/gb1504b-pantone-pms-spot-colors-chip-book-pastels-and-neons-coated-uncoated-product.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GB1504C/gb1504b-pantone-pms-spot-colors-chip-book-pastels-and-neons-coated-uncoated-product-1.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GB1504C/gb1504b-pantone-pms-spot-colors-chip-book-pastels-and-neons-coated-uncoated-product-3.webp?raw=true"
+                ],
+                video: ""
+            },
+            {
+                sku: "GG1507B",
+                category: "graphics",
+                tags: ["metallics"],
+                name: "金屬色指南",
+                nameEn: "Metallics Guide",
+                subtitle: "用於印刷和包裝的金屬色",
+                desc: "包含基礎與高級金屬色，用於印刷和包裝。",
+                features: "單冊扇形指南，含玫瑰金基礎油墨。",
+                colors: "655 種金屬專色。",
+                apps: "包裝、商標、品牌。",
+                usage: "為設計增添金屬光澤質感。",
+                substrate: "C (塗層)",
+                format: "Fan Guide (扇形指南)",
+                target: "包裝、廣告設計",
+                software: ["Ps", "Ai", "Id"],
+                images: [
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GG1507C/gg1507b-pantone-graphics-pms-metallics-fan-guide-product-2_v1_11_22_1500x1500_.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GG1507C/gg1507b-pantone-graphics-pms-metallics-fan-guide-product-3_v1_11_22_1500x1500_.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GG1507C/gg1507b-pantone-graphics-pms-metallics-fan-guide-product-6_v1_11_22_1500x1500_.webp?raw=true"
+                ],
+                video: "https://www.youtube.com/watch?v=aaINZPhkhTU"
+            },
+            {
+                sku: "GB1507B",
+                category: "graphics",
+                tags: ["metallics"],
+                name: "金屬色色票本",
+                nameEn: "Metallic Chips Book",
+                subtitle: "可共享的金屬色票",
+                desc: "提供可撕取金屬色票，方便共享。",
+                features: "活頁式色票本，內附色票存放夾。",
+                colors: "655 種金屬專色。",
+                apps: "奢華包裝、品牌標誌。",
+                usage: "分享金屬色票以確認色彩。",
+                substrate: "C (塗層)",
+                format: "Chips Book (色票本)",
+                target: "品牌管理、奢華包裝",
+                software: ["Ps", "Ai", "Id"],
+                images: [
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GB1507C/gb1507b-pantone-graphics-pms-metallic-chips-book-product-1_1500x1500_1.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GB1507C/gb1507b-pantone-graphics-pms-metallic-chips-book-product-2_1500x1500_1.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GB1507C/gb1507b-pantone-graphics-pms-metallic-chips-book-product-4_1500x1500_1.webp?raw=true"
+                ],
+                video: ""
+            },
+            {
+                sku: "GP5101B",
+                category: "graphics",
+                tags: ["bridge"],
+                name: "CMYK 色彩指南",
+                nameEn: "CMYK Color Guide",
+                subtitle: "包含數千種可實現的色彩",
+                desc: "非專色對應，提供四色印刷色。",
+                features: "兩冊一套，符合 G7 標準。",
+                colors: "2,868 種 CMYK 色彩。",
+                apps: "小型宣傳、預算有限項目。",
+                usage: "預算有限或無需專色時的四色印刷參考。",
+                substrate: "C & U",
+                format: "Fan Guide (扇形指南)",
+                target: "小型印刷項目、學生",
+                software: ["Ps", "Ai", "Id"],
+                images: [
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GP5101C/gp5101bcpantone-graphics-cmyk-fan-guide-1.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GP5101C/gp5101c-pantone-graphics-cmyk-fan-guide-2.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GP5101C/gp5101b-pantone-graphics-cmyk-fan-guide-4.webp?raw=true"
+                ],
+                video: "https://www.youtube.com/watch?v=3XwQ7rNolD0"
+            },
+            {
+                sku: "GP6102B",
+                category: "graphics",
+                tags: ["bridge"],
+                name: "色彩橋樑指南套裝",
+                nameEn: "Color Bridge Guide Set",
+                subtitle: "專色轉換數位色值的工具",
+                desc: "顯示專色與其最接近的 CMYK 對比。",
+                features: "兩冊套裝，提供 Hex 與 RGB。",
+                colors: "2,359 種專色。",
+                apps: "跨媒體設計、數位、影片。",
+                usage: "查看專色轉換為CMYK、RGB、HTML的效果。",
+                substrate: "C & U",
+                format: "Fan Guide (扇形指南)",
+                target: "跨媒體設計師、網頁設計",
+                software: ["Ps", "Ai", "Id"],
+                images: [
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GP6102B/gp6102b-pantone-graphics-color-bridge-coated-uncoated-guides-lifestyle-1.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GP6102B/gp6102b-pantone-graphics-color-bridge-coated-uncoated-guides-product-2.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GP6102B/gp6102b-pantone-graphics-color-bridge-coated-uncoated-guides-product-3.webp?raw=true"
+                ],
+                video: "https://www.youtube.com/watch?v=oK_XSh-oZF8"
+            },
+            {
+                sku: "GG6103B",
+                category: "graphics",
+                tags: ["bridge"],
+                name: "色彩橋樑指南 | 塗層",
+                nameEn: "Color Bridge Guide Coated",
+                subtitle: "單本塗層紙專用橋樑",
+                desc: "專為光面銅版紙設計的單本橋樑指南。",
+                features: "單冊扇形，符合 G-7 標準。",
+                colors: "2,359 種專色。",
+                apps: "平面、包裝色彩轉換。",
+                usage: "僅需塗層紙的專色轉數位色值參考。",
+                substrate: "C (塗層)",
+                format: "Fan Guide (單本指南)",
+                target: "平面設計",
+                software: ["Ps", "Ai", "Id"],
+                images: [
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GG6103B/gg6103b-pantone-graphics-color-bridge-coated-lifestyle_1.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GG6103B/gg6103b-pantone-graphics-color-bridge-coated-product-3.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GG6103B/gg6103b-pantone-graphics-color-bridge-coated-product-4.webp?raw=true"
+                ],
+                video: ""
+            },
+            {
+                sku: "GP1605B",
+                category: "graphics",
+                tags: ["spot", "studio"],
+                name: "專色指南套裝",
+                nameEn: "Solid Guide Set",
+                subtitle: "獲得全系列專色",
+                desc: "一次收集主要的專色指南，獲得全系列專色。",
+                features: "四冊一套，包含配方、金屬等。",
+                colors: "共 3,255 種色彩。",
+                apps: "品牌、包裝及特殊印刷。",
+                usage: "一次擁有完整的專色與特殊色指南。",
+                substrate: "C & U",
+                format: "4-Guide Set (套裝)",
+                target: "專業設計工作室",
+                software: ["Ps", "Ai", "Id"],
+                images: [
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GP1605B/gp1605b-pantone-graphics-plus-series-pms-spot-colors-solid-guide-set-1.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GP1605B/gp1605b-pantone-graphics-plus-series-pms-spot-colors-solid-guide-set-lifestyle.webp?raw=true"
+                ],
+                video: ""
+            },
+            {
+                sku: "GP1606B",
+                category: "graphics",
+                tags: ["spot"],
+                name: "專色色票 | C & U",
+                nameEn: "Solid Chips C & U",
+                subtitle: "可共享專色色票",
+                desc: "完整專色色票庫，可共享專色色票。",
+                features: "活頁式設計，每頁六張色票。",
+                colors: "2,390 種專色。",
+                apps: "氛圍板、廠商核對色彩。",
+                usage: "建立色彩系列與 mood boards 的專色色票。",
+                substrate: "C & U",
+                format: "2-Book Set (色票本)",
+                target: "色彩規劃師",
+                software: ["Ps", "Ai", "Id"],
+                images: [
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GP1606B/gp1606b-pantone-pms-spot-color-chip-book-solid-chips-coated-and-uncoated-2.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GP1606B/gp1606b-pantone-pms-spot-color-chip-book-solid-chips-coated-and-uncoated-3.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GP1606B/gp1606b-pantone-pms-spot-color-chip-book-solid-chips-coated-and-uncoated-6.webp?raw=true"
+                ],
+                video: ""
+            },
+            {
+                sku: "GPG304B",
+                category: "graphics",
+                tags: ["spot", "studio"],
+                name: "便攜式指南工作室",
+                nameEn: "Portable Guide Studio",
+                subtitle: "八本指南的精巧套裝",
+                desc: "整合平面設計所有八本指南的精巧套裝。",
+                features: "含提包，包含配方、橋樑等。",
+                colors: "共 8,482 種色彩。",
+                apps: "色彩管理、客戶會議。",
+                usage: "攜帶所有平面設計色彩工具外出開會。",
+                substrate: "C & U",
+                format: "8-Guide Set (便攜套裝)",
+                target: "資深設計師、業務",
+                software: ["Ps", "Ai", "Id"],
+                images: [
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GPG304B/gpg301b-pantone-graphics-pms-spot-color-guides-essentials-2_1.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GPG304B/gpg304b-pantone-graphics-portable-guide-studio-updated.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GPG304B/gpg304b-portable-guide-studio_1.webp?raw=true"
+                ],
+                video: "https://www.youtube.com/watch?v=CYWZKo2ylNQ"
+            },
+            {
+                sku: "GPC305B",
+                category: "graphics",
+                tags: ["spot", "studio"],
+                name: "參考圖書館",
+                nameEn: "Reference Library",
+                subtitle: "綜合色彩庫",
+                desc: "桌面大型參考系統，綜合色彩庫。",
+                features: "八本指南與四本色票本含架。",
+                colors: "全套 8,482 種色彩。",
+                apps: "工作室色彩庫、品質控制。",
+                usage: "辦公室內最完整的色彩參考圖書館。",
+                substrate: "C & U",
+                format: "Reference Library (圖書館)",
+                target: "大型設計公司、印刷廠",
+                software: ["Ps", "Ai", "Id"],
+                images: [
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GPC305B/gpc305a-pantone-graphics-reference-library-1_1_1.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GPC305B/gpc305a-pantone-graphics-reference-library-1_2.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/GPC305B/gpc305a-pantone-graphics-reference-library-1_3.webp?raw=true"
+                ],
+                video: ""
+            },
+            {
+                sku: "FHIP110C",
+                category: "fhi",
+                tags: ["fhi"],
+                name: "FHI 色彩指南",
+                nameEn: "FHI Color Guide",
+                subtitle: "適合家居及時尚配件",
+                desc: "非布料類產品開發的 TPG 系統。",
+                features: "三冊指南，塗層式漆料。",
+                colors: "2,800 種 FHI 色彩。",
+                apps: "陶瓷、皮革、化妝品。",
+                usage: "非布料材質的家居時尚色彩溝通。",
+                substrate: "Lacquer on Paper (塗層紙)",
+                format: "Fan Guide (扇形指南)",
+                target: "家居硬體、化妝品",
+                software: ["Ps", "Ai", "Id", "Substance 3D"],
+                images: [
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/FHIP110C/pantone-fhi-color-guide-fhip110c-1.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/FHIP110C/pantone-fhi-color-guide-fhip110c-2.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/FHIP110C/pantone-fhi-color-guide-fhip120c-1.webp?raw=true"
+                ],
+                video: "https://www.youtube.com/watch?v=u539E9l20cs"
+            },
+            {
+                sku: "FHIC200C",
+                category: "fhi",
+                tags: ["fhi"],
+                name: "FHI 棉布版通行證",
+                nameEn: "FHI Cotton Passport",
+                subtitle: "隨身攜帶棉布工具",
+                desc: "專為時裝設計師參考設計，隨身攜帶棉布工具。",
+                features: "手持尺寸，1.5x1cm 棉布塊。",
+                colors: "2,800 種 TCX 棉布色。",
+                apps: "時裝設計、紡織品採購。",
+                usage: "隨身攜帶所有棉布版色彩。",
+                substrate: "Cotton (棉布)",
+                format: "Passport (護照本)",
+                target: "服裝設計師、採購",
+                software: ["Ps", "Ai", "Id", "Substance 3D"],
+                images: [
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/FHIC200C/pantone-fhi-cotton-passport-fhic200c-2.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/FHIC200C/pantone-fhi-cotton-passport-fhic200c-3.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/FHIC200C/pantone-fhi-cotton-passport-fhic200c-4.webp?raw=true"
+                ],
+                video: ""
+            },
+            {
+                sku: "STG203",
+                category: "fhi",
+                tags: ["skin"],
+                name: "膚色指南",
+                nameEn: "SkinTone Guide",
+                subtitle: "138 種膚色的參考",
+                desc: "根據科學測量建立的 138 種膚色參考。",
+                features: "扇形指南，含圓形小孔對比。",
+                colors: "138 種膚色等級。",
+                apps: "化妝品、醫療、攝影。",
+                usage: "精確匹配與複製真實膚色。",
+                substrate: "Paper (紙本)",
+                format: "Fan Guide (扇形指南)",
+                target: "美容、攝影、醫療",
+                software: ["Ps", "Ai", "Id", "Substance 3D"],
+                images: [
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/STG203/stg203-pantone-skintone-guide-lifestyle-1.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/STG203/stg203-pantone-skintone-guide-lifestyle-3.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/STG203/stg203-pantone-skintone-guide-product-1.webp?raw=true"
+                ],
+                video: "https://www.youtube.com/watch?v=ucxD7ykHkjo"
+            },
+            {
+                sku: "FHIP310B",
+                category: "fhi",
+                tags: ["fhi", "metallics"],
+                name: "FHI 閃光金屬色指南",
+                nameEn: "Metallic Shimmers Guide",
+                subtitle: "FHI 專用閃光金屬色",
+                desc: "為時尚家具提供光澤表面效果。",
+                features: "扇形指南，每頁滿版呈現。",
+                colors: "200 種閃亮金屬色。",
+                apps: "時尚配件、皮革、電子外殼。",
+                usage: "為時尚配件增添閃亮金屬效果。",
+                substrate: "Coated (塗層)",
+                format: "Fan Guide (扇形指南)",
+                target: "鞋類、飾品設計",
+                software: ["Ps", "Ai", "Id", "Substance 3D"],
+                images: [
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/FHIP310B/fhip310b-pantone-fhi-metallics-guide-1.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/FHIP310B/fhip310b-pantone-fhi-metallics-guide-lifestyle-1-greens.webp?raw=true",
+                    "https://github.com/adbeweblink/myproject/blob/main/pantone/FHIP310B/fhip310b-pantone-fhi-metallics-guide-lifestyle-2-golds.webp?raw=true"
+                ],
+                video: ""
+            }
+        ];
 
-        // Scroll Logic
-        const scrollAmount = 400;
-        document.getElementById('scroll-left').addEventListener('click', () => {
-            carouselContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-        });
-        document.getElementById('scroll-right').addEventListener('click', () => {
-            carouselContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-        });
+        const productGrid = document.getElementById('product-grid');
+        const modal = document.getElementById('product-modal');
+        const modalBody = document.getElementById('modal-body');
 
-        // 5. Scroll Reveal & Nav Active Logic
-        const observerOptions = {
-            root: null,
-            rootMargin: '0px',
-            threshold: 0.1
-        };
+        // Helper function to change product image
+        window.changeImg = function(index, src) {
+            const mainImg = document.getElementById(`main-img-${index}`);
+            mainImg.style.opacity = '0';
+            setTimeout(() => {
+                mainImg.src = src;
+                mainImg.style.opacity = '1';
+            }, 200);
+        }
+        
+        // Helper function to render Software Badges
+        function renderSoftwareBadges(softwareList) {
+            if (!softwareList) return '';
+            return softwareList.map(sw => `<span class="sw-tag">${sw}</span>`).join(' ');
+        }
 
-        const revealObserver = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('active');
+        // Modal Functions
+        window.openModal = function(index) {
+            const p = products[index];
+            modalBody.innerHTML = `
+                <div class="grid md:grid-cols-2 gap-0 h-full">
+                    <div class="bg-stone-50 p-8 flex items-center justify-center">
+                        <img src="${p.images[0]}" class="max-h-[300px] object-contain drop-shadow-xl" referrerpolicy="no-referrer" loading="lazy">
+                    </div>
+                    <div class="p-8 md:p-10 overflow-y-auto">
+                        <span class="text-xs font-mono text-stone-400 bg-stone-100 px-2 py-1 rounded mb-4 inline-block">SKU: ${p.sku}</span>
+                        <h3 class="text-2xl font-serif font-bold text-stone-900 mb-1">${p.name}</h3>
+                        <p class="text-sm text-stone-500 italic mb-4 font-serif">${p.nameEn}</p>
+                        <p class="text-base text-stone-600 leading-relaxed mb-6">${p.desc}</p>
+                        
+                        <div class="mb-6">
+                            <h4 class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-2">軟體相容性 Software Compatibility</h4>
+                            <div class="flex flex-wrap gap-2">
+                                ${renderSoftwareBadges(p.software)}
+                            </div>
+                        </div>
+
+                        <div class="space-y-4 border-t border-stone-100 pt-6">
+                            <div>
+                                <h4 class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-1">特色 Features</h4>
+                                <p class="text-sm text-stone-700">${p.features}</p>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-1">色彩 Colors</h4>
+                                <p class="text-sm text-stone-700">${p.colors}</p>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-1">應用 Applications</h4>
+                                <p class="text-sm text-stone-700">${p.apps}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            modal.classList.remove('hidden');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            modal.querySelector('.modal-content').classList.remove('scale-95');
+            modal.querySelector('.modal-content').classList.add('scale-100');
+            document.body.style.overflow = 'hidden';
+        }
+
+        window.closeModal = function() {
+            modal.classList.add('opacity-0');
+            modal.querySelector('.modal-content').classList.remove('scale-100');
+            modal.querySelector('.modal-content').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        // Render Function with integrated comparison checkbox
+        let selectedComparisons = [];
+
+        function renderProducts(filter) {
+            productGrid.innerHTML = '';
+            
+            let filtered = products;
+            if (filter !== 'all') {
+                // Check if filter is a category or a tag
+                if (['graphics', 'fhi'].includes(filter)) {
+                    filtered = products.filter(p => p.category === filter);
+                } else {
+                    filtered = products.filter(p => p.tags && p.tags.includes(filter));
                 }
-            });
-        }, observerOptions);
+            }
 
-        document.querySelectorAll('.reveal').forEach(el => {
-            revealObserver.observe(el);
-        });
+            filtered.forEach((p) => {
+                const originalIndex = products.indexOf(p);
+                const isSelected = selectedComparisons.includes(p.sku);
+                
+                const el = document.createElement('div');
+                el.className = "glass-card group relative overflow-hidden rounded-xl p-6 transition-all duration-500 hover:-translate-y-2 hover:shadow-soft reveal flex flex-col justify-between h-full";
+                
+                const thumbsHtml = p.images.map(imgSrc => 
+                    `<img src="${imgSrc}" 
+                          class="w-10 h-10 object-contain border border-stone-200 rounded cursor-pointer hover:border-stone-400 transition-all opacity-60 hover:opacity-100 bg-white" 
+                          onmouseover="changeImg(${originalIndex}, '${imgSrc}')" referrerpolicy="no-referrer" loading="lazy">`
+                ).join('');
+
+                const imageWrapper = `<div class="aspect-square relative overflow-hidden rounded-lg bg-white mb-4 border border-stone-100 transition-colors" onclick="openModal(${originalIndex})">
+                         <img id="main-img-${originalIndex}" src="${p.images[0]}" alt="${p.name}" class="object-contain w-full h-full p-4 transition-opacity duration-300 cursor-pointer" referrerpolicy="no-referrer" loading="lazy">
+                       </div>`;
+
+                el.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                             <span class="text-[10px] font-mono text-stone-400 bg-stone-100 px-2 py-1 rounded">SKU: ${p.sku}</span>
+                             <div class="relative z-20">
+                                <input type="checkbox" 
+                                    class="compare-checkbox" 
+                                    ${isSelected ? 'checked' : ''} 
+                                    onchange="toggleCompare('${p.sku}')">
+                             </div>
+                        </div>
+                        
+                        ${imageWrapper}
+                        
+                        <div class="flex gap-2 justify-start mb-3 h-10">
+                            ${thumbsHtml}
+                        </div>
+
+                        <h3 class="font-bold text-lg text-stone-900 leading-tight mb-1 min-h-[3.5rem] flex items-end pb-1 cursor-pointer hover:text-stone-600 transition-colors" onclick="openModal(${originalIndex})">${p.name}</h3>
+                        <p class="font-serif text-xs text-stone-500 italic mb-2">${p.nameEn}</p>
+                        <p class="text-xs text-stone-500 font-medium mb-3 min-h-[2.5em]">${p.subtitle}</p>
+                    </div>
+                    
+                    <div class="mt-auto">
+                        <button onclick="openModal(${originalIndex})" class="w-full py-2 border border-stone-300 rounded text-xs font-bold text-stone-600 hover:bg-stone-900 hover:text-white hover:border-stone-900 transition-colors uppercase tracking-wider">
+                            查看詳細規格
+                        </button>
+                    </div>
+                `;
+                productGrid.appendChild(el);
+            });
+            
+            lucide.createIcons();
+            
+            document.querySelectorAll('.reveal').forEach(el => {
+                revealObserver.observe(el);
+                el.classList.add('active'); 
+            });
+        }
+
+        // Filter Logic (Modified for tags)
+        function filterProducts(filterType) {
+            renderProducts(filterType);
+            
+            // Reset active states
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.demand-tag').forEach(btn => btn.classList.remove('active'));
+            
+            // Set active state
+            const btn = document.getElementById(`btn-${filterType}`);
+            if (btn) btn.classList.add('active');
+        }
+
+        function filterByTag(tag) {
+            renderProducts(tag);
+             // Reset active states
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.demand-tag').forEach(btn => btn.classList.remove('active'));
+            
+            // Set active (manual finding since ID generation is complex)
+            const buttons = document.querySelectorAll('.demand-tag');
+            buttons.forEach(b => {
+                if(b.textContent.includes(getTagLabel(tag))) b.classList.add('active'); // simplified check
+                // Better approach: pass `this`
+            });
+            event.target.classList.add('active');
+        }
+        
+        function getTagLabel(tag) {
+            // Helper purely for the loose matching above, not critical logic
+            return ""; 
+        }
+
+        // Comparison Logic (Bundle Toggle)
+        function toggleBundleLabel() {
+            const toggle = document.getElementById('bundle-toggle');
+            const badge = document.getElementById('bundle-rec-badge');
+            
+            if (toggle.checked) {
+                badge.classList.remove('opacity-0');
+            } else {
+                badge.classList.add('opacity-0');
+            }
+        }
+
+        function toggleCompare(sku) {
+            const index = selectedComparisons.indexOf(sku);
+            if (index > -1) {
+                selectedComparisons.splice(index, 1);
+            } else {
+                if (selectedComparisons.length >= 2) {
+                    alert("最多只能選擇兩項產品進行比較");
+                    // Uncheck the box visually
+                    setTimeout(() => {
+                         const checkbox = document.querySelector(`input[onchange="toggleCompare('${sku}')"]`);
+                         if(checkbox) checkbox.checked = false;
+                    }, 0);
+                    return;
+                }
+                selectedComparisons.push(sku);
+            }
+            updateCompareBar();
+        }
+
+        function updateCompareBar() {
+            const bar = document.getElementById('compare-bar');
+            const count = document.getElementById('compare-count');
+            const btn = document.getElementById('compare-btn');
+            
+            count.textContent = selectedComparisons.length;
+            
+            if (selectedComparisons.length > 0) {
+                bar.classList.add('visible');
+            } else {
+                bar.classList.remove('visible');
+            }
+
+            if (selectedComparisons.length === 2) {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function clearCompare() {
+            selectedComparisons = [];
+            // Uncheck all checkboxes
+            document.querySelectorAll('.compare-checkbox').forEach(cb => cb.checked = false);
+            updateCompareBar();
+        }
+
+        function openCompareModal() {
+            if (selectedComparisons.length !== 2) return;
+            
+            const item1 = products.find(i => i.sku === selectedComparisons[0]);
+            const item2 = products.find(i => i.sku === selectedComparisons[1]);
+            const bundleToggle = document.getElementById('bundle-toggle').checked;
+
+            const content = document.getElementById('compare-content');
+            content.innerHTML = `
+                ${renderCompareCol(item1, bundleToggle)}
+                ${renderCompareCol(item2, bundleToggle)}
+            `;
+            
+            // Show/Hide Bundle Footer based on toggle
+            const bundleFooter = document.getElementById('compare-bundle-footer');
+            if (bundleToggle) {
+                bundleFooter.classList.remove('hidden');
+            } else {
+                bundleFooter.classList.add('hidden');
+            }
+            
+            const modal = document.getElementById('compare-modal');
+            modal.classList.remove('hidden');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            modal.querySelector('.modal-content').classList.remove('scale-95');
+            modal.querySelector('.modal-content').classList.add('scale-100');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function renderCompareCol(item, hasBundle) {
+            return `
+                <div class="space-y-6 flex flex-col h-full">
+                    <div class="flex-shrink-0 flex justify-center bg-stone-50 p-4 rounded-lg border border-stone-100">
+                        <img src="${item.images[0]}" class="h-48 object-contain" referrerpolicy="no-referrer" loading="lazy">
+                    </div>
+                    
+                    <div class="border-b border-stone-200 pb-4">
+                        <span class="text-xs font-mono text-stone-400 bg-stone-100 px-2 py-1 rounded">${item.sku}</span>
+                        <h4 class="text-lg font-bold text-stone-900 mt-2 leading-tight">${item.name}</h4>
+                    </div>
+                    
+                    <div class="flex-grow space-y-4">
+                        <div>
+                            <h5 class="text-xs font-bold uppercase text-stone-400 mb-1">主要用途 Usage</h5>
+                            <p class="text-sm font-medium text-stone-800 bg-yellow-50 p-2 rounded">${item.usage}</p>
+                        </div>
+                        
+                        <div>
+                            <h5 class="text-xs font-bold uppercase text-stone-400 mb-1">軟體相容性 Software</h5>
+                            <div class="flex flex-wrap gap-2">
+                                ${renderSoftwareBadges(item.software)}
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <h5 class="text-xs font-bold uppercase text-stone-400 mb-1">紙材/材質</h5>
+                                <p class="text-sm text-stone-600">${item.substrate}</p>
+                            </div>
+                            <div>
+                                <h5 class="text-xs font-bold uppercase text-stone-400 mb-1">形式</h5>
+                                <p class="text-sm text-stone-600">${item.format}</p>
+                            </div>
+                        </div>
+
+                        <div>
+                             <h5 class="text-xs font-bold uppercase text-stone-400 mb-1">適用對象</h5>
+                             <p class="text-sm text-stone-600">${item.target}</p>
+                        </div>
+                    </div>
+                    
+                    ${hasBundle ? `
+                    <div class="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-lg flex items-center gap-3">
+                        <img src="https://www.quickly.com.tw/img/pantone-connect.jpg" class="w-8 h-8 object-contain">
+                        <div>
+                            <span class="block text-xs font-bold text-blue-800">Bundle Included</span>
+                            <span class="block text-[10px] text-blue-600">Pantone Connect Premium</span>
+                        </div>
+                    </div>` : ''}
+                </div>
+            `;
+        }
+
+        function closeCompareModal() {
+            const modal = document.getElementById('compare-modal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('.modal-content').classList.remove('scale-100');
+            modal.querySelector('.modal-content').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        // Initial Render
+        renderProducts('all');
 
         // Nav Active State
         const sections = document.querySelectorAll('section, header');
@@ -688,6 +1593,15 @@
 
         window.addEventListener('scroll', () => {
             let current = '';
+            const backToTop = document.getElementById('back-to-top');
+            
+            // Back to top logic
+            if (window.scrollY > 500) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+            
             sections.forEach(section => {
                 const sectionTop = section.offsetTop;
                 const sectionHeight = section.clientHeight;
