@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>曹家大院 | 員林市開發計劃案</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            scroll-behavior: smooth;
+        }
+        h1, h2, h3, h4, .serif {
+            font-family: 'Noto Serif TC', serif;
+        }
+        
+        /* 動畫定義 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn-1 { animation: fadeIn 1s ease-out forwards; }
+        .animate-fadeIn-2 { animation: fadeIn 1s ease-out 0.5s forwards; opacity: 0; }
+        .animate-fadeIn-3 { animation: fadeIn 1s ease-out 1s forwards; opacity: 0; }
+        .animate-fadeIn-4 { animation: fadeIn 1s ease-out 1.5s forwards; opacity: 0; }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 手機選單 */
+        #mobile-menu {
+            transition: max-height 0.4s ease-in-out, opacity 0.4s ease-in-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        #mobile-menu.open {
+            max-height: 100vh;
+            opacity: 1;
+        }
+
+        /* 燈箱與回到頂部 */
+        #lightbox, #back-to-top {
+            transition: opacity 0.3s ease;
+        }
+        #lightbox { opacity: 0; pointer-events: none; }
+        #lightbox.open { opacity: 1; pointer-events: auto; }
+        
+        #back-to-top { opacity: 0; pointer-events: none; transform: translateY(20px); transition: all 0.3s; }
+        #back-to-top.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+        /* 玻璃擬態 */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* 導覽列 Active 樣式 */
+        .nav-link.active { color: #fbbf24; position: relative; }
+        .nav-link.active::after {
+            content: ''; position: absolute; bottom: -4px; left: 0; width: 100%; height: 2px; background-color: #fbbf24;
+        }
+
+        /* SVG 分隔線樣式 (新增) */
+        .custom-shape-divider-top-1667 {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            line-height: 0;
+        }
+        .custom-shape-divider-top-1667 svg {
+            position: relative;
+            display: block;
+            width: calc(100% + 1.3px);
+            height: 60px;
+        }
+        @media (min-width: 768px) {
+            .custom-shape-divider-top-1667 svg { height: 120px; }
+        }
+        .custom-shape-divider-top-1667 .shape-fill { fill: #FFFFFF; }
+
+        /* 信紙質感 (新增) */
+        .letter-paper {
+            background-color: #fffaf0; /* 象牙白 */
+            background-image: radial-gradient(#d4c5b0 1px, transparent 1px);
+            background-size: 20px 20px;
+            box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.8) inset, 0 0 0 10px #d6d3d1 inset; 
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800 antialiased pt-16 md:pt-0">
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4 backdrop-blur-sm">
+        <button id="lightbox-close" class="absolute top-4 right-4 text-white hover:text-amber-500 transition p-2 bg-black/50 rounded-full">
+            <i data-lucide="x" class="w-8 h-8"></i>
+        </button>
+        <img id="lightbox-img" src="" alt="Full view" class="max-w-full max-h-[85vh] object-contain rounded-sm shadow-2xl">
+        <p class="absolute bottom-6 text-white/80 text-sm tracking-widest bg-black/50 px-4 py-1 rounded-full">點擊任意處關閉預覽</p>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 w-full z-50 bg-stone-900 text-white shadow-lg border-b border-stone-800">
+        <div class="container mx-auto px-6 py-4 flex flex-wrap justify-between items-center">
+            <a href="#" class="text-xl md:text-2xl font-bold serif tracking-widest border-2 border-white px-3 py-1 z-50 relative hover:bg-white hover:text-stone-900 transition duration-300">曹家大院</a>
+            
+            <div class="hidden md:flex flex-wrap gap-x-8 gap-y-2 text-sm tracking-widest justify-end items-center">
+                <a href="#vision" class="nav-link hover:text-amber-400 transition py-1">初心</a>
+                <a href="#analysis" class="nav-link hover:text-amber-400 transition py-1">分析</a>
+                <a href="#value" class="nav-link hover:text-amber-400 transition py-1">效益</a>
+                <a href="#design" class="nav-link hover:text-amber-400 transition py-1">外觀</a>
+                <a href="#interior" class="nav-link hover:text-amber-400 transition py-1">室內</a>
+                <a href="#plan" class="nav-link hover:text-amber-400 transition py-1">藍圖</a>
+                <a href="#consensus" class="nav-link hover:text-amber-400 transition py-1">模式</a>
+                <a href="#message" class="bg-amber-600 px-4 py-1.5 rounded-sm hover:bg-amber-700 transition shadow-lg hover:shadow-amber-600/20 transform hover:-translate-y-0.5">聯繫老么</a>
+            </div>
+
+            <button id="mobile-menu-btn" class="md:hidden z-50 text-white focus:outline-none p-2 border border-stone-700 rounded">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+
+            <div id="mobile-menu" class="absolute top-full left-0 w-full bg-stone-900/98 backdrop-blur-xl border-t border-stone-800 md:hidden flex flex-col shadow-2xl h-screen md:h-auto">
+                <div class="flex flex-col h-full overflow-y-auto pb-20">
+                    <a href="#vision" class="mobile-link block py-4 px-6 hover:bg-stone-800 border-b border-stone-800/50 text-stone-300 text-lg">初心</a>
+                    <a href="#analysis" class="mobile-link block py-4 px-6 hover:bg-stone-800 border-b border-stone-800/50 text-stone-300 text-lg">地號分析</a>
+                    <a href="#value" class="mobile-link block py-4 px-6 hover:bg-stone-800 border-b border-stone-800/50 text-stone-300 text-lg">開發效益</a>
+                    <a href="#design" class="mobile-link block py-4 px-6 hover:bg-stone-800 border-b border-stone-800/50 text-stone-300 text-lg">設計外觀</a>
+                    <a href="#interior" class="mobile-link block py-4 px-6 hover:bg-stone-800 border-b border-stone-800/50 text-stone-300 text-lg">室內空間</a>
+                    <a href="#plan" class="mobile-link block py-4 px-6 hover:bg-stone-800 border-b border-stone-800/50 text-stone-300 text-lg">藍圖與預算</a>
+                    <a href="#consensus" class="mobile-link block py-4 px-6 hover:bg-stone-800 border-b border-stone-800/50 text-stone-300 text-lg">合作模式</a>
+                    <a href="#message" class="mobile-link block py-6 px-6 bg-amber-700/20 text-amber-400 font-bold text-lg">聯繫老么</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative h-[90vh] md:h-screen flex items-center justify-center overflow-hidden group bg-stone-900">
+        <div class="absolute inset-0 z-0">
+            <div class="absolute inset-0 bg-stone-800"></div>
+            <img src="https://github.com/adbeweblink/myproject/blob/main/yuanlin/01.png?raw=true" alt="3D示意圖" class="w-full h-full object-cover opacity-80 md:opacity-90 transition-transform duration-[20s] ease-linear scale-100 group-hover:scale-105">
+            <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 to-stone-900"></div>
+        </div>
+        <div class="relative z-10 text-center text-white px-6 w-full max-w-5xl mx-auto flex flex-col items-center justify-center h-full">
+            <h2 class="text-sm md:text-xl tracking-[0.3em] md:tracking-[0.6em] mb-4 md:mb-6 text-amber-400 font-medium uppercase animate-fadeIn-1">員林市地號 68-8 & 68-9 開發計劃</h2>
+            <h1 class="text-4xl md:text-8xl font-bold mb-6 md:mb-8 serif tracking-wider leading-tight drop-shadow-lg animate-fadeIn-2">曹家大院</h1>
+            <p class="text-base md:text-2xl font-light tracking-widest opacity-90 mb-8 md:mb-12 max-w-2xl animate-fadeIn-3 leading-loose">
+                整合土地價值・凝聚家族情感
+            </p>
+            <a href="#analysis" class="inline-block border border-white px-8 py-3 md:px-10 md:py-4 text-sm md:text-base tracking-widest hover:bg-white hover:text-stone-900 transition duration-300 backdrop-blur-sm bg-white/5 rounded-sm animate-fadeIn-4">
+                查看開發評估
+            </a>
+            
+            <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white/50 scroll-down cursor-pointer animate-fadeIn-4" onclick="document.getElementById('vision').scrollIntoView()">
+                <div class="text-[10px] md:text-xs tracking-widest mb-2">SCROLL</div>
+                <i data-lucide="chevron-down" class="w-6 h-6 mx-auto"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Section 1: Introduction -->
+    <section id="vision" class="py-16 md:py-24 bg-stone-100 scroll-mt-16">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center gap-10 md:gap-16">
+                <div class="w-full md:w-1/2 reveal">
+                    <div class="relative group overflow-hidden shadow-2xl rounded-sm cursor-zoom-in bg-stone-300" onclick="openLightbox(this.querySelector('img').src)">
+                        <img src="https://github.com/adbeweblink/myproject/blob/main/yuanlin/08.png?raw=true" alt="目前土地視野" class="w-full h-72 md:h-[450px] object-cover transition duration-700 group-hover:scale-105" loading="lazy">
+                        <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/80 to-transparent p-4">
+                            <p class="text-white text-xs md:text-sm tracking-wide"><i data-lucide="zoom-in" class="inline w-3 h-3 mr-1"></i> 點擊放大查看現況</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full md:w-1/2 reveal">
+                    <h2 class="text-2xl md:text-4xl serif font-bold text-stone-800 mb-6 relative inline-block">
+                        前言：土地的現況與轉機
+                        <span class="absolute bottom-0 left-0 w-full h-1 bg-amber-600/30"></span>
+                    </h2>
+                    <p class="text-base md:text-lg leading-loose text-stone-600 mb-6 text-justify">
+                        <strong>68-9地號</strong>是我們曹氏三兄弟所有，面積約 <strong>105坪</strong>；而緊鄰的 <strong>68-8地號</strong> 則是同宗堂弟所有。
+                    </p>
+                    <p class="text-base md:text-lg leading-loose text-stone-600 mb-6 text-justify">
+                        這兩個地號目前的現況都呈現<strong>「狹長」</strong>形狀，臨路面寬狹窄，導致單獨開發不好使用，長期價值被低估。若能將兩者合併，總坪數將達到 <strong>180坪</strong> 左右，這是地形價值的翻倍。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 2: Analysis -->
+    <section id="analysis" class="py-16 md:py-24 bg-white scroll-mt-16">
+        <div class="container mx-auto px-6">
+            <div class="text-center max-w-4xl mx-auto mb-12 md:mb-16 reveal">
+                <h2 class="text-2xl md:text-4xl serif font-bold text-stone-800 mb-4">開發動機：化零為整，創造價值</h2>
+                <p class="text-stone-500 text-base md:text-lg">
+                    透過空拍圖可見，單一地號過於狹長。買下隔壁 68-8 地號，將使臨路面寬大幅加大。
+                </p>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-8 items-stretch">
+                <div class="w-full lg:w-5/12 reveal">
+                    <div class="h-64 md:h-full relative overflow-hidden rounded-lg shadow-lg group cursor-zoom-in bg-stone-300" onclick="openLightbox(this.querySelector('img').src)">
+                         <img src="https://github.com/adbeweblink/myproject/blob/main/yuanlin/05.png?raw=true" alt="空拍圖" class="w-full h-full object-cover transition duration-700 group-hover:scale-105" loading="lazy">
+                         <div class="absolute top-4 right-4 bg-black/60 backdrop-blur text-white px-3 py-1 rounded-full text-xs">
+                            <i data-lucide="maximize" class="inline w-3 h-3"></i> 點擊放大
+                         </div>
+                         <div class="absolute bottom-0 left-0 bg-gradient-to-t from-black/80 to-transparent text-white px-6 py-4 w-full">
+                            <i data-lucide="map" class="inline w-4 h-4 mr-2 text-amber-400"></i> 基地空拍：清楚可見狹長地形
+                         </div>
+                    </div>
+                </div>
+
+                <div class="w-full lg:w-7/12 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-stone-50 p-6 md:p-8 rounded-xl shadow-sm border border-stone-200 reveal h-full flex flex-col hover:shadow-md transition">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-10 h-10 rounded-full bg-stone-200 flex items-center justify-center text-stone-500 flex-shrink-0">
+                                <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-stone-700">現況挑戰</h3>
+                        </div>
+                        <ul class="space-y-4 text-stone-600 text-sm md:text-base flex-grow">
+                            <li class="flex items-start"><i data-lucide="x" class="w-5 h-5 text-red-400 mr-2 flex-shrink-0"></i> 地形狹長，難以規劃</li>
+                            <li class="flex items-start"><i data-lucide="x" class="w-5 h-5 text-red-400 mr-2 flex-shrink-0"></i> 面寬不足，車輛進出受限</li>
+                            <li class="flex items-start"><i data-lucide="x" class="w-5 h-5 text-red-400 mr-2 flex-shrink-0"></i> 土地零碎，估值較低</li>
+                        </ul>
+                        <div class="pt-6 border-t border-stone-200 mt-6">
+                             <span class="text-xs text-stone-500 uppercase tracking-wider block mb-1">目前購買價值約</span>
+                             <strong class="text-stone-700 text-2xl font-serif">$30,000 <span class="text-sm font-sans font-normal">/ 坪</span></strong>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-amber-50 to-white p-6 md:p-8 rounded-xl shadow-xl border border-amber-200 reveal h-full flex flex-col relative overflow-hidden transform md:-translate-y-2 transition hover:-translate-y-3 duration-300">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-amber-400/10 rounded-full -mr-10 -mt-10"></div>
+                        <div class="flex items-center gap-3 mb-6 relative z-10">
+                            <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 flex-shrink-0">
+                                <i data-lucide="trending-up" class="w-5 h-5"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-amber-800">合併願景</h3>
+                        </div>
+                        <ul class="space-y-4 text-stone-700 text-sm md:text-base flex-grow relative z-10">
+                            <li class="flex items-start"><i data-lucide="check-circle-2" class="w-5 h-5 text-green-600 mr-2 flex-shrink-0"></i> <strong>面寬加大</strong>，大戶氣勢</li>
+                            <li class="flex items-start"><i data-lucide="check-circle-2" class="w-5 h-5 text-green-600 mr-2 flex-shrink-0"></i> <strong>地形方正</strong>，規劃無死角</li>
+                            <li class="flex items-start"><i data-lucide="check-circle-2" class="w-5 h-5 text-green-600 mr-2 flex-shrink-0"></i> <strong>價值躍升</strong>，效益顯著</li>
+                        </ul>
+                        <div class="pt-6 border-t border-amber-200 mt-6 relative z-10 bg-white/50 rounded-b-lg">
+                             <span class="text-xs text-amber-600 uppercase tracking-wider block mb-1">預估開發後價值</span>
+                             <strong class="text-red-600 text-3xl font-serif">$50,000 <span class="text-sm font-sans font-normal text-stone-500">/ 坪</span></strong>
+                             <div class="text-xs text-green-600 font-bold mt-1 flex items-center">
+                                <i data-lucide="arrow-up-right" class="w-3 h-3 mr-1"></i> 預期增值 66%
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-12 text-center reveal">
+                <p class="text-lg md:text-xl font-bold text-stone-800 border-b-2 border-amber-400 inline-block pb-1">
+                    投資報酬率極佳，值得立即啟動！
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3: Value (Dark Section with Top Wave Divider) -->
+    <section id="value" class="py-24 md:py-32 bg-stone-900 text-white relative overflow-hidden scroll-mt-16">
+        <!-- SVG Divider -->
+        <div class="custom-shape-divider-top-1667 z-20">
+            <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
+            </svg>
+        </div>
+
+        <div class="absolute inset-0 z-0 bg-stone-800">
+             <img src="https://github.com/adbeweblink/myproject/blob/main/yuanlin/02.png?raw=true" alt="3D渲染圖" class="w-full h-full object-cover opacity-30 scale-110" loading="lazy">
+             <div class="absolute inset-0 bg-gradient-to-r from-stone-900 via-stone-900/80 to-stone-900/20"></div>
+        </div>
+
+        <div class="container mx-auto px-6 relative z-10">
+             <div class="w-full md:w-2/3 reveal">
+                <h2 class="text-2xl md:text-4xl serif font-bold mb-10 text-amber-400">開發效益分析</h2>
+                <div class="space-y-12 border-l border-white/20 pl-6 md:pl-12">
+                    <div class="group">
+                        <h4 class="text-xl md:text-2xl font-bold mb-3 flex items-center group-hover:text-amber-300 transition cursor-default">
+                            <span class="text-amber-500 mr-4 text-3xl opacity-50 font-serif">01</span> 資產增值
+                        </h4>
+                        <p class="text-stone-300 leading-relaxed text-base md:text-lg">
+                            基本地坪及圍牆開發完成後，基地價值立即提升。這是一筆<strong>「進可攻、退可守」</strong>的投資，若認為時機有利，隨時可獲利了結。
+                        </p>
+                    </div>
+                    <div class="group">
+                        <h4 class="text-xl md:text-2xl font-bold mb-3 flex items-center group-hover:text-amber-300 transition cursor-default">
+                             <span class="text-amber-500 mr-4 text-3xl opacity-50 font-serif">02</span> 傳家堡壘
+                        </h4>
+                        <p class="text-stone-300 leading-relaxed text-base md:text-lg">
+                            進行第二階段建設，可視各人需求，依整體規劃分區設計。遵循<strong>「使用者付費」</strong>精神發包興建，過年過節回來都有地方住。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 4: Design Concept -->
+    <section id="design" class="py-16 md:py-24 bg-stone-100 scroll-mt-16">
+        <div class="container mx-auto px-6 text-center reveal mb-12">
+            <h2 class="text-2xl md:text-4xl serif font-bold text-stone-800">設計構想與外觀理念</h2>
+            <p class="mt-4 text-stone-600 max-w-3xl mx-auto text-base">
+                利用現有面積先規劃好基地高程及四週圍牆，以及內外出入動線大門。
+            </p>
+        </div>
+
+        <div class="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 reveal">
+            <!-- Image 07 -->
+            <div class="bg-white p-2 md:p-3 rounded-sm shadow-xl group cursor-pointer hover:-translate-y-2 transition duration-500" onclick="openLightbox(this.querySelector('img').src)">
+                <div class="overflow-hidden relative h-64 md:h-80 bg-stone-300">
+                    <img src="https://github.com/adbeweblink/myproject/blob/main/yuanlin/07.png?raw=true" alt="大門入口視野" class="w-full h-full object-cover transition duration-700 group-hover:scale-110" loading="lazy">
+                    <div class="absolute bottom-4 left-4 bg-white/90 px-4 py-2 text-sm font-bold text-stone-800 shadow-sm border-l-4 border-amber-500">氣派門面</div>
+                </div>
+                <div class="p-4 md:p-6">
+                    <h3 class="text-lg font-bold mb-2 text-stone-800">大門入口視野</h3>
+                    <p class="text-stone-600 text-sm">精心規劃內外出入動線，讓車輛與行人進出分流，動線流暢。</p>
+                </div>
+            </div>
+
+            <!-- Image 06 -->
+            <div class="bg-white p-2 md:p-3 rounded-sm shadow-xl group cursor-pointer hover:-translate-y-2 transition duration-500" onclick="openLightbox(this.querySelector('img').src)">
+                <div class="overflow-hidden relative h-64 md:h-80 bg-stone-300">
+                    <img src="https://github.com/adbeweblink/myproject/blob/main/yuanlin/06.png?raw=true" alt="二樓看台視野" class="w-full h-full object-cover transition duration-700 group-hover:scale-105" loading="lazy">
+                    <div class="absolute bottom-4 left-4 bg-white/90 px-4 py-2 text-sm font-bold text-stone-800 shadow-sm border-l-4 border-amber-500">開闊視野</div>
+                </div>
+                <div class="p-4 md:p-6">
+                    <h3 class="text-lg font-bold mb-2 text-stone-800">二樓看台視野</h3>
+                    <p class="text-stone-600 text-sm">無高樓遮蔽，採光通風極佳，是家族聚會、烤肉賞月的最佳場所。</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="container mx-auto px-6 grid grid-cols-3 gap-3 md:gap-8 mt-12 md:mt-16">
+            <div class="bg-white p-4 md:p-6 rounded-lg text-center reveal shadow-sm hover:shadow-md transition border border-stone-100 hover:border-amber-200 cursor-default">
+                <div class="text-amber-600 mb-3 flex justify-center"><i data-lucide="layers" class="w-6 h-6 md:w-8 md:h-8"></i></div>
+                <h4 class="font-bold text-sm md:text-lg mb-1">基地高程</h4>
+                <p class="text-[10px] md:text-sm text-stone-500">專業整地，排水無憂</p>
+            </div>
+            <div class="bg-white p-4 md:p-6 rounded-lg text-center reveal delay-100 shadow-sm hover:shadow-md transition border border-stone-100 hover:border-amber-200 cursor-default">
+                <div class="text-amber-600 mb-3 flex justify-center"><i data-lucide="shield" class="w-6 h-6 md:w-8 md:h-8"></i></div>
+                <h4 class="font-bold text-sm md:text-lg mb-1">圍牆安全</h4>
+                <p class="text-[10px] md:text-sm text-stone-500">界定範圍，隱私保障</p>
+            </div>
+            <div class="bg-white p-4 md:p-6 rounded-lg text-center reveal delay-200 shadow-sm hover:shadow-md transition border border-stone-100 hover:border-amber-200 cursor-default">
+                <div class="text-amber-600 mb-3 flex justify-center"><i data-lucide="wrench" class="w-6 h-6 md:w-8 md:h-8"></i></div>
+                <h4 class="font-bold text-sm md:text-lg mb-1">水電配管</h4>
+                <p class="text-[10px] md:text-sm text-stone-500">預埋管線，擴充彈性</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 5: Interior -->
+    <section id="interior" class="py-16 md:py-24 bg-white scroll-mt-16">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12 md:mb-16 reveal">
+                <h2 class="text-2xl md:text-4xl serif font-bold text-stone-800 mb-4">室內空間規劃</h2>
+                <p class="text-stone-600 text-base">不只是房子，更是凝聚情感的家。</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+                <!-- Living Room -->
+                <div class="group reveal cursor-pointer" onclick="openLightbox(this.querySelector('img').src)">
+                    <div class="overflow-hidden rounded-lg shadow-xl mb-6 relative bg-stone-300">
+                        <img src="https://github.com/adbeweblink/myproject/blob/main/yuanlin/03.png?raw=true" alt="一樓客廳室內圖" class="w-full h-64 md:h-[400px] object-cover transition duration-700 group-hover:scale-110" loading="lazy">
+                        <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition flex items-center justify-center">
+                             <div class="bg-white/20 backdrop-blur-md p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <i data-lucide="maximize-2" class="text-white w-6 h-6"></i>
+                             </div>
+                        </div>
+                    </div>
+                    <h3 class="text-xl md:text-2xl serif font-bold mb-3 text-stone-800 flex items-center">
+                        一樓客廳
+                        <span class="ml-3 h-px flex-grow bg-stone-200"></span>
+                    </h3>
+                    <p class="text-stone-600 leading-relaxed text-justify text-sm md:text-base">
+                        大尺度的客廳空間，大面落地窗引入自然光。這裡夠大，過年過節全家族回來，孩子們在地板上玩耍，我們兄弟在沙發上聊天，完全不會覺得擁擠。
+                    </p>
+                </div>
+
+                <!-- Guest Room -->
+                <div class="group reveal delay-100 cursor-pointer" onclick="openLightbox(this.querySelector('img').src)">
+                    <div class="overflow-hidden rounded-lg shadow-xl mb-6 relative bg-stone-300">
+                        <img src="https://github.com/adbeweblink/myproject/blob/main/yuanlin/04.png?raw=true" alt="一樓客房室內圖" class="w-full h-64 md:h-[400px] object-cover transition duration-700 group-hover:scale-110" loading="lazy">
+                        <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition flex items-center justify-center">
+                            <div class="bg-white/20 backdrop-blur-md p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <i data-lucide="maximize-2" class="text-white w-6 h-6"></i>
+                             </div>
+                        </div>
+                    </div>
+                    <h3 class="text-xl md:text-2xl serif font-bold mb-3 text-stone-800 flex items-center">
+                        一樓客房
+                        <span class="ml-3 h-px flex-grow bg-stone-200"></span>
+                    </h3>
+                    <p class="text-stone-600 leading-relaxed text-justify text-sm md:text-base">
+                        每間房都規劃有良好的採光與通風。簡約溫馨的設計，讓回家的路不再是奔波，而是一種徹底的放鬆。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 6: Plan & Cost -->
+    <section id="plan" class="py-16 md:py-24 bg-stone-100 scroll-mt-16">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center gap-10 md:gap-16">
+                <div class="w-full md:w-1/2 reveal">
+                     <h2 class="text-2xl md:text-3xl serif font-bold text-stone-800 mb-6 flex items-center">
+                        <span class="bg-stone-800 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm mr-3 flex-shrink-0">05</span>
+                        平面規劃設計
+                     </h2>
+                     <div class="relative group cursor-zoom-in rounded shadow-2xl overflow-hidden bg-white p-2" onclick="openLightbox(this.querySelector('img').src)">
+                        <img src="https://github.com/adbeweblink/myproject/blob/main/yuanlin/09.png?raw=true" alt="平面圖" class="w-full transition duration-500 group-hover:opacity-90" loading="lazy">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                            <span class="bg-stone-900/80 text-white px-4 py-2 rounded-full text-sm">
+                                <i data-lucide="zoom-in" class="inline w-4 h-4 mr-1"></i> 點擊查看大圖
+                            </span>
+                        </div>
+                     </div>
+                     <p class="text-sm text-stone-500 mt-3 text-center">詳細配置圖面（點擊可放大）</p>
+                </div>
+                <div class="w-full md:w-1/2 reveal">
+                    <h2 class="text-2xl md:text-3xl serif font-bold text-stone-800 mb-6 flex items-center">
+                        <span class="bg-stone-800 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm mr-3 flex-shrink-0">06</span>
+                        成本預算編列
+                     </h2>
+                    <div class="glass-card bg-white p-6 md:p-8 rounded-xl shadow-lg border-t-4 border-amber-600">
+                        <p class="text-stone-600 mb-6 text-base md:text-lg leading-relaxed">本計畫將依據實際施工項目進行詳列，主要包含以下項目：</p>
+                        <ul class="space-y-4 text-stone-700 font-medium text-sm md:text-base">
+                            <li class="flex items-center p-3 bg-stone-50 rounded hover:bg-amber-50 transition">
+                                <div class="bg-amber-100 p-1.5 rounded-full mr-3 flex-shrink-0"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i></div> 
+                                土地整合購置費用
+                            </li>
+                            <li class="flex items-center p-3 bg-stone-50 rounded hover:bg-amber-50 transition">
+                                <div class="bg-amber-100 p-1.5 rounded-full mr-3 flex-shrink-0"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i></div> 
+                                基地整地與高程調整工程
+                            </li>
+                            <li class="flex items-center p-3 bg-stone-50 rounded hover:bg-amber-50 transition">
+                                <div class="bg-amber-100 p-1.5 rounded-full mr-3 flex-shrink-0"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i></div> 
+                                四週圍牆與大門工程
+                            </li>
+                            <li class="flex items-center p-3 bg-stone-50 rounded hover:bg-amber-50 transition">
+                                <div class="bg-amber-100 p-1.5 rounded-full mr-3 flex-shrink-0"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i></div> 
+                                水電管路埋設基礎設施
+                            </li>
+                            <li class="flex items-center p-3 bg-stone-50 rounded hover:bg-amber-50 transition">
+                                <div class="bg-amber-100 p-1.5 rounded-full mr-3 flex-shrink-0"><i data-lucide="check" class="w-4 h-4 text-amber-600"></i></div> 
+                                地坪鋪設與排水工程
+                            </li>
+                        </ul>
+                        <div class="mt-8 pt-6 border-t border-stone-100 text-xs md:text-sm text-stone-500 italic flex items-center">
+                            <i data-lucide="info" class="w-4 h-4 mr-2 flex-shrink-0"></i> 詳細數字將於家族會議中提出報價單討論。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 7: Conclusion & Consensus -->
+    <section id="consensus" class="py-16 md:py-24 bg-stone-800 text-stone-300 scroll-mt-16">
+        <div class="container mx-auto px-6 max-w-5xl reveal">
+            <h2 class="text-2xl md:text-4xl serif font-bold text-white mb-10 text-center">七、結論與合作模式</h2>
+            <div class="bg-stone-700/50 p-6 md:p-10 rounded-2xl border border-stone-600 shadow-2xl backdrop-blur-sm">
+                <p class="leading-loose text-lg md:text-xl text-center mb-8 font-light text-white">
+                    產權的問題，我們兄弟感情好，採取<br class="md:hidden">
+                    <span class="text-amber-400 font-bold">「土地共同持有，共同投資，共同使用」</span><br class="md:hidden">
+                    的原則。
+                </p>
+                <div class="my-8 h-px bg-gradient-to-r from-transparent via-stone-500 to-transparent"></div>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="text-center p-4 hover:bg-stone-700 rounded-lg transition duration-300">
+                        <div class="bg-amber-600 text-white w-12 h-12 flex items-center justify-center rounded-full mx-auto mb-4 text-xl font-bold shadow-lg shadow-amber-900/50">1</div>
+                        <h4 class="text-white font-bold text-lg md:text-xl mb-3">基礎建設<br>共同分擔</h4>
+                        <p class="text-stone-400 text-sm leading-relaxed">開發期間的基本建設（共同基礎、圍牆大門、水電設施），投資費用由兄弟共同分擔。</p>
+                    </div>
+                    <div class="text-center p-4 hover:bg-stone-700 rounded-lg transition duration-300">
+                        <div class="bg-amber-600 text-white w-12 h-12 flex items-center justify-center rounded-full mx-auto mb-4 text-xl font-bold shadow-lg shadow-amber-900/50">2</div>
+                        <h4 class="text-white font-bold text-lg md:text-xl mb-3">建物興建<br>使用者付費</h4>
+                        <p class="text-stone-400 text-sm leading-relaxed">使用之建物，各自視需求興建並付費。誰住誰蓋，公平合理。</p>
+                    </div>
+                    <div class="text-center p-4 hover:bg-stone-700 rounded-lg transition duration-300">
+                        <div class="bg-amber-600 text-white w-12 h-12 flex items-center justify-center rounded-full mx-auto mb-4 text-xl font-bold shadow-lg shadow-amber-900/50">3</div>
+                        <h4 class="text-white font-bold text-lg md:text-xl mb-3">退場機制<br>優先承購</h4>
+                        <p class="text-stone-400 text-sm leading-relaxed">未來若有獲利買賣，可統一出售；或則兄弟之間擁有<strong>「優先承購權」</strong>，依實價買賣轉讓。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 8: Letter CTA -->
+    <section id="message" class="py-20 md:py-28 bg-stone-200 relative overflow-hidden">
+        <div class="container mx-auto px-6 max-w-3xl text-center reveal">
+            <h2 class="text-2xl md:text-5xl serif font-bold text-stone-800 mb-10">給大哥、二哥的一封信</h2>
+            
+            <!-- Letter Styled Card -->
+            <div class="letter-paper p-8 md:p-12 shadow-2xl text-left relative transform rotate-1 hover:rotate-0 transition duration-500">
+                <i data-lucide="quote" class="absolute top-8 left-8 w-12 h-12 text-stone-300/50 fill-stone-300/50 -z-0"></i>
+                <div class="relative z-10 space-y-6">
+                    <p class="text-stone-800 font-bold text-lg border-b border-stone-300 pb-2 inline-block">大哥、二哥：</p>
+                    <p class="text-stone-700 leading-8 text-base md:text-lg">
+                        整理了以上這些具體的開發計劃，我心裡想的其實不是房子蓋得有多豪華，而是想著以後過年，我們不用再分開去訂飯店，不用擠在舊舊的老房子裡。
+                    </p>
+                    <p class="text-stone-700 leading-8 text-base md:text-lg">
+                        這塊地是<span class="font-bold text-amber-700 bg-amber-50 px-1">上一輩留給我們的緣分</span>，加上這次能整合隔壁地號的機會千載難逢。依上述的規劃，我們不僅能創造資產增值，更能蓋一棟屬於我們曹家的傳世大宅。
+                    </p>
+                    <p class="text-stone-700 leading-8 text-base md:text-lg">
+                        我知道蓋房子是大工程，但基礎建設與權利義務我都先擬定如上。我願意當那個跑腿的人，只希望兩位哥哥能支持這個想法，我們一起把這張藍圖變成真的家。
+                    </p>
+                </div>
+                <div class="text-right mt-10 pt-6 border-t border-stone-300">
+                    <p class="text-xl md:text-2xl serif font-bold text-stone-800">老么 錦山 敬上</p>
+                    <p class="text-sm text-stone-500 mt-1">2026</p>
+                </div>
+            </div>
+            
+            <a href="tel:0926119569" class="mt-16 bg-stone-900 text-white px-10 py-5 rounded-full hover:bg-amber-600 hover:scale-105 transition duration-300 shadow-xl text-lg tracking-widest inline-flex items-center gap-3 group">
+                <span class="bg-white text-stone-900 rounded-full p-1 group-hover:rotate-12 transition"><i data-lucide="phone" class="w-5 h-5"></i></span> 
+                聯繫我，我們來討論
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-stone-900 text-stone-500 py-10 text-center text-sm border-t border-stone-800 px-6 pb-24 md:pb-10">
+        <p class="text-stone-400 font-medium mb-2">&copy; 2026 曹家大院興建計畫</p>
+        <p class="text-xs opacity-60">家族內部提案說明專用 | Designed for Cao Family</p>
+    </footer>
+
+    <!-- Floating Action Buttons -->
+    <div class="fixed bottom-6 right-6 z-40 flex flex-col gap-4">
+        <button id="back-to-top" class="bg-stone-800 text-white p-3 rounded-full shadow-lg hover:bg-amber-600 transition hover:-translate-y-1 border border-stone-700">
+            <i data-lucide="arrow-up" class="w-6 h-6"></i>
+        </button>
+        <a href="tel:0926119569" class="md:hidden bg-amber-600 text-white p-4 rounded-full shadow-xl hover:bg-amber-700 transition hover:-translate-y-1 animate-pulse">
+            <i data-lucide="phone" class="w-6 h-6"></i>
+        </a>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Menu Logic
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('open'));
+        document.querySelectorAll('.mobile-link').forEach(link => link.addEventListener('click', () => mobileMenu.classList.remove('open')));
+
+        // Lightbox Logic
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxClose = document.getElementById('lightbox-close');
+
+        function openLightbox(src) {
+            lightboxImg.src = src;
+            lightbox.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeLightbox() {
+            lightbox.classList.remove('open');
+            document.body.style.overflow = '';
+            setTimeout(() => { lightboxImg.src = ''; }, 300);
+        }
+        lightbox.addEventListener('click', (e) => { if (e.target !== lightboxImg) closeLightbox(); });
+        lightboxClose.addEventListener('click', closeLightbox);
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+
+        // Scroll Logic
+        window.addEventListener('scroll', () => {
+            reveal();
+            highlightNav();
+            handleBackToTop();
+        });
+        window.addEventListener('load', reveal);
+
+        function reveal() {
+            var reveals = document.querySelectorAll('.reveal');
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                if (elementTop < windowHeight - 50) reveals[i].classList.add('active');
+            }
+        }
+
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link');
+        function highlightNav() {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= (sectionTop - 200)) current = section.getAttribute('id');
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) link.classList.add('active');
+            });
+        }
+
+        const backToTopBtn = document.getElementById('back-to-top');
+        function handleBackToTop() {
+            if (window.scrollY > 300) backToTopBtn.classList.add('visible');
+            else backToTopBtn.classList.remove('visible');
+        }
+        backToTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+        reveal();
+    </script>
+</body>
+</html>
