@@ -1,20 +1,21 @@
-
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Adobe 知識王挑戰賽｜Week 2</title>
-
+  
   <!-- React / Babel / Tailwind -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
-
+  
   <!-- 彩帶套件 -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <!-- ✅ LINE LIFF SDK -->
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
   <style>
     html, body, #root {
@@ -25,33 +26,27 @@
       overscroll-behavior: none;
       background: #0b1020;
     }
-
     body {
       font-family: "Noto Sans TC", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
       -webkit-user-select: none;
       user-select: none;
       -webkit-touch-callout: none;
     }
-
     .touch-highlight { transition: background-color 0.1s; }
     .touch-highlight:active {
       background-color: rgba(255, 255, 255, 0.22);
       border-radius: 16px;
     }
-
     ::-webkit-scrollbar { display: none; }
 
     /* =========================
-       題目卡轉場動畫（效能優先版）
-       進場：上→下滑入
-       退場：左滑出去
+       題目卡轉場動畫
        ========================= */
     .q-card {
       transform: translateZ(0);
       will-change: transform, opacity;
       backface-visibility: hidden;
     }
-
     .q-enter {
       animation: qEnter 520ms cubic-bezier(.22,.92,.18,1) both;
     }
@@ -59,7 +54,6 @@
       0%   { opacity: 0; transform: translate3d(0,-22%,0); }
       100% { opacity: 1; transform: translate3d(0,0,0); }
     }
-
     .q-exit {
       animation: qExit 300ms ease-out both;
     }
@@ -69,7 +63,7 @@
     }
 
     /* =========================
-       解析浮層（沿用你 week1 的整張卡風格）
+       解析浮層
        ========================= */
     .overlay {
       position: fixed;
@@ -136,7 +130,7 @@
     .explanation-next-btn:active { transform: scale(0.96); box-shadow: none; }
 
     /* =========================
-       結果頁按鈕（白字 + 一點點文字陰影）
+       結果頁按鈕
        ========================= */
     .btn-orange {
       background: linear-gradient(90deg, #f59e0b 0%, #f97316 100%);
@@ -155,10 +149,11 @@
     // ===============================
     const DEV_MODE = false;
 
-    // ✅ 換成你的 OA ID（要含 @）
-    const LINE_BOT_ID = "@your_bot_id";
+    // ✅ LIFF 與 獎勵設定
+    const MY_LIFF_ID = "2008592497-qBMsi2kB"; 
+    const REWARD_URL = "https://r.botbonnie.com/8gkmU"; // 領獎連結
 
-    // ✅ Week2 圖片 repo（jsDelivr）
+    // ✅ Week2 圖片 repo
     const CDN_BASE = "https://cdn.jsdelivr.net/gh/ssunshine0608/adobe-King-of-Knowledge_week2@main/";
     const COVER_IMAGE = "fengmian.jpg";
 
@@ -182,7 +177,7 @@
       {
         id: 3,
         image: "q3.jpg",
-        correct: 3, // D（依你最終答案）
+        correct: 3, // D
         explanation:
           "在 ChatGPT 環境中，Lightroom 可直接進行照片修圖與影像調整，適合攝影與影像後製應用。"
       },
@@ -202,7 +197,7 @@
       }
     ];
 
-    // 你校準好的點擊區
+    // 點擊區位置常數
     const INIT_TOP = 38;
     const INIT_HEIGHT = 42;
     const INIT_LEFT = 8;
@@ -225,42 +220,152 @@
       // 轉場動畫狀態
       const [qAnim, setQAnim] = React.useState("enter"); // enter | idle | exit
 
-      // 點擊區百分比（DEV 可調）
+      // 點擊區百分比
       const [topPercent, setTopPercent] = React.useState(INIT_TOP);
       const [heightPercent, setHeightPercent] = React.useState(INIT_HEIGHT);
       const [leftPercent, setLeftPercent] = React.useState(INIT_LEFT);
       const [widthPercent, setWidthPercent] = React.useState(INIT_WIDTH);
 
-      // 支援 uid（未來串 LINE 參數用）
+      // ==========================================
+      // 1. 初始化 LIFF
+      // ==========================================
       React.useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const uid = params.get("uid");
-        if (uid) setUserId(uid);
+        const initLiff = async () => {
+          try {
+            await liff.init({ liffId: MY_LIFF_ID });
+            if (!liff.isLoggedIn()) {
+              // 可選擇自動登入，或等使用者互動時再登入
+              // liff.login(); 
+            } else {
+              // 嘗試抓取 user ID
+              const profile = await liff.getProfile();
+              setUserId(profile.userId);
+            }
+          } catch (err) {
+            console.error("LIFF Init Error:", err);
+          }
+        };
+        initLiff();
       }, []);
 
-      // ✅ 預載當前與下一題（減少換題瞬間解碼卡頓）
+      // 預載圖片
       React.useEffect(() => {
         const preload = (src) => {
           const img = new Image();
           img.decoding = "async";
           img.src = src;
         };
-
         const cur = QUESTIONS[currentQIndex]?.image;
         const next = QUESTIONS[currentQIndex + 1]?.image;
         if (cur) preload(getImagePath(cur));
         if (next) preload(getImagePath(next));
       }, [currentQIndex]);
 
-      // 🎉 100 分時噴彩帶
+      // 滿分彩帶
       React.useEffect(() => {
         if (gameState !== "result" || score !== 100) return;
         if (!window.confetti) return;
-
         window.confetti({ particleCount: 50, angle: 60,  spread: 55, origin: { x: 0, y: 1 }, ticks: 120 });
         window.confetti({ particleCount: 50, angle: 120, spread: 55, origin: { x: 1, y: 1 }, ticks: 120 });
       }, [gameState, score]);
 
+      // ==========================================
+      // 2. LIFF 分享邏輯 (封裝成 Flex Message)
+      // ==========================================
+      const sendShareMessage = async (callbackUrl) => {
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return;
+        }
+
+        // 建構 Flex Message
+        // 圖片：封面圖 (getImagePath(COVER_IMAGE))
+        // 連結：此 LIFF 的永久連結
+        const liffUrl = `https://liff.line.me/${MY_LIFF_ID}`;
+        const coverUrl = getImagePath(COVER_IMAGE);
+
+        const flexMessage = {
+          type: "flex",
+          altText: "Adobe 知識王挑戰賽｜Week 2 - 快來挑戰！",
+          contents: {
+            type: "bubble",
+            hero: {
+              type: "image",
+              url: coverUrl,
+              size: "full",
+              aspectRatio: "9:16",
+              aspectMode: "cover",
+              action: {
+                type: "uri",
+                uri: liffUrl
+              }
+            },
+            body: {
+              type: "box",
+              layout: "vertical",
+              contents: [
+                {
+                  type: "text",
+                  text: "Adobe 知識王｜Week 2",
+                  weight: "bold",
+                  size: "xl",
+                  color: "#1f2937"
+                },
+                {
+                  type: "text",
+                  text: "我拿到滿分 100 分！\n你也來挑戰看看能拿幾分？",
+                  margin: "md",
+                  size: "sm",
+                  color: "#6b7280",
+                  wrap: true
+                }
+              ]
+            },
+            footer: {
+              type: "box",
+              layout: "vertical",
+              spacing: "sm",
+              contents: [
+                {
+                  type: "button",
+                  style: "primary",
+                  height: "sm",
+                  action: {
+                    type: "uri",
+                    label: "立即挑戰",
+                    uri: liffUrl
+                  },
+                  color: "#f97316"
+                }
+              ],
+              flex: 0
+            }
+          }
+        };
+
+        try {
+          if (liff.isApiAvailable("shareTargetPicker")) {
+            const res = await liff.shareTargetPicker([flexMessage]);
+            if (res) {
+              // 分享成功
+              if (callbackUrl) {
+                window.location.href = callbackUrl;
+              }
+            } else {
+              // 使用者關閉了分享視窗
+              console.log("User closed share picker");
+            }
+          } else {
+            // 環境不支援 (如外部瀏覽器)
+            alert("請在 LINE App 內開啟以使用分享領獎功能。");
+          }
+        } catch (error) {
+          console.error("Share error:", error);
+          alert("分享失敗，請稍後再試。");
+        }
+      };
+
+      // 遊戲流程控制
       const startGame = () => {
         setGameState("playing");
         setScore(0);
@@ -273,60 +378,38 @@
 
       const handleAnswer = (optionIndex) => {
         if (isLock || showExplanation) return;
-
         const currentQ = QUESTIONS[currentQIndex];
         const correct = optionIndex === currentQ.correct;
-
         setLastIsCorrect(correct);
         setIsLock(true);
         if (correct) setScore((prev) => prev + 20);
-
         setTimeout(() => setShowExplanation(true), 160);
       };
 
       const goNextQuestion = () => {
         const isLast = currentQIndex >= QUESTIONS.length - 1;
-
         setShowExplanation(false);
-
         if (isLast) {
           setTimeout(() => setGameState("result"), 140);
           return;
         }
-
-        // ✅ 退場左滑 → 切題 → 進場下滑
-        const EXIT_MS = 300;
-        const ENTER_MS = 520;
-
         setQAnim("exit");
         setTimeout(() => {
           setCurrentQIndex((prev) => prev + 1);
           setIsLock(false);
           setQAnim("enter");
-          setTimeout(() => setQAnim("idle"), ENTER_MS + 20);
-        }, EXIT_MS);
+          setTimeout(() => setQAnim("idle"), 540);
+        }, 300);
       };
 
-      const shareToLineOA = (text) => {
-        window.location.href =
-          `https://line.me/R/oaMessage/${LINE_BOT_ID}/?text=${encodeURIComponent(text)}`;
-      };
-
+      // 純分享 (未滿分用，不跳轉)
       const shareFriend = () => {
-        const msg =
-          `【Adobe 知識王挑戰 Week 2】\n` +
-          `我拿到 ${score} 分！\n` +
-          `你也來挑戰看看～`;
-        shareToLineOA(msg);
+        sendShareMessage(null);
       };
 
+      // 滿分分享並領獎 (跳轉 BotBonnie)
       const shareAndClaimReward = () => {
-        // 你可以在 OA 那邊用關鍵字判斷「滿分領獎」
-        const msg =
-          `【滿分領獎】\n` +
-          `Week 2 我拿到 100 分！\n` +
-          `uid：${userId || "Guest"}`;
-        shareToLineOA(msg);
+        sendShareMessage(REWARD_URL);
       };
 
       // ========= Start（封面） =========
@@ -344,8 +427,6 @@
                     e.target.src = "https://placehold.co/600x1067/333/FFF?text=找不到封面圖";
                   }}
                 />
-
-                {/* Start 熱區 */}
                 <div
                   onClick={startGame}
                   className={
@@ -354,7 +435,6 @@
                   }
                   style={{ top: "80%", height: "8%", left: "32%", width: "36%" }}
                 ></div>
-
                 {DEV_MODE && (
                   <div className="absolute top-2 left-2 bg-black/70 text-[10px] text-white px-2 py-1 rounded-full">
                     DEV MODE
@@ -384,13 +464,9 @@
                     e.target.src = "https://placehold.co/600x1067/333/FFF?text=找不到題目圖";
                   }}
                 />
-
-                {/* 分數徽章 */}
                 <div className="absolute top-3 right-3 bg-black/70 text-white text-xs px-3 py-1 rounded-full">
                   分數：{score}
                 </div>
-
-                {/* 點擊區域：四個答案格 */}
                 <div
                   className={
                     "absolute grid grid-cols-2 grid-rows-2" +
@@ -411,38 +487,29 @@
               </div>
             </div>
 
-            {/* DEV 滑桿 */}
+            {/* DEV SLIDERS */}
             {DEV_MODE && (
               <div className="fixed bottom-2 left-1/2 -translate-x-1/2 w-full max-w-md px-3 z-[900]">
                 <div className="bg-black/80 text-white text-[10px] rounded-xl px-3 py-2 space-y-1">
-                  <div className="text-[11px] mb-1 opacity-80">點擊區調整（Top / Height / Left / Width）</div>
-
                   <div className="flex items-center gap-2">
                     <span className="w-10">上</span>
                     <input type="range" min="0" max="100" value={topPercent}
                       onChange={(e) => setTopPercent(Number(e.target.value))} className="w-full" />
-                    <span className="w-10 text-right">{topPercent}%</span>
                   </div>
-
                   <div className="flex items-center gap-2">
                     <span className="w-10">高</span>
                     <input type="range" min="10" max="100" value={heightPercent}
                       onChange={(e) => setHeightPercent(Number(e.target.value))} className="w-full" />
-                    <span className="w-10 text-right">{heightPercent}%</span>
                   </div>
-
                   <div className="flex items-center gap-2">
                     <span className="w-10">左</span>
                     <input type="range" min="0" max="20" value={leftPercent}
                       onChange={(e) => setLeftPercent(Number(e.target.value))} className="w-full" />
-                    <span className="w-10 text-right">{leftPercent}%</span>
                   </div>
-
                   <div className="flex items-center gap-2">
                     <span className="w-10">寬</span>
                     <input type="range" min="50" max="100" value={widthPercent}
                       onChange={(e) => setWidthPercent(Number(e.target.value))} className="w-full" />
-                    <span className="w-10 text-right">{widthPercent}%</span>
                   </div>
                 </div>
               </div>
@@ -471,11 +538,9 @@
                     </div>
                   </div>
                 </div>
-
                 <div className="explanation-text">
                   {QUESTIONS[currentQIndex].explanation}
                 </div>
-
                 <div className="explanation-footer">
                   <span>目前分數：{score} 分</span>
                   <button type="button" className="explanation-next-btn" onClick={goNextQuestion}>
@@ -488,32 +553,27 @@
         );
       }
 
-      // ========= 結果畫面（滿分才可領獎） =========
+      // ========= 結果畫面 =========
       if (gameState === "result") {
         const isFullScore = score === 100;
 
-        // 未滿分：再玩一次 + 分享好友
+        // 1. 未滿分：再玩一次 + 分享好友 (無獎勵)
         if (!isFullScore) {
           return (
             <div className="w-full h-full flex items-center justify-center relative overflow-hidden bg-[#050816]">
               <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[520px] h-[520px] bg-white/5 blur-3xl rounded-full"></div>
-
               <div className="relative z-10 w-full max-w-md px-6 text-center text-white">
                 <div className="text-sm text-white/80 mb-2">本週挑戰完成！</div>
-
                 <div className="text-[84px] leading-none font-black tracking-tight mb-4">
                   {score} <span className="text-[64px] font-black">分</span>
                 </div>
-
                 <div className="text-[20px] font-extrabold text-white/90 mb-3">
                   還差一點點！
                 </div>
-
                 <div className="text-sm text-white/60 leading-relaxed mb-10">
                   必須達到 100 分才能解鎖獎勵喔。<br/>
                   別氣餒，再試一次！
                 </div>
-
                 <div className="flex flex-col gap-4">
                   <button
                     onClick={() => window.location.reload()}
@@ -521,7 +581,6 @@
                   >
                     ↩︎ 再玩一次
                   </button>
-
                   <button
                     onClick={shareFriend}
                     className="w-full rounded-2xl py-4 text-[22px] font-black bg-emerald-600 text-white shadow-lg active:scale-[0.99]"
@@ -534,26 +593,23 @@
           );
         }
 
-        // 滿分：分享並領取獎勵 + 再玩一次
+        // 2. 滿分：分享並領取獎勵
         return (
           <div className="w-full h-full flex items-center justify-center relative overflow-hidden bg-[#050816]">
             <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[520px] h-[520px] bg-white/5 blur-3xl rounded-full"></div>
-
             <div className="relative z-10 w-full max-w-md px-6 text-center text-white">
               <div className="text-sm text-white/80 mb-2">本週挑戰完成！</div>
-
               <div className="text-[84px] leading-none font-black tracking-tight mb-3">
                 {score} <span className="text-[64px] font-black">分</span>
               </div>
-
               <div className="text-[18px] font-extrabold text-amber-300 mb-3">
                 🏆 恭喜獲得滿分！
               </div>
-
               <div className="text-sm text-white/70 leading-relaxed mb-8">
                 請分享給好友，完成分享後<br/>即可自動領取獎勵！
               </div>
-
+              
+              {/* 核心按鈕：分享後跳轉獎勵連結 */}
               <button
                 onClick={shareAndClaimReward}
                 className="btn-orange w-full rounded-2xl py-4 text-[22px] font-black shadow-lg active:scale-[0.99]"
