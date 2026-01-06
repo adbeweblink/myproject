@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   MessageCircle, 
   Coffee, 
@@ -9,10 +9,18 @@ import {
   Signal,
   Share2,
   Bookmark,
-  ChevronDown
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 export const LineEngagementSection: React.FC = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+  const touchStartY = useRef(0);
+  const touchEndY = useRef(0);
+
   const newsItems = [
     {
       category: "Adobe Firefly",
@@ -36,6 +44,56 @@ export const LineEngagementSection: React.FC = () => {
     }
   ];
 
+  const extraImages = [
+    "https://adbeweblink.github.io/myproject/plan2026/image/00.jpg",
+    "https://adbeweblink.github.io/myproject/plan2026/image/01.jpg",
+    "https://adbeweblink.github.io/myproject/plan2026/image/02.jpg",
+    "https://adbeweblink.github.io/myproject/plan2026/image/03.jpg",
+    "https://adbeweblink.github.io/myproject/plan2026/image/04.jpg",
+    "https://adbeweblink.github.io/myproject/plan2026/image/05.jpg",
+    "https://adbeweblink.github.io/myproject/plan2026/image/06.jpg"
+  ];
+
+  const totalSlides = 1 + extraImages.length;
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % totalSlides);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.targetTouches[0].clientX;
+    touchStartY.current = e.targetTouches[0].clientY;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+    touchEndY.current = e.targetTouches[0].clientY;
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+    
+    const diffX = touchStartX.current - touchEndX.current;
+    const diffY = touchStartY.current - touchEndY.current;
+
+    // Only trigger swipe if horizontal movement is dominant and sufficient
+    // Prevents swipe when user is trying to scroll vertically
+    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+      if (diffX > 0) nextSlide();
+      else prevSlide();
+    }
+    
+    // Reset
+    touchStartX.current = 0;
+    touchEndX.current = 0;
+    touchStartY.current = 0;
+    touchEndY.current = 0;
+  };
+
   return (
     <section className="h-screen py-10 px-6 md:px-20 border-b border-white/5 bg-[#161616] relative overflow-hidden flex flex-col items-center justify-center">
       {/* Background Ambience */}
@@ -43,7 +101,7 @@ export const LineEngagementSection: React.FC = () => {
 
       <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-center relative z-10 h-full max-h-[90vh]">
         
-        {/* Left Side: Philosophy & Branding (Ordered FIRST on Mobile) */}
+        {/* Left Side: Philosophy & Branding */}
         <div className="order-1 lg:order-1 flex flex-col justify-center">
           <div className="flex items-center gap-3 mb-6">
              <div className="bg-[#06C755]/20 text-[#06C755] p-2 rounded-lg">
@@ -78,66 +136,125 @@ export const LineEngagementSection: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Side: Phone Mockup (Ordered SECOND on Mobile) */}
-        <div className="order-2 lg:order-2 flex justify-center lg:justify-end items-center h-full">
-          <div className="relative w-[280px] md:w-[320px] aspect-[9/19] bg-black border-[6px] border-gray-800 rounded-[2.5rem] shadow-2xl overflow-hidden transform hover:scale-[1.02] transition-transform duration-500 max-h-[50vh] md:max-h-[70vh] landscape:max-h-[85vh]">
-             {/* Phone Status Bar */}
-             <div className="bg-white text-black px-5 py-2 flex justify-between items-center text-[10px] font-bold z-20 relative">
-                <span>09:41</span>
-                <div className="flex items-center gap-1">
-                   <Signal size={10} />
-                   <Wifi size={10} />
-                   <Battery size={10} />
-                </div>
-             </div>
+        {/* Right Side: Phone Mockup with Carousel */}
+        <div className="order-2 lg:order-2 flex justify-center lg:justify-end items-center h-full relative group/phone">
+          
+          {/* Wrapper for fixing buttons relative to phone */}
+          <div className="relative flex items-center justify-center">
 
-             {/* Phone App Header */}
-             <div className="bg-white text-black px-5 pt-1 pb-4 border-b border-gray-100 z-10 relative">
-                <div className="flex justify-between items-center mb-3">
-                   <div className="bg-[#FA0F00] text-white p-1 rounded text-[10px] font-black">Adobe</div>
-                   <div className="flex gap-2 text-gray-400">
-                      <Bell size={16} />
-                      <Bookmark size={16} />
-                   </div>
-                </div>
-                <h3 className="text-2xl font-black text-black leading-none mb-1">Tuesday<span className="text-[#FA0F00] text-3xl">.</span></h3>
-                <p className="text-gray-500 text-xs font-medium">2026.06.17 • 每週精選快訊</p>
-             </div>
+            {/* Prev Button (Desktop) */}
+            <button 
+              onClick={prevSlide}
+              className="absolute -left-12 md:-left-16 z-20 p-3 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 text-white transition-all hover:scale-110 active:scale-95 hidden md:flex shadow-lg"
+            >
+              <ChevronLeft size={24} />
+            </button>
 
-             {/* Phone Scroll Content */}
-             <div className="bg-gray-50 h-full p-3 space-y-2 overflow-hidden relative">
-                <div className="flex items-center gap-2 mb-1">
-                   <div className="w-1.5 h-1.5 bg-[#FA0F00] rounded-full animate-pulse"></div>
-                   <span className="text-[10px] font-bold text-[#FA0F00] uppercase tracking-wider">Top Stories</span>
-                </div>
+            <div 
+              className="relative w-[280px] md:w-[320px] aspect-[9/19] bg-black border-[6px] border-gray-800 rounded-[2.5rem] shadow-2xl overflow-hidden transform hover:scale-[1.02] transition-transform duration-500 max-h-[50vh] md:max-h-[70vh] landscape:max-h-[85vh] z-10"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+              {/* Carousel Track */}
+              <div className="w-full h-full relative">
+                  
+                  {/* SLIDE 0: Live Component */}
+                  <div 
+                    className="absolute inset-0 w-full h-full transition-transform duration-500 cubic-bezier(0.23, 1, 0.32, 1) bg-white flex flex-col"
+                    style={{ transform: `translateX(${(0 - currentSlide) * 100}%)` }}
+                  >
+                      {/* Phone Status Bar */}
+                      <div className="bg-white text-black px-5 py-2 flex justify-between items-center text-[10px] font-bold z-20 relative shrink-0">
+                          <span>09:41</span>
+                          <div className="flex items-center gap-1">
+                            <Signal size={10} />
+                            <Wifi size={10} />
+                            <Battery size={10} />
+                          </div>
+                      </div>
 
-                {newsItems.map((item, idx) => (
-                  <div key={idx} className="bg-white p-3 rounded-lg shadow-sm border border-gray-100 group cursor-pointer hover:shadow-md transition">
-                     <div className="flex justify-between items-start mb-1">
-                        <span className="bg-gray-100 text-gray-600 text-[9px] font-bold px-1.5 py-0.5 rounded">
-                          {item.category}
-                        </span>
-                        <span className="text-[9px] text-gray-400">{item.time}</span>
-                     </div>
-                     <h4 className="font-bold text-gray-900 text-xs leading-snug mb-1 group-hover:text-[#06C755] transition-colors line-clamp-2">
-                       {item.title}
-                     </h4>
-                     <div className="flex justify-between items-center border-t border-gray-50 pt-1 mt-1">
-                        <div className="flex items-center gap-1 text-[9px] text-gray-400">
-                           <Coffee size={8} /> 3 min
-                        </div>
-                        <Share2 size={10} className="text-gray-300" />
-                     </div>
+                      {/* Phone App Header */}
+                      <div className="bg-white text-black px-5 pt-1 pb-4 border-b border-gray-100 z-10 relative shrink-0">
+                          <div className="flex justify-between items-center mb-3">
+                            <div className="bg-[#FA0F00] text-white p-1 rounded text-[10px] font-black">Adobe</div>
+                            <div className="flex gap-2 text-gray-400">
+                                <Bell size={16} />
+                                <Bookmark size={16} />
+                            </div>
+                          </div>
+                          <h3 className="text-2xl font-black text-black leading-none mb-1">Tuesday<span className="text-[#FA0F00] text-3xl">.</span></h3>
+                          <p className="text-gray-500 text-xs font-medium">2026.06.17 • 每週精選快訊</p>
+                      </div>
+
+                      {/* Phone Scroll Content */}
+                      <div className="bg-gray-50 h-full p-3 space-y-2 overflow-y-auto relative flex-1 no-scrollbar">
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="w-1.5 h-1.5 bg-[#FA0F00] rounded-full animate-pulse"></div>
+                            <span className="text-[10px] font-bold text-[#FA0F00] uppercase tracking-wider">Top Stories</span>
+                          </div>
+
+                          {newsItems.map((item, idx) => (
+                            <div key={idx} className="bg-white p-3 rounded-lg shadow-sm border border-gray-100 group cursor-pointer hover:shadow-md transition">
+                              <div className="flex justify-between items-start mb-1">
+                                  <span className="bg-gray-100 text-gray-600 text-[9px] font-bold px-1.5 py-0.5 rounded">
+                                    {item.category}
+                                  </span>
+                                  <span className="text-[9px] text-gray-400">{item.time}</span>
+                              </div>
+                              <h4 className="font-bold text-gray-900 text-xs leading-snug mb-1 group-hover:text-[#06C755] transition-colors line-clamp-2">
+                                {item.title}
+                              </h4>
+                              <div className="flex justify-between items-center border-t border-gray-50 pt-1 mt-1">
+                                  <div className="flex items-center gap-1 text-[9px] text-gray-400">
+                                    <Coffee size={8} /> 3 min
+                                  </div>
+                                  <Share2 size={10} className="text-gray-300" />
+                              </div>
+                            </div>
+                          ))}
+
+                          {/* Bottom Fade */}
+                          <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-gray-50 to-transparent pointer-events-none"></div>
+                      </div>
                   </div>
-                ))}
 
-                {/* Bottom Fade */}
-                <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-gray-50 to-transparent pointer-events-none"></div>
-             </div>
-             
-             {/* Phone Home Indicator */}
-             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-24 h-1 bg-black/20 rounded-full z-30"></div>
+                  {/* SLIDES 1-N: Images */}
+                  {extraImages.map((img, index) => (
+                    <div 
+                      key={index}
+                      className="absolute inset-0 w-full h-full transition-transform duration-500 cubic-bezier(0.23, 1, 0.32, 1) bg-black"
+                      style={{ transform: `translateX(${(index + 1 - currentSlide) * 100}%)` }}
+                    >
+                      <img src={img} alt={`Screen ${index + 1}`} className="w-full h-full object-cover" />
+                    </div>
+                  ))}
+              </div>
+              
+              {/* Phone Home Indicator */}
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-24 h-1 bg-white/20 backdrop-blur-md rounded-full z-30 pointer-events-none shadow-sm"></div>
+
+              {/* Pagination Dots */}
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-1.5 z-30 pointer-events-none">
+                  {Array.from({ length: totalSlides }).map((_, i) => (
+                    <div 
+                      key={i} 
+                      className={`h-1.5 rounded-full transition-all duration-300 shadow-sm ${i === currentSlide ? 'bg-[#06C755] w-4' : 'bg-white/50 w-1.5'}`}
+                    />
+                  ))}
+              </div>
+            </div>
+
+            {/* Next Button (Desktop) */}
+            <button 
+              onClick={nextSlide}
+              className="absolute -right-12 md:-right-16 z-20 p-3 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 text-white transition-all hover:scale-110 active:scale-95 hidden md:flex shadow-lg"
+            >
+              <ChevronRight size={24} />
+            </button>
+          
           </div>
+
         </div>
       </div>
       
