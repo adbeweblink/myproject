@@ -38,14 +38,7 @@
           scrollbar-width: none;
       }
 
-      section {
-        height: 100vh;
-        max-height: 100vh;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-      }
+      /* Removed fixed section height to support RWD content flow */
 
       @media print {
         @page {
@@ -93,7 +86,7 @@
         }
       }
     </style>
-  <script type="importmap">
+<script type="importmap">
 {
   "imports": {
     "react": "https://esm.sh/react@^19.2.3",

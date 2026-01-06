@@ -7,19 +7,34 @@ interface SectionHeadingProps {
   color?: string;
 }
 
-export const SectionHeading: React.FC<SectionHeadingProps> = ({ title, subtitle, color = "bg-red-600" }) => (
-  <div className="mb-12">
-    <div className={`w-16 h-1.5 ${color} mb-4 rounded-full shadow-[0_0_15px_rgba(255,255,255,0.2)]`} />
-    {subtitle && (
-      <p className="text-gray-400 font-medium tracking-[0.3em] uppercase text-xs mb-3 animate-pulse">
-        {subtitle}
-      </p>
-    )}
-    <h2 className="text-3xl md:text-5xl font-black text-white leading-tight text-balance">
-      {title}
-    </h2>
-  </div>
-);
+export const SectionHeading: React.FC<SectionHeadingProps> = ({ title, subtitle, color = "bg-red-600" }) => {
+  // Determine text gradient based on the bar color to match the "Core Vision" aesthetic
+  let textGradient = "from-white via-gray-200 to-gray-500"; // Default metallic
+
+  if (color.includes("blue")) textGradient = "from-white via-blue-100 to-gray-400";
+  else if (color.includes("purple")) textGradient = "from-white via-purple-100 to-gray-400";
+  else if (color.includes("red")) textGradient = "from-white via-red-100 to-gray-400";
+  else if (color.includes("orange")) textGradient = "from-white via-orange-100 to-gray-400";
+  else if (color.includes("yellow")) textGradient = "from-white via-yellow-100 to-gray-400";
+  else if (color.includes("green")) textGradient = "from-white via-green-100 to-gray-400";
+  else if (color.includes("indigo")) textGradient = "from-white via-indigo-100 to-gray-400";
+  else if (color.includes("pink")) textGradient = "from-white via-pink-100 to-gray-400";
+  else if (color.includes("cyan")) textGradient = "from-white via-cyan-100 to-gray-400";
+
+  return (
+    <div className="mb-6 md:mb-8 shrink-0">
+      <div className={`w-16 h-1.5 ${color} mb-3 rounded-full shadow-[0_0_15px_rgba(255,255,255,0.2)]`} />
+      {subtitle && (
+        <p className="text-gray-400 font-bold tracking-[0.2em] uppercase text-[10px] md:text-xs mb-2 animate-pulse">
+          {subtitle}
+        </p>
+      )}
+      <h2 className={`text-3xl md:text-5xl font-black tracking-tighter leading-tight text-balance drop-shadow-lg bg-clip-text text-transparent bg-gradient-to-r ${textGradient}`}>
+        {title}
+      </h2>
+    </div>
+  );
+};
 
 interface CardProps {
   children: React.ReactNode;
@@ -62,7 +77,7 @@ export const Card: React.FC<CardProps> = ({ children, className = "", hoverEffec
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       className={`
-        relative bg-gray-900/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 
+        relative bg-gray-900/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 
         transition-all duration-500 overflow-hidden group ${className}
         ${hoverEffect ? 'hover:border-white/20 hover:bg-gray-800/50' : ''}
       `}

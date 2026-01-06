@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Image as ImageIcon,
   Video,
@@ -149,6 +150,29 @@ export const ModelEcosystemSection: React.FC = () => {
     }
   };
 
+  // Keyboard navigation for Horizontal Scroll
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Check if this section is currently visible
+      const section = document.getElementById('ecosystem');
+      if (!section) return;
+      
+      const rect = section.getBoundingClientRect();
+      const isVisible = rect.top >= -window.innerHeight / 2 && rect.bottom <= window.innerHeight * 1.5;
+      
+      if (isVisible) {
+        if (e.key === 'ArrowLeft') {
+          scroll('left');
+        } else if (e.key === 'ArrowRight') {
+          scroll('right');
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const TabButton = ({ type, label, icon: Icon }: { type: FilterType, label: string, icon: any }) => (
     <button
       onClick={() => setActiveFilter(type)}
@@ -166,8 +190,8 @@ export const ModelEcosystemSection: React.FC = () => {
   );
 
   return (
-    <section className="h-screen py-10 px-6 md:px-20 border-b border-white/5 bg-[#111111] flex flex-col justify-center overflow-hidden">
-       <div className="max-w-7xl mx-auto w-full shrink-0">
+    <section className="h-screen py-10 px-6 md:px-20 border-b border-white/5 bg-[#111111] flex flex-col justify-center overflow-hidden relative">
+       <div className="max-w-7xl mx-auto w-full shrink-0 relative">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6">
             <SectionHeading 
               title="Adobe Partner Models Ecosystem" 
@@ -181,22 +205,6 @@ export const ModelEcosystemSection: React.FC = () => {
                  <TabButton type="image" label="Image" icon={ImageIcon} />
                  <TabButton type="video" label="Video" icon={Video} />
                  <TabButton type="audio" label="Audio" icon={Mic} />
-              </div>
-              <div className="flex gap-2 justify-end">
-                <button 
-                  onClick={() => scroll('left')} 
-                  className="p-2 rounded-full border border-white/10 text-white hover:bg-white/10 transition"
-                  aria-label="Scroll Left"
-                >
-                  <ChevronLeft size={20} />
-                </button>
-                <button 
-                  onClick={() => scroll('right')} 
-                  className="p-2 rounded-full border border-white/10 text-white hover:bg-white/10 transition"
-                  aria-label="Scroll Right"
-                >
-                  <ChevronRight size={20} />
-                </button>
               </div>
             </div>
           </div>
@@ -258,6 +266,22 @@ export const ModelEcosystemSection: React.FC = () => {
              </div>
           )}
        </div>
+
+       {/* Navigation Buttons (Absolute) */}
+       <button 
+          onClick={() => scroll('left')} 
+          className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 p-3 rounded-full border border-white/10 bg-black/50 text-white hover:bg-white/10 transition z-20 backdrop-blur-sm"
+          aria-label="Scroll Left"
+        >
+          <ChevronLeft size={24} />
+       </button>
+       <button 
+          onClick={() => scroll('right')} 
+          className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 p-3 rounded-full border border-white/10 bg-black/50 text-white hover:bg-white/10 transition z-20 backdrop-blur-sm"
+          aria-label="Scroll Right"
+        >
+          <ChevronRight size={24} />
+       </button>
     </section>
   );
 };

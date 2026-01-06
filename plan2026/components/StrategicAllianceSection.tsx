@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Box, Palette, Cpu, HardDrive, Type, MousePointer2, ExternalLink, ChevronRight } from 'lucide-react';
 import { SectionHeading } from './ui/Shared';
@@ -15,7 +16,7 @@ export const StrategicAllianceSection: React.FC = () => {
       id: 'color', category: '品牌權威加持', icon: Palette,
       partners: [{ name: 'Pantone', logo: '' }],
       desc: '與色彩權威合作，強化專業依賴度。',
-      link: 'https://adbeweblink.github.io/myproject/pantone/pantone2026.html',
+      link: 'https://adbeweblink.github.io/myproject/plan2026/pantone/pantone2026.html',
       color: 'border-pink-500', textColor: 'text-pink-500', bg: 'bg-pink-900/10'
     },
     {
@@ -45,7 +46,7 @@ export const StrategicAllianceSection: React.FC = () => {
   ];
 
   return (
-    <section className="h-screen py-10 px-6 md:px-20 border-b border-white/5 bg-[#0a0a0a] flex flex-col justify-center overflow-hidden">
+    <section className="h-screen py-10 px-6 md:px-20 border-b border-white/5 bg-[#0a0a0a] flex flex-col justify-center overflow-hidden" id="alliance">
       <SectionHeading 
         title="Co-Marketing 生態行銷" 
         subtitle="Alliance Strategy" 
@@ -58,7 +59,8 @@ export const StrategicAllianceSection: React.FC = () => {
         </p>
       </div>
       
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 overflow-hidden">
+      {/* Added p-2 to prevent hover clipping */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 p-2">
         {alliances.map((item) => {
            const Icon = item.icon;
            return (

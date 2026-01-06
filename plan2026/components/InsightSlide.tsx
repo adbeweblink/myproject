@@ -1,65 +1,71 @@
 
 import React from 'react';
-import { Layers, Zap, Network } from 'lucide-react';
+import { Cpu, Bot, Network } from 'lucide-react';
 import { SectionHeading, Card } from './ui/Shared';
 
 export const InsightSlide: React.FC = () => (
-  <section className="min-h-screen py-20 px-6 md:px-20 flex flex-col justify-center border-b border-white/5">
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-      <div>
+  <section className="h-screen py-8 md:py-10 px-6 md:px-20 flex flex-col justify-center border-b border-white/5 overflow-hidden">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center h-full max-h-[90vh]">
+      <div className="flex flex-col justify-center">
         <SectionHeading 
-          title="行銷即服務：解決痛點，事半功倍" 
-          subtitle="Optimization & Efficiency" 
+          title={`行銷即服務 2.0：\n注入 AI 基因，專注 Adobe 增長`}
+          subtitle="Adobe Growth Engine" 
           color="bg-blue-500"
         />
-        <p className="text-xl text-gray-300 leading-relaxed mb-8">
-          我們的行銷策略核心在於<strong className="text-white">「良好的資源供需配給」</strong>。
-          我們持續向舊用戶佈達新知之外，也透過社群廣告向25-50的商業受眾持續投放曝光，利用軟硬體整合的優勢，精準解決企業導入 AI 工作流的阻礙，讓業務推廣更順暢。
+        <style>{`h2 { white-space: pre-line; }`}</style>
+        <p className="text-base md:text-lg text-gray-300 leading-relaxed mb-6 md:mb-8 line-clamp-3 md:line-clamp-none">
+          Weblink FY26 啟動 <strong className="text-white">Channel AI Empowerment</strong> 計畫。
+          專注於利用 AI 技術<strong className="text-blue-400">優化 Adobe 產品銷售流程</strong>。
+          透過智能輔助工具，協助經銷夥伴精準傳遞 Firefly 安全商用價值，有效降低企業採購門檻。
         </p>
 
-        <div className="space-y-6">
-          <Card className="border-l-4 border-l-blue-500">
-            <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
-              <Layers className="text-blue-400" size={20} /> 軟硬體整合行銷 (Turnkey Solution)
+        <div className="space-y-4 md:space-y-5">
+          <Card className="border-l-4 border-l-blue-500 py-4 px-6">
+            <h3 className="text-lg font-bold text-white mb-1 flex items-center gap-2">
+              <Cpu className="text-blue-400" size={18} /> 行銷工具最佳化 (Adobe Ready)
             </h3>
-            <p className="text-gray-400 text-sm">
-              <span className="text-blue-400 font-bold">雙重升級：</span> 
-              <strong className="text-white">硬體是載體，軟體是靈魂。</strong> 
-              Weblink 透過「軟硬體整合方案」，在企業升級算力 (GPU/Server) 的同時，植入 Adobe AI 工作流，實現 <strong className="text-white">Infrastructure + Workflow</strong> 的同步升級，確立 Adobe 在企業核心的不可替代性。
+            <p className="text-gray-400 text-xs md:text-sm leading-tight">
+              <span className="text-blue-400 font-bold">AI 動能注入：</span> 
+              在行銷曝光過程輔以 AI 動能，將傳統技術支援轉化為<strong className="text-white">知識架構</strong>，提高製作速度與品質，讓更多用戶耳目一新，也對於後續內容寄予更多期待與關注。
             </p>
           </Card>
           
-          <Card className="border-l-4 border-l-purple-500">
-            <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
-              <Zap className="text-purple-400" size={20} /> 長尾經銷賦能 (Long-tail Enablement)
+          <Card className="border-l-4 border-l-purple-500 py-4 px-6">
+            <h3 className="text-lg font-bold text-white mb-1 flex items-center gap-2">
+              <Bot className="text-purple-400" size={18} /> 經銷業務賦能 (Sales Co-pilot)
             </h3>
-            <p className="text-gray-400 text-sm">
-              台灣 80% 的中小企業由小型 SI 服務。我們提供產品標準化銷售懶人包，讓不懂設計的 SI 業務也能輕鬆向傳產老闆銷售 Adobe 數位轉型方案，解決經銷商的知識焦慮，縮短銷售週期。
+            <p className="text-gray-400 text-xs md:text-sm leading-tight">
+              <span className="text-purple-400 font-bold">加速銷售締結：</span>
+              優化過的行銷文檔資源作為最強後盾。提供智能知識庫，彙整各種 <strong className="text-white">Adobe 消化過的資訊</strong> 與 ROI 評估報告，透過專業呈現回應客戶質疑，大幅縮短成交週期。
             </p>
           </Card>
 
-          <Card className="border-l-4 border-l-green-500">
-            <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
-              <Network className="text-green-400" size={20} /> 生態系資源共享 (Resource Sharing)
+          <Card className="border-l-4 border-l-green-500 py-4 px-6">
+            <h3 className="text-lg font-bold text-white mb-1 flex items-center gap-2">
+              <Network className="text-green-400" size={18} /> Adobe 跨界生態整合
             </h3>
-            <p className="text-gray-400 text-sm">
-              <span className="text-green-400 font-bold">綜效倍增：</span> 
-              串聯公司內部代理品牌與外部過往周邊廠商合作資源，舉辦聯合品牌活動。讓原廠只需投入一份資源，就能獲得多重通路的曝光效益，實現 1+1 &gt; 2 的成果。
+            <p className="text-gray-400 text-xs md:text-sm leading-tight">
+              利用 AI 分析市場趨勢，主動媒合軟硬體品牌與 Adobe 的應用場景，構建 <strong className="text-white">「軟硬互利」</strong> 的聯合解決方案，擴大銷售接觸面並提升異業合作的潛在曝光度。
             </p>
           </Card>
         </div>
       </div>
-      <div className="relative h-96 w-full rounded-2xl overflow-hidden shadow-2xl group border border-gray-700">
+      
+      <div className="relative h-64 md:h-full max-h-[500px] w-full rounded-2xl overflow-hidden shadow-2xl group border border-gray-700 hidden lg:block">
          <img 
-           src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=2600&auto=format&fit=crop" 
-           alt="Marketing Team Strategy" 
-           className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition duration-700 grayscale hover:grayscale-0"
+           src="https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=2000&auto=format&fit=crop" 
+           alt="AI Strategy Team" 
+           className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700 filter brightness-75"
          />
-         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
-         <div className="absolute bottom-8 left-8">
-            <div className="bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded w-fit mb-2">Since 2021</div>
-            <p className="text-white font-bold text-2xl">Synergy & Growth</p>
-            <p className="text-gray-400 text-sm mt-1">Ecosystem Orchestration</p>
+         {/* Overlay Content */}
+         <div className="absolute bottom-8 left-8 bg-black/70 backdrop-blur-md p-5 rounded-xl border border-white/10 max-w-xs">
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded w-fit mb-2">
+              FY26 Strategic Core
+            </div>
+            <p className="text-white font-bold text-2xl mb-1">Adobe Growth Engine</p>
+            <p className="text-gray-300 text-xs leading-relaxed">
+              全面導入 AI 協作流程，重新定義代理商價值鏈。
+            </p>
          </div>
       </div>
     </div>

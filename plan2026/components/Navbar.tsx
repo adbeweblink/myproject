@@ -1,17 +1,18 @@
+
 import React, { useState, useEffect, useRef } from 'react';
-import { Download, Menu, X, ChevronRight } from 'lucide-react';
+import { Download, Menu, X, ChevronRight, Maximize, Minimize } from 'lucide-react';
 import { Magnetic } from './ui/Motion';
 
 const NAV_ITEMS = [
   { label: '首頁', id: 'home' },
   { label: '策略', id: 'insight' },
+  { label: '社群', id: 'community' },
+  { label: '快訊', id: 'community-details' }, 
+  { label: '內容優化', id: 'lab' },
   { label: '時程', id: 'timeline' },
   { label: '線上學堂', id: 'academy' },
   { label: '實體盛會', id: 'flagship' }, 
   { label: '回顧', id: 'videos' },
-  { label: '社群', id: 'community' },
-  { label: '快訊', id: 'community-details' }, 
-  { label: '解決痛點', id: 'lab' },
   { label: '目標', id: 'philosophy' },
   { label: '生態', id: 'ecosystem' },
   { label: '理念', id: 'vision' },
@@ -31,6 +32,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isVendorMode, onLogoSecretTrigge
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   
   const navContainerRef = useRef<HTMLDivElement>(null);
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 });
@@ -120,6 +122,14 @@ export const Navbar: React.FC<NavbarProps> = ({ isVendorMode, onLogoSecretTrigge
     }
   }, [activeSection, isVendorMode]);
 
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
   const scrollToSection = (id: string) => {
     setIsMenuOpen(false);
     const container = document.getElementById('main-scroll-container');
@@ -134,6 +144,18 @@ export const Navbar: React.FC<NavbarProps> = ({ isVendorMode, onLogoSecretTrigge
       setTimeout(() => {
         if (container) container.style.scrollSnapType = 'y mandatory';
       }, 800);
+    }
+  };
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch((e) => {
+            console.error(`Error attempting to enable fullscreen mode: ${e.message} (${e.name})`);
+        });
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        }
     }
   };
 
@@ -198,6 +220,16 @@ export const Navbar: React.FC<NavbarProps> = ({ isVendorMode, onLogoSecretTrigge
           <div className="flex gap-3 items-center shrink-0">
             <Magnetic strength={0.2}>
               <button 
+                onClick={toggleFullscreen}
+                className="hidden sm:flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-full bg-white/5 hover:bg-white/20 text-white transition-all backdrop-blur-md border border-white/10 active:scale-95 shadow-lg"
+                title={isFullscreen ? "退出全螢幕" : "全螢幕瀏覽"}
+              >
+                {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
+              </button>
+            </Magnetic>
+
+            <Magnetic strength={0.2}>
+              <button 
                 onClick={() => window.print()} 
                 className="hidden sm:flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-full text-xs font-black transition-all shadow-lg active:scale-95"
               >
@@ -221,17 +253,17 @@ export const Navbar: React.FC<NavbarProps> = ({ isVendorMode, onLogoSecretTrigge
         />
       </nav>
 
-      <div className={`fixed inset-0 z-[90] bg-black/98 backdrop-blur-3xl transition-all duration-700 flex flex-col justify-center px-8 ${
+      <div className={`fixed inset-0 z-[90] bg-black/98 backdrop-blur-3xl transition-all duration-700 flex flex-col pt-20 px-8 ${
           isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'
         }`}>
-        <div className="flex flex-col gap-6 max-w-sm mx-auto w-full max-h-[75vh] overflow-y-auto pr-4">
+        <div className="flex flex-col gap-6 max-w-sm mx-auto w-full h-full overflow-y-auto pb-20 no-scrollbar">
           {filteredNavItems.map((item, idx) => {
             const isActive = activeSection === item.id;
             return (
               <button
                 key={item.id}
                 onClick={() => scrollToSection(item.id)}
-                className={`text-2xl font-black text-left flex items-center justify-between group transition-all duration-500 ${
+                className={`text-2xl font-black text-left flex items-center justify-between group transition-all duration-500 shrink-0 ${
                   isActive ? 'text-red-500 translate-x-2' : 'text-white'
                 }`}
                 style={{ transitionDelay: `${idx * 30}ms` }}

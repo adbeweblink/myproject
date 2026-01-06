@@ -20,7 +20,6 @@ import { Footer } from './components/Footer';
 import { FloatingCTA } from './components/FloatingCTA';
 import { BackToTop } from './components/BackToTop';
 import { FadeIn } from './components/ui/Motion';
-import { StrategicAI } from './components/StrategicAI';
 import { Lock, Unlock } from 'lucide-react';
 
 const SectionWrapper: React.FC<{ children: React.ReactNode; id: string; bgColor?: string }> = ({ children, id, bgColor = "bg-black" }) => {
@@ -58,7 +57,7 @@ const SectionWrapper: React.FC<{ children: React.ReactNode; id: string; bgColor?
     <div 
       id={id} 
       ref={sectionRef}
-      className={`w-full min-h-screen snap-start flex flex-col justify-center transition-all duration-300 ease-out will-change-transform ${bgColor}`}
+      className={`w-full min-h-screen snap-start flex flex-col justify-center transition-all duration-300 ease-out will-change-transform ${bgColor} pt-20 md:pt-0`}
     >
       {children}
     </div>
@@ -78,6 +77,69 @@ export default function App() {
     setShowToast(true);
     setTimeout(() => setShowToast(false), 2000);
   };
+
+  // Keyboard Navigation Logic
+  useEffect(() => {
+    const container = document.getElementById('main-scroll-container');
+    if (!container) return;
+
+    // Define the order of sections based on render logic
+    const sections = [
+      'home',
+      'insight',
+      'community',
+      'community-details',
+      'lab',
+      'timeline',
+      'academy',
+      'flagship',
+      ...(isVendorMode ? ['videos'] : []),
+      'philosophy',
+      ...(isVendorMode ? ['ecosystem', 'vision'] : []),
+      'alliance',
+      'kpi',
+      ...(isVendorMode ? ['partner', 'contact'] : [])
+    ];
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if filling out a form or input
+      if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement).tagName)) return;
+
+      if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown'].includes(e.key)) {
+        e.preventDefault();
+        
+        const currentScroll = container.scrollTop;
+        const sectionHeight = container.clientHeight;
+        const currentIndex = Math.round(currentScroll / sectionHeight);
+        
+        let targetIndex = currentIndex;
+
+        if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+          targetIndex = Math.min(currentIndex + 1, sections.length - 1 + (isVendorMode ? 0 : 1)); // +1 for the non-vendor end slide if needed, strictly sticking to ID list though.
+        } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+          targetIndex = Math.max(currentIndex - 1, 0);
+        }
+
+        // Handle the dynamic end slide for non-vendor mode which doesn't have an ID in the list
+        // If we are at the end of the list and press down, and not in vendor mode, just scroll to bottom
+        if (!isVendorMode && currentIndex === sections.length - 1 && (e.key === 'ArrowDown' || e.key === 'PageDown')) {
+             container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+             return;
+        }
+
+        if (targetIndex < sections.length) {
+          const targetId = sections[targetIndex];
+          const element = document.getElementById(targetId);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+          }
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isVendorMode]);
 
   return (
     <div 
@@ -109,6 +171,25 @@ export default function App() {
         </FadeIn>
       </SectionWrapper>
 
+      <SectionWrapper id="community">
+        <FadeIn fullWidth>
+          <LineEngagementSection />
+        </FadeIn>
+      </SectionWrapper>
+
+      <SectionWrapper id="community-details">
+        <FadeIn fullWidth delay={200}>
+          <LineContentShowcase />
+        </FadeIn>
+      </SectionWrapper>
+
+      {/* 🧪 NEW LAB SECTION */}
+      <SectionWrapper id="lab">
+        <FadeIn fullWidth>
+          <BusinessAccelerationLab />
+        </FadeIn>
+      </SectionWrapper>
+
       <SectionWrapper id="timeline">
         <FadeIn fullWidth>
           <TimelineSlide />
@@ -134,25 +215,6 @@ export default function App() {
           </FadeIn>
         </SectionWrapper>
       )}
-
-      <SectionWrapper id="community">
-        <FadeIn fullWidth>
-          <LineEngagementSection />
-        </FadeIn>
-      </SectionWrapper>
-
-      <SectionWrapper id="community-details">
-        <FadeIn fullWidth delay={200}>
-          <LineContentShowcase />
-        </FadeIn>
-      </SectionWrapper>
-
-      {/* 🧪 NEW LAB SECTION */}
-      <SectionWrapper id="lab">
-        <FadeIn fullWidth>
-          <BusinessAccelerationLab />
-        </FadeIn>
-      </SectionWrapper>
 
       <SectionWrapper id="philosophy">
         <FadeIn fullWidth>
@@ -211,7 +273,6 @@ export default function App() {
 
       <BackToTop />
       <FloatingCTA />
-      <StrategicAI />
       
       <div className="h-[env(safe-area-inset-bottom)] bg-black w-full print:hidden" />
     </div>

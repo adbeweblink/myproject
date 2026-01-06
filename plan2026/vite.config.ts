@@ -5,8 +5,8 @@ import react from '@vitejs/plugin-react';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  // 因為你的 Repository 名稱是 plan2026，所以 base 必須設為 /plan2026/
-  base: '/plan2026/', 
+  // 設定為完整的主倉庫(myproject) + 子資料夾(plan2026) 路徑
+  base: '/myproject/plan2026/', 
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
