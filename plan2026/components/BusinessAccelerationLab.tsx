@@ -22,7 +22,7 @@ const LAB_PROJECTS: LabProject[] = [
   {
     id: 1, type: 'tool', title: "Adobe 軟體採購規格生成器",
     description: "專為政府教育單位設計，一鍵生成合規的軟體採購硬體規格書。",
-    link: "https://adbeweblink.github.io/myproject/plan2026/adbespec2026.html",
+    link: "https://adbeweblink.github.io/myproject/adbespec2026.html",
     purpose: "自動產出合規標案規格文件。",
     problemSolved: "解決人工查閱規格耗時易錯。",
     efficiency: "撰寫時間縮短至30秒。"
@@ -30,7 +30,7 @@ const LAB_PROJECTS: LabProject[] = [
   {
     id: 2, type: 'tool', title: "Adobe Firefly 點數計算機",
     description: "整合官方與第三方模型費率，精準預估每月 AI 算力成本與額度。",
-    link: "https://adbeweblink.github.io/myproject/plan2026/aipointcalculator.html",
+    link: "https://adbeweblink.github.io/myproject/aipointcalculator.html",
     purpose: "協助團隊精算 AI 點數消耗預算。",
     problemSolved: "解決複雜模型費率難以計算。",
     efficiency: "三分鐘完成預算表。"
@@ -38,7 +38,7 @@ const LAB_PROJECTS: LabProject[] = [
   {
     id: 10, type: 'tool', title: "Adobe CC 最新功能電子報",
     description: "針對 A4 列印優化的功能快報，前端即時生成 PDF，資訊零時差。",
-    link: "https://adbeweblink.github.io/myproject/plan2026/newfeatures.html",
+    link: "https://adbeweblink.github.io/myproject/newfeatures.html",
     purpose: "提供標準化的一鍵生成功能週報。",
     problemSolved: "克服網頁轉存 PDF 排版錯亂。",
     efficiency: "即時渲染高解析度列印文件。"
@@ -46,7 +46,7 @@ const LAB_PROJECTS: LabProject[] = [
   {
     id: 13, type: 'tool', title: "Adobe 台灣經銷商搜尋器",
     description: "整合全台經銷商資料庫，支援地區與專業領域篩選，快速媒合廠商。",
-    link: "https://adbeweblink.github.io/myproject/plan2026/reseller.html",
+    link: "https://adbeweblink.github.io/myproject/reseller.html",
     purpose: "建立透明名錄，快速找到窗口。",
     problemSolved: "解決官方列表缺乏在地資訊。",
     efficiency: "秒速媒合服務商。"
@@ -54,7 +54,7 @@ const LAB_PROJECTS: LabProject[] = [
   {
     id: 4, type: 'tool', title: "Adobe 企業方案規格比較",
     description: "專為 B2B 銷售設計，針對橫式列印優化，清晰呈現團隊與企業版差異。",
-    link: "https://adbeweblink.github.io/myproject/plan2026/cc-biz-matrix.html",
+    link: "https://adbeweblink.github.io/myproject/cc-biz-matrix.html",
     purpose: "協助客戶釐清版本權益差異。",
     problemSolved: "解決複雜授權與資安規範。",
     efficiency: "自動化收集潛在商機。"
@@ -62,7 +62,7 @@ const LAB_PROJECTS: LabProject[] = [
   {
     id: 5, type: 'tool', title: "Adobe 教育授權方案比較",
     description: "專為校園採購設計，深度解析裝置授權與指名授權差異，適合校務提案。",
-    link: "https://adbeweblink.github.io/myproject/plan2026/cc-edu-matrix.html",
+    link: "https://adbeweblink.github.io/myproject/cc-edu-matrix.html",
     purpose: "協助學校釐清裝置與指名授權。",
     problemSolved: "解決電腦教室與 BYOD 難題。",
     efficiency: "提供清晰 A4 版面，縮短溝通。"
@@ -70,7 +70,7 @@ const LAB_PROJECTS: LabProject[] = [
   {
     id: 6, type: 'tool', title: "Firefly 點數方案比較表",
     description: "支援獨立訂閱與加購包切換，協助企業精算 AI 算力成本與版權權益。",
-    link: "https://adbeweblink.github.io/myproject/plan2026/firefly-biz-matrix.html",
+    link: "https://adbeweblink.github.io/myproject/firefly-biz-matrix.html",
     purpose: "協助釐清點數消耗規則。",
     problemSolved: "解決企業對點數重置焦慮。",
     efficiency: "將複雜計費邏輯視覺化。"
@@ -79,7 +79,7 @@ const LAB_PROJECTS: LabProject[] = [
   {
     id: 15, type: 'game', title: "設計師職場生存模擬器",
     description: "這不是普通的計算機，這是一場職場生存遊戲。輸入數值，系統判定你的身價。",
-    link: "https://adbeweblink.github.io/myproject/plan2026/survivaltest.html",
+    link: "https://adbeweblink.github.io/myproject/survivaltest.html",
     appeal: "將枯燥薪資計算轉化為共鳴遊戲。",
     stickiness: "透過毒雞湯引發轉發慾望。",
     features: "互動滑桿、診斷系統。"
@@ -87,7 +87,7 @@ const LAB_PROJECTS: LabProject[] = [
   {
     id: 14, type: 'game', title: "奧多比轉轉樂",
     description: "基於 Three.js 的 3D 魔術方塊，將軟體圖示映射至六面，考驗空間邏輯。",
-    link: "https://adbeweblink.github.io/myproject/plan2026/twist.html",
+    link: "https://adbeweblink.github.io/myproject/twist.html",
     appeal: "結合經典魔術方塊，強化品牌印象。",
     stickiness: "競速解謎具高重玩性。",
     features: "WebGL 3D 渲染。"
@@ -95,7 +95,7 @@ const LAB_PROJECTS: LabProject[] = [
   {
     id: 7, type: 'game', title: "奧多比跳跳樂",
     description: "基於 Three.js 的 3D 蓄力跳躍，玩家需控制角色在軟體積木間精準跳躍。",
-    link: "https://adbeweblink.github.io/myproject/plan2026/jump.html",
+    link: "https://adbeweblink.github.io/myproject/jump.html",
     appeal: "沉浸式 3D 互動，建立認知。",
     stickiness: "蓄力手感與連擊機制。",
     features: "物理拋物線模擬。"
@@ -103,7 +103,7 @@ const LAB_PROJECTS: LabProject[] = [
   {
     id: 9, type: 'game', title: "奧多比合合樂",
     description: "類西瓜遊戲的物理合成玩法，利用碰撞機制將低階圖示進化為高階圖示。",
-    link: "https://adbeweblink.github.io/myproject/plan2026/merge.html",
+    link: "https://adbeweblink.github.io/myproject/merge.html",
     appeal: "合成快感結合物理碰撞。",
     stickiness: "炸彈道具增加變數。",
     features: "Matter.js 物理引擎。"
@@ -111,7 +111,7 @@ const LAB_PROJECTS: LabProject[] = [
   {
     id: 3, type: 'game', title: "奧多比碰碰樂",
     description: "經典 2048 玩法，滑動合併圖示，從 Acrobat 一路進化至 Creative Cloud。",
-    link: "https://adbeweblink.github.io/myproject/plan2026/bump.html",
+    link: "https://adbeweblink.github.io/myproject/bump.html",
     appeal: "將枯燥列表轉化為趣味進化。",
     stickiness: "內建圖鑑收集與排行榜。",
     features: "原生音效、RWD 手勢操作。"
@@ -119,7 +119,7 @@ const LAB_PROJECTS: LabProject[] = [
   {
     id: 8, type: 'game', title: "奧多比消消樂",
     description: "結合 LINE 生態圈的消除遊戲，遊玩中置入軟體冷知識，達到寓教於樂。",
-    link: "https://adbeweblink.github.io/myproject/plan2026/matchBox.html",
+    link: "https://adbeweblink.github.io/myproject/matchBox.html",
     appeal: "轉化圖示為遊戲元素，置入教學。",
     stickiness: "連擊回饋與好友分享。",
     features: "LINE LIFF 整合、Web Audio。"
@@ -127,7 +127,7 @@ const LAB_PROJECTS: LabProject[] = [
   {
     id: 11, type: 'game', title: "Pantone 色彩極限挑戰",
     description: "考驗色彩敏銳度，找出差異色塊。失敗時透過學習年度代表色獲得復活。",
-    link: "https://adbeweblink.github.io/myproject/plan2026/pantone.html",
+    link: "https://adbeweblink.github.io/myproject/pantone.html",
     appeal: "結合色彩訓練與科普。",
     stickiness: "難度指數級縮小，激發好勝心。",
     features: "動態色差演算法。"
@@ -135,7 +135,7 @@ const LAB_PROJECTS: LabProject[] = [
   {
     id: 12, type: 'game', title: "Adobe 知識王挑戰賽",
     description: "結合 LINE LIFF 的問答遊戲，測試品牌知識，滿分可獲得專屬獎勵誘因。",
-    link: "https://adbeweblink.github.io/myproject/plan2026/quiz.html",
+    link: "https://adbeweblink.github.io/myproject/quiz.html",
     appeal: "將生硬知識轉化為挑戰。",
     stickiness: "即時回饋與滿分特效。",
     features: "React 互動介面。"
@@ -144,7 +144,7 @@ const LAB_PROJECTS: LabProject[] = [
 
 const getPatternSvg = (id: number) => {
     const patterns: Record<number, string> = {
-        // --- Tools ---
+        // ... (patterns remain the same as previous) ...
         1: `<svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
                 <defs><pattern id="p1" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M10 10h10v2h-8v8h-2v-10z" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.3"/></pattern></defs>
                 <rect width="100%" height="100%" fill="url(#p1)" class="text-white"/>
@@ -259,31 +259,23 @@ export const BusinessAccelerationLab: React.FC = () => {
     }
   };
 
-  // Keyboard navigation for Horizontal Scroll
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Check if this section is currently visible
       const section = document.getElementById('lab');
       if (!section) return;
-      
       const rect = section.getBoundingClientRect();
       const isVisible = rect.top >= -window.innerHeight / 2 && rect.bottom <= window.innerHeight * 1.5;
-      
       if (isVisible) {
-        if (e.key === 'ArrowLeft') {
-          scroll('left');
-        } else if (e.key === 'ArrowRight') {
-          scroll('right');
-        }
+        if (e.key === 'ArrowLeft') scroll('left');
+        else if (e.key === 'ArrowRight') scroll('right');
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   return (
-    <section className={`h-screen transition-colors duration-700 overflow-hidden flex flex-col justify-center ${bgColor} pt-24 md:pt-32`} id="lab">
+    <section className={`min-h-screen transition-colors duration-700 overflow-hidden flex flex-col justify-start md:justify-center ${bgColor} pt-24 md:pt-32`} id="lab">
       <div className="max-w-7xl mx-auto px-6 md:px-20 shrink-0 mb-6 relative w-full">
         <div className="text-center mb-6">
           <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-gray-400 text-[9px] tracking-widest uppercase mb-2">
@@ -293,7 +285,7 @@ export const BusinessAccelerationLab: React.FC = () => {
             {isTool ? '企業級生產力工具' : '品牌互動遊戲體驗'}
           </h2>
           <p className="text-gray-400 max-w-3xl mx-auto text-xs md:text-sm leading-relaxed whitespace-nowrap">
-            {isTool ? '專注於解決商業流程中的痛點，提供自動化、標準化與資訊透明化的解決方案。' : '將品牌轉化為沉浸式互動體驗，透過遊戲化機制提升黏著度與品牌認知。'}
+            {isTool ? '協助企業降低使用外部開源模型的門檻，並將工作流安全地收斂回 Adobe 的合規體系。（陸續審核ing）' : '將品牌轉化為沉浸式互動體驗，透過遊戲化機制提升黏著度與品牌認知。（待評估審核）'}
           </p>
         </div>
 
@@ -441,3 +433,4 @@ export const BusinessAccelerationLab: React.FC = () => {
     </section>
   );
 };
+    

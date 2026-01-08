@@ -81,7 +81,7 @@ export const TimelineSlide: React.FC = () => {
   };
 
   return (
-    <section className="h-screen px-6 md:px-20 border-b border-white/5 flex flex-col justify-start pt-24 md:pt-28 overflow-hidden relative w-full bg-[#0a0a0a]">
+    <section className="min-h-screen px-6 md:px-20 border-b border-white/5 flex flex-col justify-start pt-24 md:pt-28 overflow-hidden relative w-full bg-[#0a0a0a]">
       {/* 區域背景漸層 */}
       <div className="absolute inset-0 bg-gradient-to-b from-black via-[#0a0a0a] to-black opacity-80 pointer-events-none" />
 

@@ -2,24 +2,28 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Download, Menu, X, ChevronRight, Maximize, Minimize } from 'lucide-react';
 import { Magnetic } from './ui/Motion';
+import { TutorialOverlay } from './TutorialOverlay';
 
+// Updated Order based on new Narrative Flow
 const NAV_ITEMS = [
   { label: '首頁', id: 'home' },
-  { label: '策略', id: 'insight' },
-  { label: '社群', id: 'community' },
-  { label: '快訊', id: 'community-details' }, 
-  { label: '內容優化', id: 'lab' },
-  { label: '時程', id: 'timeline' },
-  { label: '線上學堂', id: 'academy' },
-  { label: '實體盛會', id: 'flagship' }, 
-  { label: '回顧', id: 'videos' },
-  { label: '目標', id: 'philosophy' },
-  { label: '生態', id: 'ecosystem' },
-  { label: '理念', id: 'vision' },
+  { label: '護城河', id: 'moat' }, // The Why
+  { label: '策略', id: 'insight' }, // The Strategy
+  { label: '社群', id: 'community' }, // Daily Engagement
+  { label: '快訊', id: 'community-details' }, // Content
+  { label: '賦能', id: 'lab' }, // Ice Breaking & Tools
+  { label: '訴求', id: 'philosophy' }, // Sales Enablement (Renamed from Philosophy to Appeal)
+  { label: '時程', id: 'timeline' }, // Market Impact
+  { label: '回顧', id: 'videos' }, // Vendor only
+  { label: '生態', id: 'ecosystem' }, // Now Public
+  { label: '學堂', id: 'academy' }, // Education - Moved
   { label: '聯盟', id: 'alliance' },
-  { label: '效益', id: 'kpi' },
-  { label: '方案', id: 'partner' },
-  { label: '聯繫', id: 'contact' },
+  { label: '盛會', id: 'flagship' }, // Market Impact (Peak) - Moved
+  { label: '戰略', id: 'strategy' }, // Now Public
+  { label: '效益', id: 'kpi' }, // Proof
+  { label: '總結', id: 'summary' }, // NEW Summary
+  { label: '方案', id: 'partner' }, // Vendor only
+  { label: '聯繫', id: 'contact' }, // Vendor only
 ];
 
 interface NavbarProps {
@@ -57,7 +61,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isVendorMode, onLogoSecretTrigge
   };
 
   // 根據模式過濾導覽項目
-  const HIDDEN_FOR_FACTORY = ['videos', 'ecosystem', 'vision', 'partner', 'contact'];
+  const HIDDEN_FOR_FACTORY = ['videos', 'partner', 'contact'];
   const filteredNavItems = isVendorMode 
     ? NAV_ITEMS 
     : NAV_ITEMS.filter(item => !HIDDEN_FOR_FACTORY.includes(item.id));
@@ -217,26 +221,21 @@ export const Navbar: React.FC<NavbarProps> = ({ isVendorMode, onLogoSecretTrigge
             </div>
           </div>
 
-          <div className="flex gap-3 items-center shrink-0">
+          <div className="flex gap-3 items-center shrink-0 relative">
             <Magnetic strength={0.2}>
               <button 
                 onClick={toggleFullscreen}
-                className="hidden sm:flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-full bg-white/5 hover:bg-white/20 text-white transition-all backdrop-blur-md border border-white/10 active:scale-95 shadow-lg"
+                className="hidden sm:flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-full bg-white/5 hover:bg-white/20 text-white transition-all backdrop-blur-md border border-white/10 active:scale-95 shadow-lg relative z-20"
                 title={isFullscreen ? "退出全螢幕" : "全螢幕瀏覽"}
               >
                 {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
               </button>
             </Magnetic>
-
-            <Magnetic strength={0.2}>
-              <button 
-                onClick={() => window.print()} 
-                className="hidden sm:flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-full text-xs font-black transition-all shadow-lg active:scale-95"
-              >
-                <Download size={14} />
-                <span className="hidden xl:inline">下載計畫書</span>
-              </button>
-            </Magnetic>
+            
+            {/* Tutorial Tooltip: Attached here to move with the button */}
+            <div className="hidden sm:block">
+              <TutorialOverlay />
+            </div>
 
             <button 
               onClick={() => setIsMenuOpen(!isMenuOpen)}

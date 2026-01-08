@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Play, Calendar } from 'lucide-react';
 import { SectionHeading } from './ui/Shared';
 import { VideoItem } from '../types';
@@ -90,8 +90,39 @@ export const VideoGallery: React.FC = () => {
     ]
   };
 
+  // Keyboard navigation for years
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Check if this section is currently visible
+      const section = document.getElementById('videos');
+      if (!section) return;
+      
+      const rect = section.getBoundingClientRect();
+      const isVisible = rect.top >= -window.innerHeight / 2 && rect.bottom <= window.innerHeight * 1.5;
+      
+      if (isVisible) {
+        // Years are string keys, need to sort them desc
+        const sortedYears = Object.keys(videos).sort((a, b) => Number(b) - Number(a));
+        const currentIndex = sortedYears.indexOf(activeYear);
+        
+        if (e.key === 'ArrowLeft') {
+          // Newer year (prev index in desc sorted array)
+          const nextIndex = (currentIndex - 1 + sortedYears.length) % sortedYears.length;
+          setActiveYear(sortedYears[nextIndex]);
+        } else if (e.key === 'ArrowRight') {
+          // Older year (next index in desc sorted array)
+          const nextIndex = (currentIndex + 1) % sortedYears.length;
+          setActiveYear(sortedYears[nextIndex]);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeYear]);
+
   return (
-    <section className="h-screen py-10 px-6 md:px-20 border-b border-white/5 flex flex-col justify-center bg-[#111] overflow-hidden">
+    <section className="min-h-screen py-10 px-6 md:px-20 border-b border-white/5 flex flex-col justify-center bg-[#111] overflow-hidden">
       {/* 
          調整說明：
          1. 移除 w-full h-full，改用 flex-col justify-center 讓內容自然垂直居中。

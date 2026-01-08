@@ -21,34 +21,36 @@ export const ModelEcosystemSection: React.FC = () => {
     {
       name: "Google",
       models: [
-        { name: "Gemini 2.5", sub: "Nano Banana", type: "image" },
-        { name: "Imagen 4", type: "image" },
-        { name: "Imagen 3", type: "image" },
+        { name: "Gemini 2.5 Flash", sub: "Nano Banana (Img/Vec)", type: "image" },
+        { name: "Gemini 3", sub: "Nano Banana Pro", type: "image" },
+        { name: "Veo 3.1", type: "video" },
         { name: "Veo 3.1 Fast", type: "video" },
-        { name: "Veo 2", type: "video" }
+        { name: "Veo 2", type: "video" },
+        { name: "Imagen 4", type: "image" },
+        { name: "Imagen 3", type: "image" }
       ],
       color: "border-blue-500/50",
       bg: "bg-blue-900/10",
       text: "text-blue-400"
     },
     {
-      name: "Runway",
+      name: "OpenAI",
       models: [
-        { name: "Gen-4", type: "video" },
-        { name: "Gen-4 Image", type: "image" },
-        { name: "Aleph", type: "video" }
+        { name: "GPT Image", sub: "Vector Supported", type: "image" },
+        { name: "Sora 2", type: "video" },
+        { name: "Sora 2 Pro", type: "video" }
       ],
-      color: "border-pink-500/50",
-      bg: "bg-pink-900/10",
-      text: "text-pink-400"
+      color: "border-green-500/50",
+      bg: "bg-green-900/10",
+      text: "text-green-400"
     },
     {
       name: "Black Forest Labs",
       models: [
-        { name: "Flux .1 Kontext", sub: "Max", type: "image" },
-        { name: "Flux .1 Kontext", sub: "Pro", type: "image" },
-        { name: "Flux 1.1 Pro", type: "image" },
-        { name: "Flux 1.1 Ultra", sub: "Raw Supported", type: "image" }
+        { name: "FLUX.2", type: "image" },
+        { name: "FLUX1.1", type: "image" },
+        { name: "FLUX.1 Kontext", sub: "Pro / MAX", type: "image" },
+        { name: "FLUX1.1 Pro Ultra", type: "image" }
       ],
       color: "border-gray-500/50",
       bg: "bg-gray-800/50",
@@ -57,27 +59,36 @@ export const ModelEcosystemSection: React.FC = () => {
     {
       name: "Luma AI",
       models: [
-        { name: "Ray3", type: "video" },
-        { name: "Ray3 HDR", type: "video" },
-        { name: "Ray2", type: "video" }
+        { name: "Ray3", sub: "SDR / HDR", type: "video" },
+        { name: "Ray2", sub: "Flash / Standard", type: "video" }
       ],
       color: "border-cyan-500/50",
       bg: "bg-cyan-900/10",
       text: "text-cyan-400"
     },
     {
-      name: "OpenAI",
+      name: "Runway",
       models: [
-        { name: "GPT Image", type: "image" }
+        { name: "Gen-4", sub: "Video / Image", type: "video" },
+        { name: "Aleph", type: "video" }
       ],
-      color: "border-green-500/50",
-      bg: "bg-green-900/10",
-      text: "text-green-400"
+      color: "border-pink-500/50",
+      bg: "bg-pink-900/10",
+      text: "text-pink-400"
+    },
+    {
+      name: "Pika Labs",
+      models: [
+        { name: "Pika 2.2", type: "video" }
+      ],
+      color: "border-red-500/50",
+      bg: "bg-red-900/10",
+      text: "text-red-400"
     },
     {
       name: "Ideogram",
       models: [
-        { name: "Ideogram 3.0", type: "image" }
+        { name: "Ideogram 3.0", sub: "Image / Vector", type: "image" }
       ],
       color: "border-orange-500/50",
       bg: "bg-orange-900/10",
@@ -86,21 +97,15 @@ export const ModelEcosystemSection: React.FC = () => {
     {
       name: "Topaz Labs",
       models: [
-        { name: "Bloom", type: "image" },
-        { name: "Gigapixel", type: "image" }
+        { name: "Gigapixel", sub: "Image Upscale", type: "image" },
+        { name: "Bloom", sub: "Creative Upscale", type: "image" },
+        { name: "Sharpen", sub: "Detail Recovery", type: "image" },
+        { name: "Denoise", sub: "Noise Reduction", type: "image" },
+        { name: "Astra", sub: "Video Upscale", type: "video" }
       ],
       color: "border-yellow-500/50",
       bg: "bg-yellow-900/10",
       text: "text-yellow-400"
-    },
-    {
-      name: "ElevenLabs",
-      models: [
-        { name: "Multilingual v2", type: "audio" }
-      ],
-      color: "border-indigo-500/50",
-      bg: "bg-indigo-900/10",
-      text: "text-indigo-400"
     },
     {
       name: "Moonvalley",
@@ -112,13 +117,13 @@ export const ModelEcosystemSection: React.FC = () => {
       text: "text-purple-400"
     },
     {
-      name: "Pika",
+      name: "ElevenLabs",
       models: [
-        { name: "Pika 2.2", type: "video" }
+        { name: "Multilingual v2", type: "audio" }
       ],
-      color: "border-red-500/50",
-      bg: "bg-red-900/10",
-      text: "text-red-400"
+      color: "border-indigo-500/50",
+      bg: "bg-indigo-900/10",
+      text: "text-indigo-400"
     }
   ];
 
@@ -190,98 +195,99 @@ export const ModelEcosystemSection: React.FC = () => {
   );
 
   return (
-    <section className="h-screen py-10 px-6 md:px-20 border-b border-white/5 bg-[#111111] flex flex-col justify-center overflow-hidden relative">
-       <div className="max-w-7xl mx-auto w-full shrink-0 relative">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6">
-            <SectionHeading 
-              title="Adobe Partner Models Ecosystem" 
-              subtitle="Open Integration" 
-              color="bg-white" 
-            />
-            
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-wrap gap-2 justify-end">
-                 <TabButton type="all" label="All" icon={Filter} />
-                 <TabButton type="image" label="Image" icon={ImageIcon} />
-                 <TabButton type="video" label="Video" icon={Video} />
-                 <TabButton type="audio" label="Audio" icon={Mic} />
-              </div>
-            </div>
+    <section className="min-h-screen py-0 px-6 md:px-20 border-b border-white/5 bg-[#111111] flex flex-col justify-start md:justify-center overflow-hidden" id="ecosystem">
+      <div className="w-full max-w-[90rem] mx-auto flex flex-col pt-24 md:pt-24 pb-8 h-full">
+        
+        {/* Header Section */}
+        <div className="shrink-0 mb-6 flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
+          <SectionHeading 
+            title="Adobe Partner Model Ecosystem" 
+            subtitle="Ecosystem Layer 1: Model Integration" 
+            color="bg-green-500" 
+          />
+
+          <div className="flex flex-wrap gap-2">
+            <TabButton type="all" label="All Models" icon={Filter} />
+            <TabButton type="image" label="Image & Vector" icon={ImageIcon} />
+            <TabButton type="video" label="Video Generation" icon={Video} />
+            <TabButton type="audio" label="Audio & Speech" icon={Mic} />
           </div>
         </div>
 
-        <div 
-          ref={scrollContainerRef}
-          className="flex overflow-x-auto snap-x snap-mandatory no-scrollbar pb-8 px-6 md:px-20 -mx-6 md:-mx-20"
-        >
-          <div className="flex gap-6 px-6 md:px-20">
-            {filteredPartners.map((partner, idx) => {
-              const visibleModels = getFilteredModels(partner.models);
-              
-              return (
+        {/* Scroll Container */}
+        <div className="relative group/scroll flex-1 md:flex-none">
+           
+           {/* Scroll Buttons */}
+           <button 
+              onClick={() => scroll('left')}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-black/50 border border-white/10 text-white opacity-0 group-hover/scroll:opacity-100 hover:bg-white/20 transition-all backdrop-blur-md hidden md:flex"
+           >
+              <ChevronLeft size={24} />
+           </button>
+           <button 
+              onClick={() => scroll('right')}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-black/50 border border-white/10 text-white opacity-0 group-hover/scroll:opacity-100 hover:bg-white/20 transition-all backdrop-blur-md hidden md:flex"
+           >
+              <ChevronRight size={24} />
+           </button>
+
+           <div 
+            ref={scrollContainerRef}
+            className="flex gap-6 overflow-x-auto h-full items-stretch px-2 pb-8 snap-x snap-mandatory no-scrollbar"
+           >
+              {filteredPartners.map((partner, idx) => (
                 <div 
                   key={idx} 
                   className={`
-                    snap-center shrink-0 w-[280px] md:w-[320px]
-                    rounded-2xl border ${partner.color} ${partner.bg} p-6 relative overflow-hidden group 
-                    hover:scale-[1.02] transition-all duration-500
-                    animate-in fade-in zoom-in-95 fill-mode-both flex flex-col
+                    snap-center shrink-0 w-[280px] md:w-[320px] 
+                    rounded-3xl border ${partner.color} bg-gray-900/40 backdrop-blur-sm
+                    flex flex-col overflow-hidden transition-all duration-300 hover:shadow-[0_0_30px_rgba(0,0,0,0.5)]
+                    hover:scale-[1.02]
                   `}
-                  style={{ animationDelay: `${idx * 50}ms` }}
                 >
-                  <div className={`text-lg font-black mb-5 ${partner.text} flex items-center justify-between uppercase tracking-tight`}>
-                    {partner.name}
-                    <div className="bg-white/5 p-1.5 rounded-lg">
-                      <Wand2 size={16} className="opacity-50" />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2 flex-1">
-                    {visibleModels.map((model: any, mIdx: number) => (
-                      <div key={mIdx} className="bg-black/40 rounded-xl p-3 border border-white/5 flex items-center justify-between group-hover:border-white/10 transition-colors">
-                        <div>
-                          <div className="text-white font-bold text-xs">{model.name}</div>
-                          {model.sub && <div className="text-gray-500 text-[9px] font-mono uppercase tracking-wider mt-0.5">{model.sub}</div>}
-                        </div>
-                        <div className={`p-1.5 rounded-lg bg-white/5 text-gray-500`}>
-                            {getTypeIcon(model.type)}
-                        </div>
-                      </div>
-                    ))}
+                  {/* Card Header */}
+                  <div className={`p-5 border-b border-white/5 ${partner.bg}`}>
+                     <div className="flex justify-between items-center mb-1">
+                        <div className={`text-xl font-black text-white`}>{partner.name}</div>
+                        <Wand2 size={16} className={partner.text} />
+                     </div>
+                     <div className="text-[10px] text-gray-400 font-mono uppercase tracking-widest">
+                       {getFilteredModels(partner.models).length} Active Models
+                     </div>
                   </div>
 
-                  <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between">
-                    <span className="text-[9px] text-gray-500 font-black uppercase tracking-[0.2em]">Verified Partner</span>
-                    <div className="w-1.5 h-1.5 rounded-full bg-white/20"></div>
+                  {/* Models List - Enhanced for Full Visibility */}
+                  <div className="p-2 overflow-y-auto flex-1 custom-scrollbar min-h-[200px]">
+                     <div className="space-y-1">
+                        {getFilteredModels(partner.models).map((model: any, mIdx: number) => (
+                          <div 
+                            key={mIdx} 
+                            className="group flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors border border-transparent hover:border-white/5"
+                          >
+                             <div className={`w-8 h-8 rounded-lg ${partner.bg} flex items-center justify-center ${partner.text} shrink-0`}>
+                                {getTypeIcon(model.type)}
+                             </div>
+                             
+                             <div className="flex-1 min-w-0">
+                                <div className="text-sm font-bold text-gray-200 group-hover:text-white truncate">
+                                  {model.name}
+                                </div>
+                                {model.sub && (
+                                  <div className="text-[10px] text-gray-500 truncate group-hover:text-gray-400">
+                                    {model.sub}
+                                  </div>
+                                )}
+                             </div>
+                          </div>
+                        ))}
+                     </div>
                   </div>
                 </div>
-              );
-            })}
-          </div>
+              ))}
+           </div>
+        </div>
 
-          {filteredPartners.length === 0 && (
-             <div className="w-full flex flex-col items-center justify-center py-20 text-center text-gray-600 border border-dashed border-white/10 rounded-2xl mx-20">
-                <Wand2 size={48} className="mb-4 opacity-10" />
-                <p className="text-sm font-bold uppercase tracking-widest">No matching models found</p>
-             </div>
-          )}
-       </div>
-
-       {/* Navigation Buttons (Absolute) */}
-       <button 
-          onClick={() => scroll('left')} 
-          className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 p-3 rounded-full border border-white/10 bg-black/50 text-white hover:bg-white/10 transition z-20 backdrop-blur-sm"
-          aria-label="Scroll Left"
-        >
-          <ChevronLeft size={24} />
-       </button>
-       <button 
-          onClick={() => scroll('right')} 
-          className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 p-3 rounded-full border border-white/10 bg-black/50 text-white hover:bg-white/10 transition z-20 backdrop-blur-sm"
-          aria-label="Scroll Right"
-        >
-          <ChevronRight size={24} />
-       </button>
+      </div>
     </section>
   );
 };

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { KPIMetric } from '../types';
-import { TrendingUp, Users, Target, Globe } from 'lucide-react';
+import { Users, Target, Globe } from 'lucide-react';
 
 const AnimatedNumber = ({ value }: { value: string }) => {
   const [displayValue, setDisplayValue] = useState(0);
@@ -47,11 +47,10 @@ export const KPIDashboard: React.FC = () => {
     { value: "50,000+", label: "年度行銷觸及名單 (MQLs)", sub: "High-Intent Pipeline", color: "from-blue-600 to-cyan-500", icon: Target },
     { value: "26,000+", label: "EDM 商業用戶訂閱", sub: "Active Subscribers", color: "from-yellow-600 to-orange-500", icon: Globe },
     { value: "117,000+", label: "LINE 創意社群好友", sub: "Creative Community", color: "from-green-600 to-emerald-500", icon: Users },
-    { value: "600+", label: "全台經銷合作夥伴", sub: "Active SI Partners", color: "from-purple-600 to-pink-500", icon: TrendingUp },
   ];
 
   return (
-    <section className="h-screen py-10 px-6 md:px-20 border-b border-white/5 bg-black relative overflow-hidden flex flex-col justify-center">
+    <section className="min-h-screen py-10 pt-24 md:pt-10 px-6 md:px-20 border-b border-white/5 bg-black relative overflow-hidden flex flex-col justify-start md:justify-center">
       {/* Background radial gradient for depth */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-900/10 blur-[150px] rounded-full pointer-events-none"></div>
 
@@ -77,7 +76,7 @@ export const KPIDashboard: React.FC = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10 w-full max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10 w-full max-w-7xl mx-auto pb-8 md:pb-0">
         {stats.map((stat, idx) => (
           <div 
             key={idx} 

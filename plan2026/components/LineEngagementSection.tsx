@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   MessageCircle, 
   Coffee, 
@@ -94,12 +94,35 @@ export const LineEngagementSection: React.FC = () => {
     touchEndY.current = 0;
   };
 
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Check if this section is currently visible
+      const section = document.getElementById('community');
+      if (!section) return;
+      
+      const rect = section.getBoundingClientRect();
+      const isVisible = rect.top >= -window.innerHeight / 2 && rect.bottom <= window.innerHeight * 1.5;
+      
+      if (isVisible) {
+        if (e.key === 'ArrowLeft') {
+          prevSlide();
+        } else if (e.key === 'ArrowRight') {
+          nextSlide();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
-    <section className="h-screen py-10 px-6 md:px-20 border-b border-white/5 bg-[#161616] relative overflow-hidden flex flex-col items-center justify-center">
+    <section className="min-h-screen py-10 pt-24 md:pt-10 px-6 md:px-20 border-b border-white/5 bg-[#161616] relative overflow-hidden flex flex-col items-center justify-start md:justify-center">
       {/* Background Ambience */}
       <div className="absolute top-0 right-0 w-2/3 h-full bg-gradient-to-l from-[#06C755]/10 to-transparent pointer-events-none" />
 
-      <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-center relative z-10 h-full max-h-[90vh]">
+      <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-center relative z-10 h-full">
         
         {/* Left Side: Philosophy & Branding */}
         <div className="order-1 lg:order-1 flex flex-col justify-center">
@@ -116,7 +139,7 @@ export const LineEngagementSection: React.FC = () => {
           </h2>
 
           <p className="text-base md:text-xl text-gray-300 mb-8 leading-relaxed">
-            前線業務面對客戶的破冰神器，Weblink 官方帳號每周精選 <strong className="text-white border-b border-[#06C755]">全球 Adobe 產業動態快訊</strong>，
+            前線業務面對客戶的破冰神器，每日用一杯咖啡的時間洞悉當前創意趨勢，Weblink 官方帳號每周精選 <strong className="text-white border-b border-[#06C755]">全球 Adobe 產業動態快訊</strong>，
             將繁雜的技術文件轉化為手機易讀的圖文懶人包、用互動小遊戲吸引用戶的青睞。
           </p>
 
@@ -137,7 +160,7 @@ export const LineEngagementSection: React.FC = () => {
         </div>
 
         {/* Right Side: Phone Mockup with Carousel */}
-        <div className="order-2 lg:order-2 flex justify-center lg:justify-end items-center h-full relative group/phone">
+        <div className="order-2 lg:order-2 flex justify-center lg:justify-end items-center h-full relative group/phone pb-8 md:pb-0">
           
           {/* Wrapper for fixing buttons relative to phone */}
           <div className="relative flex items-center justify-center">
@@ -151,7 +174,7 @@ export const LineEngagementSection: React.FC = () => {
             </button>
 
             <div 
-              className="relative w-[280px] md:w-[320px] aspect-[9/19] bg-black border-[6px] border-gray-800 rounded-[2.5rem] shadow-2xl overflow-hidden transform hover:scale-[1.02] transition-transform duration-500 max-h-[50vh] md:max-h-[70vh] landscape:max-h-[85vh] z-10"
+              className="relative w-[280px] md:w-[320px] aspect-[9/19] bg-black border-[6px] border-gray-800 rounded-[2.5rem] shadow-2xl overflow-hidden transform hover:scale-[1.02] transition-transform duration-500 max-h-[70vh] landscape:max-h-[85vh] z-10"
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}

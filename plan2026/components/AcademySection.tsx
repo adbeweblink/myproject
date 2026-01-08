@@ -106,7 +106,7 @@ export const AcademySection: React.FC = () => {
   }, []);
 
   return (
-    <section className="h-screen py-8 md:py-10 px-6 md:px-20 border-b border-white/5 bg-gradient-to-b from-gray-900 to-black flex flex-col justify-center overflow-hidden">
+    <section className="min-h-screen py-8 md:py-10 px-6 md:px-20 border-b border-white/5 bg-gradient-to-b from-gray-900 to-black flex flex-col justify-center overflow-hidden">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 items-center h-full max-h-[90vh]">
         <div className="lg:col-span-1 flex flex-col justify-center">
           <SectionHeading 

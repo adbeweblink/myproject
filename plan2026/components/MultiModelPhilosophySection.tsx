@@ -11,7 +11,7 @@ import {
 
 export const MultiModelPhilosophySection: React.FC = () => {
   return (
-    <section className="h-screen py-10 px-6 md:px-20 border-b border-white/5 bg-black relative overflow-hidden flex flex-col justify-center">
+    <section className="min-h-screen py-10 pt-24 md:pt-10 px-6 md:px-20 border-b border-white/5 bg-black relative overflow-hidden flex flex-col justify-start md:justify-center">
        {/* Background Effects */}
        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none"></div>
        <div className="absolute inset-0 bg-[linear-gradient(to_right,#111_1px,transparent_1px),linear-gradient(to_bottom,#111_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none opacity-50"></div>
@@ -108,9 +108,10 @@ export const MultiModelPhilosophySection: React.FC = () => {
                       <p className="text-gray-500 text-xs leading-relaxed">
                         透過 Acrobat Studio 進行最後的文檔合規與商業交付。
                       </p>
-                      <div className="mt-3 flex gap-1.5 opacity-40">
-                         <div className="px-2 py-0.5 rounded bg-red-900 text-[9px] text-white">DC</div>
-                         <div className="px-2 py-0.5 rounded bg-purple-900 text-[9px] text-white">Studio</div>
+                      <div className="mt-3 flex gap-1.5">
+                         <div className="px-2 py-1 rounded bg-red-600 text-[9px] text-white font-black tracking-tight text-center leading-tight">
+                            Acrobat<br/>Studio
+                         </div>
                       </div>
                    </div>
                 </div>
@@ -118,7 +119,7 @@ export const MultiModelPhilosophySection: React.FC = () => {
              </div>
 
              {/* Mobile View (Stack) */}
-             <div className="lg:hidden space-y-3">
+             <div className="lg:hidden space-y-3 pb-8 md:pb-0">
                 {[
                   { title: "Input (發想)", icon: BrainCircuit, color: "text-green-500", desc: "多元模型激盪創意" },
                   { title: "Edit (精修)", icon: Layers, color: "text-blue-500", desc: "CC 專業編輯工作流" },

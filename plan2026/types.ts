@@ -54,10 +54,13 @@ export interface AllianceItem {
   icon: LucideIcon;
   partners: AlliancePartner[];
   desc: string;
+  relationship: string; // Added: Connection to Adobe
+  opportunity: string;  // Added: Business benefit
   color: string;
   textColor: string;
   bg: string;
   link?: string;
+  image: string; // Added: Background image
 }
 
 export interface QuarterItem {

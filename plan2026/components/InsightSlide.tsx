@@ -4,8 +4,8 @@ import { Cpu, Bot, Network } from 'lucide-react';
 import { SectionHeading, Card } from './ui/Shared';
 
 export const InsightSlide: React.FC = () => (
-  <section className="h-screen py-8 md:py-10 px-6 md:px-20 flex flex-col justify-center border-b border-white/5 overflow-hidden">
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center h-full max-h-[90vh]">
+  <section className="min-h-screen py-10 pt-24 md:pt-10 px-6 md:px-20 flex flex-col justify-start md:justify-center border-b border-white/5 overflow-hidden">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center h-full">
       <div className="flex flex-col justify-center">
         <SectionHeading 
           title={`行銷即服務 2.0：\n注入 AI 基因，專注 Adobe 增長`}
@@ -51,7 +51,7 @@ export const InsightSlide: React.FC = () => (
         </div>
       </div>
       
-      <div className="relative h-64 md:h-full max-h-[500px] w-full rounded-2xl overflow-hidden shadow-2xl group border border-gray-700 hidden lg:block">
+      <div className="relative h-64 md:h-full min-h-[300px] md:max-h-[500px] w-full rounded-2xl overflow-hidden shadow-2xl group border border-gray-700 hidden lg:block">
          <img 
            src="https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=2000&auto=format&fit=crop" 
            alt="AI Strategy Team" 

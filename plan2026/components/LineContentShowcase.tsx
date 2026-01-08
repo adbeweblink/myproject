@@ -120,7 +120,7 @@ export const LineContentShowcase: React.FC = () => {
   }, []);
 
   return (
-    <section className="h-screen py-10 px-6 md:px-20 border-b border-white/5 bg-[#0e0e0e] flex flex-col justify-center overflow-hidden relative">
+    <section className="min-h-screen py-10 px-6 md:px-20 border-b border-white/5 bg-[#0e0e0e] flex flex-col justify-center overflow-hidden relative">
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
       <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e0e] via-transparent to-[#0e0e0e]"></div>
 

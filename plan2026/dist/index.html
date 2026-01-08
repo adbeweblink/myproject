@@ -42,6 +42,27 @@
           scrollbar-width: none;
       }
       
+      /* 
+         Mobile Landscape Optimization:
+         Disable scroll snap on devices with small height to prevent content cutting 
+         and poor user experience when scrolling through taller sections.
+      */
+      
+      @media (max-height: 500px) and (orientation: landscape) {
+        #main-scroll-container {
+          scroll-snap-type: none !important;
+          overflow-y: auto !important;
+        }
+        .snap-start {
+          scroll-snap-align: none !important;
+        }
+        /* Ensure sections can grow naturally to fit content */
+        section, div[id] {
+           min-height: 100vh !important;
+           height: auto !important;
+        }
+      }
+      
       @media print {
         @page {
           size: A4 landscape;
@@ -102,7 +123,7 @@
   }
 }
 </script>
-  <script type="module" crossorigin src="/assets/index-wwrDZwj4.js"></script>
+  <script type="module" crossorigin src="/assets/index-Bims0SnI.js"></script>
 </head>
   <body>
     <div id="root"></div>

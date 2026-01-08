@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { MessageCircle, FileDown, X, Zap } from 'lucide-react';
+import { MessageCircle, X, Zap } from 'lucide-react';
 import { Magnetic } from './ui/Motion';
 
 export const FloatingCTA: React.FC = () => {
@@ -26,16 +26,6 @@ export const FloatingCTA: React.FC = () => {
           ${isExpanded ? 'scale-100 opacity-100 translate-y-0' : 'scale-75 opacity-0 translate-y-10 pointer-events-none'}
         `}
       >
-        <Magnetic strength={0.1}>
-          <button 
-            onClick={() => window.print()}
-            className="flex items-center gap-3 bg-white text-black px-5 py-3 rounded-full shadow-xl hover:bg-gray-200 transition font-bold"
-          >
-            <span className="text-sm text-black">下載簡報</span>
-            <div className="bg-black/10 p-1 rounded-full"><FileDown size={16} className="text-black" /></div>
-          </button>
-        </Magnetic>
-
         <Magnetic strength={0.1}>
           <a 
             href="mailto:Mark.tsao@weblink.com.tw"

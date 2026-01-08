@@ -14,7 +14,7 @@ import { SectionHeading } from './ui/Shared';
 export const FlagshipEventSection: React.FC = () => {
 
   return (
-    <section className="h-screen pt-24 pb-8 md:pt-32 md:pb-10 px-6 md:px-20 border-b border-white/5 bg-[#0a0a0a] flex flex-col justify-center overflow-hidden">
+    <section className="min-h-screen pt-24 pb-8 md:pt-32 md:pb-10 px-6 md:px-20 border-b border-white/5 bg-[#0a0a0a] flex flex-col justify-start md:justify-center overflow-hidden">
       <div className="shrink-0 mb-6">
         <SectionHeading 
           title="年度旗艦盛會" 
@@ -31,10 +31,10 @@ export const FlagshipEventSection: React.FC = () => {
       </div>
 
       {/* Main Events Twin Towers Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 mb-8 flex-1 min-h-0">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-8 mb-8 flex-1 min-h-0">
         
         {/* Event 1: First Half - Creator Solutions Day */}
-        <div className="group relative rounded-3xl overflow-hidden border border-white/10 bg-[#111] hover:border-cyan-500/50 transition-all duration-500 flex flex-col h-full">
+        <div className="group relative rounded-3xl overflow-hidden border border-white/10 bg-[#111] hover:border-cyan-500/50 transition-all duration-500 flex flex-col h-full min-h-[400px]">
           {/* Background Image Layer */}
           <img 
             src="https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=2000&auto=format&fit=crop" 
@@ -80,7 +80,7 @@ export const FlagshipEventSection: React.FC = () => {
         </div>
 
         {/* Event 2: Second Half - Creator Link */}
-        <div className="group relative rounded-3xl overflow-hidden border border-white/10 bg-[#111] hover:border-red-500/50 transition-all duration-500 flex flex-col h-full">
+        <div className="group relative rounded-3xl overflow-hidden border border-white/10 bg-[#111] hover:border-red-500/50 transition-all duration-500 flex flex-col h-full min-h-[400px]">
           {/* Background Image Layer */}
           <img 
             src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=2000&auto=format&fit=crop" 

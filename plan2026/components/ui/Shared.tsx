@@ -42,6 +42,11 @@ interface CardProps {
   hoverEffect?: boolean;
 }
 
+/**
+ * Card Component with Real Glassmorphism and Spotlight Effect
+ * 1. Spotlight: Tracks mouse position to illuminate borders and surface.
+ * 2. Glassmorphism: Uses noise texture, backdrop-blur, and layered borders for physical thickness.
+ */
 export const Card: React.FC<CardProps> = ({ children, className = "", hoverEffect = true }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -50,13 +55,12 @@ export const Card: React.FC<CardProps> = ({ children, className = "", hoverEffec
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
-    setMousePos({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    });
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    setMousePos({ x, y });
   };
 
-  // 內部內容視差位移 (Factor 越小位移越細微，創造空間深度)
+  // Parallax effect for content
   const getParallaxStyle = (factor: number = 0.02) => {
     if (!isHovering || !cardRef.current) return {};
     const rect = cardRef.current.getBoundingClientRect();
@@ -77,37 +81,72 @@ export const Card: React.FC<CardProps> = ({ children, className = "", hoverEffec
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       className={`
-        relative bg-gray-900/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 
-        transition-all duration-500 overflow-hidden group ${className}
-        ${hoverEffect ? 'hover:border-white/20 hover:bg-gray-800/50' : ''}
+        relative rounded-3xl p-6 md:p-8 
+        transition-all duration-500 overflow-hidden group
+        backdrop-blur-xl
+        ${className}
       `}
+      style={{
+        // Base Glass Background (Dark)
+        backgroundColor: 'rgba(20, 20, 20, 0.4)', 
+        // Real Glass Shadow
+        boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3)',
+      }}
     >
-      {/* Dynamic Light Border Effect */}
-      {hoverEffect && isHovering && (
-        <div 
-          className="absolute inset-0 pointer-events-none z-0"
-          style={{
-            background: `radial-gradient(400px circle at ${mousePos.x}px ${mousePos.y}px, rgba(255,255,255,0.06), transparent 80%)`
-          }}
-        />
-      )}
-      
-      {/* Light Edge Beam */}
-      {hoverEffect && isHovering && (
-        <div 
-          className="absolute inset-0 pointer-events-none z-0 opacity-40"
-          style={{
-            background: `radial-gradient(120px circle at ${mousePos.x}px ${mousePos.y}px, rgba(255,255,255,0.3), transparent 60%)`,
-            WebkitMaskImage: 'linear-gradient(black, black)',
-            maskImage: 'linear-gradient(black, black)',
-            padding: '1px'
-          }}
-        />
-      )}
+      {/* 
+         --- REAL GLASSMORPHISM LAYERS --- 
+      */}
 
-      {/* Internal Parallax Content */}
+      {/* 1. Noise Texture Layer (Provides the physical "grain") */}
       <div 
-        className="relative z-10" 
+        className="absolute inset-0 opacity-[0.07] pointer-events-none z-0 mix-blend-overlay"
+        style={{ backgroundImage: `url('https://grainy-gradients.vercel.app/noise.svg')` }}
+      />
+
+      {/* 2. Static Glass Border (Base structural border) */}
+      <div className="absolute inset-0 rounded-3xl border border-white/10 pointer-events-none z-[1]"></div>
+      
+      {/* 3. Inner Gloss Highlight (Top-Left Light Source) */}
+      <div 
+        className="absolute inset-0 rounded-3xl pointer-events-none z-[1]"
+        style={{
+          boxShadow: 'inset 1px 1px 0 0 rgba(255, 255, 255, 0.15), inset -1px -1px 0 0 rgba(0, 0, 0, 0.3)'
+        }}
+      ></div>
+
+      {/* 
+         --- SPOTLIGHT EFFECTS --- 
+      */}
+
+      {/* 4. Spotlight Border (Illuminates the edge based on mouse) */}
+      <div 
+        className="absolute inset-0 rounded-3xl pointer-events-none z-[2] transition-opacity duration-500"
+        style={{
+          opacity: isHovering ? 1 : 0,
+          background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, rgba(255,255,255,0.4), transparent 40%)`,
+          // Use mask to only show the border area
+          maskImage: 'linear-gradient(#fff, #fff), linear-gradient(#fff, #fff)',
+          maskClip: 'content-box, border-box',
+          maskComposite: 'exclude',
+          padding: '1.5px', // Thickness of the illuminated border
+          WebkitMaskComposite: 'xor', // Safari support
+        }}
+      />
+
+      {/* 5. Spotlight Glow (Surface illumination) */}
+      <div 
+        className="absolute inset-0 pointer-events-none z-0 transition-opacity duration-500"
+        style={{
+          opacity: isHovering ? 1 : 0,
+          background: `radial-gradient(800px circle at ${mousePos.x}px ${mousePos.y}px, rgba(255,255,255,0.06), transparent 40%)`
+        }}
+      />
+
+      {/* 
+         --- CONTENT LAYER --- 
+      */}
+      <div 
+        className="relative z-10 h-full" 
         style={getParallaxStyle()}
       >
         {children}

@@ -2,10 +2,8 @@
 import React, { useState } from 'react';
 import { 
   Lock, 
-  CheckCircle2, 
   TrendingUp, 
   Zap, 
-  ArrowRight, 
   Building2, 
   Star, 
   Target, 
@@ -17,13 +15,16 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
-import { DecryptionText } from './ui/Motion';
 
 const ALLOWED_PARTNERS = [
   "NVIDIA", "ARPHIC", "WD", "SEAGATE", "QNAP", "ADOBE", "AMD", 
   "BENQ", "LOGITECH", "MONOTYPE", "PANTONE", "SANDISK", "WACOM", 
   "MSI", "GIGABYTE", "ACER", "MOTIONER", "LENOVO", "SONY", 
   "DYNAFONT", "APPLE", "REALLUSION"
+];
+
+const CONFIRMED_PARTNERS = [
+  "QNAP", "NVIDIA", "ADOBE", "AMD", "PANTONE", "MSI", "REALLUSION"
 ];
 
 const PLANS = [
@@ -144,7 +145,7 @@ export const PartnerSection: React.FC = () => {
   ];
 
   return (
-    <section className={`relative overflow-hidden flex flex-col justify-center bg-[#0a0a0a] h-screen py-6 md:py-10 px-6 md:px-20`}>
+    <section className={`relative overflow-hidden flex flex-col justify-start md:justify-center bg-[#0a0a0a] min-h-screen py-6 md:py-10 px-6 md:px-20 pt-24 md:pt-10`}>
       {isLocked ? (
         <div className="flex flex-col items-center justify-center h-full min-h-[60vh]">
           <div className="max-w-xs w-full text-center">
@@ -165,24 +166,24 @@ export const PartnerSection: React.FC = () => {
           </div>
         </div>
       ) : (
-        <div className={`w-full max-w-7xl mx-auto flex flex-col h-full relative z-10 justify-center`}>
+        <div className={`w-full max-w-7xl mx-auto flex flex-col h-full relative z-10 justify-start md:justify-center`}>
           
-          {/* Header & Nav Area */}
-          <div className={`flex flex-col md:flex-row justify-between items-end md:items-center mb-2 shrink-0 gap-4 ${activeTab === 'plans' ? 'absolute top-0 left-0 w-full z-50 pointer-events-none' : ''}`}>
+          {/* Header & Nav Area - Modified spacing to push down from top and pull closer to content */}
+          <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-6 shrink-0 gap-4 w-full">
             
-            {/* Title Group - Hidden when in Plans tab to allow for centered positioning */}
-            <div className={`transition-opacity duration-300 ${activeTab === 'plans' ? 'opacity-0' : 'opacity-100'}`}>
+            {/* Title Group */}
+            <div className={`transition-opacity duration-300 ${activeTab === 'plans' ? 'opacity-20 hover:opacity-100' : 'opacity-100'}`}>
               <div className="w-12 h-1 bg-blue-600 mb-2 rounded-full" />
               <p className="text-gray-400 font-bold tracking-widest uppercase text-[10px] mb-1">
-                <DecryptionText text={`Partner Program for ${currentUser}`} />
+                 Partner Program for {currentUser}
               </p>
               <h2 className="text-xl md:text-4xl font-black tracking-tighter leading-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-400">
                 為何選擇與我們合作？
               </h2>
             </div>
             
-            <div className="flex items-center gap-3 pointer-events-auto">
-               {/* Tab Switcher */}
+            {/* Tab Controls - Fixed */}
+            <div className="flex items-center gap-3">
                <div className="flex p-1 bg-white/5 rounded-full border border-white/10 backdrop-blur-md">
                   <button 
                     onClick={() => setActiveTab('value')}
@@ -210,40 +211,52 @@ export const PartnerSection: React.FC = () => {
             </div>
           </div>
 
-          {/* Tab Content Area */}
-          <div className={`animate-in fade-in slide-in-from-bottom-4 duration-500 relative min-h-0 flex flex-col ${activeTab === 'plans' ? 'flex-1 justify-center' : ''}`}>
+          {/* Tab Content Area - Fills remaining space, Center Vertically */}
+          <div className="relative flex-1 min-h-0 flex flex-col justify-start md:justify-center">
             
             {/* --- TAB 1: VALUE (為何合作) --- */}
             {activeTab === 'value' && (
-              <div className="flex flex-col gap-6 justify-center">
+              <div className="flex flex-col gap-3 justify-center animate-in fade-in slide-in-from-bottom-4 duration-500 pb-8 md:pb-0">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {strategicPoints.map((point, idx) => (
-                    <div key={idx} className="bg-white/[0.02] border border-white/5 p-6 rounded-2xl hover:bg-white/[0.05] transition-all duration-300 flex flex-col justify-center min-h-[160px] group">
-                      <div className="flex justify-between items-start mb-4">
+                    <div key={idx} className="bg-white/[0.02] border border-white/5 p-6 rounded-2xl hover:bg-white/[0.05] transition-all duration-300 flex flex-col justify-center min-h-[140px] group">
+                      <div className="flex justify-between items-start mb-2">
                         <div className={`w-10 h-10 ${point.bg} ${point.color} rounded-xl flex items-center justify-center`}>
                           <point.icon size={20} />
                         </div>
                         <span className="text-gray-600 font-mono text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">0{idx+1}</span>
                       </div>
-                      <h4 className="text-white font-bold text-lg mb-2 leading-snug">{point.title}</h4>
+                      <h4 className="text-white font-bold text-lg mb-1 leading-snug">{point.title}</h4>
                       <p className="text-gray-400 text-xs leading-relaxed">{point.desc}</p>
                     </div>
                   ))}
                 </div>
 
-                {/* Footer Partners - Golden Glow Effect */}
-                <div className="border-t border-white/10 pt-6 text-center shrink-0">
-                  <p className="text-amber-400 font-bold mb-4 uppercase tracking-[0.3em] text-[10px] drop-shadow-[0_0_10px_rgba(251,191,36,0.6)] animate-pulse flex items-center justify-center gap-2">
+                {/* Footer Partners */}
+                <div className="border-t border-white/10 pt-4 text-center shrink-0">
+                  <p className="text-amber-400 font-bold mb-3 uppercase tracking-[0.3em] text-[10px] drop-shadow-[0_0_10px_rgba(251,191,36,0.6)] animate-pulse flex items-center justify-center gap-2">
                      <Star size={12} className="text-yellow-300" fill="currentColor" />
                      過往參與 Weblink 生態系之合作品牌
                      <Star size={12} className="text-yellow-300" fill="currentColor" />
                   </p>
                   <div className="flex flex-wrap justify-center gap-3 opacity-90 hover:opacity-100 transition-opacity">
-                    {filteredPartners.map((p, i) => (
-                        <span key={i} className="text-[10px] font-black text-yellow-100 border border-yellow-500/40 bg-yellow-600/10 px-3 py-1.5 rounded-full shadow-[0_0_15px_rgba(234,179,8,0.15)] hover:bg-yellow-500 hover:text-black hover:shadow-[0_0_20px_rgba(234,179,8,0.6)] transition-all duration-300 cursor-default tracking-wider">
+                    {filteredPartners.map((p, i) => {
+                      const isConfirmed = CONFIRMED_PARTNERS.includes(p);
+                      return (
+                        <span 
+                          key={i} 
+                          className={`
+                            text-[10px] font-black px-3 py-1.5 rounded-full transition-all duration-300 cursor-default tracking-wider
+                            ${isConfirmed 
+                              ? 'bg-yellow-500 text-black shadow-[0_0_20px_rgba(234,179,8,0.6)] border border-yellow-400 scale-105' 
+                              : 'text-yellow-100 border border-yellow-500/40 bg-yellow-600/10 shadow-[0_0_15px_rgba(234,179,8,0.15)] hover:bg-yellow-500 hover:text-black hover:shadow-[0_0_20px_rgba(234,179,8,0.6)]'
+                            }
+                          `}
+                        >
                             {p}
                         </span>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -251,28 +264,27 @@ export const PartnerSection: React.FC = () => {
 
             {/* --- TAB 2: PLANS (Metallic Glass Carousel) --- */}
             {activeTab === 'plans' && (
-              <div className="flex flex-col items-center justify-center w-full">
+              <div className="flex flex-col items-center justify-center w-full animate-in fade-in zoom-in-95 duration-500 py-4">
                 
                 {/* Centered Title for Plans */}
-                <div className="text-center mb-10 animate-in slide-in-from-bottom-8 duration-700 fade-in relative z-20">
-                   <div className="w-16 h-1 bg-blue-600 mb-4 mx-auto rounded-full shadow-[0_0_15px_#2563EB]" />
-                   <h2 className="text-3xl md:text-5xl font-black tracking-tighter text-white mb-2 drop-shadow-2xl">
+                <div className="text-center mb-6 relative z-20">
+                   <h2 className="text-3xl md:text-4xl font-black tracking-tighter text-white mb-2 drop-shadow-2xl">
                      年度合作方案
                    </h2>
                    <p className="text-gray-400 font-bold tracking-[0.2em] uppercase text-xs flex items-center justify-center gap-2">
                       <Zap size={14} className="text-yellow-500" fill="currentColor" />
-                      <DecryptionText text={`Exclusive for ${currentUser}`} />
+                      Exclusive for {currentUser}
                    </p>
                 </div>
 
                 {/* Carousel Container */}
-                <div className="relative w-full max-w-[1200px] mx-auto flex items-center justify-center pb-8 md:pb-0 min-h-[420px]">
+                <div className="relative w-full max-w-[1200px] mx-auto flex items-center justify-center pb-8 min-h-[420px]">
                   
                   <button 
                     onClick={prevPlan} 
                     className="
                       absolute z-50 p-3 rounded-full bg-white/5 hover:bg-white/20 backdrop-blur-md border border-white/10 text-white transition-all hover:scale-110 active:scale-95 shadow-lg
-                      left-0 top-1/2 -translate-y-1/2 md:left-0 md:translate-x-0
+                      left-0 top-1/2 -translate-y-1/2 md:left-4 md:translate-x-0
                     "
                     aria-label="Previous Plan"
                   >
@@ -282,7 +294,7 @@ export const PartnerSection: React.FC = () => {
                     onClick={nextPlan} 
                     className="
                       absolute z-50 p-3 rounded-full bg-white/5 hover:bg-white/20 backdrop-blur-md border border-white/10 text-white transition-all hover:scale-110 active:scale-95 shadow-lg
-                      right-0 top-1/2 -translate-y-1/2 md:right-0 md:translate-x-0
+                      right-0 top-1/2 -translate-y-1/2 md:right-4 md:translate-x-0
                     "
                     aria-label="Next Plan"
                   >
@@ -338,7 +350,7 @@ export const PartnerSection: React.FC = () => {
                                   {plan.price}
                                 </div>
 
-                                {/* Features List - Fixed Height for Horizontal Alignment */}
+                                {/* Features List */}
                                 <ul className="space-y-0 mb-6 flex-1">
                                   {plan.features.map((feat, i) => (
                                     <li key={i} className="h-10 flex items-center justify-between border-b border-white/5 last:border-0 group/item hover:bg-white/5 transition-colors -mx-2 px-2">
