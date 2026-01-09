@@ -6,14 +6,14 @@
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Adobe 知識王挑戰賽｜Week 4</title>
 
-  <!-- React / Babel / Tailwind -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- 彩帶套件 -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
   <style>
     html, body, #root {
@@ -61,8 +61,6 @@
 
     /* =========================
        題目卡轉場動畫（效能優先版）
-       進場：上→下滑入
-       退場：左滑出去
        ========================= */
     .q-card {
       transform: translateZ(0);
@@ -132,7 +130,7 @@
     .explanation-title { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
     .explanation-subtitle { font-size: 12px; opacity: 0.85; }
 
-    /* ✅ 主解析：像第一段 */
+    /* ✅ 主解析 */
     .explanation-text {
       font-size: 14px;
       line-height: 1.6;
@@ -152,7 +150,7 @@
       overflow: hidden;
     }
 
-    /* ✅ 📌延伸：像第二段（距離拉開＋淡分隔線） */
+    /* ✅ 📌延伸 */
     .explanation-extend {
       margin-top: 14px;
       padding-top: 12px;
@@ -172,7 +170,7 @@
       overflow: hidden;
     }
 
-    /* ✅ Banner：質感置中小卡（Q4/Q5） */
+    /* ✅ Banner */
     .explanation-banner-wrap {
       margin-top: 12px;
       width: 100%;
@@ -183,13 +181,12 @@
     }
     .explanation-banner {
       width: 100%;
-      max-width: 328px;               /* ✅ 更像置中小卡 */
+      max-width: 328px;
       aspect-ratio: 3 / 1;
 
       border-radius: 16px;
       overflow: hidden;
 
-      /* ✅ 外框 + 內框 + 陰影：質感 */
       border: 1px solid rgba(255,255,255,0.22);
       outline: 1px solid rgba(0,0,0,0.16);
       outline-offset: -2px;
@@ -207,13 +204,11 @@
       height: 100%;
       object-fit: cover;
       display:block;
-
-      /* ✅ 圖更乾淨：微微提升對比 */
       filter: saturate(1.02) contrast(1.02);
     }
 
     .explanation-footer {
-      margin-top: auto; /* footer 永遠貼底：分數/按鈕位置固定 */
+      margin-top: auto;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -237,7 +232,7 @@
     .explanation-next-btn:active { transform: scale(0.96); box-shadow: none; }
 
     /* =========================
-       結果頁按鈕（白字 + 一點點文字陰影）
+       結果頁按鈕
        ========================= */
     .btn-orange {
       background: linear-gradient(90deg, #f59e0b 0%, #f97316 100%);
@@ -256,12 +251,19 @@
     // ===============================
     const DEV_MODE = false;
 
-    // ✅ 換成你的 OA ID（要含 @）
-    const LINE_BOT_ID = "@your_bot_id";
+    // ✅ 設定您的 LIFF ID 與 URL
+    const MY_LIFF_ID = "2008592497-ujQ8WDBJ";
+    const MY_LIFF_URL = "https://liff.line.me/2008592497-ujQ8WDBJ";
 
-    // ✅ Week4 repo（jsDelivr）
+    // ✅ 設定獎勵連結 (BotBonnie)
+    const REWARD_URL = "https://r.botbonnie.com/e-9zM";
+
+    // ✅ Week4 repo
     const CDN_BASE = "https://cdn.jsdelivr.net/gh/ssunshine0608/adobe-King-of-Knowledge_week4@main/";
     const COVER_IMAGE = "fengmian.jpg";
+
+    // ✅ 設定分享出去的圖片 (直接使用 Week4 封面作為分享大圖)
+    const SHARE_IMAGE_URL = CDN_BASE + COVER_IMAGE;
 
     // ✅ Week4 題庫
     // correct: 0=A, 1=B, 2=C, 3=D
@@ -333,26 +335,45 @@
       const [lastIsCorrect, setLastIsCorrect] = React.useState(false);
       const [isLock, setIsLock] = React.useState(false);
 
-      // ✅ 過場遮罩（消除上一題殘影）
+      // ✅ 過場遮罩
       const [isTransitioning, setIsTransitioning] = React.useState(false);
 
       // 轉場動畫狀態
       const [qAnim, setQAnim] = React.useState("enter"); // enter | idle | exit
 
-      // 點擊區百分比（DEV 可調）
+      // 點擊區百分比
       const [topPercent, setTopPercent] = React.useState(INIT_TOP);
       const [heightPercent, setHeightPercent] = React.useState(INIT_HEIGHT);
       const [leftPercent, setLeftPercent] = React.useState(INIT_LEFT);
       const [widthPercent, setWidthPercent] = React.useState(INIT_WIDTH);
 
-      // 支援 uid（未來串 LINE 參數用）
+      // ✅ 1. 初始化 LIFF
+      React.useEffect(() => {
+        if (window.liff) {
+          window.liff.init({ liffId: MY_LIFF_ID })
+            .then(() => {
+              console.log("LIFF initialized");
+              // 取得 Profile (optional)
+              if (window.liff.isLoggedIn()) {
+                window.liff.getProfile().then(profile => {
+                  setUserId(profile.userId);
+                }).catch(err => console.error(err));
+              }
+            })
+            .catch((err) => {
+              console.error("LIFF init failed", err);
+            });
+        }
+      }, []);
+
+      // 支援 uid param
       React.useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const uid = params.get("uid");
         if (uid) setUserId(uid);
       }, []);
 
-      // ✅ 預載當前與下一題（減少換題瞬間解碼卡頓）
+      // ✅ 預載圖片
       React.useEffect(() => {
         const preload = (src) => {
           const img = new Image();
@@ -431,25 +452,121 @@
         }, MASK_DELAY + EXIT_MS);
       };
 
-      const shareToLineOA = (text) => {
-        window.location.href =
-          `https://line.me/R/oaMessage/${LINE_BOT_ID}/?text=${encodeURIComponent(text)}`;
-      };
-
+      // ✅ 2. 一般分享 (未滿分時用)
       const shareFriend = () => {
         const msg =
           `【Adobe 知識王挑戰 Week 4】\n` +
           `我拿到 ${score} 分！\n` +
-          `你也來挑戰看看～`;
-        shareToLineOA(msg);
+          `你也來挑戰看看～\n` +
+          `${MY_LIFF_URL}`;
+
+        // 嘗試使用 shareTargetPicker
+        if (window.liff && window.liff.isApiAvailable('shareTargetPicker')) {
+             window.liff.shareTargetPicker([
+                {
+                    type: "text",
+                    text: msg
+                }
+             ]).catch(err => {
+                 // 失敗則 fallback
+                 window.location.href = `https://line.me/R/msg/text/?${encodeURIComponent(msg)}`;
+             });
+        } else {
+             window.location.href = `https://line.me/R/msg/text/?${encodeURIComponent(msg)}`;
+        }
       };
 
-      const shareAndClaimReward = () => {
-        const msg =
-          `【滿分領獎】\n` +
-          `Week 4 我拿到 100 分！\n` +
-          `uid：${userId || "Guest"}`;
-        shareToLineOA(msg);
+      // ✅ 3. 核心功能：滿分分享並領獎
+      const handleClaimReward = async () => {
+        if (!window.liff) {
+            alert("請在 LINE 內開啟以領取獎勵");
+            return;
+        }
+
+        if (!window.liff.isLoggedIn()) {
+            window.liff.login();
+            return;
+        }
+
+        // 準備 Flex Message (顯示封面大圖)
+        const flexMessage = {
+          type: "flex",
+          altText: "Adobe 知識王挑戰賽｜Week 4 邀請函",
+          contents: {
+            type: "bubble",
+            hero: {
+              type: "image",
+              url: SHARE_IMAGE_URL, // 使用 Week 4 封面作為分享圖
+              size: "full",
+              aspectRatio: "20:30",
+              aspectMode: "cover",
+              action: {
+                type: "uri",
+                uri: MY_LIFF_URL
+              }
+            },
+            body: {
+              type: "box",
+              layout: "vertical",
+              contents: [
+                {
+                  type: "text",
+                  text: "🔥 立即挑戰 Adobe 知識王",
+                  weight: "bold",
+                  size: "xl",
+                  align: "center",
+                  color: "#1F2937"
+                },
+                {
+                  type: "text",
+                  text: "點擊圖片開始測驗 (Week 4)",
+                  size: "sm",
+                  color: "#6B7280",
+                  align: "center",
+                  margin: "md"
+                }
+              ]
+            },
+            footer: {
+              type: "box",
+              layout: "vertical",
+              spacing: "sm",
+              contents: [
+                {
+                  type: "button",
+                  style: "primary",
+                  height: "sm",
+                  action: {
+                    type: "uri",
+                    label: "立即開始",
+                    uri: MY_LIFF_URL
+                  },
+                  color: "#f97316"
+                }
+              ]
+            }
+          }
+        };
+
+        // 呼叫 shareTargetPicker
+        if (window.liff.isApiAvailable('shareTargetPicker')) {
+            try {
+                const res = await window.liff.shareTargetPicker([flexMessage]);
+                if (res) {
+                    // ✅ 分享成功 -> 執行獎勵連結
+                    window.location.replace(REWARD_URL);
+                } else {
+                    console.log("User closed share picker");
+                }
+            } catch (error) {
+                console.error("Share failed", error);
+                alert("分享功能暫時無法使用，請確認 LINE 版本");
+            }
+        } else {
+            // Fallback: 如果不支援，直接跳獎勵
+            alert("請使用手機版 LINE 進行分享以領取獎勵！");
+            window.location.replace(REWARD_URL);
+        }
       };
 
       // ========= Start（封面） =========
@@ -513,7 +630,7 @@
                   分數：{score}
                 </div>
 
-                {/* 點擊區域：四個答案格 */}
+                {/* 點擊區域 */}
                 <div
                   className={
                     "absolute grid grid-cols-2 grid-rows-2" +
@@ -661,8 +778,9 @@
                 請分享給好友，完成分享後<br/>即可自動領取獎勵！
               </div>
 
+              {/* ✅ 綁定新的 handleClaimReward */}
               <button
-                onClick={shareAndClaimReward}
+                onClick={handleClaimReward}
                 className="btn-orange w-full rounded-2xl py-4 text-[22px] font-black shadow-lg active:scale-[0.99]"
               >
                 🎁 分享並領取獎勵
