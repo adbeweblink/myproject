@@ -144,11 +144,11 @@ export const StrategicAllianceSection: React.FC = () => {
   ];
 
   return (
-    <section className="min-h-screen py-0 px-6 md:px-20 border-b border-white/5 bg-[#0a0a0a] flex flex-col items-center justify-start md:justify-center overflow-hidden relative" id="alliance">
-      <div className="max-w-[90rem] mx-auto w-full flex flex-col h-full justify-center pt-24 md:pt-0">
+    <section className="min-h-screen py-20 px-6 md:px-20 border-b border-white/5 bg-[#0a0a0a] flex flex-col items-center justify-center overflow-hidden relative" id="alliance">
+      <div className="max-w-[90rem] mx-auto w-full flex flex-col justify-center">
         
         {/* Header - Aggressively reduced margin for closeness */}
-        <div className="shrink-0 mb-2 md:mb-4 w-full flex flex-col justify-end">
+        <div className="shrink-0 mb-8 w-full flex flex-col justify-end">
           <SectionHeading 
             title="Adobe Partner Solutions Ecosystem" 
             subtitle="Ecosystem Layer 2: Infrastructure & Industry" 
@@ -164,7 +164,7 @@ export const StrategicAllianceSection: React.FC = () => {
         </div>
         
         {/* Horizontal Scroll Container */}
-        <div className="relative w-full group/scroll flex-none min-h-[380px] flex items-center justify-center">
+        <div className="relative w-full group/scroll flex-none flex items-center justify-center">
            
            {/* Scroll Buttons */}
            <button 
@@ -182,7 +182,7 @@ export const StrategicAllianceSection: React.FC = () => {
 
            <div 
              ref={scrollContainerRef}
-             className="flex gap-6 overflow-x-auto snap-x snap-mandatory no-scrollbar w-full h-full items-center py-4 px-1"
+             className="flex gap-6 overflow-x-auto snap-x snap-mandatory no-scrollbar w-full items-center py-4 px-1"
            >
               {alliances.map((item) => {
                  const Icon = item.icon;
@@ -190,12 +190,11 @@ export const StrategicAllianceSection: React.FC = () => {
                   <div 
                     key={item.id} 
                     className={`
-                      snap-center shrink-0 w-[280px] md:w-[340px] h-[380px]
+                      snap-center shrink-0 w-[280px] md:w-[340px] h-[450px] 
                       group relative overflow-hidden rounded-3xl border border-white/10 
-                      transition-all duration-500 cursor-pointer
+                      transition-all duration-500 cursor-default
                       hover:shadow-[0_0_50px_rgba(0,0,0,0.5)] hover:border-white/20 hover:-translate-y-2
                     `}
-                    onClick={() => item.link ? window.open(item.link, '_blank') : null}
                   >
                     {/* Background Image with Zoom Effect */}
                     <div className="absolute inset-0 overflow-hidden bg-[#050505]">
@@ -222,63 +221,74 @@ export const StrategicAllianceSection: React.FC = () => {
                     </div>
 
                     {/* Content Container - Vertically Balanced */}
-                    <div className="relative z-10 p-6 h-full flex flex-col justify-between">
+                    <div className="relative z-10 p-5 h-full flex flex-col justify-between">
                       
                       {/* Top Section */}
                       <div>
-                        <div className="flex justify-between items-start mb-4">
+                        <div className="flex justify-between items-start mb-3">
                           <div className={`
-                            p-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/10 text-white 
+                            p-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/10 text-white 
                             group-hover:bg-white group-hover:text-black transition-all duration-500 shadow-xl
                           `}>
-                            <Icon size={20} />
+                            <Icon size={18} />
                           </div>
-                          {item.link && (
-                            <div className="bg-white/10 p-2 rounded-full hover:bg-white hover:text-black transition-colors">
-                              <ExternalLink size={14} />
-                            </div>
-                          )}
                         </div>
                         
-                        <div className={`text-[10px] font-bold tracking-widest uppercase mb-1 ${item.textColor} flex items-center gap-2`}>
+                        <div className={`text-[9px] font-bold tracking-widest uppercase mb-1 ${item.textColor} flex items-center gap-2`}>
                            {item.category}
                         </div>
                         
-                        <h3 className="text-xl md:text-2xl font-black text-white mb-2 leading-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-gray-400 transition-all">
+                        <h3 className="text-lg md:text-xl font-black text-white mb-2 leading-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-gray-400 transition-all">
                           {item.partners.map(p => p.name).join(' & ')}
                         </h3>
                         
-                        <p className="text-gray-400 text-xs font-medium leading-relaxed mb-4 group-hover:text-white transition-colors line-clamp-2">
+                        <p className="text-gray-400 text-[11px] font-medium leading-relaxed mb-3 group-hover:text-white transition-colors line-clamp-2">
                           {item.desc}
                         </p>
                       </div>
                       
                       {/* Hover Reveal Section (Details) */}
-                      <div className="space-y-3 mt-auto">
+                      <div className="space-y-2 mt-auto">
                          
-                         <div className="bg-white/5 rounded-xl p-3 border border-white/5 backdrop-blur-sm group-hover:bg-white/10 transition-colors">
+                         <div className="bg-white/5 rounded-xl p-2.5 border border-white/5 backdrop-blur-sm group-hover:bg-white/10 transition-colors">
                             <div className="flex items-center gap-2 mb-1 text-white font-bold text-[10px] uppercase tracking-wider">
                                <Zap size={10} className={item.textColor} /> Adobe 關聯性
                             </div>
-                            <p className="text-[10px] text-gray-300 leading-relaxed text-justify line-clamp-3 group-hover:line-clamp-none transition-all">
+                            <p className="text-[10px] text-gray-300 leading-relaxed text-justify line-clamp-2 group-hover:line-clamp-none transition-all">
                                {item.relationship}
                             </p>
                          </div>
 
-                         <div className="bg-gradient-to-br from-white/10 to-transparent rounded-xl p-3 border border-white/10 backdrop-blur-sm group-hover:from-white/15 transition-colors">
+                         <div className="bg-gradient-to-br from-white/10 to-transparent rounded-xl p-2.5 border border-white/10 backdrop-blur-sm group-hover:from-white/15 transition-colors">
                             <div className="flex items-center gap-2 mb-1 text-white font-bold text-[10px] uppercase tracking-wider">
                                <Target size={10} className={item.textColor} /> 潛在商機
                             </div>
-                            <p className="text-[10px] text-gray-200 leading-relaxed text-justify font-medium line-clamp-3 group-hover:line-clamp-none transition-all">
+                            <p className="text-[10px] text-gray-200 leading-relaxed text-justify font-medium line-clamp-2 group-hover:line-clamp-none transition-all">
                                {item.opportunity}
                             </p>
                          </div>
 
-                         {item.link && (
-                           <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-white/50 justify-end pt-1">
-                              View Solution <ArrowUpRight size={10} />
-                           </div>
-                         )}
+                         {/* Action Button */}
+                         <div className="pt-2">
+                           {item.id === 'color' ? (
+                             <a 
+                               href="https://adbeweblink.github.io/myproject/pantone/pantone2026.html"
+                               target="_blank" 
+                               rel="noopener noreferrer"
+                               className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-pink-600 hover:bg-pink-500 text-white text-[10px] font-bold uppercase tracking-widest shadow-lg transition-all hover:scale-[1.02] border border-pink-500/50"
+                             >
+                               查看創作者解決方案 <ExternalLink size={12} />
+                             </a>
+                           ) : (
+                             <button 
+                               disabled
+                               className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-white/5 text-gray-600 text-[10px] font-bold uppercase tracking-widest border border-white/5 cursor-not-allowed"
+                             >
+                               Coming Soon
+                             </button>
+                           )}
+                         </div>
+
                       </div>
 
                     </div>
