@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pantone 色彩極限挑戰 (Pantone Color Challenge)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Noto Sans TC & Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <!-- LINE LIFF SDK -->
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Inter"', '"Noto Sans TC"', 'sans-serif'],
+                        mono: ['"Monaco"', '"Consolas"', 'monospace'],
+                    },
+                    boxShadow: {
+                        'card': '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)', 
+                        'card-hover': '0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22)',
+                        'floating': '0 10px 40px -10px rgba(0,0,0,0.2)',
+                    },
+                    animation: {
+                        'shake': 'shake 0.4s cubic-bezier(.36,.07,.19,.97) both',
+                        'pop': 'pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+                        'fade-in': 'fadeIn 0.4s ease-out forwards',
+                        'slide-up': 'slideUp 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        shake: {
+                            '0%, 100%': { transform: 'translateX(0)' },
+                            '20%': { transform: 'translateX(-6px) rotate(-2deg)' },
+                            '40%': { transform: 'translateX(6px) rotate(2deg)' },
+                            '60%': { transform: 'translateX(-3px)' },
+                            '80%': { transform: 'translateX(3px)' },
+                        },
+                        pop: {
+                            '0%': { transform: 'scale(0.95)', opacity: '0.5' },
+                            '100%': { transform: 'scale(1)', opacity: '1' },
+                        },
+                        fadeIn: {
+                            'from': { opacity: '0' },
+                            'to': { opacity: '1' },
+                        },
+                        slideUp: {
+                            'from': { opacity: '0', transform: 'translateY(20px)' },
+                            'to': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #e0e0e0; 
+            -webkit-user-select: none; /* 禁止選取，提升手機點擊體驗 */
+            user-select: none;
+            /* 修正 iOS 點擊高亮顏色 */
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .pantone-card {
+            border-radius: 0 !important; 
+            background-color: white;
+            /* 優化過場動畫曲線 */
+            transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .pantone-card-portrait {
+            aspect-ratio: 2 / 3; 
+        }
+
+        /* 手機版觸控反饋優化 */
+        .pantone-card:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body class="text-slate-900 min-h-screen flex flex-col items-center">
+
+    <!-- Toast / Notification -->
+    <div id="toast-container" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-[100] w-max max-w-[90%] pointer-events-none"></div>
+
+    <!-- 復活 Modal (2026 介紹) -->
+    <div id="revive-modal" class="fixed inset-0 bg-black/80 z-[90] hidden items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
+        <div class="bg-white w-full max-w-md overflow-hidden shadow-2xl transform transition-all scale-100 flex flex-col max-h-[90vh]">
+            <div id="revive-content" class="overflow-y-auto no-scrollbar">
+                <!-- Content injected via JS -->
+            </div>
+            <div class="p-4 border-t border-gray-100 bg-gray-50 flex-shrink-0">
+                <button id="btn-confirm-revive" class="w-full bg-black text-white font-black py-4 text-lg hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2">
+                    <span>接關挑戰</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header (Sticky) -->
+    <div class="sticky top-0 z-40 w-full bg-[#e0e0e0]/90 backdrop-blur-md border-b border-gray-300 transition-all duration-300" id="main-header">
+        <div class="max-w-2xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="location.reload()">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Pantone_logo.svg/960px-Pantone_logo.svg.png" class="h-6 w-auto object-contain" alt="Pantone Logo">
+                <div class="hidden sm:block h-4 w-px bg-gray-400"></div>
+                <h1 class="hidden sm:block font-bold text-sm text-gray-600 tracking-wide">COLOR CHALLENGE</h1>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <!-- Level Indicator (Playing Mode) -->
+                <div id="level-badge" class="hidden bg-black text-white px-3 py-1 text-sm font-black tracking-widest shadow-md">
+                    LV.<span id="level-num">1</span>
+                </div>
+
+                <!-- Leaderboard Icon -->
+                <button id="btn-header-leaderboard" class="p-2 hover:bg-gray-300 transition-colors text-gray-700 active:scale-95 transform" title="排行榜">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="app" class="w-full max-w-3xl px-4 py-8 flex-grow flex flex-col relative">
+        <!-- Content injected via JS -->
+    </div>
+
+    <!-- Footer -->
+    <footer class="w-full text-center py-6 text-gray-500 text-xs font-medium">
+        © Pantone Color Challenge. Unofficial Fan Game.
+    </footer>
+
+    <!-- Logic -->
+    <script>
+        // --- Configuration & Data ---
+        const LOGO_URL = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Pantone_logo.svg/960px-Pantone_logo.svg.png";
+        const LIFF_ID = "2008592497-pmWyN9om";
+        const BOTBONNIE_URL = "https://r.botbonnie.com/P0LF4";
+        const SHARE_IMAGE_URL = "https://adbeweblink.github.io/myproject/pantone.jpg";
+        const KEY_CAMPAIGN_VISUAL_URL = "https://adbeweblink.github.io/myproject/pantone/Key%20Campaign%20Visual%201.png";
+        
+        // Updated Data Structure: Precise Translations and Descriptions
+        const PANTONE_YEARS = [
+            {
+                year: 2026,
+                name: "Cloud Dancer",
+                nameCN: "雲上舞白",
+                code: "11-4201 TCX",
+                hex: "#F0EFE9",
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2026PANTONE11-4201CloudDancer.png",
+                desc: "PANTONE 11-4201 雲上舞白是一種類似空白畫布的色彩，象徵著我們對新開始的渴望。這是一種飄逸、充滿寧靜感的白色，在這個喧囂的世界中提供了一種平靜的低語。作為一種有意識的簡化聲明，雲上舞白增強了我們的專注力，幫助我們從外部干擾中釋放出來，重新找回內心的清晰與平衡。"
+            },
+            {
+                year: 2025,
+                name: "Mocha Mousse",
+                nameCN: "摩卡慕斯",
+                code: "17-1230 TCX",
+                hex: "#96786A",
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2025PANTONE17-1230MochaMousse.png", 
+                desc: "PANTONE 17-1230 摩卡慕斯是一種溫暖的棕色調，充滿了感官的豐富性。它喚起了可可、巧克力和咖啡的美味特質，滿足了我們對舒適的渴望。這種精緻的棕色將我們與自然世界聯繫起來，帶來平靜與腳踏實地的感覺，是一種低調而奢華的享受。"
+            },
+            { 
+                year: 2024, name: "Peach Fuzz", nameCN: "柔和桃", code: "13-1023 TCX", hex: "#FFBE98", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2024PANTONE13-1032PeachFuzz.png",
+                desc: "Peach Fuzz 是一種天鵝絨般柔和的蜜桃色，其包容的精神豐富了身心與靈魂。" 
+            },
+            { 
+                year: 2023, name: "Viva Magenta", nameCN: "非凡洋紅", code: "18-1750 TCX", hex: "#BB2649", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2023PANTONE18-1750VivaMagenta.png",
+                desc: "Viva Magenta 源自紅色家族，靈感來自胭脂紅。這是一種充滿活力的色彩，象徵著勇敢、無畏與快樂的慶典。" 
+            },
+            { 
+                year: 2022, name: "Very Peri", nameCN: "長春花藍", code: "17-3938 TCX", hex: "#6667AB", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2022PANTONE17-3938VeryPeri.png",
+                desc: "Very Peri 是為了應對轉變中的世界而創。它將藍色的忠誠與紅色的能量融合。" 
+            },
+            { 
+                year: 2021, name: "Ultimate Gray", nameCN: "極致灰", code: "17-5104 TCX", hex: "#939597", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2021PANTONE17-5104UltimateGray.png",
+                desc: "Ultimate Gray 象徵著堅實與可靠，經得起時間的考驗。" 
+            },
+            { 
+                year: 2021, name: "Illuminating", nameCN: "亮麗黃", code: "13-0647 TCX", hex: "#F5DF4D", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2021PANTONE13-0647Illuminating.png",
+                desc: "Illuminating 是一種明亮且快活的黃色，閃耀著活力。" 
+            },
+            { 
+                year: 2020, name: "Classic Blue", nameCN: "經典藍", code: "19-4052 TCX", hex: "#0F4C81", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2020PANTONE19-4052ClassicBlue.png",
+                desc: "Classic Blue 簡約而優雅，像極了薄暮時的天空。" 
+            },
+            { 
+                year: 2019, name: "Living Coral", nameCN: "活珊瑚橘", code: "16-1546 TCX", hex: "#FF6F61", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2019PANTONE16-1546LivingCoral.png",
+                desc: "Living Coral 散發著大自然中珊瑚礁的色彩，充滿活力。" 
+            },
+            { 
+                year: 2018, name: "Ultra Violet", nameCN: "紫外光", code: "18-3838 TCX", hex: "#5F4B8B", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2018PANTONE18-3838UltraViolet.png",
+                desc: "Ultra Violet 傳達了原創性、獨創性與富有遠見的思維。" 
+            },
+            { 
+                year: 2017, name: "Greenery", nameCN: "草木綠", code: "15-0343 TCX", hex: "#88B04B", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2017PANTONE15-0343Greenery.png",
+                desc: "Greenery 是一個清新的黃綠色調，喚起初春繁茂的綠意。" 
+            },
+            { 
+                year: 2016, name: "Serenity", nameCN: "寧靜粉藍", code: "15-3919 TCX", hex: "#91A8D0", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2016PANTONE15-3919Serenity.png",
+                desc: "Serenity 輕盈通透，像極了廣闊的藍天。" 
+            },
+            { 
+                year: 2016, name: "Rose Quartz", nameCN: "玫瑰石英粉", code: "13-1520 TCX", hex: "#F7CAC9", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2016PANTONE13-1520RoseQuartz.png",
+                desc: "Rose Quartz 是一種具說服力但不失溫柔的色調。" 
+            },
+            { 
+                year: 2015, name: "Marsala", nameCN: "瑪薩拉酒紅", code: "18-1438 TCX", hex: "#964F4C", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2015PANTONE18-1438Marsala.png",
+                desc: "Marsala 是一種自然強勁且質樸的酒紅色。" 
+            },
+            { 
+                year: 2014, name: "Radiant Orchid", nameCN: "璀璨紫蘭花", code: "18-3224 TCX", hex: "#B565A7", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2014PANTONE18-3224RadiantOrchid.png",
+                desc: "Radiant Orchid 以其迷人的紫紅色調激發自信與創意。" 
+            },
+            { 
+                year: 2013, name: "Emerald", nameCN: "翡翠綠", code: "17-5641 TCX", hex: "#009473", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2013PANTONE17-5641Emerald.png",
+                desc: "Emerald 是一種生動、輝煌且華麗的綠色。" 
+            },
+            { 
+                year: 2012, name: "Tangerine Tango", nameCN: "探戈橘", code: "17-1463 TCX", hex: "#DD4124", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2012PANTONE17-1463TangerineTango.png",
+                desc: "Tangerine Tango 是一種充滿挑逗性的橘紅色。" 
+            },
+            { 
+                year: 2011, name: "Honeysuckle", nameCN: "忍冬紅", code: "18-2120 TCX", hex: "#D65076", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2011PANTONE18-2120Honeysuckle.png",
+                desc: "Honeysuckle 是一種勇敢的新紅色。" 
+            },
+            { 
+                year: 2010, name: "Turquoise", nameCN: "松石綠", code: "15-5519 TCX", hex: "#45B5AA", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2010PANTONE15-5519Turquoise.png",
+                desc: "Turquoise 結合了藍色的寧靜與綠色的活力。" 
+            },
+            { 
+                year: 2009, name: "Mimosa", nameCN: "含羞草黃", code: "14-0848 TCX", hex: "#EFC050", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2009PANTONE14-0848Mimosa.png",
+                desc: "Mimosa 是一種溫暖且引人入勝的黃色。" 
+            },
+            { 
+                year: 2008, name: "Blue Iris", nameCN: "鳶尾藍", code: "18-3943 TCX", hex: "#5A5B9F", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2008PANTONE18-3943BlueIris.png",
+                desc: "Blue Iris 結合了藍色的穩定與紫色的神秘。" 
+            },
+            { 
+                year: 2007, name: "Chili Pepper", nameCN: "辣椒紅", code: "19-1557 TCX", hex: "#9B1B30", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2007PANTONE19-1557ChiliPepper.png",
+                desc: "Chili Pepper 是一種深沈的辛辣紅色，大膽、外向且自信。" 
+            },
+            { 
+                year: 2006, name: "Sand Dollar", nameCN: "沙幣褐", code: "13-1106 TCX", hex: "#DECDBE", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2006PANTONE13-1106SandDollar.png",
+                desc: "Sand Dollar 是一種被認為是自然與有機的色調。" 
+            },
+            { 
+                year: 2005, name: "Blue Turquoise", nameCN: "藍綠松石", code: "15-5217 TCX", hex: "#53B0AE", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2005PANTONE15-5217BlueTurquoise.png",
+                desc: "Blue Turquoise 比起一般的綠松石色含有更多的藍色調。" 
+            },
+            { 
+                year: 2004, name: "Tigerlily", nameCN: "虎皮百合橘", code: "17-1456 TCX", hex: "#E2583E", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2004PANTONE17-1456Tigerlily.png",
+                desc: "Tigerlily 包含了紅與黃，充滿異國情調。" 
+            },
+            { 
+                year: 2003, name: "Aqua Sky", nameCN: "水色天空", code: "14-4811 TCX", hex: "#7BC4C4", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2003PANTONE14-4811AquaSky.png",
+                desc: "Aqua Sky 是一種柔和、寧靜的藍綠色。" 
+            },
+            { 
+                year: 2002, name: "True Red", nameCN: "正紅", code: "19-1664 TCX", hex: "#BF1932", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2002PANTONE19-1664TrueRed.png",
+                desc: "True Red 是一種強烈且富有力量的紅色。" 
+            },
+            { 
+                year: 2001, name: "Fuchsia Rose", nameCN: "桃紅玫瑰", code: "17-2031 TCX", hex: "#C74375", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2001PANTONE17-2031FuchsiaRose.png",
+                desc: "Fuchsia Rose 是一種充滿女性魅力且熱情的色彩。" 
+            },
+            { 
+                year: 2000, name: "Cerulean", nameCN: "蔚藍", code: "15-4020 TCX", hex: "#98B2D1", 
+                img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2000PANTONE15-4020Cerulean.png",
+                desc: "Cerulean 代表著千禧年的天空色彩。" 
+            },
+        ];
+
+        // --- Game State ---
+        const state = {
+            view: 'home', // home, intro, playing, gameover, leaderboard
+            level: 1,
+            currentBase: PANTONE_YEARS[0],
+            introBase: null, // For year selection viewing
+            oddColor: "",
+            oddIndex: 0,
+            wrongIndex: -1, 
+            showFeedback: false, 
+            hasRevived: false,
+            pendingPointsClaim: false, // NEW: Track if player has earned points reward but not claimed yet
+            failedDetails: { baseHex: '', oddHex: '', difference: 0 }
+        };
+
+        // --- Helper Functions ---
+        const hexToRgb = (hex) => {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : { r: 0, g: 0, b: 0 };
+        };
+
+        const rgbToHex = (r, g, b) => {
+            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+        };
+
+        const getColorDifference = (hex1, hex2) => {
+            const rgb1 = hexToRgb(hex1);
+            const rgb2 = hexToRgb(hex2);
+            const diffSq = Math.pow(rgb1.r - rgb2.r, 2) + Math.pow(rgb1.g - rgb2.g, 2) + Math.pow(rgb1.b - rgb2.b, 2);
+            const maxDiff = 441.67;
+            return ((Math.sqrt(diffSq) / maxDiff) * 100).toFixed(2);
+        };
+
+        const generateVariantColor = (baseHex, level) => {
+            const rgb = hexToRgb(baseHex);
+            let difficulty = Math.max(1.8, 30 - (level * 1.5)); 
+            
+            const change = (val) => {
+                const direction = Math.random() > 0.5 ? 1 : -1;
+                let newVal = val + (difficulty * direction);
+                if (newVal > 255) newVal = val - difficulty;
+                if (newVal < 0) newVal = val + difficulty; 
+                if (Math.abs(newVal - val) < 3) newVal = val + (direction * 5); 
+                return Math.floor(Math.max(0, Math.min(255, newVal)));
+            };
+
+            return rgbToHex(change(rgb.r), change(rgb.g), change(rgb.b));
+        };
+
+        const getRankTitle = (level) => {
+            if (level < 5) return "色彩學徒";
+            if (level < 10) return "設計助理";
+            if (level < 15) return "資深設計師";
+            if (level < 20) return "藝術總監";
+            if (level < 30) return "印刷廠師傅";
+            return "絕對色感神人";
+        };
+
+        const showToast = (message, type = 'success') => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgClass = type === 'error' ? 'bg-red-500' : 'bg-black';
+            toast.className = `${bgClass} text-white px-6 py-3 shadow-2xl flex items-center gap-3 animate-slide-up mb-2 mx-auto w-fit z-50 rounded`;
+            toast.innerHTML = `<span class="font-bold text-sm tracking-wide">${message}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        };
+
+        // --- Local Storage ---
+        const SCORE_KEY = 'pantone_game_scores_v2';
+        const getScores = () => {
+            try { return JSON.parse(localStorage.getItem(SCORE_KEY)) || []; } catch { return []; }
+        };
+        const saveScore = (score) => {
+            const scores = getScores();
+            scores.push({ score, rankTitle: getRankTitle(score + 1), date: new Date().toLocaleDateString() });
+            scores.sort((a, b) => b.score - a.score);
+            localStorage.setItem(SCORE_KEY, JSON.stringify(scores.slice(0, 5)));
+        };
+
+        // --- Core Game Logic ---
+        const startRound = (specificBase = null) => {
+            const base = specificBase || PANTONE_YEARS[Math.floor(Math.random() * PANTONE_YEARS.length)];
+            state.currentBase = base;
+            state.oddColor = generateVariantColor(base.hex, state.level);
+            state.oddIndex = Math.floor(Math.random() * 4);
+            state.wrongIndex = -1;
+            state.showFeedback = false;
+            render();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        const startRandomGame = () => {
+            state.level = 1;
+            state.hasRevived = false;
+            state.pendingPointsClaim = false; // Reset claim status
+            state.view = 'playing';
+            startRound();
+        };
+
+        const startGameFromIntro = () => {
+            state.level = 1;
+            state.hasRevived = false;
+            state.pendingPointsClaim = false; // Reset claim status
+            state.view = 'playing';
+            startRound(state.introBase);
+        };
+
+        const handleCardClick = (index) => {
+            if (state.showFeedback || state.wrongIndex !== -1) return; 
+
+            if (index === state.oddIndex) {
+                state.level++;
+                if (navigator.vibrate) navigator.vibrate(50);
+                
+                const card = document.querySelector(`[data-card-index="${index}"]`);
+                if(card) {
+                    const overlay = document.createElement('div');
+                    overlay.className = "absolute inset-0 z-20 flex items-center justify-center animate-pop";
+                    overlay.innerHTML = `<div class="bg-green-500/90 text-white p-3 shadow-lg rounded-full"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>`;
+                    card.appendChild(overlay);
+                }
+
+                setTimeout(() => startRound(), 400); 
+            } else {
+                state.failedDetails = {
+                    baseHex: state.currentBase.hex,
+                    oddHex: state.oddColor,
+                    difference: getColorDifference(state.currentBase.hex, state.oddColor)
+                };
+
+                if (!state.hasRevived) {
+                    // Waiting for potential revive
+                } else {
+                    saveScore(state.level - 1);
+                }
+
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                state.wrongIndex = index; 
+                state.showFeedback = true; 
+                render(); 
+                
+                setTimeout(() => {
+                    state.view = 'gameover';
+                    render();
+                }, 1200);
+            }
+        };
+
+        // --- Revive Logic ---
+        const openReviveModal = () => {
+            const modal = document.getElementById('revive-modal');
+            const content = document.getElementById('revive-content');
+            const p2026 = PANTONE_YEARS.find(p => p.year === 2026);
+
+            content.innerHTML = `
+                <div class="bg-white">
+                    <div class="h-64 w-full relative" style="background-color: ${p2026.hex}">
+                        <div class="absolute top-4 left-4 bg-black/90 text-white text-[10px] px-3 py-1.5 uppercase tracking-wider font-bold">2026 Color of the Year</div>
+                    </div>
+                    <div class="p-8">
+                         <img src="${LOGO_URL}" class="h-6 mb-6 opacity-80" />
+                         <h2 class="text-4xl font-black text-gray-900 mb-2 leading-none">${p2026.name}</h2>
+                         <h3 class="text-xl font-bold text-gray-500 mb-6">${p2026.nameCN} <span class="text-sm font-mono text-gray-300 ml-2">${p2026.code}</span></h3>
+                         <p class="text-gray-600 leading-relaxed text-justify mb-4 text-sm font-medium">${p2026.desc}</p>
+                         <div class="bg-gray-100 p-4 text-xs text-gray-500 font-mono">
+                            現在，帶著這份色彩的能量重返挑戰吧！
+                         </div>
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        };
+
+        const confirmRevive = () => {
+            const modal = document.getElementById('revive-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            
+            // Execute Revive
+            state.hasRevived = true;
+            state.view = 'playing';
+            startRound(state.currentBase);
+        };
+
+        // BotBonnie Share Revive Handler
+        const handleShareRevive = () => {
+            // MOCK FOR PREVIEW
+            if (typeof liff === 'undefined' || !liff.isInClient()) {
+                console.warn("⚠️ Preview Mode: Simulating Share Success");
+                showToast("預覽模式：模擬分享成功！(正式環境需在 LINE 開啟)");
+                state.pendingPointsClaim = true;
+                setTimeout(() => { confirmRevive(); }, 1000);
+                return;
+            }
+
+            if (!liff.isInClient()) {
+                showToast("請在 LINE App 內開啟以使用好友分享功能", "error");
+                return;
+            }
+
+            if (!liff.isLoggedIn()) {
+                liff.login();
+                return;
+            }
+
+            if (!liff.isApiAvailable('shareTargetPicker')) {
+                showToast("您的 LINE 版本不支援分享功能，請更新", "error");
+                return;
+            }
+
+            const passedLevels = Math.max(0, state.level - 1);
+            const message = [
+                {
+                    "type": "flex",
+                    "altText": "Pantone 色彩極限挑戰：眼力大考驗",
+                    "contents": {
+                        "type": "bubble",
+                        "hero": {
+                            "type": "image",
+                            "url": SHARE_IMAGE_URL,
+                            "size": "full",
+                            "aspectRatio": "9:16", 
+                            "aspectMode": "cover",
+                            "action": {
+                                "type": "uri",
+                                "uri": `https://liff.line.me/${LIFF_ID}`
+                            }
+                        },
+                        "body": {
+                            "type": "box",
+                            "layout": "vertical",
+                            "contents": [
+                                {
+                                    "type": "text",
+                                    "text": "Pantone 色彩極限挑戰",
+                                    "weight": "bold",
+                                    "size": "xl",
+                                    "wrap": true
+                                },
+                                {
+                                    "type": "text",
+                                    "text": `我獲得了 ${passedLevels} 分！你能贏過我嗎？`,
+                                    "margin": "md",
+                                    "size": "md",
+                                    "wrap": true,
+                                    "color": "#666666"
+                                }
+                            ]
+                        },
+                        "footer": {
+                            "type": "box",
+                            "layout": "vertical",
+                            "spacing": "sm",
+                            "contents": [
+                                {
+                                    "type": "button",
+                                    "style": "primary",
+                                    "color": "#000000",
+                                    "height": "sm",
+                                    "action": {
+                                        "type": "uri",
+                                        "label": "立即挑戰",
+                                        "uri": `https://liff.line.me/${LIFF_ID}`
+                                    }
+                                }
+                            ],
+                            "flex": 0
+                        }
+                    }
+                }
+            ];
+
+            liff.shareTargetPicker(message)
+                .then(function (res) {
+                    if (res) {
+                        state.pendingPointsClaim = true;
+                        showToast("分享成功！復活繼續挑戰！(遊戲結束後可領取點數)");
+                        setTimeout(() => { confirmRevive(); }, 500);
+                    } else {
+                        showToast("需完成分享才能接關喔！", "error");
+                    }
+                })
+                .catch(function (error) {
+                    console.log("something wrong happen", error);
+                    showToast("分享失敗，請確認 LINE 權限設定", "error");
+                });
+        };
+
+        const handleClaimPoints = () => {
+            if (typeof liff === 'undefined' || !liff.isInClient()) {
+                 window.open(BOTBONNIE_URL, '_blank');
+                 return;
+            }
+             liff.openWindow({
+                url: BOTBONNIE_URL,
+                external: true
+            });
+        };
+
+        // --- Render Functions ---
+        
+        // 1. Home View (Updated with new layout and images)
+        const renderHome = () => {
+            // Split 2026 and others. 
+            // Data is already sorted 2026 -> 2000 in the updated array.
+            const p2026 = PANTONE_YEARS[0]; // 2026 is the first one
+            const otherYears = PANTONE_YEARS.slice(1); // 2025 onwards
+
+            // Template using IMG tag instead of background-color div
+            const templatePortrait = (p) => `
+                <div data-action="intro" data-year="${p.year}" data-name="${p.name}" 
+                     class="pantone-card pantone-card-portrait bg-white shadow-card hover:shadow-card-hover cursor-pointer group flex flex-col transform hover:-translate-y-1 relative overflow-hidden">
+                    
+                    <img src="${p.img}" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="${p.name}">
+                    
+                    <!-- Year Label -->
+                    <div class="absolute top-3 left-3 bg-white/80 backdrop-blur-sm text-black text-[10px] px-2 py-0.5 font-bold uppercase tracking-wider shadow-sm z-10">
+                        ${p.year}
+                    </div>
+                    
+                    <!-- Hover Overlay (Optional, for better UX) -->
+                    <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </div>
+            `;
+
+            return `
+                <div class="animate-fade-in pb-10 max-w-5xl mx-auto">
+                    <!-- Hero Section -->
+                    <div class="text-center mb-10 mt-4">
+                        <h2 class="text-4xl md:text-6xl font-black text-slate-800 tracking-tighter mb-4">色彩極限挑戰</h2>
+                        <div class="w-16 h-1 bg-black mx-auto mb-4"></div>
+                        <p class="text-slate-500 font-medium tracking-wide">PANTONE COLOR CHALLENGE</p>
+                    </div>
+
+                    <!-- Start Button -->
+                    <button id="btn-random" class="w-full max-w-md mx-auto bg-black text-white p-5 shadow-xl hover:bg-neutral-800 transition-all flex items-center justify-between group mb-16 relative overflow-hidden active:scale-95">
+                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                        <div class="flex flex-col text-left">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">IMMEDIATE START</span>
+                            <span class="text-xl font-black flex items-center gap-2">
+                                隨機開始挑戰 
+                                <span class="bg-white text-black text-xs px-2 py-0.5 font-bold">PLAY</span>
+                            </span>
+                        </div>
+                        <svg class="w-6 h-6 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                    </button>
+
+                    <!-- Section Header -->
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="h-4 w-1 bg-black"></div>
+                        <span class="text-lg font-black text-black uppercase tracking-tight">選擇 PANTONE 年度代表色</span>
+                    </div>
+
+                    <!-- 2026 Layout Split: Left (Card) | Right (Key Visual) -->
+                    <div class="grid grid-cols-2 gap-4 md:gap-8 mb-8">
+                        <!-- Left: 2026 Card -->
+                        ${templatePortrait(p2026)}
+                        
+                        <!-- Right: Key Campaign Visual -->
+                        <div class="pantone-card pantone-card-portrait shadow-card hover:shadow-card-hover group relative overflow-hidden">
+                             <!-- UPDATED: object-[35%_center] to shift content further left (show more right) -->
+                             <img src="${KEY_CAMPAIGN_VISUAL_URL}" class="w-full h-full object-cover object-[35%_center] transition-transform duration-700 group-hover:scale-105" alt="2026 Key Visual">
+                             <div class="absolute bottom-4 left-4 right-4 bg-black/60 backdrop-blur-md p-3 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div class="text-[10px] font-bold uppercase tracking-widest mb-1">Campaign</div>
+                                <div class="font-bold text-sm">2026 Visual Identity</div>
+                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Past Years Grid (Portrait) -->
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
+                        ${otherYears.map(p => templatePortrait(p)).join('')}
+                    </div>
+                </div>
+            `;
+        };
+
+        // 2. Intro View (Detail Page)
+        const renderIntro = () => {
+            const p = state.introBase || state.currentBase;
+            // Force HEX color for Intro view as requested
+            const bgStyle = `background-color: ${p.hex}`;
+
+            return `
+                <div class="animate-fade-in flex flex-col h-full max-w-md mx-auto">
+                    <div class="bg-white shadow-2xl overflow-hidden relative flex-grow flex flex-col">
+                        <button id="btn-intro-close" class="absolute top-4 right-4 z-20 bg-white/50 backdrop-blur hover:bg-white text-black rounded-full p-2 transition-all active:scale-90 shadow-sm">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </button>
+                        
+                        <div class="h-[50vh] w-full relative" style="${bgStyle}">
+                            <div class="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
+                        </div>
+                        
+                        <div class="p-8 flex-1 flex flex-col bg-white">
+                            <img src="${LOGO_URL}" class="h-6 w-auto object-contain object-left mb-8 opacity-80" alt="Pantone">
+                            
+                            <h1 class="text-5xl font-black text-slate-900 mb-2 leading-none tracking-tight">${p.name}</h1>
+                            <div class="flex flex-col mb-8 border-l-4 border-gray-900 pl-4 py-1">
+                                <h2 class="text-2xl font-bold text-slate-500">${p.nameCN}</h2>
+                                <span class="font-mono font-bold text-slate-300 text-sm mt-1">${p.code}</span>
+                            </div>
+                            
+                            <div class="prose prose-sm text-slate-600 font-medium leading-relaxed text-justify mb-8">
+                                ${p.desc}
+                            </div>
+
+                            <button id="btn-start-challenge" class="mt-auto w-full bg-black text-white py-5 font-black text-xl hover:bg-neutral-800 transition-all shadow-lg active:scale-[0.98] flex items-center justify-center gap-3">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                START CHALLENGE
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        };
+
+        // 3. Playing View - KEEPS USING HEX FOR GAME LOGIC
+        const renderPlaying = () => {
+            let cardsHtml = '';
+            for (let i = 0; i < 4; i++) {
+                const isOdd = i === state.oddIndex;
+                const isWrong = i === state.wrongIndex;
+                const displayHex = isOdd ? state.oddColor : state.currentBase.hex;
+                
+                let overlay = '';
+                if (state.showFeedback) {
+                     if (isOdd) {
+                        overlay = `<div class="absolute inset-0 z-20 flex items-center justify-center bg-black/10"><div class="bg-white text-black px-4 py-2 font-bold shadow-lg text-xs animate-pop">ANSWER</div></div>`;
+                     } else if (isWrong) {
+                         overlay = `<div class="absolute inset-0 z-20 flex items-center justify-center bg-red-500/20"><svg class="w-12 h-12 text-red-600 animate-pop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>`;
+                     }
+                }
+
+                cardsHtml += `
+                    <div data-card-index="${i}" class="pantone-card pantone-card-portrait bg-white shadow-card cursor-pointer relative flex flex-col group active:scale-[0.98] transition-transform ${isWrong ? 'animate-shake' : ''}">
+                        ${overlay}
+                        <div class="w-full h-[65%] relative" style="background-color: ${displayHex}"></div>
+                        <div class="flex-1 bg-white p-3 md:p-4 flex flex-col justify-end text-left select-none relative z-10">
+                            <img src="${LOGO_URL}" class="h-3 md:h-4 w-auto object-contain object-left mb-auto opacity-60" alt="Pantone">
+                            <div class="mt-2">
+                                <div class="text-[10px] font-bold text-gray-400 font-mono mb-0.5">${state.currentBase.code}</div>
+                                <div class="text-sm md:text-base font-black text-gray-900 leading-tight truncate">${state.currentBase.name}</div>
+                                <div class="text-[10px] font-bold text-gray-400 mt-0.5">${state.currentBase.nameCN}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="animate-fade-in w-full h-full flex flex-col max-w-md mx-auto">
+                    <div class="text-center mb-4 md:mb-6 mt-2">
+                        <div class="inline-block bg-white px-6 py-3 shadow-sm border border-gray-200">
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">MISSION</p>
+                            <p class="text-base md:text-lg font-bold text-slate-800">
+                                請問哪一個顏色<span class="text-red-500 font-black mx-1">不是</span> ${state.currentBase.nameCN}？
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 md:gap-6 w-full pb-4">
+                        ${cardsHtml}
+                    </div>
+                </div>
+            `;
+        };
+
+        // 4. Game Over View
+        const renderGameOver = () => {
+            const f = state.failedDetails;
+            const currentTitle = getRankTitle(state.level);
+            
+            let reviveBtn = '';
+            if (!state.hasRevived) {
+                reviveBtn = `
+                    <div class="flex flex-col gap-3 mb-6">
+                        <button id="btn-share-revive" class="w-full bg-[#06C755] text-white py-4 font-bold shadow-lg hover:bg-[#05b34d] transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                            <span>分享好友接關 (完成後可領點數)</span>
+                        </button>
+
+                        <button id="btn-trigger-revive" class="w-full bg-indigo-600 text-white py-4 font-bold shadow-lg hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                            <span>了解 2026 Cloud Dancer 接關</span>
+                        </button>
+                        <p class="text-[10px] text-gray-400 mt-1">每局僅限選擇一種方式接關一次</p>
+                    </div>
+                `;
+            } else {
+                 if (state.pendingPointsClaim) {
+                    reviveBtn = `
+                        <div class="mb-6 animate-pop">
+                            <div class="text-xs font-bold text-green-600 uppercase tracking-widest mb-2">分享任務已完成</div>
+                            <button id="btn-claim-points" class="w-full bg-[#06C755] text-white py-4 font-bold shadow-lg hover:bg-[#05b34d] transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15l-5-5 1.41-1.41L11 14.17l7.59-7.59L20 8l-9 9z"/></svg>
+                                <span>前往 LINE 領取集點點數</span>
+                            </button>
+                        </div>
+                    `;
+                 } else {
+                    reviveBtn = `
+                        <div class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">接關機會已用盡</div>
+                    `;
+                 }
+            }
+
+            return `
+                <div class="animate-fade-in w-full max-w-md mx-auto bg-white shadow-2xl overflow-hidden border-t-8 border-black">
+                    <div class="p-8 text-center">
+                        <div class="w-20 h-20 bg-gray-100 flex items-center justify-center mx-auto mb-6 text-4xl shadow-inner border border-gray-200">🏆</div>
+                        
+                        <h2 class="text-3xl font-black text-slate-900 mb-1 uppercase tracking-tight">Game Over</h2>
+                        
+                        <!-- 稱號顯示區域 -->
+                        <div class="my-6 py-4 bg-gray-50 border border-gray-100 relative">
+                            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">獲得稱號 (Rank)</div>
+                            <div class="text-2xl font-black text-indigo-600">${currentTitle}</div>
+                            <div class="text-sm font-bold text-slate-400 mt-1">Level ${state.level}</div>
+                        </div>
+
+                        ${reviveBtn}
+
+                        <div class="bg-slate-50 p-5 text-left mb-6 border-l-4 border-red-500 shadow-sm">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-xs font-bold text-gray-400 uppercase">Analysis</span>
+                                <span class="text-xs font-bold text-red-500">差異度 ${f.difference}%</span>
+                            </div>
+                            
+                            <div class="flex items-center gap-4">
+                                <div class="flex flex-col items-center gap-1">
+                                    <div class="w-12 h-12 shadow-sm border border-gray-200" style="background-color: ${f.oddHex}"></div>
+                                    <span class="text-[10px] font-bold text-gray-500">該題變異色</span>
+                                </div>
+                                <div class="flex-1 h-px bg-gray-300 relative">
+                                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-[10px] text-gray-400 font-mono">VS</div>
+                                </div>
+                                <div class="flex flex-col items-center gap-1">
+                                    <div class="w-12 h-12 shadow-sm border border-gray-200" style="background-color: ${f.baseHex}"></div>
+                                    <span class="text-[10px] font-bold text-gray-500">正確原色</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3">
+                            <button id="btn-restart" class="flex-1 bg-black text-white py-3 font-bold hover:bg-neutral-800 transition-colors active:scale-[0.98]">
+                                重新挑戰
+                            </button>
+                            <button id="btn-leaderboard" class="w-14 bg-gray-100 text-black py-3 font-bold hover:bg-gray-200 transition-colors flex items-center justify-center active:scale-[0.98]">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        };
+
+        // --- Controller ---
+        const render = () => {
+            const app = document.getElementById('app');
+            const header = document.getElementById('main-header');
+            const levelBadge = document.getElementById('level-badge');
+            const levelNum = document.getElementById('level-num');
+            const headerLeaderboard = document.getElementById('btn-header-leaderboard');
+
+            // Header state
+            if (state.view === 'playing') {
+                levelBadge.classList.remove('hidden');
+                levelNum.textContent = state.level;
+                headerLeaderboard.classList.add('hidden');
+            } else {
+                levelBadge.classList.add('hidden');
+                headerLeaderboard.classList.remove('hidden');
+            }
+
+            // Render view
+            switch(state.view) {
+                case 'home': app.innerHTML = renderHome(); break;
+                case 'intro': app.innerHTML = renderIntro(); break;
+                case 'playing': app.innerHTML = renderPlaying(); break;
+                case 'gameover': app.innerHTML = renderGameOver(); break;
+                case 'leaderboard': app.innerHTML = renderLeaderboard(); break;
+            }
+
+            bindEvents();
+        };
+
+        const bindEvents = () => {
+            // Home
+            document.getElementById('btn-random')?.addEventListener('click', startRandomGame);
+            document.querySelectorAll('.pantone-card[data-action="intro"]').forEach(card => {
+                card.addEventListener('click', () => {
+                    const year = parseInt(card.dataset.year);
+                    const name = card.dataset.name;
+                    state.introBase = PANTONE_YEARS.find(p => p.year === year && p.name === name);
+                    state.view = 'intro';
+                    render();
+                    window.scrollTo(0,0);
+                });
+            });
+
+            // Intro
+            document.getElementById('btn-intro-close')?.addEventListener('click', () => {
+                state.view = 'home';
+                render();
+            });
+            document.getElementById('btn-start-challenge')?.addEventListener('click', startGameFromIntro);
+
+            // Playing
+            document.querySelectorAll('.pantone-card[data-card-index]').forEach(card => {
+                card.addEventListener('click', () => handleCardClick(parseInt(card.dataset.cardIndex)));
+            });
+
+            // Game Over
+            document.getElementById('btn-restart')?.addEventListener('click', () => {
+                state.view = 'home';
+                render();
+            });
+            document.getElementById('btn-leaderboard')?.addEventListener('click', () => {
+                state.view = 'leaderboard';
+                render();
+            });
+            
+            // Revive Triggers
+            document.getElementById('btn-trigger-revive')?.addEventListener('click', openReviveModal);
+            document.getElementById('btn-share-revive')?.addEventListener('click', handleShareRevive);
+            
+            // Claim Points Trigger (Only present when pendingPointsClaim is true)
+            document.getElementById('btn-claim-points')?.addEventListener('click', handleClaimPoints);
+
+            // Leaderboard
+            document.getElementById('btn-back')?.addEventListener('click', () => {
+                state.view = 'home';
+                render();
+            });
+        };
+
+        // Header Buttons
+        document.getElementById('btn-header-leaderboard').addEventListener('click', () => {
+            state.view = 'leaderboard';
+            render();
+        });
+
+        // Revive Modal Confirm
+        document.getElementById('btn-confirm-revive').addEventListener('click', confirmRevive);
+
+        // Init LIFF & Game
+        window.onload = function() {
+            // Init Game UI
+            render();
+
+            // Init LIFF (with safety check for preview environment)
+            if (typeof liff !== 'undefined') {
+                liff.init({ liffId: LIFF_ID })
+                    .then(() => {
+                        console.log("LIFF Initialized");
+                        if (!liff.isLoggedIn() && liff.isInClient()) {
+                            // liff.login(); 
+                        }
+                    })
+                    .catch((err) => {
+                        console.warn("LIFF Init Failed or not in LINE environment", err);
+                    });
+            } else {
+                console.warn("LIFF SDK not loaded");
+            }
+        };
+
+    </script>
+</body>
+</html>
