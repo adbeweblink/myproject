@@ -24,7 +24,7 @@ export const TheMoatSection: React.FC = () => {
         {/* Title Section */}
         <div className="mb-8 md:mb-6 shrink-0">
           <SectionHeading 
-            title="在AI肆掠的浪潮築起商業護城河：傳遞Adobe的不可替代性" 
+            title="在 AI 席捲的浪潮築起商業護城河：傳遞 Adobe 的不可替代性" 
             subtitle="The Moat: Accountability & Lock-in" 
             color="bg-red-700" 
           />
@@ -75,7 +75,7 @@ export const TheMoatSection: React.FC = () => {
             </div>
           </div>
 
-          {/* RIGHT: Ecosystem Lock-in (The Chain) */}
+          {/* RIGHT: Ecosystem Fortress (The Chain) */}
           <div className="flex flex-col justify-center relative pb-8 md:pb-0">
             <div className="absolute inset-0 bg-blue-900/5 rounded-3xl -z-10 border border-white/5"></div>
             
@@ -85,7 +85,7 @@ export const TheMoatSection: React.FC = () => {
                   <Link className="text-blue-400" size={24} />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black text-white uppercase tracking-tight">生態鎖死 (Lock-in)</h3>
+                  <h3 className="text-2xl font-black text-white uppercase tracking-tight">生態堡壘 (Fortress)</h3>
                   <p className="text-blue-400 font-bold text-xs tracking-widest uppercase">The Infinite Loop</p>
                 </div>
               </div>
@@ -107,8 +107,8 @@ export const TheMoatSection: React.FC = () => {
                 {/* Vertical Connector */}
                 <div className="absolute left-5 top-8 w-0.5 h-full bg-gradient-to-b from-gray-700 via-blue-500/50 to-gray-700 -z-0"></div>
 
-                {/* Node 2: Pipeline */}
-                <div className="flex items-center gap-4 group ml-8">
+                {/* Node 2: Pipeline - Removed ml-8 to align icon with connector line */}
+                <div className="flex items-center gap-4 group">
                    <div className="w-10 h-10 rounded-full bg-gray-800 border border-gray-600 flex items-center justify-center shrink-0 z-10 group-hover:border-blue-500 transition-colors">
                     <FileCheck size={18} className="text-gray-300 group-hover:text-blue-400" />
                   </div>

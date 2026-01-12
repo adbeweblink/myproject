@@ -46,7 +46,7 @@ export const HeroSlide: React.FC = () => (
         </span>
       </h1>
       <p className="text-sm md:text-base text-gray-200 font-light leading-relaxed w-full mb-8 drop-shadow-lg bg-black/40 backdrop-blur-md p-6 rounded-2xl border border-white/10 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500 fill-mode-both max-w-3xl line-clamp-6 md:line-clamp-none">
-        以 Creative Cloud for Enterprise Edition 4 為企業唯一「免責保護傘」，搭配Firefly多元平台建構零風險的 AI 內容供應鏈，並同步為商務用戶提供Acrobat Studio解決方案，活動AI降低美化門檻；Weblink 的目標是成為 Adobe 與經銷商跟終端客戶之間最高效的「連結器」，專注於解決商業市場碎片化的痛點。
+        以 Creative Cloud for Enterprise Edition 4 為企業唯一「免責保護傘」，搭配 Firefly 多元平台建構零風險的 AI 內容供應鏈，並同步為商務用戶提供 Acrobat Studio 解決方案，活動 AI 降低美化門檻；Weblink 的目標是成為 Adobe 與經銷商及終端客戶之間最高效的「連結器」，專注於解決商業市場碎片化的痛點。
       </p>
       
     </div>

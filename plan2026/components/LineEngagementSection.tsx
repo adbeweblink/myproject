@@ -139,8 +139,8 @@ export const LineEngagementSection: React.FC = () => {
           </h2>
 
           <p className="text-base md:text-xl text-gray-300 mb-8 leading-relaxed">
-            前線業務面對客戶的破冰神器，每日用一杯咖啡的時間洞悉當前創意趨勢，Weblink 官方帳號每周精選 <strong className="text-white border-b border-[#06C755]">全球 Adobe 產業動態快訊</strong>，
-            將繁雜的技術文件轉化為手機易讀的圖文懶人包、用互動小遊戲吸引用戶的青睞。
+            前線業務面對客戶的破冰神器，每日用一杯咖啡的時間洞悉當前創意趨勢，Weblink 官方帳號每週精選 <strong className="text-white border-b border-[#06C755]">全球 Adobe 產業動態快訊</strong>，
+            將繁雜的技術文件轉化為手機易讀的圖文懶人包，並用互動小遊戲吸引用戶青睞。
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4">

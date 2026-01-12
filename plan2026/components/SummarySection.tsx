@@ -110,7 +110,7 @@ export const SummarySection: React.FC = () => {
           >
             <div className="space-y-4 mt-4">
               <div>
-                <div className="text-3xl font-black text-white">117k+</div>
+                <div className="text-3xl font-black text-white">118k+</div>
                 <div className="text-[10px] text-green-400 font-bold uppercase tracking-wider">LINE 好友數</div>
               </div>
               <div>

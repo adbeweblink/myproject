@@ -8,6 +8,7 @@ import { TutorialOverlay } from './TutorialOverlay';
 const NAV_ITEMS = [
   { label: '首頁', id: 'home' },
   { label: '護城河', id: 'moat' }, // The Why
+  { label: '剛需', id: 'three-moats' }, // Changed from 痛點 to 剛需
   { label: '策略', id: 'insight' }, // The Strategy
   { label: '社群', id: 'community' }, // Daily Engagement
   { label: '快訊', id: 'community-details' }, // Content
@@ -15,10 +16,11 @@ const NAV_ITEMS = [
   { label: '訴求', id: 'philosophy' }, // Sales Enablement (Renamed from Philosophy to Appeal)
   { label: '時程', id: 'timeline' }, // Market Impact
   { label: '回顧', id: 'videos' }, // Vendor only
+  { label: '模型', id: 'firefly' }, // NEW Firefly Models
   { label: '生態', id: 'ecosystem' }, // Now Public
   { label: '學堂', id: 'academy' }, // Education - Moved
   { label: '聯盟', id: 'alliance' },
-  { label: '盛會', id: 'flagship' }, // Market Impact (Peak) - Moved
+  { label: '盛會', id: 'flagship' }, // Market Impact (Event) - Moved
   { label: '戰略', id: 'strategy' }, // Now Public
   { label: '效益', id: 'kpi' }, // Proof
   { label: '總結', id: 'summary' }, // NEW Summary

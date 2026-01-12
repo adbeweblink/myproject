@@ -4,6 +4,7 @@ import { Navbar } from './components/Navbar';
 import { HeroSlide } from './components/HeroSlide';
 import { InsightSlide } from './components/InsightSlide';
 import { TheMoatSection } from './components/TheMoatSection'; 
+import { ThreeMoatsSection } from './components/ThreeMoatsSection'; 
 import { TimelineSlide } from './components/TimelineSlide';
 import { VideoGallery } from './components/VideoGallery';
 import { AcademySection } from './components/AcademySection';
@@ -22,6 +23,7 @@ import { Footer } from './components/Footer';
 import { FloatingCTA } from './components/FloatingCTA';
 import { BackToTop } from './components/BackToTop';
 import { FadeIn, FireflyBackground } from './components/ui/Motion';
+import { FireflyModelsSection } from './components/FireflyModelsSection';
 import { Lock, Unlock } from 'lucide-react';
 
 const SectionWrapper: React.FC<{ children: React.ReactNode; id: string; bgColor?: string }> = ({ children, id, bgColor = "bg-black" }) => {
@@ -89,6 +91,7 @@ export default function App() {
     const sections = [
       'home',
       'moat',        // 1. The Why & Strategy (Part 2)
+      'three-moats', // NEW: The Three Pillars
       'insight',     // 1. The Why & Strategy (Part 3)
       'community',   // 2. Daily Engagement
       'community-details', // 2. Daily Engagement (Content)
@@ -96,6 +99,7 @@ export default function App() {
       'philosophy',  // 3. Sales Enablement (Philosophy)
       'timeline',    // 4. Market Impact (Timeline)
       ...(isVendorMode ? ['videos'] : []),
+      'firefly',     // NEW: Firefly Models Section
       'ecosystem',   // Now Public
       'academy',     // 5. Education (Moved after Ecosystem)
       'alliance',    // Public
@@ -173,10 +177,17 @@ export default function App() {
         <HeroSlide />
       </SectionWrapper>
 
-      {/* 2. THE MOAT (Moved Up) */}
+      {/* 2. THE MOAT (The Why) */}
       <SectionWrapper id="moat">
         <FadeIn fullWidth>
           <TheMoatSection />
+        </FadeIn>
+      </SectionWrapper>
+
+      {/* NEW SECTION: The Three Pillars */}
+      <SectionWrapper id="three-moats">
+        <FadeIn fullWidth>
+          <ThreeMoatsSection />
         </FadeIn>
       </SectionWrapper>
 
@@ -230,6 +241,11 @@ export default function App() {
           </FadeIn>
         </SectionWrapper>
       )}
+
+      {/* NEW SECTION: Firefly Models */}
+      <SectionWrapper id="firefly">
+        <FireflyModelsSection />
+      </SectionWrapper>
 
       {/* NOW PUBLIC SECTIONS */}
       <SectionWrapper id="ecosystem">
@@ -295,6 +311,7 @@ export default function App() {
             <div className="text-center">
               <p className="text-gray-600 font-mono text-xs tracking-widest uppercase mb-4">End of Adobe Presentation</p>
               <h2 className="text-2xl font-black">Weblink Adobe FY26</h2>
+              <p className="text-gray-700 text-[10px] mt-2 font-light tracking-wide">內容僅供 FY26 內部策略規劃使用</p>
             </div>
          </div>
       )}

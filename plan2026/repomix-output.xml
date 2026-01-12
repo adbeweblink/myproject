@@ -52,6 +52,7 @@ components/
   BackToTop.tsx
   BusinessAccelerationLab.tsx
   ConcentricStrategySection.tsx
+  FireflyModelsSection.tsx
   FlagshipEventSection.tsx
   FloatingCTA.tsx
   Footer.tsx
@@ -67,6 +68,7 @@ components/
   StrategicAllianceSection.tsx
   SummarySection.tsx
   TheMoatSection.tsx
+  ThreeMoatsSection.tsx
   TimelineSlide.tsx
   TutorialOverlay.tsx
   VideoGallery.tsx
@@ -454,7 +456,7 @@ export const AcademySection: React.FC = () => {
       id: 1,
       month: 'JAN',
       date: '2026.01.28',
-      title: 'Behance物語 Adobe MG動畫AI講座',
+      title: 'Behance 物語 Adobe MG 動畫 AI 講座',
       desc: '探索 Firefly 在 Motion Graphics 的應用，解析 AI 如何加速動畫製作流程。',
       level: 'Motion Design',
       tag: 'Ae + Image Model',
@@ -475,7 +477,7 @@ export const AcademySection: React.FC = () => {
       month: 'APR',
       date: '2026.04.01',
       title: '快充學堂 (TBC)',
-      desc: 'Document Cloud 實戰應用，提升企業文檔流轉效率與 Acrobat AI 助理應用。',
+      desc: 'Document Cloud 實戰應用，提升企業文檔流轉效率與 Acrobat AI Assistant 應用。',
       level: 'Document Cloud',
       tag: 'Pr + Video Model',
       image: 'https://as1.ftcdn.net/jpg/05/94/91/24/1000_F_594912441_CToO2a3I5g4Q1FsFyD9O18Strtix9NgP.jpg'
@@ -553,11 +555,11 @@ export const AcademySection: React.FC = () => {
         <div className="lg:col-span-1 flex flex-col justify-center">
           <SectionHeading 
             title="CC x AI 實戰工作流" 
-            subtitle="2026 Adobe快充學堂" 
+            subtitle="2026 Adobe 快充學堂" 
             color="bg-purple-500"
           />
           <p className="text-gray-300 mb-6 text-sm md:text-base leading-relaxed line-clamp-4 md:line-clamp-none">
-            <strong className="text-white block mb-2 text-lg">從單點功能，到全案解決方案</strong>
+            <strong className="text-white block mb-2 text-lg">從單點功能，到全方位解決方案</strong>
             2026 年的快充學堂聚焦於 <span className="text-purple-400 font-bold">Cross-App Synergy</span>。
             我們展示 Firefly 各大模型如何提供全方位流程解方。
           </p>
@@ -1237,7 +1239,7 @@ export const ConcentricStrategySection: React.FC = () => {
           </div>
 
           {/* Concentric Visualization */}
-          <div className="order-1 lg:order-2 flex items-center justify-center relative min-h-[500px]">
+          <div className="order-1 lg:order-2 flex items-center justify-center relative min-h-[500px] scale-[0.65] md:scale-100 origin-center">
              
              {/* Center Core: Firefly x Adobe */}
              <div className="absolute z-40 flex flex-col items-center justify-center w-32 h-32 rounded-full bg-black border border-blue-500/50 shadow-[0_0_50px_rgba(59,130,246,0.3)]">
@@ -1365,6 +1367,134 @@ export const ConcentricStrategySection: React.FC = () => {
              <div className="absolute w-full h-px bg-gradient-to-r from-transparent via-blue-900/20 to-transparent -rotate-45"></div>
           </div>
        </div>
+    </section>
+  );
+};
+</file>
+
+<file path="components/FireflyModelsSection.tsx">
+import React from 'react';
+import { Image as ImageIcon, PenTool, LayoutTemplate, Video, Headphones, Music, Box } from 'lucide-react';
+import { FadeIn } from './ui/Motion';
+
+const models = [
+  { 
+    id: 'image', 
+    name: 'Firefly Image\nModel', 
+    icon: ImageIcon,
+    bg: 'bg-gradient-to-br from-pink-500 via-red-500 to-yellow-500',
+    img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80'
+  },
+  { 
+    id: 'vector', 
+    name: 'Firefly Vector\nModel', 
+    icon: PenTool,
+    bg: 'bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500',
+    img: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=800&q=80'
+  },
+  { 
+    id: 'design', 
+    name: 'Firefly Design\nModel', 
+    icon: LayoutTemplate,
+    bg: 'bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-500',
+    img: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=800&q=80'
+  },
+  { 
+    id: 'video', 
+    name: 'Firefly Video\nModel', 
+    icon: Video,
+    bg: 'bg-gradient-to-br from-cyan-300 via-blue-500 to-purple-600',
+    img: 'https://images.unsplash.com/photo-1535242208474-9a2793260ca8?auto=format&fit=crop&w=800&q=80'
+  },
+  { 
+    id: 'audio', 
+    name: 'Firefly Audio\nModel', 
+    icon: Headphones,
+    bg: 'bg-gradient-to-br from-pink-300 via-purple-500 to-indigo-500',
+    img: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80'
+  },
+  { 
+    id: 'sfx', 
+    name: 'Firefly Sound\nEffects Model', 
+    icon: Music,
+    bg: 'bg-gradient-to-br from-blue-400 via-indigo-500 to-violet-600',
+    img: 'https://as2.ftcdn.net/v2/jpg/18/44/98/37/1000_F_1844983793_Ivw0RmxPAOoU2ay37Gmap51ESiskmo36.jpg'
+  },
+  { 
+    id: '3d', 
+    name: 'Firefly 3D\nModel', 
+    icon: Box,
+    bg: 'bg-gradient-to-br from-purple-500 via-violet-600 to-fuchsia-600',
+    img: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=800&q=80'
+  }
+];
+
+export const FireflyModelsSection: React.FC = () => {
+  return (
+    <section className="min-h-screen py-10 pt-24 md:pt-10 px-6 md:px-20 border-b border-white/5 bg-[#0a0a0a] flex flex-col justify-center items-center overflow-hidden relative">
+        {/* Background gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-gray-900 to-black pointer-events-none"></div>
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-800/20 via-black to-black pointer-events-none"></div>
+
+        <div className="max-w-7xl mx-auto w-full relative z-10 flex flex-col items-center">
+            {/* Header */}
+            <FadeIn delay={100} className="flex items-center gap-3 md:gap-5 mb-12 md:mb-20">
+                <img 
+                    src="https://adbeweblink.github.io/myproject/images/fl.png" 
+                    alt="Firefly Logo" 
+                    className="w-12 h-12 md:w-16 md:h-16 object-contain drop-shadow-[0_0_25px_rgba(255,50,50,0.6)]"
+                />
+                <h2 className="text-3xl md:text-6xl font-black text-white tracking-tighter drop-shadow-lg">
+                    Adobe Firefly Models
+                </h2>
+            </FadeIn>
+
+            {/* Models Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 md:gap-6 w-full px-2">
+                {models.map((model, idx) => (
+                    <div 
+                        key={model.id} 
+                        className="flex flex-col items-center group"
+                    >
+                        <FadeIn delay={200 + idx * 100} className="w-full flex flex-col items-center">
+                            <div className="relative w-full aspect-square rounded-[1.5rem] md:rounded-[2rem] overflow-hidden mb-4 border border-white/10 group-hover:border-white/40 transition-all duration-500 shadow-2xl group-hover:scale-105 group-hover:shadow-[0_0_30px_rgba(255,255,255,0.15)] cursor-default bg-gray-900">
+                                {/* Background Gradient */}
+                                <div className={`absolute inset-0 ${model.bg} opacity-20 group-hover:opacity-40 transition-opacity duration-500`}></div>
+                                
+                                {/* Image Layer */}
+                                <img 
+                                    src={model.img} 
+                                    alt={model.name}
+                                    className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-100 transition-opacity duration-700 mix-blend-screen grayscale group-hover:grayscale-0"
+                                />
+                                
+                                {/* Inner Shadow & Glass */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-white/5 opacity-80"></div>
+                                
+                                {/* Icon */}
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <model.icon size={40} className="text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] opacity-90 group-hover:scale-110 group-hover:opacity-100 transition-all duration-300" strokeWidth={1.5} />
+                                </div>
+                            </div>
+                            
+                            <h3 className="text-gray-300 font-bold text-center text-xs md:text-sm leading-tight whitespace-pre-line group-hover:text-white transition-colors duration-300">
+                                {model.name}
+                            </h3>
+                        </FadeIn>
+                    </div>
+                ))}
+            </div>
+
+            {/* Footer Text */}
+            <FadeIn delay={1000} className="mt-16 md:mt-24 text-center">
+                <h3 className="text-2xl md:text-4xl font-black text-white mb-3 tracking-tight drop-shadow-2xl">
+                    Commercially safe
+                </h3>
+                <p className="text-lg md:text-2xl font-bold text-gray-400 tracking-widest border-t border-white/10 pt-4 px-8 inline-block">
+                    「商用合規、安全可用」
+                </p>
+            </FadeIn>
+        </div>
     </section>
   );
 };
@@ -1670,7 +1800,7 @@ export const HeroSlide: React.FC = () => (
         </span>
       </h1>
       <p className="text-sm md:text-base text-gray-200 font-light leading-relaxed w-full mb-8 drop-shadow-lg bg-black/40 backdrop-blur-md p-6 rounded-2xl border border-white/10 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500 fill-mode-both max-w-3xl line-clamp-6 md:line-clamp-none">
-        以 Creative Cloud for Enterprise Edition 4 為企業唯一「免責保護傘」，搭配Firefly多元平台建構零風險的 AI 內容供應鏈，並同步為商務用戶提供Acrobat Studio解決方案，活動AI降低美化門檻；Weblink 的目標是成為 Adobe 與經銷商跟終端客戶之間最高效的「連結器」，專注於解決商業市場碎片化的痛點。
+        以 Creative Cloud for Enterprise Edition 4 為企業唯一「免責保護傘」，搭配 Firefly 多元平台建構零風險的 AI 內容供應鏈，並同步為商務用戶提供 Acrobat Studio 解決方案，活動 AI 降低美化門檻；Weblink 的目標是成為 Adobe 與經銷商及終端客戶之間最高效的「連結器」，專注於解決商業市場碎片化的痛點。
       </p>
       
     </div>
@@ -1712,7 +1842,7 @@ export const InsightSlide: React.FC = () => (
             </h3>
             <p className="text-gray-400 text-xs md:text-sm leading-tight">
               <span className="text-blue-400 font-bold">AI 動能注入：</span> 
-              在行銷曝光過程輔以 AI 動能，將傳統技術支援轉化為<strong className="text-white">知識架構</strong>，提高製作速度與品質，讓更多用戶耳目一新，也對於後續內容寄予更多期待與關注。
+              在行銷曝光過程中輔以 AI 動能，將傳統技術支援轉化為<strong className="text-white">知識架構</strong>，提高製作速度與品質，讓更多用戶耳目一新，也對後續內容寄予更多期待與關注。
             </p>
           </Card>
           
@@ -1722,7 +1852,8 @@ export const InsightSlide: React.FC = () => (
             </h3>
             <p className="text-gray-400 text-xs md:text-sm leading-tight">
               <span className="text-purple-400 font-bold">加速銷售締結：</span>
-              優化過的行銷文檔資源作為最強後盾。提供智能知識庫，彙整各種 <strong className="text-white">Adobe 消化過的資訊</strong> 與 ROI 評估報告，透過專業呈現回應客戶質疑，大幅縮短成交週期。
+              <strong className="text-white">工具滲透率 (Tool Penetration) 與成交率呈正相關。</strong>
+              當業務越頻繁使用智能知識庫與 ROI 評估報告，回應客戶質疑的精準度越高，進而大幅縮短成交週期，讓優化過的行銷資源成為最強後盾。
             </p>
           </Card>
 
@@ -1761,13 +1892,14 @@ export const InsightSlide: React.FC = () => (
 
 <file path="components/KPIDashboard.tsx">
 import React, { useState, useEffect, useRef } from 'react';
-import { KPIMetric } from '../types';
-import { Users, Target, Globe } from 'lucide-react';
+import { Users, Target, Globe, ArrowRight, Filter, Zap, Database, TrendingUp } from 'lucide-react';
+import { SectionHeading } from './ui/Shared';
 
+// 動畫數字組件 (保留原本的動效)
 const AnimatedNumber = ({ value }: { value: string }) => {
   const [displayValue, setDisplayValue] = useState(0);
   const numericValue = parseInt(value.replace(/[^0-9]/g, ''));
-  const suffix = value.replace(/[0-9]/g, '');
+  const suffix = value.replace(/[0-9,]/g, ''); // 修正 regex 以保留逗號格式習慣
   const ref = useRef<HTMLDivElement>(null);
   const [hasAnimated, setHasAnimated] = useState(false);
 
@@ -1775,14 +1907,12 @@ const AnimatedNumber = ({ value }: { value: string }) => {
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting && !hasAnimated) {
         setHasAnimated(true);
-        let start = 0;
         const duration = 2000;
         const startTime = performance.now();
 
         const animate = (currentTime: number) => {
           const elapsed = currentTime - startTime;
           const progress = Math.min(elapsed / duration, 1);
-          // Easing function: outExpo
           const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
           const currentCount = Math.floor(easeProgress * numericValue);
           
@@ -1804,69 +1934,150 @@ const AnimatedNumber = ({ value }: { value: string }) => {
 };
 
 export const KPIDashboard: React.FC = () => {
-  const stats = [
-    { value: "50,000+", label: "年度行銷觸及名單 (MQLs)", sub: "High-Intent Pipeline", color: "from-blue-600 to-cyan-500", icon: Target },
-    { value: "26,000+", label: "EDM 商業用戶訂閱", sub: "Active Subscribers", color: "from-yellow-600 to-orange-500", icon: Globe },
-    { value: "117,000+", label: "LINE 創意社群好友", sub: "Creative Community", color: "from-green-600 to-emerald-500", icon: Users },
+  // 現有數據 (量變基礎)
+  const rawStats = [
+    { value: "118,000+", label: "LINE 社群好友", icon: Users, color: "text-green-400", bg: "bg-green-900/20" },
+    { value: "50,000+", label: "年度行銷觸及", icon: Target, color: "text-blue-400", bg: "bg-blue-900/20" },
+    { value: "26,000+", label: "EDM 訂閱用戶", icon: Globe, color: "text-yellow-400", bg: "bg-yellow-900/20" },
   ];
 
   return (
-    <section className="min-h-screen py-10 pt-24 md:pt-10 px-6 md:px-20 border-b border-white/5 bg-black relative overflow-hidden flex flex-col justify-start md:justify-center">
-      {/* Background radial gradient for depth */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-900/10 blur-[150px] rounded-full pointer-events-none"></div>
+    <section className="min-h-screen py-10 pt-24 md:pt-10 px-6 md:px-20 border-b border-white/5 bg-[#050505] relative overflow-hidden flex flex-col justify-start md:justify-center" id="kpi">
+      {/* 背景光暈 */}
+      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[500px] h-[500px] bg-blue-900/10 blur-[120px] rounded-full pointer-events-none"></div>
+      <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[500px] h-[500px] bg-purple-900/10 blur-[120px] rounded-full pointer-events-none"></div>
 
-      {/* KPI SCANLINE ANIMATION */}
-      <div className="absolute inset-0 pointer-events-none z-0 opacity-10">
-        <div className="w-full h-1 bg-white/20 absolute top-0 animate-[scan_8s_linear_infinite]"></div>
-      </div>
+      <div className="max-w-7xl mx-auto w-full relative z-10 flex flex-col h-full justify-center">
+        
+        {/* Header */}
+        <div className="text-center mb-10 md:mb-14 shrink-0">
+          <SectionHeading 
+            title="行銷效益轉化漏斗" 
+            subtitle="Visibility to Conversion" 
+            color="bg-gradient-to-r from-blue-500 to-purple-500" 
+          />
+          <p className="text-gray-400 max-w-3xl mx-auto text-base mt-4 leading-relaxed">
+            雖然實體活動席次有限，但在數位社群上的<span className="text-blue-400 font-bold">能見度與曝光</span>高達數千次點擊。
+            FY26 透過 <span className="text-white font-bold">Lab 工具優勢</span> 篩選精準商業客戶，主要目標是協助經銷業務<span className="text-orange-400 font-bold">有效提升轉化率</span>。
+          </p>
+        </div>
 
-      <style>{`
-        @keyframes scan {
-          0% { top: 0%; opacity: 0; }
-          10% { opacity: 1; }
-          90% { opacity: 1; }
-          100% { top: 100%; opacity: 0; }
-        }
-      `}</style>
-
-      <div className="text-center mb-12 relative z-10 shrink-0">
-        <h2 className="text-3xl md:text-5xl font-black tracking-tighter mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-gray-400">行銷運營數據現況</h2>
-        <div className="w-16 h-1 bg-blue-600 mx-auto rounded-full mb-4"></div>
-        <p className="text-gray-400 max-w-2xl mx-auto text-base">
-          累積至今的數位資產與社群動能，是 FY26 驅動業務潛在商機成長的基石
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10 w-full max-w-7xl mx-auto pb-8 md:pb-0">
-        {stats.map((stat, idx) => (
-          <div 
-            key={idx} 
-            className="group relative bg-white/[0.03] border border-white/10 p-6 md:p-8 rounded-[1.5rem] overflow-hidden hover:bg-white/[0.06] transition-all duration-500 hover:-translate-y-2 backdrop-blur-md"
-          >
-            {/* Glow Effect on Hover */}
-            <div className={`absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-20 blur-3xl transition-opacity duration-700`}></div>
+        {/* 核心視覺：三階段漏斗 (Horizontal Flow) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch relative">
+          
+          {/* STEP 1: 龐大流量 (The Base) - 佔比 5/12 */}
+          <div className="lg:col-span-5 relative group bg-gray-900/30 border border-white/10 p-6 md:p-8 rounded-3xl backdrop-blur-md flex flex-col justify-center">
+            <div className="absolute inset-0 bg-blue-900/5 rounded-3xl pointer-events-none"></div>
             
-            <div className="relative z-10">
-              <div className={`w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-gradient-to-br ${stat.color} flex items-center justify-center text-white mb-6 shadow-lg`}>
-                <stat.icon size={20} />
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 rounded-lg bg-blue-900/20 text-blue-400 border border-blue-500/30">
+                <Database size={20} />
               </div>
-              
-              <div className="text-3xl md:text-4xl font-black text-white mb-2 tracking-tighter">
-                <AnimatedNumber value={stat.value} />
-              </div>
-              
-              <div className="text-white font-bold mb-1 group-hover:text-blue-400 transition-colors text-sm md:text-base">{stat.label}</div>
-              <div className="text-gray-500 text-[9px] uppercase tracking-[0.2em] font-medium">{stat.sub}</div>
+              <h3 className="text-lg font-bold text-white uppercase tracking-wider">Step 1: 曝光與能見度 (Visibility)</h3>
             </div>
-            
-            {/* Corner Accent */}
-            <div className={`absolute bottom-0 right-0 w-12 h-12 bg-gradient-to-tl ${stat.color} opacity-10 group-hover:opacity-30 transition-opacity clip-path-polygon-[100%_0,100%_100%,0_100%]`}></div>
-          </div>
-        ))}
-      </div>
 
-      <div className="mt-12 text-center text-gray-600 font-mono text-[9px] uppercase tracking-[0.5em] opacity-50 shrink-0">
-        Real-time Marketing Intelligence System v2.0
+            {/* 數據卡片列表 */}
+            <div className="space-y-4">
+              {rawStats.map((stat, idx) => (
+                <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-black/40 border border-white/5 group-hover:border-white/10 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-full ${stat.bg} ${stat.color}`}>
+                      <stat.icon size={16} />
+                    </div>
+                    <span className="text-gray-400 text-sm font-medium">{stat.label}</span>
+                  </div>
+                  <span className="text-2xl font-black text-white tracking-tight">
+                    <AnimatedNumber value={stat.value} />
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 text-[10px] text-gray-500 text-center font-mono">
+              * 數千次有效點擊與資訊擴散
+            </div>
+          </div>
+
+          {/* ARROW AREA (Desktop) - 佔比 1/12 */}
+          <div className="hidden lg:flex lg:col-span-1 flex-col items-center justify-center relative">
+            <div className="w-full h-1 bg-gradient-to-r from-blue-900/50 to-purple-900/50 absolute top-1/2 -translate-y-1/2 -z-10"></div>
+            <div className="p-3 rounded-full bg-[#0a0a0a] border border-white/20 text-gray-500 z-10 animate-pulse">
+               <ArrowRight size={24} />
+            </div>
+          </div>
+
+          {/* ARROW AREA (Mobile) */}
+          <div className="lg:hidden flex justify-center py-2 text-gray-600">
+             <ArrowRight size={24} className="rotate-90" />
+          </div>
+
+          {/* STEP 2: 質變機制 (The Filter) - 佔比 3/12 */}
+          <div className="lg:col-span-3 relative group bg-gradient-to-br from-purple-900/10 to-pink-900/10 border border-purple-500/30 p-6 md:p-8 rounded-3xl backdrop-blur-md flex flex-col items-center text-center justify-center shadow-[0_0_30px_rgba(168,85,247,0.05)]">
+             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-500">
+                <Filter size={28} className="text-white" />
+             </div>
+             <h3 className="text-white font-bold mb-1">Step 2: Lab 優勢篩選</h3>
+             <p className="text-purple-300 text-[10px] font-bold uppercase tracking-widest mb-4">Precision Filtering</p>
+             
+             <ul className="text-xs text-gray-300 space-y-3 text-left w-full pl-2">
+                <li className="flex items-start gap-2">
+                   <span className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-1.5 shrink-0"></span>
+                   <span>透過<strong className="text-white">規格生成器</strong>篩選剛需</span>
+                </li>
+                <li className="flex items-start gap-2">
+                   <span className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-1.5 shrink-0"></span>
+                   <span>透過<strong className="text-white">成本試算</strong>鎖定預算客</span>
+                </li>
+                <li className="flex items-start gap-2">
+                   <span className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-1.5 shrink-0"></span>
+                   <span>排除無效贈品粉</span>
+                </li>
+             </ul>
+          </div>
+
+          {/* ARROW AREA (Desktop) - 佔比 1/12 */}
+          <div className="hidden lg:flex lg:col-span-1 flex-col items-center justify-center relative">
+            <div className="w-full h-1 bg-gradient-to-r from-purple-900/50 to-orange-900/50 absolute top-1/2 -translate-y-1/2 -z-10"></div>
+             <div className="p-3 rounded-full bg-[#0a0a0a] border border-white/20 text-gray-500 z-10 animate-pulse delay-150">
+               <ArrowRight size={24} />
+            </div>
+          </div>
+
+          {/* ARROW AREA (Mobile) */}
+          <div className="lg:hidden flex justify-center py-2 text-gray-600">
+             <ArrowRight size={24} className="rotate-90" />
+          </div>
+
+          {/* STEP 3: 商機變現 (The Gold) - 佔比 2/12 */}
+          <div className="lg:col-span-2 relative group bg-gradient-to-b from-orange-900/20 to-red-900/20 border border-orange-500/40 p-6 rounded-3xl backdrop-blur-md flex flex-col items-center text-center justify-center">
+             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(234,179,8,0.3)]">
+                <TrendingUp size={24} className="text-white" />
+             </div>
+             <h3 className="text-white font-bold text-sm mb-1">Step 3: 業務賦能</h3>
+             <div className="text-[9px] font-bold text-orange-400 uppercase tracking-widest mb-3">Sales Enablement</div>
+             
+             <div className="bg-black/40 rounded-lg p-2 w-full border border-orange-500/20">
+                <div className="text-xs text-gray-400 mb-1">成交轉化率</div>
+                <div className="text-xl font-black text-white">有效提升</div>
+             </div>
+             <div className="mt-2 text-[9px] text-gray-500 leading-tight">
+                *客戶直接聯繫經銷商<br/>Weblink 提供精準助攻
+             </div>
+          </div>
+
+        </div>
+
+        {/* 底部總結與防禦話術 */}
+        <div className="mt-12 text-center animate-in fade-in slide-in-from-bottom-4 duration-700">
+           <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-6 py-3 rounded-full backdrop-blur-md">
+              <Zap size={16} className="text-yellow-400" />
+              <span className="text-gray-300 text-xs md:text-sm">
+                 FY26 策略：擴大左側 <span className="text-blue-400 font-bold">曝光能見度</span>，
+                 利用中間 <span className="text-purple-400 font-bold">Lab 優勢篩選</span>，
+                 最終協助業務 <span className="text-orange-400 font-bold">提升轉化</span>。
+              </span>
+           </div>
+        </div>
+
       </div>
     </section>
   );
@@ -1903,7 +2114,7 @@ export const LineContentShowcase: React.FC = () => {
       id: 2,
       icon: ImageIcon,
       category: "Event Connect",
-      title: "當地近期活動佈達",
+      title: "在地近期活動佈達",
       desc: "整合全台實體研討會、線上直播與快充學堂報名資訊。精準鎖定您所在城市的創意盛會。",
       color: "bg-blue-600",
       stats: "活動第一線"
@@ -1912,8 +2123,8 @@ export const LineContentShowcase: React.FC = () => {
       id: 3,
       icon: Zap,
       category: "Analysis & Report",
-      title: "在地化的產品比較整理",
-      desc: "針對台灣企業常見的軟硬體組合，提供最貼近實際使用情境的橫向測評。包含 AI 效能比對、版本差異分析。",
+      title: "在地化產品比較整理",
+      desc: "針對台灣企業常見的軟硬體組合，提供最貼近實際使用情境的橫向評測。包含 AI 效能比對、版本差異分析。",
       color: "bg-yellow-500",
       stats: "採購必讀"
     },
@@ -1921,7 +2132,7 @@ export const LineContentShowcase: React.FC = () => {
       id: 4,
       icon: ShieldCheck,
       category: "Tech Support",
-      title: "AI智能技術支援協助",
+      title: "AI 智能技術支援協助",
       desc: "遇到 AI 功能無法啟動或資安合規疑問？我們的專欄提供模組化的疑難排解與技術導引。",
       color: "bg-green-600",
       stats: "創意守護"
@@ -2237,8 +2448,8 @@ export const LineEngagementSection: React.FC = () => {
           </h2>
 
           <p className="text-base md:text-xl text-gray-300 mb-8 leading-relaxed">
-            前線業務面對客戶的破冰神器，每日用一杯咖啡的時間洞悉當前創意趨勢，Weblink 官方帳號每周精選 <strong className="text-white border-b border-[#06C755]">全球 Adobe 產業動態快訊</strong>，
-            將繁雜的技術文件轉化為手機易讀的圖文懶人包、用互動小遊戲吸引用戶的青睞。
+            前線業務面對客戶的破冰神器，每日用一杯咖啡的時間洞悉當前創意趨勢，Weblink 官方帳號每週精選 <strong className="text-white border-b border-[#06C755]">全球 Adobe 產業動態快訊</strong>，
+            將繁雜的技術文件轉化為手機易讀的圖文懶人包，並用互動小遊戲吸引用戶青睞。
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4">
@@ -2844,6 +3055,7 @@ import { TutorialOverlay } from './TutorialOverlay';
 const NAV_ITEMS = [
   { label: '首頁', id: 'home' },
   { label: '護城河', id: 'moat' }, // The Why
+  { label: '剛需', id: 'three-moats' }, // Changed from 痛點 to 剛需
   { label: '策略', id: 'insight' }, // The Strategy
   { label: '社群', id: 'community' }, // Daily Engagement
   { label: '快訊', id: 'community-details' }, // Content
@@ -2851,10 +3063,11 @@ const NAV_ITEMS = [
   { label: '訴求', id: 'philosophy' }, // Sales Enablement (Renamed from Philosophy to Appeal)
   { label: '時程', id: 'timeline' }, // Market Impact
   { label: '回顧', id: 'videos' }, // Vendor only
+  { label: '模型', id: 'firefly' }, // NEW Firefly Models
   { label: '生態', id: 'ecosystem' }, // Now Public
   { label: '學堂', id: 'academy' }, // Education - Moved
   { label: '聯盟', id: 'alliance' },
-  { label: '盛會', id: 'flagship' }, // Market Impact (Peak) - Moved
+  { label: '盛會', id: 'flagship' }, // Market Impact (Event) - Moved
   { label: '戰略', id: 'strategy' }, // Now Public
   { label: '效益', id: 'kpi' }, // Proof
   { label: '總結', id: 'summary' }, // NEW Summary
@@ -3614,8 +3827,8 @@ export const StrategicAllianceSection: React.FC = () => {
       id: 'hardware', 
       category: '硬體綑綁行銷', 
       icon: Cpu,
-      partners: [{ name: 'AIPC 硬體加速', logo: '' }],
-      desc: '工欲善其事，利用 AI 算力需求帶動軟硬體雙向升級。',
+      partners: [{ name: 'AI PC 硬體加速', logo: '' }],
+      desc: '工欲善其事，必先利其器。利用 AI 算力需求帶動軟硬體雙向升級。',
       relationship: 'Firefly 生成式 AI 與 Premiere Pro 的 8K 剪輯依賴 NPU 加速。軟體效能的上限，往往取決於硬體的算力架構。',
       opportunity: '與筆電大廠推出「Adobe 認證創作者筆電」，將硬體與 CCE 授權綑綁，說服採購部門進行全套設備汰換。',
       color: 'border-indigo-500', 
@@ -3630,7 +3843,7 @@ export const StrategicAllianceSection: React.FC = () => {
       partners: [{ name: '3D 建模軟體', logo: '' }],
       desc: '打破 2D 與 3D 的創作藩籬，開拓遊戲與影視特效市場。',
       relationship: 'Adobe Substance 3D 與 After Effects 是動畫產業的工業標準。與即時動畫工具的整合，能補足 Adobe 在角色動態上的最後一哩路。',
-      opportunity: '鎖定遊戲開發商與 Vtuber 產業，推動「Substance + Ae」的高階訂閱組合，並透過 3D 角色工作坊吸引傳統平面設計師升級。',
+      opportunity: '鎖定遊戲開發商與 VTuber 產業，推動「Substance + Ae」的高階訂閱組合，並透過 3D 角色工作坊吸引傳統平面設計師升級。',
       color: 'border-orange-500', 
       textColor: 'text-orange-500', 
       bg: 'bg-orange-900/10',
@@ -3642,7 +3855,7 @@ export const StrategicAllianceSection: React.FC = () => {
       icon: Type,
       partners: [{ name: '商用字體授權', logo: '' }],
       desc: '消除企業最恐懼的侵權風險，推廣正版字型與軟體合規。',
-      relationship: '字型侵權是企業最常見的法律地雷。Adobe Fonts 雖強大，但在地化中文字型仍需第三方補強。結合雙方優勢，提供完整的字型合規防護網。',
+      relationship: '字型侵權是企業最常見的法律地雷。Adobe Fonts 雖強大，但在地中文字型仍需第三方補強。結合雙方優勢，提供完整的字型合規防護網。',
       opportunity: '提供企業「數位資產合規健檢」，在審查字型授權的同時，一併檢視並正規化 Adobe 軟體授權，帶動 CCE 企業版銷售。',
       color: 'border-blue-500', 
       textColor: 'text-blue-500', 
@@ -3679,7 +3892,7 @@ export const StrategicAllianceSection: React.FC = () => {
           <div className="w-full">
             <p className="text-gray-300 text-sm md:text-base max-w-4xl leading-relaxed">
               <strong className="text-white block mb-2 text-lg">從「模型驅動」向外擴張至「場景落地」</strong>
-              這是生態圈的第二層擴張。創意不僅需要軟體核心，更需要強大的硬體支撐。Weblink 連結 AIPC 算力、色彩權威與儲存方案，為高負載的 AI 工作流構建最堅實的物理基座，實現軟硬體整合的完整閉環。
+              這是生態圈的第二層擴張。創意不僅需要軟體核心，更需要強大的硬體支撐。Weblink 連結 AI PC 算力、色彩權威與儲存方案，為高負載的 AI 工作流構建最堅實的物理基座，實現軟硬體整合的完整閉環。
             </p>
           </div>
         </div>
@@ -3936,7 +4149,7 @@ export const SummarySection: React.FC = () => {
           >
             <div className="space-y-4 mt-4">
               <div>
-                <div className="text-3xl font-black text-white">117k+</div>
+                <div className="text-3xl font-black text-white">118k+</div>
                 <div className="text-[10px] text-green-400 font-bold uppercase tracking-wider">LINE 好友數</div>
               </div>
               <div>
@@ -4079,7 +4292,7 @@ export const TheMoatSection: React.FC = () => {
         {/* Title Section */}
         <div className="mb-8 md:mb-6 shrink-0">
           <SectionHeading 
-            title="在AI肆掠的浪潮築起商業護城河：傳遞Adobe的不可替代性" 
+            title="在 AI 席捲的浪潮築起商業護城河：傳遞 Adobe 的不可替代性" 
             subtitle="The Moat: Accountability & Lock-in" 
             color="bg-red-700" 
           />
@@ -4130,7 +4343,7 @@ export const TheMoatSection: React.FC = () => {
             </div>
           </div>
 
-          {/* RIGHT: Ecosystem Lock-in (The Chain) */}
+          {/* RIGHT: Ecosystem Fortress (The Chain) */}
           <div className="flex flex-col justify-center relative pb-8 md:pb-0">
             <div className="absolute inset-0 bg-blue-900/5 rounded-3xl -z-10 border border-white/5"></div>
             
@@ -4140,7 +4353,7 @@ export const TheMoatSection: React.FC = () => {
                   <Link className="text-blue-400" size={24} />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black text-white uppercase tracking-tight">生態鎖死 (Lock-in)</h3>
+                  <h3 className="text-2xl font-black text-white uppercase tracking-tight">生態堡壘 (Fortress)</h3>
                   <p className="text-blue-400 font-bold text-xs tracking-widest uppercase">The Infinite Loop</p>
                 </div>
               </div>
@@ -4162,8 +4375,8 @@ export const TheMoatSection: React.FC = () => {
                 {/* Vertical Connector */}
                 <div className="absolute left-5 top-8 w-0.5 h-full bg-gradient-to-b from-gray-700 via-blue-500/50 to-gray-700 -z-0"></div>
 
-                {/* Node 2: Pipeline */}
-                <div className="flex items-center gap-4 group ml-8">
+                {/* Node 2: Pipeline - Removed ml-8 to align icon with connector line */}
+                <div className="flex items-center gap-4 group">
                    <div className="w-10 h-10 rounded-full bg-gray-800 border border-gray-600 flex items-center justify-center shrink-0 z-10 group-hover:border-blue-500 transition-colors">
                     <FileCheck size={18} className="text-gray-300 group-hover:text-blue-400" />
                   </div>
@@ -4195,6 +4408,219 @@ export const TheMoatSection: React.FC = () => {
           </div>
 
         </div>
+      </div>
+    </section>
+  );
+};
+</file>
+
+<file path="components/ThreeMoatsSection.tsx">
+import React, { useState } from 'react';
+import { 
+  Printer, 
+  Clapperboard, 
+  FileSignature, 
+  AlertTriangle, 
+  XCircle, 
+  CheckCircle2, 
+  ChevronDown, 
+  Terminal
+} from 'lucide-react';
+import { SectionHeading } from './ui/Shared';
+
+const MOAT_DATA = [
+  {
+    id: 'print',
+    title: '平面設計：印刷與實體包裝',
+    subtitle: 'Physical Production Standards',
+    icon: Printer,
+    color: 'text-cyan-400',
+    borderColor: 'border-cyan-500',
+    bgGradient: 'from-cyan-900/20 to-blue-900/20',
+    killerCommand: "麻煩給我這款包裝的 CMYK 原始完稿檔 (.ai)。需設定 Spot Color 燙金與白墨防透。",
+    specs: [
+      "結構：刀模線 (Die-cut) 設疊印 (Overprint)",
+      "色準：Pantone 877C (銀) + K100 直壓",
+      "交付：300dpi, 3mm 出血, 轉外框, EAN-13 條碼",
+      "全域：設定段落樣式 (Paragraph Styles)"
+    ],
+    aiFail: [
+      "AI 不懂「燙金版」和「白墨」物理圖層",
+      "AI 生成 RGB 混色黑，印刷小字會糊掉",
+      "AI 生成的條碼無法被掃描槍讀取"
+    ]
+  },
+  {
+    id: 'motion',
+    title: '動態剪輯：訊號合規與標準',
+    subtitle: 'Broadcast Compliance',
+    icon: Clapperboard,
+    color: 'text-purple-400',
+    borderColor: 'border-purple-500',
+    bgGradient: 'from-purple-900/20 to-pink-900/20',
+    killerCommand: "這支片子要進機房排播，請依廣播規範交付。聲畫分軌 (Stems) 且響度控制在 -24 LKFS。",
+    specs: [
+      "聲音：輸出 OMF/AAF，對白/音樂徹底分軌",
+      "訊號：Rec.709 (16-235) 安全範圍，禁溢出",
+      "透明度：ProRes 4444 with Alpha 直疊",
+      "鎖定：鎖死動畫，只開放文字欄位 (MOGRT)"
+    ],
+    aiFail: [
+      "AI 生成視訊音訊糊在一起，無法進混音室",
+      "AI 顏色隨機，超出廣播安全範圍會爆音閃爍",
+      "AI 無法製作可替換內容的動態模組"
+    ]
+  },
+  {
+    id: 'doc',
+    title: '資安合規：文件簽署與法效',
+    subtitle: 'Legal & Accessibility',
+    icon: FileSignature,
+    color: 'text-red-400',
+    borderColor: 'border-red-500',
+    bgGradient: 'from-red-900/20 to-orange-900/20',
+    killerCommand: "這是跨國併購合約。簽名需具備數位憑證 (Digital ID)，個資需徹底抹除 (Redact)。",
+    specs: [
+      "法效：需含時間戳記與 PKI 金鑰憑證",
+      "資安：徹底抹除數據 (二進位抹除) 非色塊遮蓋",
+      "無障礙：符合 PDF/UA (ISO 14289) 標籤樹",
+      "邏輯：互動式表單，JS 自動加總檢核"
+    ],
+    aiFail: [
+      "AI 給的是圖片而非憑證，無法律效力",
+      "AI 只能掩蓋像素，無法徹底刪除代碼數據",
+      "AI PDF 缺乏 Tag Tree 結構，無法通過政府檢測"
+    ]
+  }
+];
+
+export const ThreeMoatsSection: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<string | null>(null);
+
+  return (
+    <section className="min-h-screen py-10 pt-24 md:pt-10 px-6 md:px-20 border-b border-white/5 bg-[#080808] flex flex-col justify-center relative overflow-hidden">
+      {/* Tech Grid Background */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none"></div>
+      
+      <div className="max-w-7xl mx-auto w-full relative z-10 flex flex-col h-full justify-center">
+        
+        {/* Header - Centered Layout */}
+        <div className="mb-10 shrink-0 flex flex-col items-center text-center">
+          <div className="w-16 h-1.5 bg-gray-200 mb-3 rounded-full shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
+          <p className="text-gray-400 font-bold tracking-[0.2em] uppercase text-[10px] md:text-xs mb-2 animate-pulse">
+            The Technical Fortresses
+          </p>
+          <h2 className="text-3xl md:text-5xl font-black tracking-tighter leading-tight text-balance drop-shadow-lg bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-500 mb-6">
+            三大技術堡壘
+          </h2>
+          <p className="text-gray-400 text-sm md:text-base max-w-3xl leading-relaxed">
+            當客戶質疑「為什麼不用免費 AI 生成就好？」時，
+            請展示以下 <strong className="text-white">工業標準 (Industry Standards)</strong> 的殘酷現實。
+            AI 能夠生成像素，但無法生成符合物理製程與法規的交付檔案。
+          </p>
+        </div>
+
+        {/* 3 Pillars Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {MOAT_DATA.map((item) => (
+            <div 
+              key={item.id}
+              className={`
+                group relative rounded-2xl border border-white/10 bg-[#111] overflow-hidden transition-all duration-500
+                hover:border-opacity-50 hover:-translate-y-2
+                ${activeTab === item.id ? 'ring-1 ring-white/20' : ''}
+              `}
+              onMouseEnter={() => setActiveTab(item.id)}
+              onMouseLeave={() => setActiveTab(null)}
+            >
+              {/* Gradient BG */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${item.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none`}></div>
+
+              <div className="relative p-6 md:p-8 flex flex-col h-full">
+                
+                {/* Header */}
+                <div className="flex items-center gap-4 mb-6">
+                  <div className={`p-3 rounded-xl bg-black/50 border border-white/10 ${item.color} shadow-lg group-hover:scale-110 transition-transform`}>
+                    <item.icon size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-black text-white leading-tight">{item.title}</h3>
+                    <div className={`text-[10px] font-bold uppercase tracking-widest ${item.color} opacity-80`}>{item.subtitle}</div>
+                  </div>
+                </div>
+
+                {/* The Killer Command (Red Zone) */}
+                <div className="bg-red-900/10 border-l-2 border-red-500 p-4 rounded-r-lg mb-6 relative">
+                  <div className="absolute -left-[9px] -top-3 bg-[#111] text-red-500 rounded-full p-1 border border-red-900/50">
+                     <AlertTriangle size={12} fill="currentColor" className="text-black" />
+                  </div>
+                  <div className="text-[10px] text-red-400 font-bold uppercase tracking-wider mb-1">Client Demand (甲方指令)</div>
+                  <p className="text-gray-200 text-xs font-mono leading-relaxed">
+                    "{item.killerCommand}"
+                  </p>
+                </div>
+
+                {/* Tech Specs (Code Style) */}
+                <div className="space-y-3 mb-6 flex-1">
+                   {item.specs.map((spec, i) => (
+                     <div key={i} className="flex items-start gap-2 text-xs text-gray-400 group-hover:text-gray-300 transition-colors">
+                        <Terminal size={12} className={`mt-0.5 shrink-0 ${item.color}`} />
+                        <span className="font-mono">{spec}</span>
+                     </div>
+                   ))}
+                </div>
+
+                {/* AI Failure (Bottom) */}
+                <div className="mt-auto pt-4 border-t border-white/5">
+                   <div className="flex items-center gap-2 mb-2">
+                      <XCircle size={14} className="text-red-500" />
+                      <span className="text-[10px] font-bold text-red-500 uppercase tracking-wider">Why AI Fails (AI 做不到)</span>
+                   </div>
+                   <ul className="space-y-1.5 pl-1">
+                      {item.aiFail.map((fail, i) => (
+                        <li key={i} className="text-[11px] text-gray-500 leading-tight list-disc list-inside marker:text-red-900">
+                           {fail}
+                        </li>
+                      ))}
+                   </ul>
+                </div>
+
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* The Golden Sentence (Summary) - Refined Layout */}
+        <div className="relative w-full max-w-4xl mx-auto text-center px-4 mt-8">
+           
+           <h2 className="text-base md:text-xl font-black text-white mb-6 leading-normal tracking-tight">
+             如果客戶問：「為什麼要花錢買 Adobe，不直接用免費 AI 生成就好？」
+           </h2>
+
+           <div className="space-y-4 md:space-y-6">
+              <p className="text-base md:text-2xl text-gray-300 font-medium">
+                「AI 是負責<span className="text-white border-b-2 border-yellow-500 mx-2">產生靈感</span>的，<br className="md:hidden" />
+                Adobe 是負責<span className="text-white border-b-2 border-blue-500 mx-2">對靈感負責</span>的。」
+              </p>
+
+              <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 mt-4">
+                 <div className="px-6 py-3 rounded-full bg-white/5 border border-white/10 text-gray-400 text-xs md:text-sm">
+                    無法修改的設計 ➝ 叫 <span className="text-white font-bold">藝術品</span>
+                 </div>
+                 <div className="hidden md:block text-gray-600 font-bold">vs</div>
+                 <div className="px-6 py-3 rounded-full bg-blue-900/20 border border-blue-500/30 text-blue-200 text-xs md:text-sm shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+                    可以精準修改的設計 ➝ 才叫 <span className="text-white font-bold">商品</span>
+                 </div>
+              </div>
+              
+              <div className="mt-6 inline-block">
+                 <p className="text-sm md:text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-gray-200 via-white to-gray-400 border border-white/20 px-8 py-3 rounded-xl backdrop-blur-md bg-white/5 shadow-2xl">
+                    Adobe 就是把藝術品變成商品的那個<span className="text-blue-400 ml-2">加工廠</span>
+                 </p>
+              </div>
+           </div>
+        </div>
+
       </div>
     </section>
   );
@@ -4252,8 +4678,8 @@ export const TimelineSlide: React.FC = () => {
   const events: EventItem[] = [
     // Q1
     { id: 101, date: "2025-12-17", name: "DV ASIA Workflow (CC)", type: EVENT_TYPES.PHYSICAL_CC, status: "Standard", highlight: false },
-    { id: 104, date: "2026-01-28", name: "Adobe MG動畫AI講座(CC)", type: EVENT_TYPES.ONLINE_CC, status: "Webinar", highlight: false },
-    { id: 103, date: "2026-01-29", name: "PDF印務色彩管理(DC)", type: EVENT_TYPES.ONLINE_DC, status: "Webinar", highlight: false },
+    { id: 104, date: "2026-01-28", name: "Adobe MG 動畫 AI 講座(CC)", type: EVENT_TYPES.ONLINE_CC, status: "Webinar", highlight: false },
+    { id: 103, date: "2026-01-29", name: "PDF 印務色彩管理(DC)", type: EVENT_TYPES.ONLINE_DC, status: "Webinar", highlight: false },
     { id: 105, date: "2026-02-15", name: "Cyber Security 研討會", type: EVENT_TYPES.EXTERNAL, status: "Seminar", highlight: false },
 
     // Q2
@@ -4798,6 +5224,7 @@ import { Navbar } from './components/Navbar';
 import { HeroSlide } from './components/HeroSlide';
 import { InsightSlide } from './components/InsightSlide';
 import { TheMoatSection } from './components/TheMoatSection'; 
+import { ThreeMoatsSection } from './components/ThreeMoatsSection'; 
 import { TimelineSlide } from './components/TimelineSlide';
 import { VideoGallery } from './components/VideoGallery';
 import { AcademySection } from './components/AcademySection';
@@ -4816,6 +5243,7 @@ import { Footer } from './components/Footer';
 import { FloatingCTA } from './components/FloatingCTA';
 import { BackToTop } from './components/BackToTop';
 import { FadeIn, FireflyBackground } from './components/ui/Motion';
+import { FireflyModelsSection } from './components/FireflyModelsSection';
 import { Lock, Unlock } from 'lucide-react';
 
 const SectionWrapper: React.FC<{ children: React.ReactNode; id: string; bgColor?: string }> = ({ children, id, bgColor = "bg-black" }) => {
@@ -4883,6 +5311,7 @@ export default function App() {
     const sections = [
       'home',
       'moat',        // 1. The Why & Strategy (Part 2)
+      'three-moats', // NEW: The Three Pillars
       'insight',     // 1. The Why & Strategy (Part 3)
       'community',   // 2. Daily Engagement
       'community-details', // 2. Daily Engagement (Content)
@@ -4890,6 +5319,7 @@ export default function App() {
       'philosophy',  // 3. Sales Enablement (Philosophy)
       'timeline',    // 4. Market Impact (Timeline)
       ...(isVendorMode ? ['videos'] : []),
+      'firefly',     // NEW: Firefly Models Section
       'ecosystem',   // Now Public
       'academy',     // 5. Education (Moved after Ecosystem)
       'alliance',    // Public
@@ -4967,10 +5397,17 @@ export default function App() {
         <HeroSlide />
       </SectionWrapper>
 
-      {/* 2. THE MOAT (Moved Up) */}
+      {/* 2. THE MOAT (The Why) */}
       <SectionWrapper id="moat">
         <FadeIn fullWidth>
           <TheMoatSection />
+        </FadeIn>
+      </SectionWrapper>
+
+      {/* NEW SECTION: The Three Pillars */}
+      <SectionWrapper id="three-moats">
+        <FadeIn fullWidth>
+          <ThreeMoatsSection />
         </FadeIn>
       </SectionWrapper>
 
@@ -5024,6 +5461,11 @@ export default function App() {
           </FadeIn>
         </SectionWrapper>
       )}
+
+      {/* NEW SECTION: Firefly Models */}
+      <SectionWrapper id="firefly">
+        <FireflyModelsSection />
+      </SectionWrapper>
 
       {/* NOW PUBLIC SECTIONS */}
       <SectionWrapper id="ecosystem">
@@ -5089,6 +5531,7 @@ export default function App() {
             <div className="text-center">
               <p className="text-gray-600 font-mono text-xs tracking-widest uppercase mb-4">End of Adobe Presentation</p>
               <h2 className="text-2xl font-black">Weblink Adobe FY26</h2>
+              <p className="text-gray-700 text-[10px] mt-2 font-light tracking-wide">內容僅供 FY26 內部策略規劃使用</p>
             </div>
          </div>
       )}

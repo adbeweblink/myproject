@@ -12,7 +12,7 @@ export const AcademySection: React.FC = () => {
       id: 1,
       month: 'JAN',
       date: '2026.01.28',
-      title: 'Behance物語 Adobe MG動畫AI講座',
+      title: 'Behance 物語 Adobe MG 動畫 AI 講座',
       desc: '探索 Firefly 在 Motion Graphics 的應用，解析 AI 如何加速動畫製作流程。',
       level: 'Motion Design',
       tag: 'Ae + Image Model',
@@ -33,7 +33,7 @@ export const AcademySection: React.FC = () => {
       month: 'APR',
       date: '2026.04.01',
       title: '快充學堂 (TBC)',
-      desc: 'Document Cloud 實戰應用，提升企業文檔流轉效率與 Acrobat AI 助理應用。',
+      desc: 'Document Cloud 實戰應用，提升企業文檔流轉效率與 Acrobat AI Assistant 應用。',
       level: 'Document Cloud',
       tag: 'Pr + Video Model',
       image: 'https://as1.ftcdn.net/jpg/05/94/91/24/1000_F_594912441_CToO2a3I5g4Q1FsFyD9O18Strtix9NgP.jpg'
@@ -111,11 +111,11 @@ export const AcademySection: React.FC = () => {
         <div className="lg:col-span-1 flex flex-col justify-center">
           <SectionHeading 
             title="CC x AI 實戰工作流" 
-            subtitle="2026 Adobe快充學堂" 
+            subtitle="2026 Adobe 快充學堂" 
             color="bg-purple-500"
           />
           <p className="text-gray-300 mb-6 text-sm md:text-base leading-relaxed line-clamp-4 md:line-clamp-none">
-            <strong className="text-white block mb-2 text-lg">從單點功能，到全案解決方案</strong>
+            <strong className="text-white block mb-2 text-lg">從單點功能，到全方位解決方案</strong>
             2026 年的快充學堂聚焦於 <span className="text-purple-400 font-bold">Cross-App Synergy</span>。
             我們展示 Firefly 各大模型如何提供全方位流程解方。
           </p>

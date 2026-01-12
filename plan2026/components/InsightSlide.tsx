@@ -26,7 +26,7 @@ export const InsightSlide: React.FC = () => (
             </h3>
             <p className="text-gray-400 text-xs md:text-sm leading-tight">
               <span className="text-blue-400 font-bold">AI 動能注入：</span> 
-              在行銷曝光過程輔以 AI 動能，將傳統技術支援轉化為<strong className="text-white">知識架構</strong>，提高製作速度與品質，讓更多用戶耳目一新，也對於後續內容寄予更多期待與關注。
+              在行銷曝光過程中輔以 AI 動能，將傳統技術支援轉化為<strong className="text-white">知識架構</strong>，提高製作速度與品質，讓更多用戶耳目一新，也對後續內容寄予更多期待與關注。
             </p>
           </Card>
           
@@ -36,7 +36,8 @@ export const InsightSlide: React.FC = () => (
             </h3>
             <p className="text-gray-400 text-xs md:text-sm leading-tight">
               <span className="text-purple-400 font-bold">加速銷售締結：</span>
-              優化過的行銷文檔資源作為最強後盾。提供智能知識庫，彙整各種 <strong className="text-white">Adobe 消化過的資訊</strong> 與 ROI 評估報告，透過專業呈現回應客戶質疑，大幅縮短成交週期。
+              <strong className="text-white">工具滲透率 (Tool Penetration) 與成交率呈正相關。</strong>
+              當業務越頻繁使用智能知識庫與 ROI 評估報告，回應客戶質疑的精準度越高，進而大幅縮短成交週期，讓優化過的行銷資源成為最強後盾。
             </p>
           </Card>
 

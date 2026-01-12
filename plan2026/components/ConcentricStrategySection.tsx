@@ -100,7 +100,7 @@ export const ConcentricStrategySection: React.FC = () => {
           </div>
 
           {/* Concentric Visualization */}
-          <div className="order-1 lg:order-2 flex items-center justify-center relative min-h-[500px]">
+          <div className="order-1 lg:order-2 flex items-center justify-center relative min-h-[500px] scale-[0.65] md:scale-100 origin-center">
              
              {/* Center Core: Firefly x Adobe */}
              <div className="absolute z-40 flex flex-col items-center justify-center w-32 h-32 rounded-full bg-black border border-blue-500/50 shadow-[0_0_50px_rgba(59,130,246,0.3)]">

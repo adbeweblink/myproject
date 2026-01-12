@@ -49,8 +49,8 @@ export const TimelineSlide: React.FC = () => {
   const events: EventItem[] = [
     // Q1
     { id: 101, date: "2025-12-17", name: "DV ASIA Workflow (CC)", type: EVENT_TYPES.PHYSICAL_CC, status: "Standard", highlight: false },
-    { id: 104, date: "2026-01-28", name: "Adobe MG動畫AI講座(CC)", type: EVENT_TYPES.ONLINE_CC, status: "Webinar", highlight: false },
-    { id: 103, date: "2026-01-29", name: "PDF印務色彩管理(DC)", type: EVENT_TYPES.ONLINE_DC, status: "Webinar", highlight: false },
+    { id: 104, date: "2026-01-28", name: "Adobe MG 動畫 AI 講座(CC)", type: EVENT_TYPES.ONLINE_CC, status: "Webinar", highlight: false },
+    { id: 103, date: "2026-01-29", name: "PDF 印務色彩管理(DC)", type: EVENT_TYPES.ONLINE_DC, status: "Webinar", highlight: false },
     { id: 105, date: "2026-02-15", name: "Cyber Security 研討會", type: EVENT_TYPES.EXTERNAL, status: "Seminar", highlight: false },
 
     // Q2

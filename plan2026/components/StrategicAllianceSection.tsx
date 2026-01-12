@@ -93,8 +93,8 @@ export const StrategicAllianceSection: React.FC = () => {
       id: 'hardware', 
       category: '硬體綑綁行銷', 
       icon: Cpu,
-      partners: [{ name: 'AIPC 硬體加速', logo: '' }],
-      desc: '工欲善其事，利用 AI 算力需求帶動軟硬體雙向升級。',
+      partners: [{ name: 'AI PC 硬體加速', logo: '' }],
+      desc: '工欲善其事，必先利其器。利用 AI 算力需求帶動軟硬體雙向升級。',
       relationship: 'Firefly 生成式 AI 與 Premiere Pro 的 8K 剪輯依賴 NPU 加速。軟體效能的上限，往往取決於硬體的算力架構。',
       opportunity: '與筆電大廠推出「Adobe 認證創作者筆電」，將硬體與 CCE 授權綑綁，說服採購部門進行全套設備汰換。',
       color: 'border-indigo-500', 
@@ -109,7 +109,7 @@ export const StrategicAllianceSection: React.FC = () => {
       partners: [{ name: '3D 建模軟體', logo: '' }],
       desc: '打破 2D 與 3D 的創作藩籬，開拓遊戲與影視特效市場。',
       relationship: 'Adobe Substance 3D 與 After Effects 是動畫產業的工業標準。與即時動畫工具的整合，能補足 Adobe 在角色動態上的最後一哩路。',
-      opportunity: '鎖定遊戲開發商與 Vtuber 產業，推動「Substance + Ae」的高階訂閱組合，並透過 3D 角色工作坊吸引傳統平面設計師升級。',
+      opportunity: '鎖定遊戲開發商與 VTuber 產業，推動「Substance + Ae」的高階訂閱組合，並透過 3D 角色工作坊吸引傳統平面設計師升級。',
       color: 'border-orange-500', 
       textColor: 'text-orange-500', 
       bg: 'bg-orange-900/10',
@@ -121,7 +121,7 @@ export const StrategicAllianceSection: React.FC = () => {
       icon: Type,
       partners: [{ name: '商用字體授權', logo: '' }],
       desc: '消除企業最恐懼的侵權風險，推廣正版字型與軟體合規。',
-      relationship: '字型侵權是企業最常見的法律地雷。Adobe Fonts 雖強大，但在地化中文字型仍需第三方補強。結合雙方優勢，提供完整的字型合規防護網。',
+      relationship: '字型侵權是企業最常見的法律地雷。Adobe Fonts 雖強大，但在地中文字型仍需第三方補強。結合雙方優勢，提供完整的字型合規防護網。',
       opportunity: '提供企業「數位資產合規健檢」，在審查字型授權的同時，一併檢視並正規化 Adobe 軟體授權，帶動 CCE 企業版銷售。',
       color: 'border-blue-500', 
       textColor: 'text-blue-500', 
@@ -158,7 +158,7 @@ export const StrategicAllianceSection: React.FC = () => {
           <div className="w-full">
             <p className="text-gray-300 text-sm md:text-base max-w-4xl leading-relaxed">
               <strong className="text-white block mb-2 text-lg">從「模型驅動」向外擴張至「場景落地」</strong>
-              這是生態圈的第二層擴張。創意不僅需要軟體核心，更需要強大的硬體支撐。Weblink 連結 AIPC 算力、色彩權威與儲存方案，為高負載的 AI 工作流構建最堅實的物理基座，實現軟硬體整合的完整閉環。
+              這是生態圈的第二層擴張。創意不僅需要軟體核心，更需要強大的硬體支撐。Weblink 連結 AI PC 算力、色彩權威與儲存方案，為高負載的 AI 工作流構建最堅實的物理基座，實現軟硬體整合的完整閉環。
             </p>
           </div>
         </div>
