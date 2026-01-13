@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { label: '策略', id: 'insight' }, // The Strategy
   { label: '社群', id: 'community' }, // Daily Engagement
   { label: '快訊', id: 'community-details' }, // Content
+  { label: '行銷', id: 'marketing' }, // NEW: Marketing Showcase
   { label: '賦能', id: 'lab' }, // Ice Breaking & Tools
   { label: '訴求', id: 'philosophy' }, // Sales Enablement (Renamed from Philosophy to Appeal)
   { label: '時程', id: 'timeline' }, // Market Impact

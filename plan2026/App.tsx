@@ -11,6 +11,7 @@ import { AcademySection } from './components/AcademySection';
 import { FlagshipEventSection } from './components/FlagshipEventSection';
 import { LineEngagementSection } from './components/LineEngagementSection';
 import { LineContentShowcase } from './components/LineContentShowcase';
+import { MarketingShowcase } from './components/MarketingShowcase';
 import { BusinessAccelerationLab } from './components/BusinessAccelerationLab';
 import { MultiModelPhilosophySection } from './components/MultiModelPhilosophySection';
 import { ModelEcosystemSection } from './components/ModelEcosystemSection';
@@ -95,6 +96,7 @@ export default function App() {
       'insight',     // 1. The Why & Strategy (Part 3)
       'community',   // 2. Daily Engagement
       'community-details', // 2. Daily Engagement (Content)
+      'marketing',   // NEW: Marketing Showcase
       'lab',         // 3. Sales Enablement (Tools/Ice Breaking)
       'philosophy',  // 3. Sales Enablement (Philosophy)
       'timeline',    // 4. Market Impact (Timeline)
@@ -209,6 +211,13 @@ export default function App() {
       <SectionWrapper id="community-details">
         <FadeIn fullWidth delay={200}>
           <LineContentShowcase />
+        </FadeIn>
+      </SectionWrapper>
+
+      {/* NEW: MARKETING SHOWCASE */}
+      <SectionWrapper id="marketing">
+        <FadeIn fullWidth>
+          <MarketingShowcase />
         </FadeIn>
       </SectionWrapper>
 
