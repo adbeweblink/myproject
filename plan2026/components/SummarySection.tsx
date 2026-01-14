@@ -16,7 +16,7 @@ import { SectionHeading } from './ui/Shared';
 interface BentoItemProps {
   className?: string;
   bgImage: string;
-  title: string;
+  title: React.ReactNode;
   subtitle: string;
   icon: React.ElementType;
   children?: React.ReactNode;
@@ -37,7 +37,7 @@ const BentoItem: React.FC<BentoItemProps> = ({
     <div className="absolute inset-0 overflow-hidden">
       <img 
         src={bgImage} 
-        alt={title} 
+        alt={typeof title === 'string' ? title : 'Bento Item'} 
         className="w-full h-full object-cover opacity-30 group-hover:opacity-40 group-hover:scale-110 transition-all duration-700"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent/20" />
@@ -91,7 +91,7 @@ export const SummarySection: React.FC = () => {
             accentColor="text-red-500"
           >
             <p className="text-gray-300 text-sm mt-2 leading-relaxed">
-              在 AI 肆掠的浪潮中築起<span className="text-white font-bold border-b border-red-500">商業護城河</span>。我們不只賣軟體，更販售企業最需要的「免責權」與「營運穩定性」。
+              在 AI 肆掠的浪潮中築起<span className="text-white font-bold border-b border-red-500">商業護城河</span>。我們不只賣軟體，更強調跨流程、軟體整合、AI模型整合、安全合規性、Out端商用標準、人才流通性，販售企業最需要的「免責權」與「營運穩定性」。
             </p>
             <div className="mt-4 flex gap-2">
               <span className="px-3 py-1 rounded-full bg-red-900/40 border border-red-500/30 text-red-200 text-xs font-bold">Moat / 護城河</span>
@@ -103,7 +103,12 @@ export const SummarySection: React.FC = () => {
           <BentoItem 
             className="md:col-span-1 md:row-span-2 min-h-[300px]"
             bgImage="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1000&auto=format&fit=crop"
-            title="社群數位資產"
+            title={
+              <>
+                社群數位資產
+                <div className="text-[10px] md:text-xs text-gray-400 font-medium mt-1 tracking-wide">(量變&gt;質變)</div>
+              </>
+            }
             subtitle="Community Power"
             icon={Users}
             accentColor="text-green-500"
@@ -175,7 +180,7 @@ export const SummarySection: React.FC = () => {
           <BentoItem 
             className="md:col-span-3 md:row-span-1 min-h-[200px]"
             bgImage="https://images.unsplash.com/photo-1505236858219-8359eb29e329?q=80&w=2000&auto=format&fit=crop"
-            title="年度關鍵戰役 Timeline"
+            title="年度關鍵場次 Timeline"
             subtitle="Flagship & Academy"
             icon={Calendar}
             accentColor="text-orange-500"
@@ -189,6 +194,18 @@ export const SummarySection: React.FC = () => {
                    <div>
                       <div className="text-[10px] text-orange-400 font-bold uppercase">All Year</div>
                       <div className="text-white font-bold text-sm">快充學堂 Online</div>
+                   </div>
+                </div>
+
+                <div className="w-px h-10 bg-white/10 hidden md:block"></div>
+
+                <div className="flex items-center gap-3 shrink-0">
+                   <div className="w-10 h-10 rounded-lg bg-purple-900/50 flex items-center justify-center text-purple-400 font-black text-xs border border-purple-500/30">
+                      3月
+                   </div>
+                   <div>
+                      <div className="text-[10px] text-purple-400 font-bold uppercase">Dealer Conf</div>
+                      <div className="text-white font-bold text-sm">經銷商大會</div>
                    </div>
                 </div>
 

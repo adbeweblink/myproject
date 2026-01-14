@@ -49,8 +49,10 @@ components/
     Motion.tsx
     Shared.tsx
   AcademySection.tsx
+  AudienceSection.tsx
   BackToTop.tsx
   BusinessAccelerationLab.tsx
+  CompetitorSection.tsx
   ConcentricStrategySection.tsx
   FireflyModelsSection.tsx
   FlagshipEventSection.tsx
@@ -66,6 +68,7 @@ components/
   MultiModelPhilosophySection.tsx
   Navbar.tsx
   PartnerSection.tsx
+  ProfessionalAreaSection.tsx
   StrategicAllianceSection.tsx
   SummarySection.tsx
   TheMoatSection.tsx
@@ -73,6 +76,7 @@ components/
   TimelineSlide.tsx
   TutorialOverlay.tsx
   VideoGallery.tsx
+  YoutubeShowcase.tsx
 image/
   00.jpg
   01.jpg
@@ -451,8 +455,27 @@ import { CourseItem } from '../types';
 
 export const AcademySection: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  // Initialize and track screen size for accurate carousel calculations
+  useEffect(() => {
+    const handleResize = () => setIsDesktop(window.innerWidth >= 768);
+    handleResize(); // Check initially
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const courses: CourseItem[] = [
+    {
+      id: 0,
+      month: 'ANNUAL',
+      date: '2026',
+      title: '2026 Academy Key Visual',
+      desc: '2026 Academy Key Visual',
+      level: 'KV',
+      tag: 'KV',
+      image: 'https://adbeweblink.github.io/myproject/images/adobeday/marketing/000.jpg'
+    },
     {
       id: 1,
       month: 'JAN',
@@ -461,7 +484,7 @@ export const AcademySection: React.FC = () => {
       desc: '探索 Firefly 在 Motion Graphics 的應用，解析 AI 如何加速動畫製作流程。',
       level: 'Motion Design',
       tag: 'Ae + Image Model',
-      image: 'https://as2.ftcdn.net/jpg/05/94/18/91/1000_F_594189146_Bo5Epvpy8KFaEi3J9rnzYfZlFzc2Sz4H.jpg'
+      image: 'https://adbeweblink.github.io/myproject/images/adobeday/marketing/00.png'
     },
     {
       id: 2,
@@ -550,6 +573,23 @@ export const AcademySection: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Calculate dynamic transform based on variable card widths
+  const getCarouselTransform = () => {
+    // Config: Mobile uses standard widths, Desktop uses 16:9 for first item
+    const GAP = isDesktop ? 24 : 16;
+    const STD_WIDTH = isDesktop ? 300 : 280;
+    // For Desktop 16:9 ratio with h=380px => 380 * (16/9) ≈ 675px
+    const WIDE_WIDTH = isDesktop ? 675 : 280; 
+
+    let offset = 0;
+    for (let i = 0; i < currentSlide; i++) {
+       // Check first TWO items
+       const w = (i < 2) ? WIDE_WIDTH : STD_WIDTH;
+       offset += w + GAP;
+    }
+    return `translateX(-${offset}px)`;
+  };
+
   return (
     <section className="min-h-screen py-8 md:py-10 px-6 md:px-20 border-b border-white/5 bg-gradient-to-b from-gray-900 to-black flex flex-col justify-center overflow-hidden">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 items-center h-full max-h-[90vh]">
@@ -557,7 +597,7 @@ export const AcademySection: React.FC = () => {
           <SectionHeading 
             title="CC x AI 實戰工作流" 
             subtitle="2026 Adobe 快充學堂" 
-            color="bg-purple-500"
+            color="bg-purple-500" 
           />
           <p className="text-gray-300 mb-6 text-sm md:text-base leading-relaxed line-clamp-4 md:line-clamp-none">
             <strong className="text-white block mb-2 text-lg">從單點功能，到全方位解決方案</strong>
@@ -598,56 +638,80 @@ export const AcademySection: React.FC = () => {
           </div>
         </div>
 
-        {/* Carousel Container - Adjusted for mobile visibility */}
+        {/* Carousel Container */}
         <div className="lg:col-span-2 overflow-hidden relative h-[450px] md:h-[420px] flex items-center -mx-6 md:mx-0 px-6 md:px-0">
           <div 
             className="flex transition-transform duration-500 ease-in-out gap-4 md:gap-6 pl-2"
-            style={{ transform: `translateX(-${currentSlide * (280 + 16)}px)` }} 
+            style={{ transform: getCarouselTransform() }} 
           >
-            {courses.map((course) => (
-              <div 
-                key={course.id} 
-                className="min-w-[280px] md:min-w-[300px] bg-gray-800 rounded-2xl overflow-hidden border border-gray-700 hover:border-purple-500 transition group flex flex-col h-[400px] md:h-[380px] shadow-lg"
-              >
-                <div className="h-40 overflow-hidden relative shrink-0">
-                  <img 
-                    src={course.image} 
-                    alt={course.title} 
-                    onError={handleImageError}
-                    className="w-full h-full object-cover group-hover:scale-110 transition duration-700 filter brightness-75 group-hover:brightness-100" 
-                    loading="lazy"
-                  />
-                  <div className="absolute top-3 left-3 bg-purple-600 text-white text-[9px] font-bold px-2 py-1 rounded shadow-lg uppercase tracking-widest">
-                    {course.month} Session
-                  </div>
-                </div>
-                
-                <div className="p-4 md:p-5 flex-1 flex flex-col">
-                  <div className="flex justify-between items-center mb-2 text-[10px] text-gray-500 font-mono">
-                    <span className="flex items-center gap-1"><Calendar size={10} /> {course.date}</span>
-                    <span className="border border-gray-600 px-2 rounded-full text-purple-400 border-purple-900/50 bg-purple-900/10 font-bold">{course.level}</span>
-                  </div>
-                  
-                  <h3 className="text-lg font-bold text-white mb-2 group-hover:text-purple-400 transition leading-tight">
-                    {course.title}
-                  </h3>
-                  <p className="text-gray-400 text-xs mb-4 flex-1 leading-relaxed line-clamp-3">
-                    {course.desc}
-                  </p>
-                  
-                  <div className="mb-3">
-                    <div className="text-[9px] text-gray-500 uppercase font-bold tracking-widest mb-1">Core Focus</div>
-                    <div className="bg-black/40 px-3 py-1 rounded-lg border border-white/5 text-purple-300 font-bold text-xs inline-block">
-                      {course.tag}
+            {courses.map((course, index) => {
+              // Check first TWO items
+              const isWide = index < 2;
+              return (
+                <div 
+                  key={course.id} 
+                  className={`
+                    ${isWide ? 'min-w-[280px] md:min-w-[675px]' : 'min-w-[280px] md:min-w-[300px]'} 
+                    bg-gray-800 rounded-2xl overflow-hidden border border-gray-700 hover:border-purple-500 transition group flex flex-col h-[400px] md:h-[380px] shadow-lg
+                  `}
+                >
+                  {isWide ? (
+                    // First Two Cards: Full Image (16:9 Style on Desktop)
+                    <div className="w-full h-full relative group">
+                      <img 
+                        src={course.image} 
+                        alt={course.title} 
+                        onError={handleImageError}
+                        className="w-full h-full object-cover transition duration-700 filter brightness-90 group-hover:brightness-100 group-hover:scale-105" 
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </div>
-                  </div>
+                  ) : (
+                    // Standard Cards
+                    <>
+                      <div className="h-40 overflow-hidden relative shrink-0">
+                        <img 
+                          src={course.image} 
+                          alt={course.title} 
+                          onError={handleImageError}
+                          className="w-full h-full object-cover group-hover:scale-110 transition duration-700 filter brightness-75 group-hover:brightness-100" 
+                          loading="lazy"
+                        />
+                        <div className="absolute top-3 left-3 bg-purple-600 text-white text-[9px] font-bold px-2 py-1 rounded shadow-lg uppercase tracking-widest">
+                          {course.month} Session
+                        </div>
+                      </div>
+                      
+                      <div className="p-4 md:p-5 flex-1 flex flex-col">
+                        <div className="flex justify-between items-center mb-2 text-[10px] text-gray-500 font-mono">
+                          <span className="flex items-center gap-1"><Calendar size={10} /> {course.date}</span>
+                          <span className="border border-gray-600 px-2 rounded-full text-purple-400 border-purple-900/50 bg-purple-900/10 font-bold">{course.level}</span>
+                        </div>
+                        
+                        <h3 className="text-lg font-bold text-white mb-2 group-hover:text-purple-400 transition leading-tight">
+                          {course.title}
+                        </h3>
+                        <p className="text-gray-400 text-xs mb-4 flex-1 leading-relaxed line-clamp-3">
+                          {course.desc}
+                        </p>
+                        
+                        <div className="mb-3">
+                          <div className="text-[9px] text-gray-500 uppercase font-bold tracking-widest mb-1">Core Focus</div>
+                          <div className="bg-black/40 px-3 py-1 rounded-lg border border-white/5 text-purple-300 font-bold text-xs inline-block">
+                            {course.tag}
+                          </div>
+                        </div>
 
-                  <button className="w-full bg-white/5 hover:bg-purple-600 hover:text-white text-gray-300 border border-white/10 hover:border-purple-500 py-2.5 rounded-lg font-bold text-xs transition-all duration-300">
-                    預約席次
-                  </button>
+                        <button className="w-full bg-white/5 hover:bg-purple-600 hover:text-white text-gray-300 border border-white/10 hover:border-purple-500 py-2.5 rounded-lg font-bold text-xs transition-all duration-300">
+                          預約席次
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
              <div className="min-w-[100px] flex items-center justify-center text-gray-600 flex-col gap-2">
                <Clock size={24} className="opacity-50"/>
                <span className="text-xs">More...</span>
@@ -655,6 +719,217 @@ export const AcademySection: React.FC = () => {
           </div>
         </div>
       </div>
+    </section>
+  );
+};
+</file>
+
+<file path="components/AudienceSection.tsx">
+import React from 'react';
+import { 
+  Users, 
+  Briefcase, 
+  Store, 
+  Building2, 
+  CheckCircle2, 
+  PieChart,
+  Target, 
+  Crown,
+  ShieldCheck
+} from 'lucide-react';
+import { SectionHeading } from './ui/Shared';
+
+export const AudienceSection: React.FC = () => {
+
+  const compositionData = [
+    { label: "跨領域 / 平面設計", value: 32, color: "bg-blue-500" },
+    { label: "影音動畫從業人員", value: 21, color: "bg-pink-500" },
+    { label: "創意人員", value: 16, color: "bg-indigo-500" },
+    { label: "行銷人員", value: 10, color: "bg-purple-500" },
+    { label: "高階主管 / 決策者", value: 8, color: "bg-red-500" },
+    { label: "教育工作者", value: 5, color: "bg-orange-500" },
+    { label: "網頁設計師", value: 3, color: "bg-cyan-500" },
+    { label: "學生", value: 3, color: "bg-green-500" },
+    { label: "攝影師", value: 2, color: "bg-yellow-500" },
+  ];
+
+  return (
+    <section className="min-h-screen py-10 pt-24 md:pt-10 px-6 md:px-20 border-b border-white/5 bg-[#080808] flex flex-col justify-center overflow-hidden">
+      <div className="max-w-7xl mx-auto w-full h-full flex flex-col">
+        
+        <div className="shrink-0 mb-8 md:mb-12">
+          <SectionHeading 
+            title="參與 受眾輪廓分析" 
+            subtitle="Audience Profile & Demographics" 
+            color="bg-emerald-500" 
+          />
+          <p className="text-gray-400 text-sm md:text-base max-w-3xl leading-relaxed">
+            我們匯聚了產業中最具影響力的創意人與決策者。高比例的<strong className="text-emerald-400">採購決策權</strong>與<strong className="text-blue-400">現場互動率</strong>，確保合作夥伴能精準觸及核心商業目標。
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch">
+          
+          {/* LEFT COLUMN: Key Metrics (Bento Grid) - 7 Columns */}
+          <div className="lg:col-span-7 flex flex-col gap-6">
+            
+            {/* Row 1: The Heavy Hitters */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* 94% Visit */}
+                <div className="bg-[#111] rounded-3xl p-6 border border-white/10 relative overflow-hidden group hover:border-emerald-500/50 transition-colors">
+                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <Store size={100} className="text-emerald-500" />
+                    </div>
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-2 mb-2 text-emerald-400 font-bold uppercase tracking-wider text-xs">
+                            <CheckCircle2 size={14} /> High Engagement
+                        </div>
+                        <div className="text-6xl md:text-7xl font-black text-white mb-2 tracking-tighter">
+                            94<span className="text-3xl md:text-4xl text-emerald-500">%</span>
+                        </div>
+                        <h3 className="text-lg font-bold text-white leading-tight">參觀贊助攤位</h3>
+                        <p className="text-gray-500 text-xs mt-2">幾乎所有與會者都會主動與現場攤位互動，是實體接觸的最佳場域。</p>
+                    </div>
+                </div>
+
+                {/* 67% Decision Power */}
+                <div className="bg-[#111] rounded-3xl p-6 border border-white/10 relative overflow-hidden group hover:border-blue-500/50 transition-colors">
+                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <Briefcase size={100} className="text-blue-500" />
+                    </div>
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-2 mb-2 text-blue-400 font-bold uppercase tracking-wider text-xs">
+                            <Target size={14} /> B2B Potential
+                        </div>
+                        <div className="text-6xl md:text-7xl font-black text-white mb-2 tracking-tighter">
+                            67<span className="text-3xl md:text-4xl text-blue-500">%</span>
+                        </div>
+                        <h3 className="text-lg font-bold text-white leading-tight">擁有採購影響力</h3>
+                        <p className="text-gray-500 text-xs mt-2">超過六成受眾直接手握預算或能影響企業採購決策。</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Row 2: Organization Stats */}
+            <div className="bg-[#111] rounded-3xl p-6 md:p-8 border border-white/10 flex flex-col justify-center relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-gray-900 to-transparent pointer-events-none"></div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10 divide-y md:divide-y-0 md:divide-x divide-white/10">
+                    <div className="flex flex-col gap-2 pt-4 md:pt-0">
+                        <div className="flex items-center gap-2 text-purple-400 font-bold text-xs uppercase">
+                            <Users size={14} /> In-House
+                        </div>
+                        <div className="text-4xl font-black text-white">71%</div>
+                        <div className="text-sm text-gray-400">服務於<br/>企業內部設計部門</div>
+                    </div>
+                    
+                    <div className="flex flex-col gap-2 pt-4 md:pt-0 md:pl-6">
+                        <div className="flex items-center gap-2 text-orange-400 font-bold text-xs uppercase">
+                            <Building2 size={14} /> Scale {'>'} 50
+                        </div>
+                        <div className="text-4xl font-black text-white">43%</div>
+                        <div className="text-sm text-gray-400">任職於<br/>50人以上組織</div>
+                    </div>
+
+                    <div className="flex flex-col gap-2 pt-4 md:pt-0 md:pl-6">
+                        <div className="flex items-center gap-2 text-red-400 font-bold text-xs uppercase">
+                            <Crown size={14} /> Enterprise
+                        </div>
+                        <div className="text-4xl font-black text-white">29%</div>
+                        <div className="text-sm text-gray-400">服務於<br/>1000人以上企業</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Row 3: Audience Quality Summary (New) */}
+            <div className="bg-gradient-to-r from-[#1a1a1a] to-[#111] border border-yellow-500/30 rounded-3xl p-6 relative overflow-hidden group hover:border-yellow-500/50 transition-colors">
+                {/* Visual Effects */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-600/5 blur-[60px] rounded-full pointer-events-none"></div>
+                
+                <div className="relative z-10 flex flex-col md:flex-row items-center gap-6">
+                    
+                    {/* Icon */}
+                    <div className="shrink-0 relative">
+                        <div className="absolute inset-0 bg-yellow-500/20 blur-xl rounded-full"></div>
+                        <div className="w-16 h-16 rounded-2xl bg-[#0a0a0a] border border-yellow-500/40 flex items-center justify-center relative shadow-2xl group-hover:scale-110 transition-transform duration-500">
+                            <ShieldCheck size={32} className="text-yellow-400" />
+                        </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 text-center md:text-left">
+                        <h4 className="text-lg md:text-xl font-black text-white mb-2 leading-tight">
+                            非學生 · 非盜版 · <span className="text-yellow-400">絕佳採購動能</span>
+                        </h4>
+                        <p className="text-gray-400 text-xs md:text-sm leading-relaxed">
+                            這不是一場免費湊熱鬧的活動。現場 <strong className="text-white">97%</strong> 為職場專業人士，
+                            他們拒絕盜版風險，擁有<strong className="text-white">正版訂閱預算</strong>，是真正具備商業價值的<strong className="text-white">「即戰力買家」</strong>。
+                        </p>
+                    </div>
+
+                    {/* Badges */}
+                    <div className="flex flex-row md:flex-col gap-2 shrink-0">
+                        <div className="px-3 py-1.5 rounded-lg bg-yellow-900/10 border border-yellow-500/20 text-yellow-200 text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-2">
+                            <CheckCircle2 size={12} className="text-yellow-400" /> Real Buyers
+                        </div>
+                        <div className="px-3 py-1.5 rounded-lg bg-blue-900/10 border border-blue-500/20 text-blue-200 text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-2">
+                            <Briefcase size={12} className="text-blue-400" /> Pro Users
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+          </div>
+
+          {/* RIGHT COLUMN: Composition (Chart) - 5 Columns */}
+          <div className="lg:col-span-5 bg-[#111] rounded-3xl border border-white/10 p-6 md:p-8 flex flex-col h-full relative overflow-hidden">
+             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-900/10 blur-[80px] rounded-full pointer-events-none"></div>
+             
+             <div className="flex items-center justify-between mb-6 relative z-10">
+                <div>
+                   <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                     <PieChart size={20} className="text-gray-400" /> 受眾職位組成
+                   </h3>
+                   <p className="text-gray-500 text-xs mt-1">多元創意領域分佈 (Top Categories)</p>
+                </div>
+             </div>
+
+             <div className="flex-1 flex flex-col justify-center space-y-4 relative z-10">
+                {compositionData.map((item, idx) => (
+                    <div key={idx} className="group">
+                        <div className="flex justify-between items-end mb-1.5">
+                            <span className="text-xs md:text-sm text-gray-300 font-medium group-hover:text-white transition-colors">
+                                {item.label}
+                            </span>
+                            <span className="text-sm md:text-base font-bold text-white">
+                                {item.value}<span className="text-xs text-gray-500 ml-0.5">%</span>
+                            </span>
+                        </div>
+                        <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+                            <div 
+                                className={`h-full rounded-full ${item.color} shadow-[0_0_10px_rgba(0,0,0,0.3)] relative`}
+                                style={{ width: `${item.value}%` }}
+                            >
+                                <div className="absolute inset-0 bg-white/20 w-full h-full animate-[shimmer_2s_infinite] skew-x-12 -translate-x-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+             </div>
+
+             <div className="mt-6 pt-4 border-t border-white/10 text-[10px] text-gray-600 flex justify-between items-center">
+                 <span>* 數據來源：Weblink 2023~2025 年度實體活動問卷統計</span>
+             </div>
+          </div>
+
+        </div>
+      </div>
+      
+      <style>{`
+        @keyframes shimmer {
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
     </section>
   );
 };
@@ -778,6 +1053,14 @@ const LAB_PROJECTS: LabProject[] = [
     problemSolved: "解決企業對點數重置焦慮。",
     efficiency: "將複雜計費邏輯視覺化。"
   },
+  {
+    id: 16, type: 'tool', title: "Lab 工具影音教學專區",
+    description: "匯集所有 Weblink Lab 開發工具的實戰教學影片，從規格生成到點數計算的影音懶人包。",
+    link: "https://www.youtube.com/playlist?list=PL_LabTutorials", 
+    purpose: "視覺化呈現工具操作流程。",
+    problemSolved: "解決圖文說明難以傳達的動態細節。",
+    efficiency: "縮短經銷商教育訓練時間。"
+  },
   // --- Games ---
   {
     id: 15, type: 'game', title: "設計師職場生存模擬器",
@@ -847,7 +1130,6 @@ const LAB_PROJECTS: LabProject[] = [
 
 const getPatternSvg = (id: number) => {
     const patterns: Record<number, string> = {
-        // ... (patterns remain the same as previous) ...
         1: `<svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
                 <defs><pattern id="p1" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M10 10h10v2h-8v8h-2v-10z" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.3"/></pattern></defs>
                 <rect width="100%" height="100%" fill="url(#p1)" class="text-white"/>
@@ -887,6 +1169,13 @@ const getPatternSvg = (id: number) => {
                 <circle cx="20" cy="20" r="6" fill="white" opacity="0.3"/>
                 <circle cx="80" cy="80" r="4" fill="white" opacity="0.3"/>
             </svg>`,
+        16: `<svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                 <circle cx="50" cy="50" r="25" fill="none" stroke="white" stroke-width="1.5" opacity="0.2"/>
+                 <path d="M42 38 L65 50 L42 62 Z" fill="white" opacity="0.3"/>
+                 <rect x="15" y="25" width="70" height="50" rx="4" fill="none" stroke="white" stroke-width="0.5" opacity="0.15"/>
+                 <circle cx="20" cy="50" r="2" fill="white" opacity="0.2"/>
+                 <circle cx="80" cy="50" r="2" fill="white" opacity="0.2"/>
+             </svg>`,
         15: `<svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M10 90 L30 70 L50 80 L70 40 L90 20" fill="none" stroke="white" stroke-width="2" opacity="0.3"/>
                 <rect x="10" y="90" width="80" height="2" fill="white" opacity="0.2"/>
@@ -1133,6 +1422,295 @@ export const BusinessAccelerationLab: React.FC = () => {
           <ChevronRight size={20} />
         </button>
       </div>
+    </section>
+  );
+};
+</file>
+
+<file path="components/CompetitorSection.tsx">
+import React, { useState } from 'react';
+import { Check, X, Zap, Info, MousePointer2 } from 'lucide-react';
+import { SectionHeading } from './ui/Shared';
+import { FadeIn } from './ui/Motion';
+
+const COMPARISON_DATA = [
+  { feature: '影片剪輯', adobe: 'Premiere Pro', apple: 'Final Cut Pro', affinity: 'X', ai: 'Sora、Veo 3' },
+  { feature: '特效合成', adobe: 'After Effects', apple: 'Motion', affinity: 'X', ai: 'Sora、Veo 3' },
+  { feature: '轉檔輸出', adobe: 'Media Encoder', apple: 'Compressor', affinity: 'X', ai: 'X' },
+  { feature: '影像編修', adobe: 'Photoshop', apple: 'Pixelmator Pro', affinity: 'Affinity Photo', ai: 'Midjourney、Gemini 3' },
+  { feature: '向量插畫', adobe: 'Illustrator', apple: 'X', affinity: 'Affinity Designer', ai: 'Midjourney、Gemini 3' },
+  { feature: '排版出版', adobe: 'InDesign', apple: 'Pages', affinity: 'Affinity Publisher', ai: 'NotebookLM' },
+  { feature: '音樂音訊', adobe: 'Audition', apple: 'Logic Pro、MainStage', affinity: 'X', ai: 'Suno' },
+  { feature: '文件流程', adobe: 'Acrobat Studio', apple: 'Keynote、Pages、Numbers', affinity: 'X', ai: 'NotebookLM' },
+  { feature: '橫幅製作', adobe: 'Express', apple: 'X', affinity: 'Canva', ai: 'Gemini 3' },
+];
+
+const TOOL_DESCRIPTIONS: Record<string, string> = {
+  'Premiere Pro': '業界標準的影片剪輯軟體，整合強大的 Firefly AI 功能與雲端協作，廣泛應用於電影、電視與網路創作者。',
+  'Final Cut Pro': 'Apple 推出的專業非線性剪輯軟體，以磁性時間軸與 Apple Silicon 優化著稱，Mac 平台效能極佳。',
+  'After Effects': '動態圖形與視覺特效的工業標準，支援強大的合成、追蹤與動畫製作，是 Motion Graphics 的首選。',
+  'Motion': 'Apple 的動態圖形工具，專為 Final Cut Pro 設計，提供即時預覽與簡易的特效製作。',
+  'Photoshop': '全球最知名的影像處理軟體，支援生成式填色 (Generative Fill) 與強大的圖層編輯功能。',
+  'Pixelmator Pro': '專為 Mac 設計的影像編輯工具，利用 ML 技術簡化編輯流程，介面直觀。',
+  'Affinity Photo': 'Serif 推出的專業修圖軟體，主打一次性買斷與跨平台高效能，是 PS 的強力競爭者。',
+  'Illustrator': '向量繪圖的領導品牌，廣泛應用於插畫、Logo 與包裝設計，新版支援 Text to Vector 生成。',
+  'Affinity Designer': '結合向量與點陣的設計軟體，流暢的縮放效能深受插畫家喜愛。',
+  'InDesign': '專業排版與出版軟體，支援多頁面文件、電子書與互動式 PDF 製作，印刷業標準。',
+  'Affinity Publisher': '新一代排版軟體，與 Photo/Designer 深度整合 (StudioLink) 可在同介面切換工具。',
+  'NotebookLM': 'Google 的 AI 筆記助理，能快速摘要文件並回答問題，適合整理大量資料與學習。',
+  'Midjourney': '目前公認圖像生成品質最高的 AI 工具之一，透過 Prompt 產生藝術級影像，風格多變。',
+  'Gemini 3': 'Google 最新多模態 AI 模型，具備強大的圖像辨識與生成能力，並深度整合於 Workspace。',
+  'Sora': 'OpenAI 的文字轉影片模型，能生成長達一分鐘的高畫質影片，物理模擬能力驚人 (尚未公測)。',
+  'Veo 3': 'Google DeepMind 的影片生成模型，專注於高解析度與電影級的鏡頭語言控制，支援 1080p+。',
+  'Audition': '專業音訊工作站，提供混音、降噪與 AI 語音增強功能，是廣播與 Podcast 的首選。',
+  'Logic Pro': 'Apple 的全方位音樂製作軟體，內建大量虛擬樂器與 loops，適合專業音樂創作。',
+  'Acrobat Studio': '全方位的 PDF 解決方案，不僅是閱讀器，更包含編輯、簽署、表單與資安保護功能。',
+  'Express': 'Adobe 的線上設計工具，主打快速製作社群貼文、影片與海報，內建 Firefly AI 可一鍵生成素材。',
+  'Canva': '極受歡迎的線上設計平台，提供海量模版與簡易操作，適合非設計背景用戶快速產出。',
+  'Media Encoder': 'Adobe 的媒體轉檔工具，支援幾乎所有格式，可背景執行，與 Pr/Ae 無縫整合。',
+  'Compressor': 'Final Cut Pro 的轉檔搭檔，提供進階的編碼設定與分散式編碼功能。',
+  'Suno': '強大的 AI 音樂生成工具，能根據文字描述生成包含人聲與編曲的完整歌曲。',
+  'Pages': 'Apple 的文書處理軟體，排版功能強大，適合製作精美的文件與電子書。',
+  'Keynote': 'Apple 的簡報軟體，以華麗的過場動畫 (Magic Move) 聞名。',
+  'Numbers': 'Apple 的試算表軟體，強調畫布式的自由排版。',
+  'MainStage': '專為現場演出設計的音訊軟體，將 Mac 變身為強大的樂器與效果器。',
+  'X': '此生態系目前無對應之專業級獨立應用程式。'
+};
+
+const BRAND_CONFIG: Record<string, { label: string, color: string, bg: string, border: string, text: string }> = {
+  adobe: { 
+    label: 'Adobe Creative Cloud', 
+    color: 'text-red-500', 
+    bg: 'bg-red-900/20', 
+    border: 'border-red-500', 
+    text: 'text-red-400' 
+  },
+  apple: { 
+    label: 'Apple Creator Studio', 
+    color: 'text-gray-300', 
+    bg: 'bg-gray-800/30', 
+    border: 'border-gray-500', 
+    text: 'text-gray-300' 
+  },
+  affinity: { 
+    label: 'Creative Affinity', 
+    color: 'text-violet-400', 
+    bg: 'bg-violet-900/20', 
+    border: 'border-violet-500', 
+    text: 'text-violet-300' 
+  },
+  ai: { 
+    label: 'AI Tools', 
+    color: 'text-emerald-400', 
+    bg: 'bg-emerald-900/20', 
+    border: 'border-emerald-500', 
+    text: 'text-emerald-300' 
+  }
+};
+
+interface ModalProps {
+  tool: string;
+  category: string;
+  onClose: () => void;
+}
+
+const ToolModal: React.FC<ModalProps> = ({ tool, category, onClose }) => {
+  // Handle multi-tool strings like "Sora、Veo 3"
+  const tools = tool.split('、').map(t => t.trim());
+  
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 animate-in fade-in duration-200">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose}></div>
+      <div className="relative bg-[#1a1a1a] border border-white/10 rounded-2xl w-full max-w-md p-6 shadow-2xl scale-100 animate-in zoom-in-95 duration-200">
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+          <X size={20} />
+        </button>
+        
+        <div className="mb-4">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500 border border-white/10 px-2 py-1 rounded-full">
+            {category}
+          </span>
+        </div>
+
+        <div className="space-y-6">
+          {tools.map((t, idx) => {
+             const desc = TOOL_DESCRIPTIONS[t] || TOOL_DESCRIPTIONS['default'];
+             const isX = t === 'X';
+             return (
+              <div key={idx} className={tools.length > 1 ? 'border-b border-white/5 pb-4 last:border-0 last:pb-0' : ''}>
+                <h3 className={`text-xl font-bold mb-2 flex items-center gap-2 ${isX ? 'text-gray-500' : 'text-white'}`}>
+                  {isX ? <X size={20} /> : t}
+                  {isX && <span className="text-sm">無對應工具</span>}
+                </h3>
+                {!isX && <p className="text-gray-400 text-sm leading-relaxed">{desc}</p>}
+                {isX && <p className="text-gray-600 text-xs italic">此生態系在此分類中暫無具備同等競爭力之產品。</p>}
+              </div>
+             );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const CompetitorSection: React.FC = () => {
+  const [selectedCol, setSelectedCol] = useState<string>('adobe');
+  const [modalData, setModalData] = useState<{ tool: string, category: string } | null>(null);
+
+  const columns = ['adobe', 'apple', 'affinity', 'ai'];
+
+  return (
+    <section className="min-h-screen py-10 pt-24 md:pt-10 px-6 md:px-20 border-b border-white/5 bg-[#080808] flex flex-col justify-center overflow-hidden relative" id="competitor">
+      {/* Background Ambience */}
+      <div className={`absolute inset-0 transition-colors duration-700 pointer-events-none opacity-20 bg-gradient-to-b from-transparent to-black ${
+         selectedCol === 'adobe' ? 'from-red-900/10' : 
+         selectedCol === 'apple' ? 'from-gray-800/10' :
+         selectedCol === 'affinity' ? 'from-violet-900/10' : 'from-emerald-900/10'
+      }`}></div>
+
+      <div className="max-w-7xl mx-auto w-full relative z-10 flex flex-col h-full justify-center">
+        
+        <div className="shrink-0 mb-8 md:mb-12">
+          <SectionHeading 
+            title="全方位生態系優勢" 
+            subtitle="Comprehensive Comparison" 
+            color="bg-red-600" 
+          />
+          <p className="text-gray-400 text-sm md:text-base max-w-3xl leading-relaxed">
+             請點選上方品牌欄位，比較 Adobe 與各家生態系之差異。<br/>
+             點擊表格內的<strong className="text-white">應用程式名稱</strong>可查看詳細介紹。
+          </p>
+        </div>
+
+        <FadeIn fullWidth>
+          <div className="relative overflow-x-auto rounded-3xl border border-white/10 bg-[#111] shadow-2xl">
+            
+            {/* Table Header */}
+            <div className="grid grid-cols-5 min-w-[900px] border-b border-white/10 bg-[#161616] sticky top-0 z-20">
+              <div className="p-5 text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center justify-center">
+                主要用途
+              </div>
+              
+              {columns.map(col => {
+                const config = BRAND_CONFIG[col];
+                const isSelected = selectedCol === col;
+                
+                return (
+                  <div 
+                    key={col}
+                    onClick={() => setSelectedCol(col)}
+                    className={`
+                      relative p-5 cursor-pointer transition-all duration-300 flex flex-col items-center justify-center gap-2 group
+                      ${isSelected ? `${config.bg} border-t-4 ${config.border}` : 'border-t-4 border-transparent hover:bg-white/5'}
+                    `}
+                  >
+                    <div className={`text-sm font-black transition-colors ${isSelected ? 'text-white' : 'text-gray-400 group-hover:text-gray-200'}`}>
+                      {config.label}
+                    </div>
+                    {isSelected && (
+                      <div className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/40 ${config.text} border border-white/10 shadow-lg`}>
+                        Selected
+                      </div>
+                    )}
+                    {!isSelected && (
+                      <div className="text-[10px] text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                        <MousePointer2 size={10} /> Click to Focus
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Table Body */}
+            <div className="divide-y divide-white/5 min-w-[900px]">
+              {COMPARISON_DATA.map((row, idx) => (
+                <div 
+                  key={idx} 
+                  className={`
+                    grid grid-cols-5 transition-colors group
+                    ${idx % 2 === 0 ? 'bg-[#161616]' : 'bg-[#111]'}
+                  `}
+                >
+                  {/* Feature Label */}
+                  <div className="p-5 text-sm font-bold text-gray-400 flex items-center justify-center border-r border-white/5">
+                    {row.feature}
+                  </div>
+
+                  {/* Columns */}
+                  {columns.map(col => {
+                    const cellData = row[col as keyof typeof row] as string;
+                    const isX = cellData === 'X';
+                    const isSelected = selectedCol === col;
+                    const config = BRAND_CONFIG[col];
+
+                    return (
+                      <div 
+                        key={col}
+                        onClick={() => setModalData({ tool: cellData, category: row.feature })}
+                        className={`
+                          p-5 text-sm flex items-center justify-center cursor-pointer transition-all duration-300 relative
+                          ${isSelected 
+                            ? `bg-white/[0.02] shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] font-bold text-white` 
+                            : 'text-gray-500 hover:text-gray-300'
+                          }
+                          ${!isSelected && 'hover:bg-white/[0.02]'}
+                        `}
+                      >
+                         {/* Selection Border Indicator (Vertical) */}
+                         {isSelected && (
+                           <div className={`absolute inset-y-0 left-0 w-[1px] ${config.bg.replace('/20', '/50')}`}></div>
+                         )}
+                         {isSelected && (
+                           <div className={`absolute inset-y-0 right-0 w-[1px] ${config.bg.replace('/20', '/50')}`}></div>
+                         )}
+
+                         {isX ? (
+                           <span className="text-red-500 font-mono text-lg opacity-60 select-none">
+                             <X size={18} strokeWidth={3} />
+                           </span>
+                         ) : (
+                           <span className={`flex items-center gap-2 ${isSelected ? config.text : ''}`}>
+                             {cellData}
+                             {isSelected && <Info size={12} className="opacity-50" />}
+                           </span>
+                         )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+
+            {/* Table Footer / Legend */}
+            <div className="p-4 border-t border-white/10 bg-[#0a0a0a] flex items-center justify-between min-w-[900px]">
+               <div className="text-[10px] text-gray-600 font-mono">
+                 * 表格僅供參考，實際功能以各原廠最新發布為準。
+               </div>
+               <div className="flex items-center gap-6 text-[10px] text-gray-500 font-bold uppercase tracking-wider">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div> Market Leader
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <X size={12} className="text-red-500"/> No Native App
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                     <MousePointer2 size={12} className="text-blue-500" /> Click for details
+                  </div>
+               </div>
+            </div>
+          </div>
+        </FadeIn>
+      </div>
+
+      {/* Modal Overlay */}
+      {modalData && (
+        <ToolModal 
+          tool={modalData.tool} 
+          category={modalData.category} 
+          onClose={() => setModalData(null)} 
+        />
+      )}
     </section>
   );
 };
@@ -1527,7 +2105,7 @@ export const FlagshipEventSection: React.FC = () => {
 
         <div className="mb-6 hidden md:block">
           <p className="text-base md:text-lg text-gray-300 max-w-4xl leading-relaxed">
-            Weblink 作為 Adobe 在台最重要的戰略執行夥伴，<strong className="text-white">策劃 (Curate) 並 執行 (Execute)</strong> 年度指標性盛會，
+            頂尖創意人匯聚於此，激發靈感、學習新知、拓展人脈，親身體驗最新技術與未來創意趨勢。Weblink 作為 Adobe 在台最重要的戰略執行夥伴，<strong className="text-white">策劃 (Curate) 並 執行 (Execute)</strong> 年度指標性盛會，
             這不僅是軟體發表，更是台灣創意產業的技術指標。
           </p>
         </div>
@@ -1550,7 +2128,7 @@ export const FlagshipEventSection: React.FC = () => {
           <div className="relative p-6 pb-12 md:p-8 flex flex-col h-full z-10">
             <div className="flex justify-between items-start mb-4">
               <span className="bg-cyan-950/80 backdrop-blur-md text-cyan-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-cyan-800">
-                1H 2026 • 上半年
+                2026.06.22
               </span>
               <Layers className="text-cyan-500 group-hover:scale-110 transition-transform" size={24} />
             </div>
@@ -1596,7 +2174,7 @@ export const FlagshipEventSection: React.FC = () => {
           <div className="relative p-6 pb-12 md:p-8 flex flex-col h-full z-10">
             <div className="flex justify-between items-start mb-4">
               <span className="bg-red-950/80 backdrop-blur-md text-red-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-red-800">
-                2H 2026 • 下半年
+                2026.11.13
               </span>
               <Zap className="text-red-500 group-hover:scale-110 transition-transform" size={24} />
             </div>
@@ -2948,58 +3526,60 @@ export const ModelEcosystemSection: React.FC = () => {
     <button
       onClick={() => setActiveFilter(type)}
       className={`
-        flex items-center gap-2 px-4 py-2 rounded-full text-[11px] font-bold transition-all duration-300 whitespace-nowrap
+        flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all duration-300 whitespace-nowrap
         ${activeFilter === type 
           ? 'bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.3)]' 
           : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/5'
         }
       `}
     >
-      <Icon size={14} />
+      <Icon size={12} />
       {label}
     </button>
   );
 
   return (
-    <section className="min-h-screen py-0 px-6 md:px-20 border-b border-white/5 bg-[#111111] flex flex-col justify-start md:justify-center overflow-hidden" id="ecosystem">
-      <div className="w-full max-w-[90rem] mx-auto flex flex-col pt-24 md:pt-24 pb-8 h-full">
+    <section className="min-h-screen border-b border-white/5 bg-[#111111] flex flex-col justify-start md:justify-center overflow-hidden" id="ecosystem">
         
-        {/* Header Section */}
-        <div className="shrink-0 mb-6 flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
-          <SectionHeading 
-            title="Adobe Partner Model Ecosystem" 
-            subtitle="Ecosystem Layer 1: Model Integration" 
-            color="bg-green-500" 
-          />
+        {/* Header Section - Constrained Width to Align with Site Layout */}
+        <div className="w-full max-w-[90rem] mx-auto px-6 md:px-20 pt-24 md:pt-10 mb-2">
+            <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
+            <SectionHeading 
+                title="Adobe Partner Model Ecosystem" 
+                subtitle="Ecosystem Layer 1: Model Integration" 
+                color="bg-green-500" 
+            />
 
-          <div className="flex flex-wrap gap-2">
-            <TabButton type="all" label="All Models" icon={Filter} />
-            <TabButton type="image" label="Image & Vector" icon={ImageIcon} />
-            <TabButton type="video" label="Video Generation" icon={Video} />
-            <TabButton type="audio" label="Audio & Speech" icon={Mic} />
-          </div>
+            <div className="flex flex-wrap gap-2">
+                <TabButton type="all" label="All Models" icon={Filter} />
+                <TabButton type="image" label="Image & Vector" icon={ImageIcon} />
+                <TabButton type="video" label="Video Generation" icon={Video} />
+                <TabButton type="audio" label="Audio & Speech" icon={Mic} />
+            </div>
+            </div>
         </div>
 
-        {/* Scroll Container */}
-        <div className="relative group/scroll flex-1 md:flex-none">
+        {/* Scroll Container - Full Width (Bleed to Edge) */}
+        {/* Removes the black edges on the side by allowing overflow and full width */}
+        <div className="relative group/scroll flex-1 md:flex-none w-full">
            
-           {/* Scroll Buttons */}
+           {/* Scroll Buttons - Positioned near edges */}
            <button 
               onClick={() => scroll('left')}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-black/50 border border-white/10 text-white opacity-0 group-hover/scroll:opacity-100 hover:bg-white/20 transition-all backdrop-blur-md hidden md:flex"
+              className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-black/50 border border-white/10 text-white opacity-0 group-hover/scroll:opacity-100 hover:bg-white/20 transition-all backdrop-blur-md hidden md:flex"
            >
               <ChevronLeft size={24} />
            </button>
            <button 
               onClick={() => scroll('right')}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-black/50 border border-white/10 text-white opacity-0 group-hover/scroll:opacity-100 hover:bg-white/20 transition-all backdrop-blur-md hidden md:flex"
+              className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-black/50 border border-white/10 text-white opacity-0 group-hover/scroll:opacity-100 hover:bg-white/20 transition-all backdrop-blur-md hidden md:flex"
            >
               <ChevronRight size={24} />
            </button>
 
            <div 
             ref={scrollContainerRef}
-            className="flex gap-6 overflow-x-auto h-full items-stretch px-2 pb-8 snap-x snap-mandatory no-scrollbar"
+            className="flex gap-6 overflow-x-auto h-full items-stretch px-6 md:px-20 py-12 snap-x snap-mandatory no-scrollbar"
            >
               {filteredPartners.map((partner, idx) => (
                 <div 
@@ -3007,8 +3587,8 @@ export const ModelEcosystemSection: React.FC = () => {
                   className={`
                     snap-center shrink-0 w-[280px] md:w-[320px] 
                     rounded-3xl border ${partner.color} bg-gray-900/40 backdrop-blur-sm
-                    flex flex-col overflow-hidden transition-all duration-300 hover:shadow-[0_0_30px_rgba(0,0,0,0.5)]
-                    hover:scale-[1.02]
+                    flex flex-col overflow-hidden transition-all duration-300 hover:shadow-[0_0_50px_rgba(0,0,0,0.6)]
+                    hover:scale-[1.05] relative hover:z-10
                   `}
                 >
                   {/* Card Header */}
@@ -3053,7 +3633,12 @@ export const ModelEcosystemSection: React.FC = () => {
            </div>
         </div>
 
-      </div>
+        <div className="w-full text-center pb-8 pt-0 animate-pulse">
+           <p className="text-gray-500 text-[10px] md:text-xs font-mono tracking-widest uppercase">
+              Creativity &gt; AI Model &gt; Firefly Boards &gt; Creative Cloud
+           </p>
+        </div>
+
     </section>
   );
 };
@@ -3218,11 +3803,13 @@ import { TutorialOverlay } from './TutorialOverlay';
 // Updated Order based on new Narrative Flow
 const NAV_ITEMS = [
   { label: '首頁', id: 'home' },
+  { label: '競品', id: 'competitor' }, // NEW: Competitor
   { label: '護城河', id: 'moat' }, // The Why
   { label: '剛需', id: 'three-moats' }, // Changed from 痛點 to 剛需
   { label: '策略', id: 'insight' }, // The Strategy
   { label: '社群', id: 'community' }, // Daily Engagement
   { label: '快訊', id: 'community-details' }, // Content
+  { label: '影音', id: 'youtube' }, // NEW: Youtube Showcase
   { label: '行銷', id: 'marketing' }, // NEW: Marketing Showcase
   { label: '賦能', id: 'lab' }, // Ice Breaking & Tools
   { label: '訴求', id: 'philosophy' }, // Sales Enablement (Renamed from Philosophy to Appeal)
@@ -3233,6 +3820,8 @@ const NAV_ITEMS = [
   { label: '學堂', id: 'academy' }, // Education - Moved
   { label: '聯盟', id: 'alliance' },
   { label: '盛會', id: 'flagship' }, // Market Impact (Event) - Moved
+  { label: '受眾', id: 'audience' }, // Vendor only (Moved)
+  { label: '專業', id: 'domain' }, // Vendor only (Moved)
   { label: '戰略', id: 'strategy' }, // Now Public
   { label: '效益', id: 'kpi' }, // Proof
   { label: '總結', id: 'summary' }, // NEW Summary
@@ -3275,7 +3864,8 @@ export const Navbar: React.FC<NavbarProps> = ({ isVendorMode, onLogoSecretTrigge
   };
 
   // 根據模式過濾導覽項目
-  const HIDDEN_FOR_FACTORY = ['videos', 'partner', 'contact'];
+  // Modified: Added 'audience' and 'domain' to hidden list for public mode
+  const HIDDEN_FOR_FACTORY = ['videos', 'partner', 'contact', 'audience', 'domain'];
   const filteredNavItems = isVendorMode 
     ? NAV_ITEMS 
     : NAV_ITEMS.filter(item => !HIDDEN_FOR_FACTORY.includes(item.id));
@@ -3897,6 +4487,174 @@ export const PartnerSection: React.FC = () => {
 };
 </file>
 
+<file path="components/ProfessionalAreaSection.tsx">
+import React from 'react';
+import { 
+  Briefcase, 
+  Layers, 
+  PenTool, 
+  Video, 
+  Megaphone, 
+  Globe, 
+  Aperture,
+  Box,
+  Palette
+} from 'lucide-react';
+import { SectionHeading } from './ui/Shared';
+
+const FIELDS = [
+  { label: 'Marketing/Public Relations', value: 57, icon: Megaphone },
+  { label: 'Social Media', value: 56, icon: Globe },
+  { label: 'Creative / Design Ops', value: 48, icon: Layers },
+  { label: 'Advertising', value: 45, icon: Aperture },
+  { label: 'Web Design', value: 41, icon: Box },
+  { label: 'Brand Identity', value: 40, icon: Briefcase },
+  { label: 'Photography', value: 38, icon: Aperture },
+  { label: 'Video / Editing', value: 35, icon: Video },
+  { label: 'Signage Design', value: 35, icon: PenTool },
+  { label: 'Visual Design', value: 32, icon: Palette },
+];
+
+const PRODUCTS = [
+  { name: 'Photoshop', value: 76, icon: 'https://adbeweblink.github.io/myproject/images/ps.png', color: 'bg-[#31A8FF]' },
+  { name: 'Illustrator', value: 65, icon: 'https://adbeweblink.github.io/myproject/images/Ai.png', color: 'bg-[#FF9A00]' },
+  { name: 'InDesign', value: 55, icon: 'https://adbeweblink.github.io/myproject/images/Id.png', color: 'bg-[#FF3366]' },
+  { name: 'After Effects', value: 50, icon: 'https://adbeweblink.github.io/myproject/images/Ae.png', color: 'bg-[#9999FF]' },
+  { name: 'Premiere Pro', value: 48, icon: 'https://adbeweblink.github.io/myproject/images/Pr.png', color: 'bg-[#9999FF]' },
+  { name: 'Brand Identity', value: 40, icon: null, isField: true }, // Placeholder logic handled in render
+  { name: 'Firefly', value: 39, icon: 'https://adbeweblink.github.io/myproject/images/fl.png', color: 'bg-gradient-to-r from-blue-500 to-red-500' },
+  { name: 'Adobe Express', value: 36, icon: 'https://adbeweblink.github.io/myproject/images/Express.png', color: 'bg-gradient-to-r from-purple-500 to-indigo-500' },
+  { name: 'Lightroom', value: 33, icon: 'https://adbeweblink.github.io/myproject/images/lr.png', color: 'bg-[#31A8FF]' },
+];
+
+// Filter out the non-product entry for the product grid
+const REAL_PRODUCTS = PRODUCTS.filter(p => !p.isField);
+
+export const ProfessionalAreaSection: React.FC = () => {
+  return (
+    <section className="h-screen pt-20 pb-4 md:pt-24 md:pb-6 px-6 md:px-20 border-b border-white/5 bg-[#0a0a0a] flex flex-col overflow-hidden relative" id="domain">
+      {/* Background Gradients */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-900/10 blur-[100px] rounded-full pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-red-900/10 blur-[100px] rounded-full pointer-events-none"></div>
+
+      <div className="max-w-7xl mx-auto w-full h-full flex flex-col relative z-10">
+        
+        {/* Header Section - Compressed */}
+        <div className="shrink-0 mb-4 md:mb-6">
+          <SectionHeading 
+            title="參加者專業領域與工具分佈" 
+            subtitle="Professional Fields & Tool Usage" 
+            color="bg-gradient-to-r from-orange-500 to-red-500" 
+          />
+          <p className="text-gray-400 text-sm md:text-base max-w-3xl leading-relaxed line-clamp-2 md:line-clamp-none">
+            這不僅是一群設計師，更是一群<strong className="text-white">「跨領域多工」</strong>的專業決策者。
+            數據顯示受眾高度依賴 Adobe 生態系來完成從品牌、行銷到影音的全方位任務。
+          </p>
+        </div>
+
+        <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-stretch">
+          
+          {/* LEFT: Professional Fields (Data Bars) */}
+          <div className="flex flex-col h-full min-h-0">
+            <h3 className="shrink-0 text-lg md:text-xl font-bold text-white mb-3 flex items-center gap-2">
+              <span className="w-1 h-5 md:h-6 bg-red-500 rounded-full"></span>
+              專業範疇 (Professional Scope)
+            </h3>
+            
+            <div className="flex-1 min-h-0 bg-[#111] border border-white/10 rounded-3xl p-4 md:p-6 relative overflow-hidden flex flex-col justify-between">
+               {/* Decorative Background */}
+               <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.02)_50%,transparent_75%,transparent_100%)] bg-[length:20px_20px]"></div>
+
+               {FIELDS.map((field, idx) => (
+                 <div key={idx} className="relative group">
+                    <div className="flex justify-between items-end mb-1 relative z-10">
+                       <span className="text-xs md:text-sm font-bold text-gray-300 flex items-center gap-2 group-hover:text-white transition-colors">
+                          <field.icon size={12} className="text-gray-500" />
+                          {field.label}
+                       </span>
+                       <span className="text-xs md:text-sm font-black text-red-400">{field.value}%</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden relative z-10">
+                       <div 
+                          className="h-full bg-gradient-to-r from-red-600 to-orange-500 rounded-full shadow-[0_0_10px_rgba(239,68,68,0.3)] transition-all duration-1000 ease-out"
+                          style={{ width: `${field.value}%` }}
+                       />
+                    </div>
+                 </div>
+               ))}
+            </div>
+            <div className="shrink-0 mt-2 text-[10px] text-gray-500 text-center">
+               * 數值加總超過 100% 代表該受眾具備多重專業身分 (Slash)
+            </div>
+          </div>
+
+          {/* RIGHT: Product Usage (Icon Grid) */}
+          <div className="flex flex-col h-full min-h-0">
+            <h3 className="shrink-0 text-lg md:text-xl font-bold text-white mb-3 flex items-center gap-2">
+              <span className="w-1 h-5 md:h-6 bg-blue-500 rounded-full"></span>
+              Adobe 產品滲透率 (Product Usage)
+            </h3>
+
+            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar pr-1">
+                <div className="grid grid-cols-1 gap-2 md:gap-3">
+                {REAL_PRODUCTS.map((prod, idx) => (
+                    <div 
+                        key={idx} 
+                        className="group bg-[#111] border border-white/10 rounded-xl p-2.5 md:p-3 flex items-center gap-3 hover:border-blue-500/50 hover:bg-white/5 transition-all duration-300 relative overflow-hidden"
+                    >
+                        {/* Product Icon */}
+                        <div className="relative shrink-0 z-10 group-hover:scale-110 transition-transform duration-300">
+                            <div className="w-10 h-10 md:w-11 md:h-11 rounded-lg bg-[#1a1a1a] p-1 border border-white/10 shadow-lg">
+                                <img src={prod.icon || ''} alt={prod.name} className="w-full h-full object-contain rounded-md" />
+                            </div>
+                        </div>
+
+                        {/* Progress & Label */}
+                        <div className="flex-1 relative z-10 min-w-0">
+                            <div className="flex justify-between items-center mb-1.5">
+                                <h4 className="text-sm font-bold text-white truncate">{prod.name}</h4>
+                                <span className="text-lg font-black text-blue-400">{prod.value}%</span>
+                            </div>
+                            
+                            {/* Progress Bar Container */}
+                            <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+                                <div 
+                                    className={`h-full rounded-full ${prod.color} opacity-80 group-hover:opacity-100 shadow-lg transition-all duration-1000 ease-out`}
+                                    style={{ width: `${prod.value}%` }}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Glow Effect on Hover */}
+                        <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 bg-gradient-to-r from-transparent via-white to-transparent -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-all duration-1000 ease-in-out`}></div>
+                    </div>
+                ))}
+                </div>
+            </div>
+            
+            {/* Persuasive Summary Box - Compact */}
+            <div className="shrink-0 mt-3 bg-gradient-to-r from-blue-900/20 to-purple-900/20 border border-blue-500/30 p-3 rounded-xl flex items-start gap-3 backdrop-blur-sm">
+                <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400 shrink-0 hidden md:block">
+                   <Layers size={16} />
+                </div>
+                <div>
+                   <h5 className="text-[10px] md:text-xs font-bold text-blue-300 uppercase tracking-wider mb-0.5">Ecosystem Dominance</h5>
+                   <p className="text-[10px] md:text-xs text-gray-300 leading-relaxed line-clamp-2 md:line-clamp-none">
+                      高達 <span className="text-white font-bold">76%</span> 的受眾使用 Photoshop，且多數同時掌握 3 種以上軟體。
+                      這意味著這是一群對 <strong className="text-white">高規硬體</strong> 與 <strong className="text-white">周邊設備</strong> 有高度依賴的重度使用者。
+                   </p>
+                </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </section>
+  );
+};
+</file>
+
 <file path="components/StrategicAllianceSection.tsx">
 import React, { useRef, useEffect } from 'react';
 import { Box, Palette, Cpu, HardDrive, Type, MousePointer2, ExternalLink, ArrowUpRight, Zap, Target, ChevronLeft, ChevronRight, Command } from 'lucide-react';
@@ -4220,7 +4978,7 @@ import { SectionHeading } from './ui/Shared';
 interface BentoItemProps {
   className?: string;
   bgImage: string;
-  title: string;
+  title: React.ReactNode;
   subtitle: string;
   icon: React.ElementType;
   children?: React.ReactNode;
@@ -4241,7 +4999,7 @@ const BentoItem: React.FC<BentoItemProps> = ({
     <div className="absolute inset-0 overflow-hidden">
       <img 
         src={bgImage} 
-        alt={title} 
+        alt={typeof title === 'string' ? title : 'Bento Item'} 
         className="w-full h-full object-cover opacity-30 group-hover:opacity-40 group-hover:scale-110 transition-all duration-700"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent/20" />
@@ -4295,7 +5053,7 @@ export const SummarySection: React.FC = () => {
             accentColor="text-red-500"
           >
             <p className="text-gray-300 text-sm mt-2 leading-relaxed">
-              在 AI 肆掠的浪潮中築起<span className="text-white font-bold border-b border-red-500">商業護城河</span>。我們不只賣軟體，更販售企業最需要的「免責權」與「營運穩定性」。
+              在 AI 肆掠的浪潮中築起<span className="text-white font-bold border-b border-red-500">商業護城河</span>。我們不只賣軟體，更強調跨流程、軟體整合、AI模型整合、安全合規性、Out端商用標準、人才流通性，販售企業最需要的「免責權」與「營運穩定性」。
             </p>
             <div className="mt-4 flex gap-2">
               <span className="px-3 py-1 rounded-full bg-red-900/40 border border-red-500/30 text-red-200 text-xs font-bold">Moat / 護城河</span>
@@ -4307,7 +5065,12 @@ export const SummarySection: React.FC = () => {
           <BentoItem 
             className="md:col-span-1 md:row-span-2 min-h-[300px]"
             bgImage="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1000&auto=format&fit=crop"
-            title="社群數位資產"
+            title={
+              <>
+                社群數位資產
+                <div className="text-[10px] md:text-xs text-gray-400 font-medium mt-1 tracking-wide">(量變&gt;質變)</div>
+              </>
+            }
             subtitle="Community Power"
             icon={Users}
             accentColor="text-green-500"
@@ -4379,7 +5142,7 @@ export const SummarySection: React.FC = () => {
           <BentoItem 
             className="md:col-span-3 md:row-span-1 min-h-[200px]"
             bgImage="https://images.unsplash.com/photo-1505236858219-8359eb29e329?q=80&w=2000&auto=format&fit=crop"
-            title="年度關鍵戰役 Timeline"
+            title="年度關鍵場次 Timeline"
             subtitle="Flagship & Academy"
             icon={Calendar}
             accentColor="text-orange-500"
@@ -4393,6 +5156,18 @@ export const SummarySection: React.FC = () => {
                    <div>
                       <div className="text-[10px] text-orange-400 font-bold uppercase">All Year</div>
                       <div className="text-white font-bold text-sm">快充學堂 Online</div>
+                   </div>
+                </div>
+
+                <div className="w-px h-10 bg-white/10 hidden md:block"></div>
+
+                <div className="flex items-center gap-3 shrink-0">
+                   <div className="w-10 h-10 rounded-lg bg-purple-900/50 flex items-center justify-center text-purple-400 font-black text-xs border border-purple-500/30">
+                      3月
+                   </div>
+                   <div>
+                      <div className="text-[10px] text-purple-400 font-bold uppercase">Dealer Conf</div>
+                      <div className="text-white font-bold text-sm">經銷商大會</div>
                    </div>
                 </div>
 
@@ -4843,12 +5618,17 @@ export const TimelineSlide: React.FC = () => {
   const events: EventItem[] = [
     // Q1
     { id: 101, date: "2025-12-17", name: "DV ASIA Workflow (CC)", type: EVENT_TYPES.PHYSICAL_CC, status: "Standard", highlight: false },
+    // NEW EVENT
+    { id: 106, date: "2026-01-14", name: "Acrobat 線上\n校園研習(台奇)", type: EVENT_TYPES.EXTERNAL, status: "Webinar", highlight: false },
     { id: 104, date: "2026-01-28", name: "Adobe MG 動畫 AI 講座(CC)", type: EVENT_TYPES.ONLINE_CC, status: "Webinar", highlight: false },
     { id: 103, date: "2026-01-29", name: "PDF 印務色彩管理(DC)", type: EVENT_TYPES.ONLINE_DC, status: "Webinar", highlight: false },
+    // NEW EVENT
+    { id: 107, date: "2026-01-30", name: "影視專案\n實體講座(朕宏)", type: EVENT_TYPES.EXTERNAL, status: "Seminar", highlight: false },
     { id: 105, date: "2026-02-15", name: "Cyber Security 研討會", type: EVENT_TYPES.EXTERNAL, status: "Seminar", highlight: false },
 
     // Q2
-    { id: 201, date: "2026-03-02", name: "Channel Partner Event", type: EVENT_TYPES.CHANNEL, status: "High Priority", highlight: true },
+    // Moved to late March
+    { id: 201, date: "2026-03-25", displayDate: "3月", name: "Channel Partner Event", type: EVENT_TYPES.CHANNEL, status: "High Priority", highlight: true },
     { id: 203, date: "2026-03-18", name: "快充學堂(CC)", type: EVENT_TYPES.ONLINE_CC, status: "Webinar", highlight: false },
     { id: 204, date: "2026-04-01", name: "快充學堂(DC)", type: EVENT_TYPES.ONLINE_DC, status: "Webinar", highlight: false },
     { id: 205, date: "2026-04-24", name: "iSAC Tech 研討會", type: EVENT_TYPES.PHYSICAL_DC, status: "Standard", highlight: false },
@@ -5021,10 +5801,12 @@ export const TimelineSlide: React.FC = () => {
                         `}>
                            <div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-70">
                               <Calendar size={8} className="text-gray-400"/>
-                              <div className="text-[9px] font-mono text-gray-300 uppercase tracking-wider">{ev.date.slice(5)}</div>
+                              <div className="text-[9px] font-mono text-gray-300 uppercase tracking-wider">
+                                {ev.displayDate || ev.date.slice(5)}
+                              </div>
                            </div>
                            
-                           <div className={`text-[9px] font-bold leading-tight ${ev.highlight ? 'text-yellow-400' : 'text-white'} text-balance line-clamp-2`}>
+                           <div className={`text-[9px] font-bold leading-tight ${ev.highlight ? 'text-yellow-400' : 'text-white'} text-balance line-clamp-2 whitespace-pre-line`}>
                              {ev.name}
                            </div>
                         </div>
@@ -5084,7 +5866,7 @@ export const TimelineSlide: React.FC = () => {
                                                     {monthStr}
                                                 </span>
                                                 <span className="text-xs text-gray-400 font-mono">
-                                                   {ev.date.slice(5)}
+                                                   {ev.displayDate || ev.date.slice(5)}
                                                 </span>
                                              </div>
                                              {ev.highlight && <Award size={12} className="text-yellow-500" />}
@@ -5096,7 +5878,7 @@ export const TimelineSlide: React.FC = () => {
                                              </span>
                                         </div>
 
-                                        <h4 className="text-white font-bold text-sm leading-snug">{ev.name}</h4>
+                                        <h4 className="text-white font-bold text-sm leading-snug whitespace-pre-line">{ev.name}</h4>
                                     </div>
                                 </div>
                             );
@@ -5383,10 +6165,164 @@ export const VideoGallery: React.FC = () => {
 };
 </file>
 
+<file path="components/YoutubeShowcase.tsx">
+import React, { useRef, useEffect, useState } from 'react';
+import { Play, ChevronLeft, ChevronRight } from 'lucide-react';
+import { SectionHeading } from './ui/Shared';
+
+const YOUTUBE_IMAGES = [
+  "https://adbeweblink.github.io/myproject/images/adobeday/yt/01.jpg",
+  "https://adbeweblink.github.io/myproject/images/adobeday/yt/02.jpg",
+  "https://adbeweblink.github.io/myproject/images/adobeday/yt/03.jpg",
+  "https://adbeweblink.github.io/myproject/images/adobeday/yt/04.jpg",
+  "https://adbeweblink.github.io/myproject/images/adobeday/yt/05.jpg"
+];
+
+export const YoutubeShowcase: React.FC = () => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const itemsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const { current } = scrollRef;
+      const scrollAmount = window.innerWidth < 768 ? 320 : 640;
+      current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const section = document.getElementById('youtube');
+      if (!section) return;
+      const rect = section.getBoundingClientRect();
+      const isVisible = rect.top >= -window.innerHeight / 2 && rect.bottom <= window.innerHeight * 1.5;
+      
+      if (isVisible) {
+        if (e.key === 'ArrowLeft') scroll('left');
+        else if (e.key === 'ArrowRight') scroll('right');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = Number(entry.target.getAttribute('data-index'));
+            setActiveIndex(index);
+          }
+        });
+      },
+      {
+        root: scrollRef.current,
+        threshold: 0.6,
+        rootMargin: "0px -20% 0px -20%"
+      }
+    );
+
+    itemsRef.current.forEach((el) => {
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [YOUTUBE_IMAGES.length]);
+
+  return (
+    <section className="min-h-screen py-10 pt-24 md:pt-10 px-0 md:px-0 border-b border-white/5 bg-[#0a0a0a] flex flex-col justify-center overflow-hidden relative" id="youtube">
+      {/* Visuals */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,_var(--tw-gradient-stops))] from-red-900/10 via-black to-black pointer-events-none"></div>
+
+      <div className="w-full flex flex-col justify-center h-full">
+        <div className="shrink-0 mb-6 flex flex-col justify-end px-6 md:px-20 max-w-[90rem] mx-auto w-full">
+          <SectionHeading 
+            title="社群線上教學頻道" 
+            subtitle="Community Online Learning" 
+            color="bg-red-600" 
+          />
+          <div className="-mt-4 mb-4 md:-mt-6 md:mb-6 pl-1">
+             <span className="text-[10px] text-gray-500 font-mono tracking-widest uppercase opacity-70">Design by Jimmy</span>
+          </div>
+
+          <p className="text-gray-400 text-sm md:text-base max-w-2xl leading-relaxed">
+             以 Adobe Creative Cloud 授權管理與專業應用為核心，提供企業與教育單位完整的數位化線上教學支援。
+          </p>
+        </div>
+
+        <div className="relative w-full group/scroll">
+            <button 
+              onClick={() => scroll('left')}
+              className="absolute left-4 md:left-10 top-1/2 -translate-y-1/2 z-30 p-3 rounded-full bg-black/50 border border-white/10 text-white opacity-0 group-hover/scroll:opacity-100 hover:bg-white/20 transition-all backdrop-blur-md hidden md:flex"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <button 
+              onClick={() => scroll('right')}
+              className="absolute right-4 md:right-10 top-1/2 -translate-y-1/2 z-30 p-3 rounded-full bg-black/50 border border-white/10 text-white opacity-0 group-hover/scroll:opacity-100 hover:bg-white/20 transition-all backdrop-blur-md hidden md:flex"
+            >
+              <ChevronRight size={24} />
+            </button>
+
+            <div 
+              ref={scrollRef}
+              className="flex gap-4 md:gap-8 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-10 pt-10 items-center px-[10vw] md:px-[30vw]"
+            >
+              {YOUTUBE_IMAGES.map((src, index) => {
+                const isActive = index === activeIndex;
+                return (
+                  <div 
+                    key={index}
+                    ref={(el) => { if (itemsRef.current) itemsRef.current[index] = el; }}
+                    data-index={index}
+                    className={`
+                      snap-center shrink-0 relative rounded-2xl overflow-hidden group 
+                      transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]
+                      ${isActive 
+                        ? 'w-[90vw] md:w-[680px] scale-100 opacity-100 z-10 border border-red-500/50 shadow-[0_0_50px_rgba(239,68,68,0.15)]' 
+                        : 'w-[80vw] md:w-[600px] scale-90 opacity-30 grayscale brightness-50 border border-white/5'
+                      }
+                      aspect-video bg-gray-900
+                    `}
+                  >
+                    <img 
+                      src={src} 
+                      alt={`Youtube Thumbnail ${index + 1}`} 
+                      className={`w-full h-full object-contain bg-black transition-all duration-700 ${isActive ? 'opacity-100' : 'opacity-70'}`}
+                      loading="lazy"
+                    />
+                    
+                    {/* Overlay */}
+                    <div className={`absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent transition-opacity duration-500 pointer-events-none ${isActive ? 'opacity-100' : 'opacity-0'}`}></div>
+                    
+                    <div className={`absolute bottom-4 left-6 transition-all duration-500 pointer-events-none ${isActive ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
+                       <div className="flex items-center gap-2 text-red-400 font-bold text-xs uppercase tracking-widest mb-1">
+                          <Play size={14} /> Episode 0{index + 1}
+                       </div>
+                       <div className="text-white font-bold text-base md:text-lg">Tutorial Series</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+</file>
+
 <file path="App.tsx">
 import React, { useEffect, useRef, useState } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroSlide } from './components/HeroSlide';
+import { CompetitorSection } from './components/CompetitorSection';
 import { InsightSlide } from './components/InsightSlide';
 import { TheMoatSection } from './components/TheMoatSection'; 
 import { ThreeMoatsSection } from './components/ThreeMoatsSection'; 
@@ -5394,9 +6330,12 @@ import { TimelineSlide } from './components/TimelineSlide';
 import { VideoGallery } from './components/VideoGallery';
 import { AcademySection } from './components/AcademySection';
 import { FlagshipEventSection } from './components/FlagshipEventSection';
+import { AudienceSection } from './components/AudienceSection';
+import { ProfessionalAreaSection } from './components/ProfessionalAreaSection';
 import { LineEngagementSection } from './components/LineEngagementSection';
 import { LineContentShowcase } from './components/LineContentShowcase';
 import { MarketingShowcase } from './components/MarketingShowcase';
+import { YoutubeShowcase } from './components/YoutubeShowcase';
 import { BusinessAccelerationLab } from './components/BusinessAccelerationLab';
 import { MultiModelPhilosophySection } from './components/MultiModelPhilosophySection';
 import { ModelEcosystemSection } from './components/ModelEcosystemSection';
@@ -5476,11 +6415,13 @@ export default function App() {
     // Define the order of sections based on render logic
     const sections = [
       'home',
+      'competitor',  // NEW: Competitor Comparison
       'moat',        // 1. The Why & Strategy (Part 2)
       'three-moats', // NEW: The Three Pillars
       'insight',     // 1. The Why & Strategy (Part 3)
       'community',   // 2. Daily Engagement
       'community-details', // 2. Daily Engagement (Content)
+      'youtube',     // NEW: Youtube Showcase
       'marketing',   // NEW: Marketing Showcase
       'lab',         // 3. Sales Enablement (Tools/Ice Breaking)
       'philosophy',  // 3. Sales Enablement (Philosophy)
@@ -5491,6 +6432,7 @@ export default function App() {
       'academy',     // 5. Education (Moved after Ecosystem)
       'alliance',    // Public
       'flagship',    // 5. Market Impact (Event) (Moved after Alliance)
+      ...(isVendorMode ? ['audience', 'domain'] : []), // Changed: Only in Vendor Mode
       'strategy',    // Now Public
       'kpi',         // 6. Proof
       'summary',     // 7. Summary (New)
@@ -5564,6 +6506,13 @@ export default function App() {
         <HeroSlide />
       </SectionWrapper>
 
+      {/* NEW: COMPETITOR COMPARISON (Placed after Home) */}
+      <SectionWrapper id="competitor">
+        <FadeIn fullWidth>
+          <CompetitorSection />
+        </FadeIn>
+      </SectionWrapper>
+
       {/* 2. THE MOAT (The Why) */}
       <SectionWrapper id="moat">
         <FadeIn fullWidth>
@@ -5596,6 +6545,13 @@ export default function App() {
       <SectionWrapper id="community-details">
         <FadeIn fullWidth delay={200}>
           <LineContentShowcase />
+        </FadeIn>
+      </SectionWrapper>
+
+      {/* NEW: YOUTUBE SHOWCASE */}
+      <SectionWrapper id="youtube">
+        <FadeIn fullWidth>
+          <YoutubeShowcase />
         </FadeIn>
       </SectionWrapper>
 
@@ -5667,6 +6623,23 @@ export default function App() {
           <FlagshipEventSection />
         </FadeIn>
       </SectionWrapper>
+
+      {/* NEW: AUDIENCE PROFILE SECTION & PROFESSIONAL AREA (Vendor Mode Only) */}
+      {isVendorMode && (
+        <>
+          <SectionWrapper id="audience">
+            <FadeIn fullWidth>
+              <AudienceSection />
+            </FadeIn>
+          </SectionWrapper>
+
+          <SectionWrapper id="domain">
+            <FadeIn fullWidth>
+              <ProfessionalAreaSection />
+            </FadeIn>
+          </SectionWrapper>
+        </>
+      )}
 
       <SectionWrapper id="strategy">
         <FadeIn fullWidth>
@@ -6051,6 +7024,7 @@ export interface EventTypes {
 export interface EventItem {
   id: number;
   date: string;
+  displayDate?: string; // Optional custom display label (e.g. "3月")
   name: string;
   type: EventTypeDefinition;
   status: string;

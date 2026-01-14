@@ -18,6 +18,7 @@ export interface EventTypes {
 export interface EventItem {
   id: number;
   date: string;
+  displayDate?: string; // Optional custom display label (e.g. "3月")
   name: string;
   type: EventTypeDefinition;
   status: string;

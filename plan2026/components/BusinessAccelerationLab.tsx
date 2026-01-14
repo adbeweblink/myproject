@@ -75,6 +75,14 @@ const LAB_PROJECTS: LabProject[] = [
     problemSolved: "解決企業對點數重置焦慮。",
     efficiency: "將複雜計費邏輯視覺化。"
   },
+  {
+    id: 16, type: 'tool', title: "Lab 工具影音教學專區",
+    description: "匯集所有 Weblink Lab 開發工具的實戰教學影片，從規格生成到點數計算的影音懶人包。",
+    link: "https://www.youtube.com/playlist?list=PL_LabTutorials", 
+    purpose: "視覺化呈現工具操作流程。",
+    problemSolved: "解決圖文說明難以傳達的動態細節。",
+    efficiency: "縮短經銷商教育訓練時間。"
+  },
   // --- Games ---
   {
     id: 15, type: 'game', title: "設計師職場生存模擬器",
@@ -144,7 +152,6 @@ const LAB_PROJECTS: LabProject[] = [
 
 const getPatternSvg = (id: number) => {
     const patterns: Record<number, string> = {
-        // ... (patterns remain the same as previous) ...
         1: `<svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
                 <defs><pattern id="p1" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M10 10h10v2h-8v8h-2v-10z" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.3"/></pattern></defs>
                 <rect width="100%" height="100%" fill="url(#p1)" class="text-white"/>
@@ -184,6 +191,13 @@ const getPatternSvg = (id: number) => {
                 <circle cx="20" cy="20" r="6" fill="white" opacity="0.3"/>
                 <circle cx="80" cy="80" r="4" fill="white" opacity="0.3"/>
             </svg>`,
+        16: `<svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                 <circle cx="50" cy="50" r="25" fill="none" stroke="white" stroke-width="1.5" opacity="0.2"/>
+                 <path d="M42 38 L65 50 L42 62 Z" fill="white" opacity="0.3"/>
+                 <rect x="15" y="25" width="70" height="50" rx="4" fill="none" stroke="white" stroke-width="0.5" opacity="0.15"/>
+                 <circle cx="20" cy="50" r="2" fill="white" opacity="0.2"/>
+                 <circle cx="80" cy="50" r="2" fill="white" opacity="0.2"/>
+             </svg>`,
         15: `<svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M10 90 L30 70 L50 80 L70 40 L90 20" fill="none" stroke="white" stroke-width="2" opacity="0.3"/>
                 <rect x="10" y="90" width="80" height="2" fill="white" opacity="0.2"/>
@@ -433,4 +447,3 @@ export const BusinessAccelerationLab: React.FC = () => {
     </section>
   );
 };
-    

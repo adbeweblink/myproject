@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroSlide } from './components/HeroSlide';
+import { CompetitorSection } from './components/CompetitorSection';
 import { InsightSlide } from './components/InsightSlide';
 import { TheMoatSection } from './components/TheMoatSection'; 
 import { ThreeMoatsSection } from './components/ThreeMoatsSection'; 
@@ -9,9 +10,12 @@ import { TimelineSlide } from './components/TimelineSlide';
 import { VideoGallery } from './components/VideoGallery';
 import { AcademySection } from './components/AcademySection';
 import { FlagshipEventSection } from './components/FlagshipEventSection';
+import { AudienceSection } from './components/AudienceSection';
+import { ProfessionalAreaSection } from './components/ProfessionalAreaSection';
 import { LineEngagementSection } from './components/LineEngagementSection';
 import { LineContentShowcase } from './components/LineContentShowcase';
 import { MarketingShowcase } from './components/MarketingShowcase';
+import { YoutubeShowcase } from './components/YoutubeShowcase';
 import { BusinessAccelerationLab } from './components/BusinessAccelerationLab';
 import { MultiModelPhilosophySection } from './components/MultiModelPhilosophySection';
 import { ModelEcosystemSection } from './components/ModelEcosystemSection';
@@ -91,11 +95,13 @@ export default function App() {
     // Define the order of sections based on render logic
     const sections = [
       'home',
+      'competitor',  // NEW: Competitor Comparison
       'moat',        // 1. The Why & Strategy (Part 2)
       'three-moats', // NEW: The Three Pillars
       'insight',     // 1. The Why & Strategy (Part 3)
       'community',   // 2. Daily Engagement
       'community-details', // 2. Daily Engagement (Content)
+      'youtube',     // NEW: Youtube Showcase
       'marketing',   // NEW: Marketing Showcase
       'lab',         // 3. Sales Enablement (Tools/Ice Breaking)
       'philosophy',  // 3. Sales Enablement (Philosophy)
@@ -106,6 +112,7 @@ export default function App() {
       'academy',     // 5. Education (Moved after Ecosystem)
       'alliance',    // Public
       'flagship',    // 5. Market Impact (Event) (Moved after Alliance)
+      ...(isVendorMode ? ['audience', 'domain'] : []), // Changed: Only in Vendor Mode
       'strategy',    // Now Public
       'kpi',         // 6. Proof
       'summary',     // 7. Summary (New)
@@ -179,6 +186,13 @@ export default function App() {
         <HeroSlide />
       </SectionWrapper>
 
+      {/* NEW: COMPETITOR COMPARISON (Placed after Home) */}
+      <SectionWrapper id="competitor">
+        <FadeIn fullWidth>
+          <CompetitorSection />
+        </FadeIn>
+      </SectionWrapper>
+
       {/* 2. THE MOAT (The Why) */}
       <SectionWrapper id="moat">
         <FadeIn fullWidth>
@@ -211,6 +225,13 @@ export default function App() {
       <SectionWrapper id="community-details">
         <FadeIn fullWidth delay={200}>
           <LineContentShowcase />
+        </FadeIn>
+      </SectionWrapper>
+
+      {/* NEW: YOUTUBE SHOWCASE */}
+      <SectionWrapper id="youtube">
+        <FadeIn fullWidth>
+          <YoutubeShowcase />
         </FadeIn>
       </SectionWrapper>
 
@@ -282,6 +303,23 @@ export default function App() {
           <FlagshipEventSection />
         </FadeIn>
       </SectionWrapper>
+
+      {/* NEW: AUDIENCE PROFILE SECTION & PROFESSIONAL AREA (Vendor Mode Only) */}
+      {isVendorMode && (
+        <>
+          <SectionWrapper id="audience">
+            <FadeIn fullWidth>
+              <AudienceSection />
+            </FadeIn>
+          </SectionWrapper>
+
+          <SectionWrapper id="domain">
+            <FadeIn fullWidth>
+              <ProfessionalAreaSection />
+            </FadeIn>
+          </SectionWrapper>
+        </>
+      )}
 
       <SectionWrapper id="strategy">
         <FadeIn fullWidth>

@@ -7,11 +7,13 @@ import { TutorialOverlay } from './TutorialOverlay';
 // Updated Order based on new Narrative Flow
 const NAV_ITEMS = [
   { label: '首頁', id: 'home' },
+  { label: '競品', id: 'competitor' }, // NEW: Competitor
   { label: '護城河', id: 'moat' }, // The Why
   { label: '剛需', id: 'three-moats' }, // Changed from 痛點 to 剛需
   { label: '策略', id: 'insight' }, // The Strategy
   { label: '社群', id: 'community' }, // Daily Engagement
   { label: '快訊', id: 'community-details' }, // Content
+  { label: '影音', id: 'youtube' }, // NEW: Youtube Showcase
   { label: '行銷', id: 'marketing' }, // NEW: Marketing Showcase
   { label: '賦能', id: 'lab' }, // Ice Breaking & Tools
   { label: '訴求', id: 'philosophy' }, // Sales Enablement (Renamed from Philosophy to Appeal)
@@ -22,6 +24,8 @@ const NAV_ITEMS = [
   { label: '學堂', id: 'academy' }, // Education - Moved
   { label: '聯盟', id: 'alliance' },
   { label: '盛會', id: 'flagship' }, // Market Impact (Event) - Moved
+  { label: '受眾', id: 'audience' }, // Vendor only (Moved)
+  { label: '專業', id: 'domain' }, // Vendor only (Moved)
   { label: '戰略', id: 'strategy' }, // Now Public
   { label: '效益', id: 'kpi' }, // Proof
   { label: '總結', id: 'summary' }, // NEW Summary
@@ -64,7 +68,8 @@ export const Navbar: React.FC<NavbarProps> = ({ isVendorMode, onLogoSecretTrigge
   };
 
   // 根據模式過濾導覽項目
-  const HIDDEN_FOR_FACTORY = ['videos', 'partner', 'contact'];
+  // Modified: Added 'audience' and 'domain' to hidden list for public mode
+  const HIDDEN_FOR_FACTORY = ['videos', 'partner', 'contact', 'audience', 'domain'];
   const filteredNavItems = isVendorMode 
     ? NAV_ITEMS 
     : NAV_ITEMS.filter(item => !HIDDEN_FOR_FACTORY.includes(item.id));

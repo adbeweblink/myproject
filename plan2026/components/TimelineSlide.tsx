@@ -49,12 +49,17 @@ export const TimelineSlide: React.FC = () => {
   const events: EventItem[] = [
     // Q1
     { id: 101, date: "2025-12-17", name: "DV ASIA Workflow (CC)", type: EVENT_TYPES.PHYSICAL_CC, status: "Standard", highlight: false },
+    // NEW EVENT
+    { id: 106, date: "2026-01-14", name: "Acrobat 線上\n校園研習(台奇)", type: EVENT_TYPES.EXTERNAL, status: "Webinar", highlight: false },
     { id: 104, date: "2026-01-28", name: "Adobe MG 動畫 AI 講座(CC)", type: EVENT_TYPES.ONLINE_CC, status: "Webinar", highlight: false },
     { id: 103, date: "2026-01-29", name: "PDF 印務色彩管理(DC)", type: EVENT_TYPES.ONLINE_DC, status: "Webinar", highlight: false },
+    // NEW EVENT
+    { id: 107, date: "2026-01-30", name: "影視專案\n實體講座(朕宏)", type: EVENT_TYPES.EXTERNAL, status: "Seminar", highlight: false },
     { id: 105, date: "2026-02-15", name: "Cyber Security 研討會", type: EVENT_TYPES.EXTERNAL, status: "Seminar", highlight: false },
 
     // Q2
-    { id: 201, date: "2026-03-02", name: "Channel Partner Event", type: EVENT_TYPES.CHANNEL, status: "High Priority", highlight: true },
+    // Moved to late March
+    { id: 201, date: "2026-03-25", displayDate: "3月", name: "Channel Partner Event", type: EVENT_TYPES.CHANNEL, status: "High Priority", highlight: true },
     { id: 203, date: "2026-03-18", name: "快充學堂(CC)", type: EVENT_TYPES.ONLINE_CC, status: "Webinar", highlight: false },
     { id: 204, date: "2026-04-01", name: "快充學堂(DC)", type: EVENT_TYPES.ONLINE_DC, status: "Webinar", highlight: false },
     { id: 205, date: "2026-04-24", name: "iSAC Tech 研討會", type: EVENT_TYPES.PHYSICAL_DC, status: "Standard", highlight: false },
@@ -227,10 +232,12 @@ export const TimelineSlide: React.FC = () => {
                         `}>
                            <div className="flex items-center justify-center gap-1.5 mb-0.5 opacity-70">
                               <Calendar size={8} className="text-gray-400"/>
-                              <div className="text-[9px] font-mono text-gray-300 uppercase tracking-wider">{ev.date.slice(5)}</div>
+                              <div className="text-[9px] font-mono text-gray-300 uppercase tracking-wider">
+                                {ev.displayDate || ev.date.slice(5)}
+                              </div>
                            </div>
                            
-                           <div className={`text-[9px] font-bold leading-tight ${ev.highlight ? 'text-yellow-400' : 'text-white'} text-balance line-clamp-2`}>
+                           <div className={`text-[9px] font-bold leading-tight ${ev.highlight ? 'text-yellow-400' : 'text-white'} text-balance line-clamp-2 whitespace-pre-line`}>
                              {ev.name}
                            </div>
                         </div>
@@ -290,7 +297,7 @@ export const TimelineSlide: React.FC = () => {
                                                     {monthStr}
                                                 </span>
                                                 <span className="text-xs text-gray-400 font-mono">
-                                                   {ev.date.slice(5)}
+                                                   {ev.displayDate || ev.date.slice(5)}
                                                 </span>
                                              </div>
                                              {ev.highlight && <Award size={12} className="text-yellow-500" />}
@@ -302,7 +309,7 @@ export const TimelineSlide: React.FC = () => {
                                              </span>
                                         </div>
 
-                                        <h4 className="text-white font-bold text-sm leading-snug">{ev.name}</h4>
+                                        <h4 className="text-white font-bold text-sm leading-snug whitespace-pre-line">{ev.name}</h4>
                                     </div>
                                 </div>
                             );

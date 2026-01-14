@@ -6,8 +6,27 @@ import { CourseItem } from '../types';
 
 export const AcademySection: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  // Initialize and track screen size for accurate carousel calculations
+  useEffect(() => {
+    const handleResize = () => setIsDesktop(window.innerWidth >= 768);
+    handleResize(); // Check initially
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const courses: CourseItem[] = [
+    {
+      id: 0,
+      month: 'ANNUAL',
+      date: '2026',
+      title: '2026 Academy Key Visual',
+      desc: '2026 Academy Key Visual',
+      level: 'KV',
+      tag: 'KV',
+      image: 'https://adbeweblink.github.io/myproject/images/adobeday/marketing/000.jpg'
+    },
     {
       id: 1,
       month: 'JAN',
@@ -16,7 +35,7 @@ export const AcademySection: React.FC = () => {
       desc: '探索 Firefly 在 Motion Graphics 的應用，解析 AI 如何加速動畫製作流程。',
       level: 'Motion Design',
       tag: 'Ae + Image Model',
-      image: 'https://as2.ftcdn.net/jpg/05/94/18/91/1000_F_594189146_Bo5Epvpy8KFaEi3J9rnzYfZlFzc2Sz4H.jpg'
+      image: 'https://adbeweblink.github.io/myproject/images/adobeday/marketing/00.png'
     },
     {
       id: 2,
@@ -105,6 +124,23 @@ export const AcademySection: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Calculate dynamic transform based on variable card widths
+  const getCarouselTransform = () => {
+    // Config: Mobile uses standard widths, Desktop uses 16:9 for first item
+    const GAP = isDesktop ? 24 : 16;
+    const STD_WIDTH = isDesktop ? 300 : 280;
+    // For Desktop 16:9 ratio with h=380px => 380 * (16/9) ≈ 675px
+    const WIDE_WIDTH = isDesktop ? 675 : 280; 
+
+    let offset = 0;
+    for (let i = 0; i < currentSlide; i++) {
+       // Check first TWO items
+       const w = (i < 2) ? WIDE_WIDTH : STD_WIDTH;
+       offset += w + GAP;
+    }
+    return `translateX(-${offset}px)`;
+  };
+
   return (
     <section className="min-h-screen py-8 md:py-10 px-6 md:px-20 border-b border-white/5 bg-gradient-to-b from-gray-900 to-black flex flex-col justify-center overflow-hidden">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 items-center h-full max-h-[90vh]">
@@ -112,7 +148,7 @@ export const AcademySection: React.FC = () => {
           <SectionHeading 
             title="CC x AI 實戰工作流" 
             subtitle="2026 Adobe 快充學堂" 
-            color="bg-purple-500"
+            color="bg-purple-500" 
           />
           <p className="text-gray-300 mb-6 text-sm md:text-base leading-relaxed line-clamp-4 md:line-clamp-none">
             <strong className="text-white block mb-2 text-lg">從單點功能，到全方位解決方案</strong>
@@ -153,56 +189,80 @@ export const AcademySection: React.FC = () => {
           </div>
         </div>
 
-        {/* Carousel Container - Adjusted for mobile visibility */}
+        {/* Carousel Container */}
         <div className="lg:col-span-2 overflow-hidden relative h-[450px] md:h-[420px] flex items-center -mx-6 md:mx-0 px-6 md:px-0">
           <div 
             className="flex transition-transform duration-500 ease-in-out gap-4 md:gap-6 pl-2"
-            style={{ transform: `translateX(-${currentSlide * (280 + 16)}px)` }} 
+            style={{ transform: getCarouselTransform() }} 
           >
-            {courses.map((course) => (
-              <div 
-                key={course.id} 
-                className="min-w-[280px] md:min-w-[300px] bg-gray-800 rounded-2xl overflow-hidden border border-gray-700 hover:border-purple-500 transition group flex flex-col h-[400px] md:h-[380px] shadow-lg"
-              >
-                <div className="h-40 overflow-hidden relative shrink-0">
-                  <img 
-                    src={course.image} 
-                    alt={course.title} 
-                    onError={handleImageError}
-                    className="w-full h-full object-cover group-hover:scale-110 transition duration-700 filter brightness-75 group-hover:brightness-100" 
-                    loading="lazy"
-                  />
-                  <div className="absolute top-3 left-3 bg-purple-600 text-white text-[9px] font-bold px-2 py-1 rounded shadow-lg uppercase tracking-widest">
-                    {course.month} Session
-                  </div>
-                </div>
-                
-                <div className="p-4 md:p-5 flex-1 flex flex-col">
-                  <div className="flex justify-between items-center mb-2 text-[10px] text-gray-500 font-mono">
-                    <span className="flex items-center gap-1"><Calendar size={10} /> {course.date}</span>
-                    <span className="border border-gray-600 px-2 rounded-full text-purple-400 border-purple-900/50 bg-purple-900/10 font-bold">{course.level}</span>
-                  </div>
-                  
-                  <h3 className="text-lg font-bold text-white mb-2 group-hover:text-purple-400 transition leading-tight">
-                    {course.title}
-                  </h3>
-                  <p className="text-gray-400 text-xs mb-4 flex-1 leading-relaxed line-clamp-3">
-                    {course.desc}
-                  </p>
-                  
-                  <div className="mb-3">
-                    <div className="text-[9px] text-gray-500 uppercase font-bold tracking-widest mb-1">Core Focus</div>
-                    <div className="bg-black/40 px-3 py-1 rounded-lg border border-white/5 text-purple-300 font-bold text-xs inline-block">
-                      {course.tag}
+            {courses.map((course, index) => {
+              // Check first TWO items
+              const isWide = index < 2;
+              return (
+                <div 
+                  key={course.id} 
+                  className={`
+                    ${isWide ? 'min-w-[280px] md:min-w-[675px]' : 'min-w-[280px] md:min-w-[300px]'} 
+                    bg-gray-800 rounded-2xl overflow-hidden border border-gray-700 hover:border-purple-500 transition group flex flex-col h-[400px] md:h-[380px] shadow-lg
+                  `}
+                >
+                  {isWide ? (
+                    // First Two Cards: Full Image (16:9 Style on Desktop)
+                    <div className="w-full h-full relative group">
+                      <img 
+                        src={course.image} 
+                        alt={course.title} 
+                        onError={handleImageError}
+                        className="w-full h-full object-cover transition duration-700 filter brightness-90 group-hover:brightness-100 group-hover:scale-105" 
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </div>
-                  </div>
+                  ) : (
+                    // Standard Cards
+                    <>
+                      <div className="h-40 overflow-hidden relative shrink-0">
+                        <img 
+                          src={course.image} 
+                          alt={course.title} 
+                          onError={handleImageError}
+                          className="w-full h-full object-cover group-hover:scale-110 transition duration-700 filter brightness-75 group-hover:brightness-100" 
+                          loading="lazy"
+                        />
+                        <div className="absolute top-3 left-3 bg-purple-600 text-white text-[9px] font-bold px-2 py-1 rounded shadow-lg uppercase tracking-widest">
+                          {course.month} Session
+                        </div>
+                      </div>
+                      
+                      <div className="p-4 md:p-5 flex-1 flex flex-col">
+                        <div className="flex justify-between items-center mb-2 text-[10px] text-gray-500 font-mono">
+                          <span className="flex items-center gap-1"><Calendar size={10} /> {course.date}</span>
+                          <span className="border border-gray-600 px-2 rounded-full text-purple-400 border-purple-900/50 bg-purple-900/10 font-bold">{course.level}</span>
+                        </div>
+                        
+                        <h3 className="text-lg font-bold text-white mb-2 group-hover:text-purple-400 transition leading-tight">
+                          {course.title}
+                        </h3>
+                        <p className="text-gray-400 text-xs mb-4 flex-1 leading-relaxed line-clamp-3">
+                          {course.desc}
+                        </p>
+                        
+                        <div className="mb-3">
+                          <div className="text-[9px] text-gray-500 uppercase font-bold tracking-widest mb-1">Core Focus</div>
+                          <div className="bg-black/40 px-3 py-1 rounded-lg border border-white/5 text-purple-300 font-bold text-xs inline-block">
+                            {course.tag}
+                          </div>
+                        </div>
 
-                  <button className="w-full bg-white/5 hover:bg-purple-600 hover:text-white text-gray-300 border border-white/10 hover:border-purple-500 py-2.5 rounded-lg font-bold text-xs transition-all duration-300">
-                    預約席次
-                  </button>
+                        <button className="w-full bg-white/5 hover:bg-purple-600 hover:text-white text-gray-300 border border-white/10 hover:border-purple-500 py-2.5 rounded-lg font-bold text-xs transition-all duration-300">
+                          預約席次
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
              <div className="min-w-[100px] flex items-center justify-center text-gray-600 flex-col gap-2">
                <Clock size={24} className="opacity-50"/>
                <span className="text-xs">More...</span>
