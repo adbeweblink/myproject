@@ -293,14 +293,14 @@
 
         // --- Data Logic ---
         const AppData = {
-            currentDate: '2025/12/15', // *** UPDATED ***
+            currentDate: '2025/12/15', 
             // 僅保留 plans
             plans: [
                 { 
                     id: 'free', category: '免費版', name: 'Adobe ID (Free)',
                     bgColor: 'bg-bgGray', 
                     note: '適合純粹體驗或非商業用途的個人使用者', 
-                    credits: '25 點 / 月', 
+                    credits: '10 點 / 月', // *** 數據更新：25 變更為 10 ***
                     watermark: '有\n(網頁版下載)', 
                     video_gen: 'X', translation: 'X', sfx: 'X', third_party: 'X', fonts: 'X\n(僅基本)', 
                     firefly_gallery: '有限制', 
@@ -322,15 +322,14 @@
                     app_access: 'Firefly Web App\nAdobe Fonts',
                     reset: '✔ 每月重置'
                 },
-                // --- Firefly Pro (更新為 7000點) ---
                 { 
                     id: 'firefly_pro', category: 'Pro', name: 'Firefly Pro',
                     bgColor: 'bg-bgPurple', 
                     note: '初次採購建議，點數與進階功能存取權的平衡', 
-                    credits: '7,000 點 / 月', // 7000點
+                    credits: '7,000 點 / 月', 
                     watermark: '✔ 無浮水印', 
-                    video_gen: '最多 70 段\n(5秒)', // 70段
-                    translation: '最長 23 分鐘', // 23分鐘
+                    video_gen: '最多 70 段\n(5秒)', 
+                    translation: '最長 23 分鐘', 
                     sfx: '最多 400 種', 
                     third_party: '✔ 支援', 
                     fonts: '✔ Adobe Fonts\n(完整版)', 
@@ -338,7 +337,6 @@
                     app_access: 'Firefly Web/Mobile\nExpress Premium\nPs Web/Mobile',
                     reset: '✔ 每月重置'
                 },
-                // --- Premium (影片生成更新為 500段) ---
                 { 
                     id: 'premium', category: 'Premium', isHot: true, 
                     name: 'Firefly Premium',
@@ -346,7 +344,7 @@
                     note: '大量生成首選，高用量點數額度', 
                     credits: '50,000 點 / 月', 
                     watermark: '✔ 無浮水印', 
-                    video_gen: '最多 500 段\n(5秒)', // UPDATED
+                    video_gen: '最多 500 段\n(5秒)', 
                     translation: '最長 166 分鐘', sfx: '最多 5,000 種', third_party: '✔ 支援', fonts: '✔ Adobe Fonts\n(完整版)', 
                     firefly_gallery: '✔ 無限次數', 
                     app_access: 'Firefly Web/Mobile\nExpress Premium\nPs Web/Mobile',
@@ -390,7 +388,7 @@
                 { key: 'note', label: '一句話總結', icon: 'info', section: '其他', description: '快速總結' }
             ],
             scoreMap: {
-                credits: { '25 點 / 月': 0, '2,000 點 / 月': 1, '7,000 點 / 月': 3, '50,000 點 / 月': 4, '4,000 點 / 月': 2 }, // 調整順序以確保 7k > 4k
+                credits: { '10 點 / 月': 0, '25 點 / 月': 0, '2,000 點 / 月': 1, '7,000 點 / 月': 3, '50,000 點 / 月': 4, '4,000 點 / 月': 2 }, 
                 video_gen: { 'X': 0, '最多 20 段\n(5秒)': 1, '最多 40 段\n(5秒)': 2, '最多 70 段\n(5秒)': 3, '最多 500 段\n(5秒)': 4, '無限制存取\n(Firefly Video Model)': 5 },
                 translation: { 'X': 0, '最長 6 分鐘': 1, '最長 13 分鐘': 2, '最長 23 分鐘': 3, '最長 166 分鐘': 4 },
                 sfx: { 'X': 0, '最多 200 種': 1, '最多 400 種': 2, '最多 5,000 種': 3 },
@@ -435,7 +433,7 @@
                 'film': '<rect width="18" height="18" x="3" y="3" rx="2" /><path d="M7 3v18"/><path d="M3 7.5h4"/><path d="M3 12h18"/><path d="M3 16.5h4"/><path d="M17 3v18"/><path d="M17 7.5h4"/><path d="M17 16.5h4"/>',
                 'mic': '<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>',
                 'music': '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
-                'touch': '<path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S7 9.33 7 8.5v-5c0-.83-.67-1.5-1.5-1.5S4 2.67 4 3.5v5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5c0-.83.67-1.5 1.5-1.5S10 2.67 10 3.5v5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5c0-.83.67-1.5 1.5-1.5z"/>',
+                'touch': '<path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S7 9.33 7 8.5v-5c0-.83-.67-1.5-1.5-1.5S4 2.67 4 3.5v5c0 .83-.67 1.5 1.5 1.5S1 9.33 1 8.5v-5c0-.83.67-1.5 1.5-1.5S4 2.67 4 3.5v5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5c0-.83.67-1.5 1.5-1.5S10 2.67 10 3.5v5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5c0-.83.67-1.5 1.5-1.5S16 2.67 16 3.5v5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5c0-.83.67-1.5 1.5-1.5z"/>',
                 'layout': '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="9" x2="9" y1="21" y2="9"/>',
                 'calculator': '<rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="8" x2="16" y1="10" y2="10"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/><path d="M8 18h.01"/>'
             };
@@ -455,7 +453,7 @@
                 startIndex: 0, 
                 columnsToShow: 3,
                 fontSizeMode: 0,
-                isMobileMenuOpen: false, // 新增 Mobile Menu 狀態
+                isMobileMenuOpen: false, 
             },
 
             init() {
@@ -474,7 +472,7 @@
                 } else if (w < 1024) {
                     newCols = 2; 
                 } else {
-                    newCols = 5; // Desktop -> Max cols
+                    newCols = 5; 
                 }
                 
                 if (this.state.columnsToShow !== newCols) {
@@ -581,33 +579,26 @@
                 <div class="bg-adobeBlack text-white shadow-xl sticky top-0 z-[60]">
                     <div class="max-w-[1600px] mx-auto px-4 py-3">
                         
-                        <!-- Row 1: Title (Left) + Hamburger Button (Right, Mobile only) -->
                         <div id="header-title-container" class="flex justify-between items-center gap-4 mb-2">
-                            <!-- 確保標題不會擠壓，允許換行 -->
                             <h1 class="text-xl md:text-2xl font-bold tracking-tight text-white flex-1 min-w-0">
                                 Adobe Firefly 生成式點數方案比較表
                             </h1>
-                            <!-- Hamburger / Close Icon (Visible on mobile/tablet, hidden on large desktop) -->
                             <button onclick="App.toggleMobileMenu()" class="text-white p-2 rounded-lg hover:bg-[#333] transition-colors xl:hidden">
                                 ${getIcon(isMobileMenuOpen ? 'x' : 'list-filter', 'w-6 h-6')}
                             </button>
                         </div>
                         
-                        <!-- Row 2: Warning -->
                         <div class="text-[10px] text-red-400 font-bold bg-red-900/30 px-2 py-1 rounded border border-red-800/50 text-left mb-3 inline-block">
                             注意：所有方案之點數均為每月歸零，不遞延。請留意下單日期以免下單當月能使用的時間過於緊迫
                         </div>
 
-                        <!-- Row 3: Toggles (Left) + Actions (Right) - Consolidated for Desktop -->
                         <div class="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-3 pt-2 border-t border-gray-700/50 ${menuVisibilityClass} xl:flex">
 
-                             <!-- LEFT BLOCK: Toggles (方案切換) -->
                             <div class="flex items-center gap-2 bg-[#2A2A2A] rounded-lg p-1 whitespace-nowrap overflow-x-auto w-full xl:w-auto justify-start order-1">
                                 <span class="text-[10px] text-gray-400 font-bold px-2 hidden sm:inline">自訂比較顯示</span>
                                 ${togglesHtml}
                             </div>
                             
-                            <!-- RIGHT BLOCK: Actions -->
                             <div id="actions-group" class="flex flex-wrap items-center gap-2 w-full xl:w-auto justify-start xl:justify-end order-2">
                                 <button onclick="App.toggleFontSize()" class="flex items-center px-3 py-1.5 rounded-lg text-xs font-bold transition-all border h-[34px] ${fontBtnClass} hover:bg-[#2A2A2A] hover:text-white" title="切換字體大小">
                                     ${getIcon('type', 'w-4 h-4 mr-1.5')} ${fontLabels[fontSizeMode]}
@@ -631,7 +622,6 @@
                             </div>
                         </div>
                         
-                        <!-- Row 4: Metadata (FINAL POSITION) -->
                         <div class="text-[10px] text-gray-400 text-center xl:text-right leading-tight whitespace-nowrap mt-2 pt-1 border-t border-gray-700/50">
                             資料來源：Adobe 官網 由代理商更新整理僅供參考，相關訊息仍以原廠即時訊息為主
                             <span class="text-gray-500 block xl:inline">製表日期：${AppData.currentDate}</span>
@@ -712,7 +702,6 @@
                         visibleSlice.forEach(plan => {
                             const val = getPlanVal(plan, col.key);
                             
-                            // Winner Logic based on CURRENT mode plans
                             let maxScore = -1;
                             const scores = AppData.plans.filter(p => App.state.visiblePlans[p.id]).map(p => {
                                 const v = getPlanVal(p, col.key);
@@ -728,21 +717,18 @@
 
                             let displayVal = val;
                             
-                            // Custom logic for standard_access and video_audio_access
                             if (col.key === 'standard_access') {
                                 displayVal = plan.id !== 'free' ? '✔ 無限制存取' : 'X (有限試用)';
                             } else if (col.key === 'video_audio_access') {
                                 displayVal = plan.id !== 'free' ? '✔' : 'X (有限試用)';
                             }
                             
-                            // *** FIX: Use new RegExp() constructor for robustness ***
                             if (displayVal.includes('✔')) {
                                 displayVal = displayVal.replace(new RegExp('✔', 'g'), '<span class="text-[#059669] text-base font-bold">✔</span>');
                             } else if (displayVal.includes('X')) {
                                 displayVal = displayVal.replace(new RegExp('X', 'g'), '<span class="text-gray-400 font-bold">X</span>');
                             }
                             
-                            // 表格內容設定為靠左對齊，符合您的圖片參考
                             let contentHtml = `<span class="${contentTextClass} text-left pl-4 block whitespace-pre-line text-[#2D2D2D] font-medium leading-relaxed">${displayVal}</span>`;
                             
                             if (isWin) {
