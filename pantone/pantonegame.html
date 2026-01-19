@@ -732,13 +732,16 @@
             `;
         };
 
-        // 3. Playing View - 更新為標準色票排版且無中文
+        // 3. Playing View - 標準色票排版且移除中文與 TCX 字樣
         const renderPlaying = () => {
             let cardsHtml = '';
             for (let i = 0; i < 4; i++) {
                 const isOdd = i === state.oddIndex;
                 const isWrong = i === state.wrongIndex;
                 const displayHex = isOdd ? state.oddColor : state.currentBase.hex;
+                
+                // 移除 TCX 字樣的顯示邏輯
+                const displayCode = state.currentBase.code.replace(/\s*TCX/g, '');
                 
                 let overlay = '';
                 if (state.showFeedback) {
@@ -755,14 +758,14 @@
                         <!-- 色彩區域 (佔約 70%) -->
                         <div class="w-full h-[70%] relative" style="background-color: ${displayHex}"></div>
                         
-                        <!-- 白色底層色票文字區域 -->
+                        <!-- 白色底層色票文字區域 (移除中文翻譯) -->
                         <div class="flex-1 bg-white p-3 md:p-4 flex flex-col justify-start text-left select-none relative z-10 overflow-hidden">
                             <!-- Pantone LOGO -->
                             <img src="${LOGO_URL}" class="h-3 md:h-4 w-auto object-contain object-left mb-2.5 opacity-90" alt="Pantone">
                             
                             <div class="flex flex-col">
-                                <!-- 色號 (標準排版：LOGO 下方為色號) -->
-                                <div class="text-[11px] md:text-xs font-bold text-gray-900 font-sans tracking-tight mb-0.5">${state.currentBase.code}</div>
+                                <!-- 色號 (精確移除 TCX) -->
+                                <div class="text-[11px] md:text-xs font-bold text-gray-900 font-sans tracking-tight mb-0.5">${displayCode}</div>
                                 <!-- 色彩英文名稱 (大寫且加粗) -->
                                 <div class="text-xs md:text-sm font-black text-gray-900 leading-tight uppercase tracking-wide truncate">
                                     ${state.currentBase.name}
