@@ -89,11 +89,12 @@
             transform: scale(0.98);
         }
 
-        /* Logo 裁切語法：利用容器寬度遮蔽右側的 ® */
+        /* 標誌精確裁切語法 (Logo Syntax Cropping) */
+        /* 寬度微調至 94px：這是在高度 18px 比例下，讓字母 E 完整顯示且不被壓迫的最精確邊界，同時成功切除 ® 符號 */
         .logo-crop-container {
             display: inline-block;
             overflow: hidden;
-            width: 82px; /* 根據原圖比例微調，裁切掉尾部的註冊商標符號 */
+            width: 94px; 
             height: 18px;
             position: relative;
         }
@@ -102,6 +103,8 @@
             width: auto;
             max-width: none;
             display: block;
+            object-fit: contain;
+            object-position: left center;
         }
         /* 當為深色背景時，利用 filter 將 Logo 變為純白 */
         .logo-white {
@@ -209,12 +212,12 @@
             { 
                 year: 2021, name: "Ultimate Gray", nameCN: "極致灰", code: "17-5104 TCX", hex: "#939597", 
                 img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2021PANTONE17-5104UltimateGray.png",
-                desc: "Illuminating 是明亮快活，洋溢活力，注入了太陽能量的暖黃色調、Ultimate Gray 象徵堅定可靠的素質，恆久不渝，提供堅實的基礎。" 
+                desc: "Ultimate Gray 象徵堅定可靠的素質，恆久不渝，提供堅實的基礎。" 
             },
             { 
                 year: 2021, name: "Illuminating", nameCN: "亮麗黃", code: "13-0647 TCX", hex: "#F5DF4D", 
                 img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2021PANTONE13-0647Illuminating.png",
-                desc: "Illuminating 是明亮快活，洋溢活力，注入了太陽能量的暖黃色調、Ultimate Gray 象徵堅定可靠的素質，恆久不渝，提供堅實的基礎。" 
+                desc: "Illuminating 是明亮快活，洋溢活力，注入了太陽能量的暖黃色調。" 
             },
             { 
                 year: 2020, name: "Classic Blue", nameCN: "經典藍", code: "19-4052 TCX", hex: "#0F4C81", 
@@ -239,12 +242,12 @@
             { 
                 year: 2016, name: "Serenity", nameCN: "寧靜粉藍", code: "15-3919 TCX", hex: "#91A8D0", 
                 img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2016PANTONE15-3919Serenity.png",
-                desc: "Rose Quartz 是一個動人的溫柔色調，傳達愛心與一種穩定感、Serenity 像是我們頭上寬闊的藍天一般的寧靜藍，在撫慰中帶有冷靜的效果，即使在動盪不安的時代都帶來緩和與放鬆的感覺。" 
+                desc: "Serenity 像是我們頭上寬闊的藍天一般的寧靜藍，在撫慰中帶有冷靜的效果，即使在動盪不安的時代都帶來緩和與放鬆的感覺。" 
             },
             { 
                 year: 2016, name: "Rose Quartz", nameCN: "玫瑰石英粉", code: "13-1520 TCX", hex: "#F7CAC9", 
                 img: "https://adbeweblink.github.io/myproject/COYhistoricalchipimage/2016PANTONE13-1520RoseQuartz.png",
-                desc: "Rose Quartz 是一個動人的溫柔色調，傳達愛心與一種穩定感、Serenity 像是我們頭上寬闊的藍天一般的寧靜藍，在撫慰中帶有冷靜的效果，即使在動盪不安的時代都帶來緩和與放鬆的感覺。" 
+                desc: "Rose Quartz 是一個動人的溫柔色調，傳達愛心與一種穩定感。" 
             },
             { 
                 year: 2015, name: "Marsala", nameCN: "瑪薩拉酒紅", code: "18-1438 TCX", hex: "#964F4C", 
@@ -758,7 +761,7 @@
             `;
         };
 
-        // 3. Playing View - 標準色票排版：全彩底座、移除中文、移除 TCX、語法裁切 ® 並具備智能對比色
+        // 3. Playing View - 標準色票排版：全彩底座、移除中文、移除 TCX、標誌精確裁切 ® (寬度 94px 確保 PANTONE 完整)
         const renderPlaying = () => {
             let cardsHtml = '';
             for (let i = 0; i < 4; i++) {
@@ -790,7 +793,7 @@
                         
                         <!-- 全彩底座文字區域 (無中文，移除 TCX) -->
                         <div class="flex-1 p-3 md:p-4 flex flex-col justify-start text-left select-none relative z-10 overflow-hidden ${contrastClass}">
-                            <!-- Pantone LOGO - 透過容器寬度與 overflow 裁切掉原圖的 ® -->
+                            <!-- Pantone LOGO - 寬度調增至 94px，確保 PANTONE 七個字母完整顯示，並精確遮蔽 ® 符號 -->
                             <div class="logo-crop-container mb-2.5">
                                 <img src="${LOGO_URL}" class="logo-crop-img ${isDark ? 'logo-white' : ''}" alt="Pantone">
                             </div>
