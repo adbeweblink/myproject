@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QNAP x Adobe 創作者儲存解決方案 | Weblink International</title>
+    <meta name="description" content="QNAP 為 Adobe Video Partner，提供影音創作者高效能 NAS 儲存解決方案。由台灣授權代理商展碁國際為您呈現。">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        'qnap-blue': '#0078D4',
+                        'qnap-dark': '#003366',
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 1s ease-out forwards',
+                        'float': 'float 6s ease-in-out infinite',
+                        'blob': 'blob 10s infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-15px)' },
+                        },
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Hide scrollbar */
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Scroll Reveal Base Styles */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Nav Active State */
+        .nav-link.active {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        /* Glassmorphism Utilities - Enhanced */
+        .glass-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.85) 100%);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        .glass-card:hover {
+            border-color: rgba(0, 120, 212, 0.3);
+            box-shadow:
+                0 12px 48px rgba(0, 120, 212, 0.15),
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        /* Custom Soft Shadow - Enhanced for Dark Mode */
+        .shadow-soft {
+            box-shadow:
+                0 20px 50px -15px rgba(0, 0, 0, 0.5),
+                0 10px 20px -10px rgba(0, 120, 212, 0.1);
+        }
+
+        /* Glow Effects */
+        .glow-blue {
+            box-shadow: 0 0 20px rgba(0, 120, 212, 0.3), 0 0 40px rgba(0, 120, 212, 0.1);
+        }
+        .glow-subtle {
+            box-shadow: 0 0 30px rgba(0, 120, 212, 0.08);
+        }
+
+        /* Frosted Glass Background - Enhanced with Animation */
+        .bg-frosted {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .bg-frosted::before {
+            content: '';
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            top: -25%;
+            left: -25%;
+            background:
+                radial-gradient(ellipse 60% 40% at 15% 15%, rgba(0, 120, 212, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 35% at 85% 75%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse 40% 40% at 50% 50%, rgba(14, 165, 233, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 30% 30% at 70% 20%, rgba(236, 72, 153, 0.06) 0%, transparent 50%);
+            animation: ambientMove 20s ease-in-out infinite;
+        }
+        @keyframes ambientMove {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(2%, 3%) scale(1.02); }
+            50% { transform: translate(-1%, 2%) scale(1); }
+            75% { transform: translate(1%, -2%) scale(1.01); }
+        }
+
+        /* Tech Grid Overlay */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -1;
+            background-image:
+                linear-gradient(rgba(71, 85, 105, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(71, 85, 105, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 20%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 20%, transparent 70%);
+        }
+
+        /* Product Card Specifics */
+        .product-card-hover:hover .product-overlay {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .product-overlay {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease-out;
+        }
+
+        .thumbnail-active {
+            border-color: #000 !important;
+            opacity: 1 !important;
+        }
+
+        /* Category Filter Styles - Enhanced */
+        .filter-btn {
+            position: relative;
+            color: #94a3b8;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+        .filter-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0, 120, 212, 0.1) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .filter-btn:hover {
+            color: #e2e8f0;
+            background: rgba(71, 85, 105, 0.3);
+        }
+        .filter-btn:hover::before {
+            opacity: 1;
+        }
+        .filter-btn.active {
+            background: linear-gradient(135deg, #0078D4 0%, #0369a1 100%);
+            color: white;
+            box-shadow:
+                0 4px 15px -3px rgba(0, 120, 212, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            font-weight: 600;
+        }
+
+        /* Demand Filter Tags - Enhanced */
+        .demand-tag {
+            border: 1px solid #475569;
+            color: #94a3b8;
+            background: rgba(30, 41, 59, 0.5);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .demand-tag::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0, 120, 212, 0.2) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .demand-tag:hover, .demand-tag.active {
+            border-color: #0078D4;
+            background: #0078D4;
+            color: white;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+        }
+        .modal-content {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* Compare Checkbox */
+        .compare-checkbox {
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border: 2px solid #475569;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            background-color: #1e293b;
+            transition: all 0.2s;
+        }
+        .compare-checkbox:checked {
+            background-color: #0078D4;
+            border-color: #0078D4;
+        }
+        .compare-checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            color: white;
+            font-size: 14px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .compare-bar {
+            transform: translateY(120%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .compare-bar.visible {
+            transform: translateY(0);
+        }
+
+        /* Back to Top Button */
+        #back-to-top {
+            transition: opacity 0.3s, transform 0.3s;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(20px);
+        }
+        #back-to-top.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        /* Software Icons */
+        .sw-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #e2e8f0;
+            background-color: #334155;
+            border: 1px solid #475569;
+        }
+
+        /* NAS Selector Step Transition */
+        .selector-step {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .selector-step.hidden {
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+            position: absolute;
+            visibility: hidden;
+        }
+        .selector-step.show {
+            opacity: 1;
+            transform: translateY(0);
+            position: relative;
+            visibility: visible;
+        }
+
+        /* FAQ Transition */
+        .faq-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .faq-item.active .faq-content {
+            max-height: 200px;
+            margin-top: 1rem;
+        }
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+        }
+
+        /* NAS Selector Styles - Enhanced */
+        .selector-option {
+            border: 2px solid #475569;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            color: #e2e8f0;
+            position: relative;
+            overflow: hidden;
+        }
+        .selector-option::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 0%, rgba(0, 120, 212, 0.15) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .selector-option:hover {
+            border-color: #0078D4;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            box-shadow: 0 0 0 1px rgba(0, 120, 212, 0.3), 0 8px 25px -5px rgba(0, 120, 212, 0.2);
+        }
+        .selector-option:hover::before {
+            opacity: 1;
+        }
+        .selector-option.selected {
+            border-color: #0078D4;
+            background: linear-gradient(135deg, #0078D4 0%, #0369a1 100%);
+            color: white;
+            box-shadow:
+                0 8px 25px -5px rgba(0, 120, 212, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+        .selector-option.selected .option-icon {
+            color: white;
+        }
+
+        /* Connectivity Badge - Enhanced with Glow */
+        .conn-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        .conn-badge.thunderbolt {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+            color: white;
+            box-shadow:
+                0 2px 8px rgba(251, 191, 36, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+        .conn-badge.thunderbolt:hover {
+            box-shadow:
+                0 4px 15px rgba(251, 191, 36, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+        .conn-badge.gbe10 {
+            background: linear-gradient(135deg, #0078D4 0%, #0369a1 100%);
+            color: white;
+            box-shadow:
+                0 2px 8px rgba(0, 120, 212, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        .conn-badge.gbe10:hover {
+            box-shadow:
+                0 4px 15px rgba(0, 120, 212, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+        .conn-badge.gbe25 {
+            background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%);
+            color: white;
+            box-shadow:
+                0 2px 8px rgba(124, 58, 237, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        .conn-badge.gbe25:hover {
+            box-shadow:
+                0 4px 15px rgba(124, 58, 237, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        /* Button Glow Effect */
+        .btn-glow {
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-glow::after {
+            content: '';
+            position: absolute;
+            inset: -50%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: translateX(-100%) rotate(45deg);
+            transition: transform 0.6s;
+        }
+        .btn-glow:hover::after {
+            transform: translateX(100%) rotate(45deg);
+        }
+
+        /* 3D Card Tilt Effect */
+        .card-3d {
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease;
+        }
+        .card-3d:hover {
+            transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) scale(1.02);
+        }
+        .card-3d-inner {
+            transform: translateZ(20px);
+            transition: transform 0.3s ease;
+        }
+        .card-3d:hover .card-3d-inner {
+            transform: translateZ(40px);
+        }
+
+        /* Card Shine Effect */
+        .card-shine {
+            position: relative;
+            overflow: hidden;
+        }
+        .card-shine::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 40%,
+                rgba(255, 255, 255, 0.03) 50%,
+                transparent 60%
+            );
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+            pointer-events: none;
+        }
+        .card-shine:hover::after {
+            transform: translateX(100%);
+        }
+
+        /* Image Loading Animation */
+        .img-loading {
+            background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .img-loaded {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(1.02); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Nav Scroll State */
+        nav.scrolled {
+            height: 64px;
+            background: rgba(15, 23, 42, 0.95);
+            border-color: rgba(71, 85, 105, 0.3);
+        }
+        nav.scrolled .h-20 {
+            height: 64px;
+        }
+
+        /* Parallax Effect */
+        .parallax-bg {
+            transition: transform 0.1s ease-out;
+            will-change: transform;
+        }
+
+        /* FAQ Enhanced Animation */
+        .faq-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .faq-item:hover {
+            background: rgba(30, 41, 59, 0.8);
+            border-color: rgba(0, 120, 212, 0.3);
+        }
+        .faq-item.active {
+            background: rgba(30, 41, 59, 0.9);
+            border-color: rgba(0, 120, 212, 0.5);
+            box-shadow: 0 4px 20px rgba(0, 120, 212, 0.1);
+        }
+        .faq-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin 0.3s ease;
+        }
+        .faq-item.active .faq-content {
+            max-height: 300px;
+            margin-top: 1rem;
+        }
+
+        /* Counter Animation */
+        .counter {
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Scroll Progress Bar */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #0078D4, #00a8ff);
+            z-index: 9999;
+            transform-origin: left;
+            transform: scaleX(0);
+            transition: transform 0.1s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-[#0f172a] text-stone-100 font-sans selection:bg-blue-900 selection:text-blue-100 overflow-x-hidden antialiased pb-32">
+
+    <!-- Scroll Progress Bar -->
+    <div class="scroll-progress" id="scroll-progress"></div>
+
+    <!-- Frosted Glass Background -->
+    <div class="bg-frosted"></div>
+    <!-- Tech Grid Overlay -->
+    <div class="bg-grid"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-slate-900/80 backdrop-blur-xl z-50 border-b border-slate-700/50 transition-all duration-300">
+        <div class="max-w-[1440px] mx-auto px-6 lg:px-12">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center gap-4">
+                    <!-- 代理商 Logo -->
+                    <div class="w-10 h-10 rounded-md overflow-hidden border border-white/50 bg-white/80 relative flex-shrink-0 shadow-sm transition-transform hover:scale-105 duration-300">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRk0f-cuMjB_d8weRx7-5KsdadvD26vGJD1LQ&s" alt="展碁國際" class="w-full h-full object-contain p-0.5">
+                    </div>
+
+                    <!-- QNAP Logo -->
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/f/f0/Qnap_Logo_2004.svg" alt="QNAP" class="h-6 w-auto">
+
+                    <div class="hidden sm:flex flex-col border-l border-slate-600 pl-4 ml-2">
+                        <span class="font-bold tracking-tight text-xs uppercase text-slate-300">Authorized Distributor</span>
+                        <span class="text-[10px] text-slate-500 tracking-widest uppercase">Weblink International</span>
+                    </div>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-400 tracking-wide">
+                    <a href="#hero" class="nav-link hover:text-white transition-colors relative group">
+                        解決方案
+                        <span class="absolute -bottom-1 left-0 w-0 h-px bg-qnap-blue transition-all group-hover:w-full opacity-0 group-hover:opacity-100"></span>
+                    </a>
+                    <a href="#events" class="nav-link hover:text-white transition-colors relative group">
+                        教學資源
+                        <span class="absolute -bottom-1 left-0 w-0 h-px bg-qnap-blue transition-all group-hover:w-full opacity-0 group-hover:opacity-100"></span>
+                    </a>
+                    <a href="#selector" class="nav-link hover:text-white transition-colors relative group">
+                        NAS 選擇器
+                        <span class="absolute -bottom-1 left-0 w-0 h-px bg-qnap-blue transition-all group-hover:w-full opacity-0 group-hover:opacity-100"></span>
+                    </a>
+                    <a href="#promo" class="nav-link hover:text-white transition-colors relative group">
+                        採購優惠
+                        <span class="absolute -bottom-1 left-0 w-0 h-px bg-qnap-blue transition-all group-hover:w-full opacity-0 group-hover:opacity-100"></span>
+                    </a>
+                    <a href="#products" class="nav-link hover:text-white transition-colors relative group">
+                        產品目錄
+                        <span class="absolute -bottom-1 left-0 w-0 h-px bg-qnap-blue transition-all group-hover:w-full opacity-0 group-hover:opacity-100"></span>
+                    </a>
+                    <a href="#faq" class="nav-link hover:text-white transition-colors relative group">
+                        常見問題
+                        <span class="absolute -bottom-1 left-0 w-0 h-px bg-qnap-blue transition-all group-hover:w-full opacity-0 group-hover:opacity-100"></span>
+                    </a>
+                    <a href="#news" class="nav-link hover:text-white transition-colors relative group">
+                        專題報導
+                        <span class="absolute -bottom-1 left-0 w-0 h-px bg-qnap-blue transition-all group-hover:w-full opacity-0 group-hover:opacity-100"></span>
+                    </a>
+                </div>
+
+                <div class="md:hidden">
+                    <button id="menu-btn" class="p-2 active:scale-90 transition-transform text-slate-300">
+                        <i data-lucide="menu" id="menu-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-slate-900/95 backdrop-blur-xl border-b border-slate-700 absolute w-full left-0 top-20 shadow-lg origin-top transition-transform duration-300">
+            <div class="flex flex-col p-6 space-y-6 font-medium text-slate-300">
+                <a href="#hero" class="hover:text-white active:pl-2 transition-all" onclick="closeMenu()">解決方案</a>
+                <a href="#events" class="hover:text-white active:pl-2 transition-all" onclick="closeMenu()">教學資源</a>
+                <a href="#selector" class="hover:text-white active:pl-2 transition-all" onclick="closeMenu()">NAS 選擇器</a>
+                <a href="#promo" class="hover:text-white active:pl-2 transition-all" onclick="closeMenu()">採購優惠</a>
+                <a href="#products" class="text-white font-bold active:pl-2 transition-all" onclick="closeMenu()">產品目錄</a>
+                <a href="#faq" class="hover:text-white active:pl-2 transition-all" onclick="closeMenu()">常見問題</a>
+                <a href="#news" class="hover:text-white active:pl-2 transition-all" onclick="closeMenu()">專題報導</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- SECTION 1: Hero 首屏 -->
+    <header id="hero" class="relative w-full min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <div class="relative overflow-hidden w-full h-full opacity-80 parallax-container">
+                <img src="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=1920&q=80" alt="QNAP x Adobe Creative Solution" class="w-full h-full object-cover transition-transform duration-[2s] hover:scale-105 parallax-img" loading="lazy">
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-r from-slate-900/95 via-slate-900/70 to-slate-900/30"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-6 lg:px-12 relative z-10 w-full grid lg:grid-cols-12 gap-12 items-center">
+            <div class="lg:col-span-5 space-y-10 animate-fade-in-up mt-20 lg:mt-0">
+                <div class="inline-flex items-center gap-3 border-b border-slate-600 pb-2">
+                    <span class="text-xs font-bold tracking-[0.25em] uppercase text-qnap-blue">Adobe Video Partner</span>
+                    <span class="text-xs font-serif italic text-slate-400">Storage Solution</span>
+                </div>
+
+                <h1 class="text-5xl md:text-7xl font-serif font-light leading-[1.1] tracking-wide text-white">
+                    守護您的<br/>創意世界
+                    <span class="text-xl md:text-2xl font-sans font-light text-slate-400 block mt-4 tracking-[0.15em]">QNAP × Adobe</span>
+                </h1>
+
+                <p class="text-lg text-slate-300 font-light leading-loose max-w-md pl-6 border-l border-qnap-blue">
+                    高效能 NAS 儲存解決方案，<br/>
+                    為影音創作者打造流暢的團隊協作體驗。
+                </p>
+
+                <div class="pt-6">
+                    <a href="https://www.qnap.com/zh-tw/solution/adobe" target="_blank" rel="noreferrer" class="btn-glow inline-flex items-center gap-4 px-10 py-4 bg-qnap-blue text-white text-xs tracking-[0.2em] uppercase hover:bg-qnap-dark active:scale-95 transition-all shadow-soft hover:shadow-lg group rounded-sm">
+                        <span>到官網了解更多</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform opacity-70"></i>
+                    </a>
+                </div>
+
+                <!-- Hero 數據展示 -->
+                <div class="grid grid-cols-3 gap-6 pt-10 border-t border-slate-700/50 mt-10">
+                    <div class="text-center">
+                        <div class="text-3xl md:text-4xl font-bold text-white counter" data-target="1000">0</div>
+                        <div class="text-[10px] text-slate-400 uppercase tracking-widest mt-1">創作者信賴</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl md:text-4xl font-bold text-qnap-blue counter" data-target="99.9" data-suffix="%">0</div>
+                        <div class="text-[10px] text-slate-400 uppercase tracking-widest mt-1">系統穩定度</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl md:text-4xl font-bold text-white counter" data-target="24" data-suffix="/7">0</div>
+                        <div class="text-[10px] text-slate-400 uppercase tracking-widest mt-1">全天候運作</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </header>
+
+    <!-- SECTION 2: 影片外連 -->
+    <section id="intro-video" class="py-32 relative">
+        <div class="max-w-[1440px] mx-auto px-6 lg:px-12">
+            <div class="grid md:grid-cols-2 gap-20 items-center">
+                <a href="https://www.youtube.com/watch?v=ZO4sGXxdZ1A" target="_blank" rel="noreferrer" class="relative group cursor-pointer reveal block">
+                    <div class="absolute -top-6 -left-6 w-32 h-32 border-t border-l border-slate-700 z-0 transition-all duration-700 group-hover:-top-8 group-hover:-left-8 opacity-50"></div>
+                    <div class="relative z-10 aspect-video w-full rounded-sm overflow-hidden shadow-soft bg-slate-800">
+                        <div class="relative w-full h-full group transition-opacity duration-700">
+                            <img src="https://img.youtube.com/vi/ZO4sGXxdZ1A/hqdefault.jpg" alt="Watch QNAP Adobe Solution Video" class="w-full h-full object-cover opacity-95 group-hover:scale-105 transition-transform duration-[1.5s]" loading="lazy">
+                            <div class="absolute inset-0 bg-white/10 group-hover:bg-black/10 transition-colors duration-500 flex items-center justify-center">
+                                <div class="w-20 h-20 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center border border-white/60 group-hover:scale-110 transition-transform duration-500 shadow-lg group-hover:bg-red-600/80 group-hover:border-red-500">
+                                    <i data-lucide="play" class="text-white fill-white ml-1 w-8 h-8 opacity-90"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute -bottom-8 -right-8 glass-card p-6 shadow-soft max-w-xs hidden md:block z-20 pointer-events-none reveal" style="transition-delay: 100ms;">
+                        <p class="font-serif italic text-slate-400 text-lg">"Watch the story on YouTube."</p>
+                    </div>
+                </a>
+                <div class="space-y-10 reveal" style="transition-delay: 200ms;">
+                    <h2 class="text-4xl md:text-5xl font-serif leading-tight text-white">
+                        不只是儲存，<br/>而是創意的基礎建設
+                    </h2>
+                    <p class="text-lg leading-loose text-slate-400 font-light">
+                        QNAP NAS 不只是一台硬碟櫃，而是讓影音素材得以被快速存取、安全備份、高效協作的核心樞紐。
+                        在大檔案與團隊協作的時代，選對儲存就是選對效率。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: 教學資源與活動 -->
+    <section id="events" class="py-32 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+            <div class="text-center mb-20 reveal">
+                <span class="text-xs font-bold tracking-[0.25em] text-slate-500 uppercase">Resources & Events</span>
+                <h2 class="text-4xl md:text-5xl font-serif mt-6 mb-8 text-white">學習資源與活動</h2>
+                <p class="text-slate-400 max-w-2xl mx-auto leading-loose text-lg font-light">
+                    展碁國際為創作者提供完整的學習資源，<br>從官方教學到線上研討會，助您發揮 QNAP x Adobe 的最大效能。
+                </p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-10 items-stretch">
+                <!-- 教學資源卡片 -->
+                <div class="glass-card p-10 md:p-12 rounded-lg hover:shadow-soft transition-all duration-500 relative group reveal flex flex-col h-full" style="transition-delay: 100ms;">
+                    <div class="absolute top-0 right-0 bg-qnap-blue text-white text-xs font-bold px-4 py-1.5 rounded-bl-lg rounded-tr-lg shadow-sm">官方教學</div>
+                    <div class="flex items-start gap-8 flex-grow">
+                        <div class="bg-qnap-blue/20 p-5 rounded-full shrink-0 group-hover:scale-110 transition-transform duration-500">
+                            <i data-lucide="book-open" class="text-qnap-blue w-8 h-8"></i>
+                        </div>
+                        <div class="flex flex-col h-full">
+                            <h3 class="text-2xl font-bold mb-3 text-white group-hover:text-qnap-blue transition-colors tracking-wide">Adobe Premiere Pro 工作流程</h3>
+                            <p class="text-slate-500 text-xs mb-5 font-mono tracking-widest uppercase">Step-by-Step Guide</p>
+                            <p class="text-slate-400 mb-8 leading-relaxed">
+                                學習如何將 QNAP NAS 整合至 Adobe Premiere Pro，建立高效的團隊協作環境，實現素材集中管理與高速編輯。
+                            </p>
+                            <ul class="space-y-3 mb-10 text-sm text-slate-400">
+                                <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 bg-qnap-blue rounded-full"></span> Productions 協作模式設定</li>
+                                <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 bg-qnap-blue rounded-full"></span> 高速網路環境配置</li>
+                                <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 bg-qnap-blue rounded-full"></span> 專案鎖定與版本控制</li>
+                            </ul>
+                            <a href="https://www.qnap.com/zh-tw/solution/adobe" target="_blank" rel="noreferrer" class="mt-auto inline-block w-full text-center bg-qnap-blue text-white font-bold py-4 rounded hover:bg-qnap-dark active:scale-95 transition-all shadow-md hover:shadow-lg tracking-widest text-xs">
+                                前往教學中心
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <!-- 線上研討會卡片 -->
+                <div class="glass-card p-10 md:p-12 rounded-lg hover:shadow-soft transition-all duration-500 relative group reveal flex flex-col h-full" style="transition-delay: 200ms;">
+                    <div class="absolute top-0 right-0 bg-slate-600 text-white text-xs font-bold px-4 py-1.5 rounded-bl-lg rounded-tr-lg shadow-sm">Webinar</div>
+                    <div class="flex items-start gap-8 flex-grow">
+                        <div class="bg-slate-700 p-5 rounded-full shrink-0 group-hover:scale-110 transition-transform duration-500">
+                            <i data-lucide="calendar" class="text-slate-300 w-8 h-8"></i>
+                        </div>
+                        <div class="flex flex-col h-full">
+                            <h3 class="text-2xl font-bold mb-3 text-white group-hover:text-qnap-blue transition-colors tracking-wide">QNAP x Adobe 創作者研討會</h3>
+                            <p class="text-slate-500 text-xs mb-3 font-mono tracking-widest uppercase">線上研討會</p>
+                            <div class="text-slate-400 text-xs mb-6 space-y-1 font-medium bg-slate-800/50 p-3 rounded border-l-2 border-qnap-blue">
+                                <p>活動時間｜敬請期待下一場次</p>
+                                <p>活動形式｜線上講座</p>
+                            </div>
+                            <p class="text-slate-400 mb-8 leading-relaxed">
+                                邀請<span class="font-bold text-white">專業影音工作者</span>分享如何運用 QNAP NAS 建立高效的影片編輯工作流程，提升團隊協作效率。
+                            </p>
+                            <a href="https://adbeweblink.github.io/myproject/reseller.html" target="_blank" rel="noreferrer" class="mt-auto inline-block w-full text-center bg-slate-700 text-white font-bold py-4 rounded hover:bg-slate-600 active:scale-95 transition-all shadow-md hover:shadow-lg tracking-widest text-xs">
+                                聯絡我們報名
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4: NAS 選擇器 -->
+    <section id="selector" class="py-32 bg-slate-900/50 relative overflow-hidden">
+        <div class="max-w-[1440px] mx-auto px-6 lg:px-12 relative z-10">
+            <div class="grid lg:grid-cols-2 gap-16 items-start">
+                <div class="space-y-10 reveal min-h-[600px]">
+                    <div class="inline-flex items-center gap-2 bg-qnap-blue text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
+                        <i data-lucide="cpu" class="w-3.5 h-3.5"></i> NAS Finder
+                    </div>
+                    <h2 class="text-5xl md:text-6xl font-serif leading-tight text-white">
+                        找到最適合你的<br>NAS 儲存方案
+                    </h2>
+                    <p class="text-lg text-slate-400 leading-loose font-light max-w-xl">
+                        回答兩個簡單問題，我們將為你推薦最適合的 QNAP NAS 機型。
+                        無論是個人創作者還是專業團隊，都能找到完美的儲存解決方案。
+                    </p>
+
+                    <!-- NAS 選擇器互動區 -->
+                    <div id="nas-selector" class="space-y-8">
+                        <!-- Step 1 -->
+                        <div id="step1" class="space-y-4">
+                            <h4 class="text-sm font-bold text-slate-300 flex items-center gap-2">
+                                <span class="w-6 h-6 bg-qnap-blue text-white rounded-full flex items-center justify-center text-xs">1</span>
+                                您的主要用途是什麼？
+                            </h4>
+                            <div class="grid grid-cols-3 gap-3">
+                                <button onclick="selectUsage('photo')" class="selector-option p-4 rounded-lg text-center" data-usage="photo">
+                                    <i data-lucide="camera" class="w-6 h-6 mx-auto mb-2 option-icon text-slate-400"></i>
+                                    <span class="text-xs font-bold block">照片/平面設計</span>
+                                </button>
+                                <button onclick="selectUsage('video')" class="selector-option p-4 rounded-lg text-center" data-usage="video">
+                                    <i data-lucide="film" class="w-6 h-6 mx-auto mb-2 option-icon text-slate-400"></i>
+                                    <span class="text-xs font-bold block">影片剪輯</span>
+                                </button>
+                                <button onclick="selectUsage('team')" class="selector-option p-4 rounded-lg text-center" data-usage="team">
+                                    <i data-lucide="users" class="w-6 h-6 mx-auto mb-2 option-icon text-slate-400"></i>
+                                    <span class="text-xs font-bold block">團隊協作</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div id="step2" class="space-y-4 selector-step hidden">
+                            <h4 class="text-sm font-bold text-slate-300 flex items-center gap-2">
+                                <span class="w-6 h-6 bg-qnap-blue text-white rounded-full flex items-center justify-center text-xs">2</span>
+                                團隊規模多大？
+                            </h4>
+                            <div class="grid grid-cols-3 gap-3">
+                                <button onclick="selectScale('solo')" class="selector-option p-4 rounded-lg text-center" data-scale="solo">
+                                    <i data-lucide="user" class="w-6 h-6 mx-auto mb-2 option-icon text-slate-400"></i>
+                                    <span class="text-xs font-bold block">個人 (1人)</span>
+                                </button>
+                                <button onclick="selectScale('small')" class="selector-option p-4 rounded-lg text-center" data-scale="small">
+                                    <i data-lucide="user-plus" class="w-6 h-6 mx-auto mb-2 option-icon text-slate-400"></i>
+                                    <span class="text-xs font-bold block">小型 (2-5人)</span>
+                                </button>
+                                <button onclick="selectScale('medium')" class="selector-option p-4 rounded-lg text-center" data-scale="medium">
+                                    <i data-lucide="users" class="w-6 h-6 mx-auto mb-2 option-icon text-slate-400"></i>
+                                    <span class="text-xs font-bold block">中型 (6+人)</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Result -->
+                        <div id="selector-result" class="selector-step hidden bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700">
+                            <div class="flex items-center gap-2 mb-4">
+                                <i data-lucide="sparkles" class="w-5 h-5 text-qnap-blue"></i>
+                                <span class="text-sm font-bold text-qnap-blue">推薦結果</span>
+                            </div>
+                            <div class="flex items-center gap-6">
+                                <img id="result-img" src="" alt="Recommended NAS" class="w-32 h-32 object-contain">
+                                <div>
+                                    <h5 id="result-model" class="text-2xl font-bold text-white mb-2"></h5>
+                                    <p id="result-desc" class="text-sm text-slate-400 mb-4"></p>
+                                    <div class="flex gap-3">
+                                        <a id="result-link" href="#" target="_blank" rel="noreferrer" class="px-4 py-2 bg-qnap-blue text-white text-xs font-bold rounded hover:bg-qnap-dark transition-colors">查看詳細規格</a>
+                                        <a href="https://adbeweblink.github.io/myproject/reseller.html" target="_blank" rel="noreferrer" class="px-4 py-2 border border-slate-600 text-slate-300 text-xs font-bold rounded hover:bg-slate-700 transition-colors">聯絡經銷商</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="resetSelector()" class="mt-4 text-xs text-slate-500 underline hover:text-slate-300">重新選擇</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative reveal rounded-2xl overflow-hidden" style="transition-delay: 300ms;">
+                    <img src="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=800&q=80" alt="NAS Storage Solution" class="w-full h-[500px] object-cover rounded-2xl">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent rounded-2xl flex flex-col justify-end p-10">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="conn-badge thunderbolt">Thunderbolt™ 4</span>
+                            <span class="conn-badge gbe10">10GbE</span>
+                        </div>
+                        <p class="text-white/80 text-sm">為您的創意工作流程找到完美儲存方案</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5: 採購優惠 -->
+    <section id="promo" class="py-32 bg-slate-800/50 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+            <div class="grid md:grid-cols-2 gap-20 items-center">
+                <div class="order-2 md:order-1 space-y-10 reveal">
+                    <div class="flex items-center gap-4">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/f/f0/Qnap_Logo_2004.svg" alt="QNAP" class="h-10 animate-float" loading="lazy">
+                        <div>
+                            <span class="font-bold text-xl text-qnap-blue block">QNAP NAS</span>
+                            <span class="text-xs text-slate-500 tracking-widest uppercase">Adobe Video Partner</span>
+                        </div>
+                    </div>
+                    <h2 class="text-5xl md:text-6xl font-serif leading-none text-white">
+                        把素材，<br/><span class="text-3xl md:text-4xl text-slate-400 block mt-2">集中到安全高效的儲存中心</span>
+                    </h2>
+                    <div class="space-y-4 text-slate-400 text-sm leading-loose pl-1 border-l-2 border-slate-600">
+                        <p>支援 Premiere Pro、After Effects、Media Encoder、Audition 等 Adobe 專業軟體。</p>
+                        <p>Thunderbolt™ 4 與 10GbE 高速傳輸，滿足 4K/8K 影片即時編輯需求。</p>
+                    </div>
+                    <div class="glass-card p-10 rounded-xl hover:shadow-xl transition-all duration-500 relative overflow-hidden group">
+                        <div class="absolute top-6 -right-10 w-40 rotate-45 bg-red-500 text-white text-center py-1 text-xs font-bold shadow-sm z-10">HOT OFFER</div>
+                        <h3 class="text-2xl font-bold mb-6 flex items-center gap-3 text-white">
+                            經銷商採購優惠 <span class="text-red-500 text-[10px] font-normal border border-red-500 px-2 py-0.5 rounded tracking-wide">專案價</span>
+                        </h3>
+                        <div class="flex items-baseline gap-2 mb-3">
+                            <span class="text-5xl font-bold text-white tracking-tighter">專案</span>
+                            <span class="text-slate-400 text-sm">/ 優惠價格</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mb-8 font-mono">請聯繫經銷商取得最新報價</p>
+                        <a href="https://adbeweblink.github.io/myproject/reseller.html" target="_blank" rel="noreferrer" class="w-full py-4 bg-qnap-blue text-white font-bold rounded hover:bg-qnap-dark active:scale-95 transition-all flex items-center justify-center gap-3 shadow-md tracking-widest text-sm">
+                            <i data-lucide="shopping-bag" class="w-4 h-4"></i> 聯絡經銷商採購
+                        </a>
+                    </div>
+                </div>
+                <div class="order-1 md:order-2">
+                    <div class="relative reveal" style="transition-delay: 200ms;">
+                        <div class="absolute inset-0 bg-slate-700 rounded-lg transform translate-x-6 translate-y-6"></div>
+                        <div class="relative overflow-hidden rounded-lg shadow-2xl z-10 aspect-[4/5] group bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center p-8">
+                            <div class="text-center">
+                                <i data-lucide="server" class="w-32 h-32 text-qnap-blue mx-auto mb-4"></i>
+                                <p class="text-2xl font-bold text-white">TVS-h874T</p>
+                                <p class="text-sm text-slate-400">Thunderbolt™ 4 NAS</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 6: 產品目錄 -->
+    <section id="products" class="py-32 relative">
+        <div class="max-w-[1600px] mx-auto px-6 lg:px-12 relative z-10">
+            <div class="text-center mb-12 reveal">
+                <span class="text-xs font-bold tracking-[0.25em] text-slate-500 uppercase">Product Catalog</span>
+                <h2 class="text-4xl md:text-5xl font-serif mt-6 mb-8 text-white">QNAP 創作者 NAS 產品</h2>
+                <p class="text-slate-400 max-w-2xl mx-auto leading-loose text-lg font-light">
+                    從入門到旗艦，為不同規模的創意團隊<br>提供完整的儲存解決方案。
+                </p>
+            </div>
+
+            <!-- 篩選器 -->
+            <div class="flex flex-col items-center gap-6 mb-16 reveal">
+                <!-- 主分類 -->
+                <div class="inline-flex bg-slate-800/80 p-1 rounded-lg backdrop-blur-sm">
+                    <button onclick="filterProducts('all')" class="filter-btn active px-6 py-2 rounded-md text-xs font-bold tracking-widest uppercase transition-all duration-300" id="btn-all">全部</button>
+                    <button onclick="filterProducts('photo')" class="filter-btn px-6 py-2 rounded-md text-xs font-bold tracking-widest uppercase transition-all duration-300" id="btn-photo">照片設計</button>
+                    <button onclick="filterProducts('video')" class="filter-btn px-6 py-2 rounded-md text-xs font-bold tracking-widest uppercase transition-all duration-300" id="btn-video">影片編輯</button>
+                    <button onclick="filterProducts('team')" class="filter-btn px-6 py-2 rounded-md text-xs font-bold tracking-widest uppercase transition-all duration-300" id="btn-team">團隊協作</button>
+                </div>
+
+                <!-- 次要標籤 -->
+                <div class="flex flex-wrap justify-center gap-3">
+                    <button onclick="filterByTag('entry')" class="demand-tag px-3 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase hover:bg-qnap-blue hover:text-white transition-all">入門首選</button>
+                    <button onclick="filterByTag('2.5gbe')" class="demand-tag px-3 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase hover:bg-qnap-blue hover:text-white transition-all">2.5GbE</button>
+                    <button onclick="filterByTag('10gbe')" class="demand-tag px-3 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase hover:bg-qnap-blue hover:text-white transition-all">10GbE</button>
+                    <button onclick="filterByTag('thunderbolt')" class="demand-tag px-3 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase hover:bg-qnap-blue hover:text-white transition-all">Thunderbolt</button>
+                    <button onclick="filterByTag('rackmount')" class="demand-tag px-3 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase hover:bg-qnap-blue hover:text-white transition-all">機架式</button>
+                    <button onclick="filterByTag('flagship')" class="demand-tag px-3 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase hover:bg-qnap-blue hover:text-white transition-all">旗艦推薦</button>
+                </div>
+            </div>
+
+            <!-- 產品網格 -->
+            <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Products render here -->
+            </div>
+        </div>
+
+        <!-- 比較列 -->
+        <div id="compare-bar" class="fixed bottom-0 left-0 w-full bg-slate-900/95 backdrop-blur-md border-t border-slate-700 shadow-[0_-5px_20px_rgba(0,0,0,0.2)] p-4 z-50 compare-bar flex flex-col sm:flex-row justify-between items-center px-6 lg:px-12 gap-4">
+            <div class="flex items-center gap-6">
+                <div class="text-sm font-bold text-white">
+                    已選擇 <span id="compare-count" class="text-qnap-blue">0</span>/2 項產品
+                </div>
+            </div>
+            <div class="flex gap-4">
+                <button onclick="clearCompare()" class="text-xs text-slate-400 underline hover:text-slate-200 transition-colors">清除重選</button>
+                <button onclick="openCompareModal()" id="compare-btn" class="bg-qnap-blue text-white px-8 py-3 rounded text-xs font-bold tracking-widest uppercase hover:bg-qnap-dark disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md transform active:scale-95" disabled>
+                    開始比較
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 7: 常見問題 FAQ -->
+    <section id="faq" class="py-32 bg-slate-900/50 relative">
+        <div class="max-w-4xl mx-auto px-6 lg:px-12 relative z-10">
+            <div class="text-center mb-16 reveal">
+                <span class="text-xs font-bold tracking-[0.25em] text-slate-500 uppercase">Need Help?</span>
+                <h2 class="text-4xl font-serif text-white mt-4 mb-4">常見問題</h2>
+                <p class="text-slate-400 text-sm">瞭解 QNAP x Adobe 解決方案與展碁國際代理服務</p>
+            </div>
+
+            <div class="space-y-4 reveal">
+                <div class="faq-item border border-slate-700 rounded-xl bg-slate-800/50 p-6 cursor-pointer group transition-all" onclick="toggleFaq(this)">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-sm md:text-base font-bold text-white group-hover:text-qnap-blue transition-colors">為什麼 QNAP 是 Adobe 的官方合作夥伴？</h4>
+                        <i data-lucide="chevron-down" class="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+                    </div>
+                    <div class="faq-content">
+                        <p class="text-sm text-slate-400 leading-loose">
+                            QNAP 被列入 Adobe Video Partner 計畫，是因為其 NAS 產品在效能、穩定性和相容性方面達到了 Adobe 的嚴格標準。知名客戶包括 NBC Universal、Walt Disney Imagineering 等影視製作公司。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="faq-item border border-slate-700 rounded-xl bg-slate-800/50 p-6 cursor-pointer group transition-all" onclick="toggleFaq(this)">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-sm md:text-base font-bold text-white group-hover:text-qnap-blue transition-colors">QNAP NAS 支援哪些 Adobe 軟體？</h4>
+                        <i data-lucide="chevron-down" class="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+                    </div>
+                    <div class="faq-content">
+                        <p class="text-sm text-slate-400 leading-loose">
+                            QNAP NAS 完美支援 Adobe Premiere Pro、After Effects、Media Encoder、Audition 等專業影音軟體，特別是 Premiere Pro 的 Productions 協作功能，可實現團隊同時編輯同一專案。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="faq-item border border-slate-700 rounded-xl bg-slate-800/50 p-6 cursor-pointer group transition-all" onclick="toggleFaq(this)">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-sm md:text-base font-bold text-white group-hover:text-qnap-blue transition-colors">Thunderbolt 和 10GbE 哪個比較適合我？</h4>
+                        <i data-lucide="chevron-down" class="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+                    </div>
+                    <div class="faq-content">
+                        <p class="text-sm text-slate-400 leading-loose">
+                            Thunderbolt 適合單一工作站直連 NAS，延遲最低、速度最快。10GbE 適合多人團隊透過網路存取，可同時支援多位編輯師作業。若預算允許，也可選擇同時具備兩種介面的機型。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="faq-item border border-slate-700 rounded-xl bg-slate-800/50 p-6 cursor-pointer group transition-all" onclick="toggleFaq(this)">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-sm md:text-base font-bold text-white group-hover:text-qnap-blue transition-colors">透過展碁國際採購有什麼優勢？</h4>
+                        <i data-lucide="chevron-down" class="faq-icon w-5 h-5 text-slate-400 transition-transform duration-300"></i>
+                    </div>
+                    <div class="faq-content">
+                        <p class="text-sm text-slate-400 leading-loose">
+                            展碁國際為 QNAP 台灣授權代理商，提供在地現貨供應、台灣正式發票、原廠保固服務，以及專業的技術諮詢與售後支援，協助您建立最佳的創作者儲存環境。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 8: 媒體報導 -->
+    <section id="news" class="py-24 border-y border-slate-700/50 overflow-hidden relative">
+        <div class="max-w-[1440px] mx-auto px-6 lg:px-12 relative z-10">
+            <div class="flex justify-between items-end mb-12 reveal">
+                <div>
+                    <div class="flex items-center gap-2 text-slate-500 mb-3">
+                        <i data-lucide="newspaper" class="w-4 h-4"></i>
+                        <span class="text-xs font-bold tracking-[0.25em] uppercase">Media Spotlight</span>
+                    </div>
+                    <h2 class="text-3xl md:text-4xl font-serif text-white">媒體專題報導</h2>
+                </div>
+                <div class="flex gap-3">
+                    <button id="scroll-left" class="w-12 h-12 rounded-full border border-slate-600 flex items-center justify-center hover:bg-qnap-blue hover:text-white hover:border-transparent transition-all bg-slate-800 text-slate-300">
+                        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                    </button>
+                    <button id="scroll-right" class="w-12 h-12 rounded-full border border-slate-600 flex items-center justify-center hover:bg-qnap-blue hover:text-white hover:border-transparent transition-all bg-slate-800 text-slate-300">
+                        <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="carousel-container" class="flex gap-8 overflow-x-auto pb-12 snap-x snap-mandatory scrollbar-hide scroll-smooth reveal pl-1" style="transition-delay: 200ms;">
+                <!-- News -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Modals -->
+    <div id="product-modal" class="fixed inset-0 z-[100] hidden items-center justify-center modal-overlay opacity-0 transition-opacity duration-300">
+        <div class="bg-slate-800 w-full max-w-4xl rounded-2xl shadow-2xl relative transform scale-95 transition-transform duration-300 modal-content mx-4 overflow-hidden max-h-[90vh] flex flex-col">
+            <button onclick="closeModal()" class="absolute top-4 right-4 p-2 rounded-full bg-slate-700/50 hover:bg-slate-600 transition-colors z-10">
+                <i data-lucide="x" class="w-6 h-6 text-slate-300"></i>
+            </button>
+            <div id="modal-body" class="overflow-y-auto flex-1">
+                <!-- Content injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <div id="compare-modal" class="fixed inset-0 z-[101] hidden items-center justify-center modal-overlay opacity-0 transition-opacity duration-300">
+        <div class="bg-slate-800 w-full max-w-6xl rounded-2xl shadow-2xl relative transform scale-95 transition-transform duration-300 modal-content mx-4 overflow-hidden h-[85vh] flex flex-col">
+             <div class="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-900/50 backdrop-blur-sm sticky top-0 z-10">
+                <h3 class="text-xl font-serif font-bold text-white">產品比較</h3>
+                <button onclick="closeCompareModal()" class="p-2 rounded-full hover:bg-slate-700 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5 text-slate-400"></i>
+                </button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-8">
+                <div class="grid grid-cols-2 gap-8 h-full" id="compare-content">
+                    <!-- Content -->
+                </div>
+            </div>
+             <div class="p-4 bg-slate-800 border-t border-slate-700 flex flex-col sm:flex-row justify-end items-center gap-4 sticky bottom-0 z-20">
+                 <a href="https://adbeweblink.github.io/myproject/reseller.html" target="_blank" rel="noreferrer" class="bg-qnap-blue text-white px-8 py-3 rounded text-xs font-bold tracking-widest uppercase hover:bg-qnap-dark transition-all shadow-md transform active:scale-95 w-full sm:w-auto sm:ml-auto text-center">
+                    聯繫經銷商採購
+                 </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="fixed bottom-36 right-6 p-3 bg-qnap-blue text-white rounded-full shadow-lg hover:bg-qnap-dark transition-all z-40 active:scale-95" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+        <i data-lucide="arrow-up" class="w-5 h-5"></i>
+    </button>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 py-20 border-t border-slate-800">
+        <div class="max-w-[1440px] mx-auto px-6 lg:px-12 flex flex-col md:flex-row justify-between items-end gap-12">
+            <div class="space-y-8">
+                <div class="flex items-center gap-5">
+                    <div class="w-12 h-12 rounded-lg overflow-hidden border border-slate-700 bg-slate-800 relative flex-shrink-0 shadow-sm">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRk0f-cuMjB_d8weRx7-5KsdadvD26vGJD1LQ&s" alt="展碁國際" class="w-full h-full object-contain p-1" loading="lazy">
+                    </div>
+                    <div class="h-10 w-px bg-slate-700"></div>
+                    <div>
+                        <span class="font-bold text-lg tracking-tight text-white block">QNAP Authorized Distributor</span>
+                        <span class="text-[10px] text-slate-500 uppercase tracking-widest">Official Partner</span>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-500 max-w-sm leading-loose">
+                    展碁國際 (Weblink International) 為 QNAP 台灣正式授權代理商。<br/>
+                    致力於提供最完整的儲存解決方案與在地化服務。
+                </p>
+            </div>
+
+            <div class="text-right text-[10px] text-slate-600 space-y-2 font-mono uppercase tracking-wider">
+                <p>本頁內容所示 QNAP® 為 QNAP Systems, Inc. 之註冊商標。</p>
+                <p>&copy; 2026 Weblink International Inc. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Interactions -->
+    <script>
+        // NAS 產品資料
+        const products = [
+            {
+                sku: "TS-262",
+                category: "photo",
+                tags: ["entry", "2.5gbe"],
+                name: "TS-262",
+                nameZh: "雙槽入門 NAS",
+                subtitle: "照片設計師的最佳入門選擇",
+                desc: "搭載 Intel Celeron 處理器，支援 2.5GbE 網路，提供照片工作室所需的基本儲存效能。",
+                features: "2-Bay、Intel Celeron N4505、PCIe Gen 3 擴充槽",
+                connectivity: "2.5GbE",
+                capacity: "最大 36TB (2×18TB)",
+                apps: "Lightroom、Photoshop",
+                usage: "個人攝影師、小型工作室",
+                target: "攝影師、平面設計師",
+                software: ["Lr", "Ps", "Ai"],
+                images: ["https://img.pchome.com.tw/cs/items/DRAGCAA900FFXKW/000001_1662082484.jpg"],
+                link: "https://www.qnap.com/zh-tw/product/ts-262"
+            },
+            {
+                sku: "TS-364",
+                category: "photo",
+                tags: ["entry", "2.5gbe"],
+                name: "TS-364",
+                nameZh: "三槽進階 NAS",
+                subtitle: "進階照片管理與備份",
+                desc: "3-Bay 設計提供更靈活的 RAID 配置，適合需要更多儲存空間的攝影工作者。",
+                features: "3-Bay、Intel Celeron N5105、M.2 SSD 快取",
+                connectivity: "2.5GbE",
+                capacity: "最大 54TB (3×18TB)",
+                apps: "Lightroom、Photoshop、Bridge",
+                usage: "專業攝影師、設計工作室",
+                target: "攝影師、設計工作室",
+                software: ["Lr", "Ps", "Ai", "Br"],
+                images: ["https://img.pchome.com.tw/cs/items/DRAG05A900FRCAM/000001_1668580476.jpg"],
+                link: "https://www.qnap.com/zh-tw/product/ts-364"
+            },
+            {
+                sku: "TBS-464",
+                category: "photo",
+                tags: ["entry", "2.5gbe"],
+                name: "TBS-464",
+                nameZh: "全快閃 NASbook",
+                subtitle: "輕巧高效的 SSD NAS",
+                desc: "採用 M.2 NVMe SSD，體積小巧但效能強勁，適合空間有限的工作環境。",
+                features: "4×M.2 NVMe SSD、Intel Celeron N5105、無風扇設計",
+                connectivity: "2.5GbE",
+                capacity: "最大 16TB (4×4TB NVMe)",
+                apps: "Lightroom、Photoshop",
+                usage: "行動創作者、SOHO 族",
+                target: "行動工作者",
+                software: ["Lr", "Ps"],
+                images: ["https://img.pchome.com.tw/cs/items/DRAG05A900BZRZJ/000001_1637205090.jpg"],
+                link: "https://www.qnap.com/zh-tw/product/tbs-464"
+            },
+            {
+                sku: "TS-673A",
+                category: "video",
+                tags: ["10gbe"],
+                name: "TS-673A",
+                nameZh: "六槽高效能 NAS",
+                subtitle: "影片編輯入門首選",
+                desc: "AMD Ryzen 處理器搭配可擴充 10GbE，為影片編輯提供充足效能。",
+                features: "6-Bay、AMD Ryzen V1500B、可擴充 10GbE",
+                connectivity: "2.5GbE (可升級 10GbE)",
+                capacity: "最大 108TB (6×18TB)",
+                apps: "Premiere Pro、Media Encoder",
+                usage: "獨立影片創作者",
+                target: "影片創作者、YouTuber",
+                software: ["Pr", "Me", "Au"],
+                images: ["https://img.pchome.com.tw/cs/items/DRAG10A900B5OLM/000001_1614649851.jpg"],
+                link: "https://www.qnap.com/zh-tw/product/ts-673a"
+            },
+            {
+                sku: "TBS-h574TX",
+                category: "video",
+                tags: ["thunderbolt", "flagship"],
+                name: "TBS-h574TX",
+                nameZh: "Thunderbolt 4 全快閃 NAS",
+                subtitle: "極速 Thunderbolt 4 直連",
+                desc: "全球首款 Thunderbolt 4 全快閃 NAS，提供極低延遲的即時編輯體驗。",
+                features: "5×M.2 NVMe、Thunderbolt 4、10GbE",
+                connectivity: "Thunderbolt 4 + 10GbE",
+                capacity: "最大 20TB NVMe SSD",
+                apps: "Premiere Pro、After Effects",
+                usage: "專業影片編輯、特效製作",
+                target: "專業後製工作室",
+                software: ["Pr", "Ae", "Me", "Au"],
+                images: ["https://img.pchome.com.tw/cs/items/DRAG05A900H3GO0/000001_1736140447.png"],
+                link: "https://www.qnap.com/zh-tw/product/tbs-h574tx"
+            },
+            {
+                sku: "TVS-h874T",
+                category: "video",
+                tags: ["thunderbolt", "10gbe", "flagship"],
+                name: "TVS-h874T",
+                nameZh: "旗艦創作者 NAS",
+                subtitle: "Thunderbolt 4 + 10GbE 雙介面",
+                desc: "Intel Core i9 處理器，同時具備 Thunderbolt 4 與 10GbE，滿足各種連接需求。",
+                features: "8-Bay、Intel Core i9、Thunderbolt 4 × 2",
+                connectivity: "Thunderbolt 4 + 10GbE",
+                capacity: "最大 144TB (8×18TB)",
+                apps: "Premiere Pro、After Effects、DaVinci Resolve",
+                usage: "專業後製公司、影視製作",
+                target: "影視製作公司",
+                software: ["Pr", "Ae", "Me", "Au"],
+                images: ["https://img.pchome.com.tw/cs/items/DRAG4JA900GOIUE/000001_1695364354.jpg"],
+                link: "https://www.qnap.com/zh-tw/product/tvs-h874t"
+            },
+            {
+                sku: "TVS-h1288X",
+                category: "team",
+                tags: ["10gbe", "flagship"],
+                name: "TVS-h1288X",
+                nameZh: "12 槽企業級 NAS",
+                subtitle: "中型團隊協作平台",
+                desc: "12 Bay 混合儲存設計，支援多人同時存取，適合中型製作團隊。",
+                features: "8+4 Bay、Intel Xeon、10GbE × 2",
+                connectivity: "10GbE × 2",
+                capacity: "最大 220TB+",
+                apps: "Premiere Pro Productions",
+                usage: "中型製作團隊、企業影音部門",
+                target: "製作公司、企業",
+                software: ["Pr", "Ae", "Me", "Au"],
+                images: ["https://img.pchome.com.tw/cs/items/DRAG9JA900AYJRF/000001_1637744277.jpg"],
+                link: "https://www.qnap.com/zh-tw/product/tvs-h1288x"
+            },
+            {
+                sku: "TS-h2287XU-RP",
+                category: "team",
+                tags: ["10gbe", "rackmount", "flagship"],
+                name: "TS-h2287XU-RP",
+                nameZh: "24 槽機架式 NAS",
+                subtitle: "大型團隊與資料中心",
+                desc: "24 Bay 機架式設計，配備冗餘電源，適合專業資料中心與大型製作團隊。",
+                features: "24-Bay、Intel Xeon、10GbE × 4、冗餘電源",
+                connectivity: "10GbE × 4",
+                capacity: "最大 432TB (24×18TB)",
+                apps: "大型專案協作、素材庫管理",
+                usage: "大型製作公司、資料中心",
+                target: "大型企業、製作公司",
+                software: ["Pr", "Ae", "Me", "Au"],
+                images: ["https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=400&fit=crop&q=80"],
+                link: "https://www.qnap.com/zh-tw/product/ts-h2287xu-rp"
+            }
+        ];
+
+        const productGrid = document.getElementById('product-grid');
+        const modal = document.getElementById('product-modal');
+        const modalBody = document.getElementById('modal-body');
+
+        // Core Observer
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); });
+        }, { threshold: 0.1 });
+
+        function renderConnBadge(conn) {
+            if (conn.includes('Thunderbolt')) {
+                return `<span class="conn-badge thunderbolt">⚡ Thunderbolt 4</span>`;
+            } else if (conn.includes('10GbE')) {
+                return `<span class="conn-badge gbe10">10GbE</span>`;
+            } else {
+                return `<span class="conn-badge gbe25">2.5GbE</span>`;
+            }
+        }
+
+        function renderSoftwareBadges(softwareList) {
+            if (!softwareList) return '';
+            const icons = {
+                'Pr': 'Premiere Pro',
+                'Ae': 'After Effects',
+                'Me': 'Media Encoder',
+                'Au': 'Audition',
+                'Ps': 'Photoshop',
+                'Lr': 'Lightroom',
+                'Ai': 'Illustrator',
+                'Br': 'Bridge'
+            };
+            return softwareList.map(sw => `<span class="sw-tag" title="${icons[sw] || sw}">${sw}</span>`).join(' ');
+        }
+
+        window.openModal = function(index) {
+            const p = products[index];
+            modalBody.innerHTML = `
+                <div class="grid md:grid-cols-2 gap-0 h-full">
+                    <div class="bg-gradient-to-br from-slate-700 to-slate-800 p-8 flex items-center justify-center">
+                        <img src="${p.images[0]}" class="max-h-[300px] object-contain drop-shadow-xl" loading="lazy">
+                    </div>
+                    <div class="p-8 md:p-10 overflow-y-auto">
+                        <span class="text-xs font-mono text-slate-400 bg-slate-700 px-2 py-1 rounded mb-4 inline-block uppercase">SKU: ${p.sku}</span>
+                        <h3 class="text-2xl font-bold text-white mb-1">${p.name}</h3>
+                        <p class="text-sm text-qnap-blue font-bold mb-4">${p.nameZh}</p>
+                        <p class="text-base text-slate-400 leading-relaxed mb-6">${p.desc}</p>
+                        <div class="mb-6">
+                            <h4 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">軟體相容性</h4>
+                            <div class="flex flex-wrap gap-2">${renderSoftwareBadges(p.software)}</div>
+                        </div>
+                        <div class="space-y-4 border-t border-slate-700 pt-6 text-sm">
+                            <div><h4 class="font-bold text-slate-500 uppercase tracking-widest text-[10px] mb-1">特色</h4><p class="text-slate-300">${p.features}</p></div>
+                            <div><h4 class="font-bold text-slate-500 uppercase tracking-widest text-[10px] mb-1">連線規格</h4><p class="text-slate-300">${p.connectivity}</p></div>
+                            <div><h4 class="font-bold text-slate-500 uppercase tracking-widest text-[10px] mb-1">最大容量</h4><p class="text-slate-300">${p.capacity}</p></div>
+                            <div><h4 class="font-bold text-slate-500 uppercase tracking-widest text-[10px] mb-1">適用場景</h4><p class="text-slate-300">${p.usage}</p></div>
+                        </div>
+                        <div class="mt-6 flex gap-3">
+                            <a href="${p.link}" target="_blank" rel="noreferrer" class="flex-1 py-3 bg-qnap-blue text-white text-center text-xs font-bold rounded hover:bg-qnap-dark transition-colors">前往官網</a>
+                            <a href="https://adbeweblink.github.io/myproject/reseller.html" target="_blank" rel="noreferrer" class="flex-1 py-3 border border-slate-600 text-slate-300 text-center text-xs font-bold rounded hover:bg-slate-700 transition-colors">聯絡經銷商</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            modal.classList.remove('hidden');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            modal.querySelector('.modal-content').classList.remove('scale-95');
+            modal.querySelector('.modal-content').classList.add('scale-100');
+            document.body.style.overflow = 'hidden';
+        }
+
+        window.closeModal = function() {
+            modal.classList.add('opacity-0');
+            modal.querySelector('.modal-content').classList.remove('scale-100');
+            modal.querySelector('.modal-content').classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); document.body.style.overflow = ''; }, 300);
+        }
+
+        let selectedComparisons = [];
+
+        function renderProducts(filter) {
+            productGrid.innerHTML = '';
+            let filtered = products;
+            if (filter !== 'all') {
+                if (['photo', 'video', 'team'].includes(filter)) {
+                    filtered = products.filter(p => p.category === filter);
+                } else {
+                    filtered = products.filter(p => p.tags && p.tags.includes(filter));
+                }
+            }
+            filtered.forEach((p) => {
+                const originalIndex = products.indexOf(p);
+                const isSelected = selectedComparisons.includes(p.sku);
+                const el = document.createElement('div');
+                el.className = "glass-card card-3d card-shine group relative overflow-hidden rounded-xl p-6 transition-all duration-500 hover:shadow-soft reveal flex flex-col justify-between h-full";
+                el.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                             <span class="text-[10px] font-mono text-slate-400 bg-slate-700 px-2 py-1 rounded">${p.sku}</span>
+                             <div class="relative z-20"><input type="checkbox" class="compare-checkbox" ${isSelected ? 'checked' : ''} onchange="toggleCompare('${p.sku}')"></div>
+                        </div>
+                        <div class="aspect-square relative overflow-hidden rounded-lg bg-gradient-to-br from-slate-700 to-slate-800 mb-4 border border-slate-600 transition-colors cursor-pointer flex items-center justify-center p-4" onclick="openModal(${originalIndex})">
+                             <img src="${p.images[0]}" class="object-contain w-full h-full transition-transform duration-300 group-hover:scale-110 drop-shadow-lg" loading="lazy">
+                        </div>
+                        <div class="mb-3">${renderConnBadge(p.connectivity)}</div>
+                        <h3 class="font-bold text-lg text-white leading-tight mb-1 cursor-pointer" onclick="openModal(${originalIndex})">${p.name}</h3>
+                        <p class="text-xs text-qnap-blue font-bold mb-2">${p.nameZh}</p>
+                        <p class="text-xs text-slate-400 font-medium mb-3 min-h-[2.5em]">${p.subtitle}</p>
+                    </div>
+                    <div class="mt-auto"><button onclick="openModal(${originalIndex})" class="w-full py-2 border border-slate-600 rounded text-xs font-bold text-slate-300 hover:bg-qnap-blue hover:text-white hover:border-qnap-blue uppercase tracking-wider transition-colors">查看詳細規格</button></div>
+                `;
+                productGrid.appendChild(el);
+            });
+            lucide.createIcons();
+            document.querySelectorAll('.reveal').forEach(el => { revealObserver.observe(el); el.classList.add('active'); });
+        }
+
+        window.filterProducts = (f) => { renderProducts(f); document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active')); const btn = document.getElementById(`btn-${f}`); if(btn) btn.classList.add('active'); };
+        window.filterByTag = (t) => { renderProducts(t); document.querySelectorAll('.filter-btn, .demand-tag').forEach(btn => btn.classList.remove('active')); event.target.classList.add('active'); };
+        window.toggleCompare = (sku) => { const index = selectedComparisons.indexOf(sku); if (index > -1) selectedComparisons.splice(index, 1); else { if (selectedComparisons.length >= 2) { alert("最多只能選擇兩項產品進行比較"); event.target.checked = false; return; } selectedComparisons.push(sku); } updateCompareBar(); };
+
+        function updateCompareBar() {
+            const bar = document.getElementById('compare-bar');
+            const count = document.getElementById('compare-count');
+            const btn = document.getElementById('compare-btn');
+            count.textContent = selectedComparisons.length;
+            if (selectedComparisons.length > 0) bar.classList.add('visible'); else bar.classList.remove('visible');
+            document.getElementById('compare-btn').disabled = selectedComparisons.length !== 2;
+        }
+
+        window.clearCompare = () => { selectedComparisons = []; document.querySelectorAll('.compare-checkbox').forEach(cb => cb.checked = false); updateCompareBar(); };
+        window.openCompareModal = () => {
+            const item1 = products.find(i => i.sku === selectedComparisons[0]);
+            const item2 = products.find(i => i.sku === selectedComparisons[1]);
+            const content = document.getElementById('compare-content');
+            content.innerHTML = `
+                ${renderCompareCol(item1)}
+                ${renderCompareCol(item2)}
+            `;
+            const modal = document.getElementById('compare-modal');
+            modal.classList.remove('hidden');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            modal.querySelector('.modal-content').classList.remove('scale-95');
+            modal.querySelector('.modal-content').classList.add('scale-100');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function renderCompareCol(item) {
+            return `
+                <div class="space-y-6 flex flex-col h-full">
+                    <div class="flex-shrink-0 flex justify-center bg-gradient-to-br from-slate-700 to-slate-800 p-4 rounded-lg border border-slate-600"><img src="${item.images[0]}" class="h-48 object-contain drop-shadow-lg" loading="lazy"></div>
+                    <div class="border-b border-slate-700 pb-4"><span class="text-xs font-mono text-slate-400 bg-slate-700 px-2 py-1 rounded uppercase">${item.sku}</span><h4 class="text-lg font-bold text-white mt-2 leading-tight">${item.name}</h4><p class="text-sm text-qnap-blue font-bold">${item.nameZh}</p></div>
+                    <div class="flex-grow space-y-4">
+                        <div><h5 class="text-xs font-bold uppercase text-slate-500 mb-1">主要用途</h5><p class="text-sm font-medium text-white bg-slate-700 p-2 rounded">${item.usage}</p></div>
+                        <div><h5 class="text-xs font-bold uppercase text-slate-500 mb-1">軟體相容性</h5><div class="flex flex-wrap gap-2">${renderSoftwareBadges(item.software)}</div></div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><h5 class="text-xs font-bold uppercase text-slate-500 mb-1">連線規格</h5><p class="text-sm text-slate-300">${item.connectivity}</p></div>
+                            <div><h5 class="text-xs font-bold uppercase text-slate-500 mb-1">最大容量</h5><p class="text-sm text-slate-300">${item.capacity}</p></div>
+                        </div>
+                        <div><h5 class="text-xs font-bold uppercase text-slate-500 mb-1">適用對象</h5><p class="text-sm text-slate-300">${item.target}</p></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.closeCompareModal = () => { const modal = document.getElementById('compare-modal'); modal.classList.add('opacity-0'); modal.querySelector('.modal-content').classList.remove('scale-100'); modal.querySelector('.modal-content').classList.add('scale-95'); setTimeout(() => { modal.classList.add('hidden'); document.body.style.overflow = ''; }, 300); }
+
+        // --- NAS Selector Logic ---
+        let selectorUsage = '';
+        let selectorScale = '';
+
+        const recommendations = {
+            'photo-solo': { sku: 'TS-262', reason: '個人攝影師的最佳入門選擇，2.5GbE 網速足夠處理照片' },
+            'photo-small': { sku: 'TS-364', reason: '3-Bay 設計提供更靈活的備份空間，適合小型工作室' },
+            'photo-medium': { sku: 'TS-673A', reason: '6-Bay 大容量，可升級 10GbE 支援多人存取' },
+            'video-solo': { sku: 'TBS-h574TX', reason: 'Thunderbolt 4 直連，提供即時編輯所需的超低延遲' },
+            'video-small': { sku: 'TVS-h874T', reason: '旗艦機種，Thunderbolt 4 + 10GbE 雙介面滿足各種需求' },
+            'video-medium': { sku: 'TVS-h1288X', reason: '12 Bay + 雙 10GbE，專為多人協作設計' },
+            'team-solo': { sku: 'TS-673A', reason: '六槽設計搭配 Qsync，輕鬆實現檔案同步' },
+            'team-small': { sku: 'TVS-h1288X', reason: '企業級效能，支援 Premiere Pro Productions 協作模式' },
+            'team-medium': { sku: 'TS-h2287XU-RP', reason: '24 Bay 機架式設計，冗餘電源確保 24/7 穩定運作' }
+        };
+
+        window.selectUsage = function(usage) {
+            selectorUsage = usage;
+            document.querySelectorAll('#step1 .selector-option').forEach(btn => btn.classList.remove('selected'));
+            document.querySelector(`[data-usage="${usage}"]`).classList.add('selected');
+            const step2 = document.getElementById('step2');
+            step2.classList.remove('hidden');
+            step2.classList.add('show');
+            lucide.createIcons();
+        }
+
+        window.selectScale = function(scale) {
+            selectorScale = scale;
+            document.querySelectorAll('#step2 .selector-option').forEach(btn => btn.classList.remove('selected'));
+            document.querySelector(`[data-scale="${scale}"]`).classList.add('selected');
+            showResult();
+        }
+
+        function showResult() {
+            const key = `${selectorUsage}-${selectorScale}`;
+            const rec = recommendations[key];
+            const product = products.find(p => p.sku === rec.sku);
+
+            document.getElementById('result-img').src = product.images[0];
+            document.getElementById('result-model').textContent = `${product.name} ${product.nameZh}`;
+            document.getElementById('result-desc').textContent = rec.reason;
+            document.getElementById('result-link').href = product.link;
+
+            const result = document.getElementById('selector-result');
+            result.classList.remove('hidden');
+            result.classList.add('show');
+            lucide.createIcons();
+        }
+
+        window.resetSelector = function() {
+            selectorUsage = '';
+            selectorScale = '';
+            document.querySelectorAll('.selector-option').forEach(btn => btn.classList.remove('selected'));
+            const step2 = document.getElementById('step2');
+            const result = document.getElementById('selector-result');
+            step2.classList.add('hidden');
+            step2.classList.remove('show');
+            result.classList.add('hidden');
+            result.classList.remove('show');
+        }
+
+        // --- News Carousel Rendering ---
+        const newsItemsData = [
+            { media: "QNAP 官方新聞", title: "QNAP 列名 Adobe 影音合作夥伴目錄", link: "https://www.qnap.com/zh-tw/news/2020/qnap-%E5%88%97%E5%90%8D-adobe-%E5%BD%B1%E9%9F%B3%E5%90%88%E4%BD%9C%E5%A4%A5%E4%BC%B4%E7%9B%AE%E9%8C%84%E7%82%BA%E5%89%B5%E6%84%8F%E5%B7%A5%E4%BD%9C%E8%80%85%E6%8F%90%E4%BE%9B%E9%AB%98%E6%95%88%E8%83%BD%E5%BD%B1%E9%9F%B3%E7%B7%A8%E8%BC%AF%E5%84%B2%E5%AD%98%E8%A7%A3%E6%B1%BA%E6%96%B9%E6%A1%88" },
+            { media: "QNAP Blog", title: "QNAP NAS 與 Adobe Premiere Pro 完美整合指南", link: "https://blog.qnap.com/zh/qnap-nas-adobe-premiere-pro-zh/" },
+            { media: "Adobe Partner", title: "QNAP - Adobe Video Partner Program", link: "https://www.adobevideopartner.com/partners/qnap/" },
+            { media: "QNAP 教學", title: "如何為 Adobe Premiere Pro 建立高速影像編輯環境", link: "https://www.qnap.com/zh-tw/how-to/tutorial/article/%E5%A6%82%E4%BD%95%E7%82%BA-adobe-premiere-pro-%E5%BB%BA%E7%AB%8B%E9%AB%98%E9%80%9F%E5%BD%B1%E5%83%8F%E7%B7%A8%E8%BC%AF%E7%92%B0%E5%A2%83" },
+            { media: "QNAP 解決方案", title: "Adobe 創作者儲存解決方案", link: "https://www.qnap.com/zh-tw/solution/adobe" },
+        ];
+        const newsContainer = document.getElementById('carousel-container');
+        newsItemsData.forEach(item => {
+            const el = document.createElement('a');
+            el.href = item.link; el.target = "_blank"; el.className = "min-w-[300px] md:min-w-[380px] glass-card p-10 rounded-xl transition-all duration-500 hover:shadow-2xl flex flex-col justify-between group snap-start border border-slate-700 cursor-pointer";
+            el.innerHTML = `<span class="text-[9px] font-mono text-slate-400 mb-6 block group-hover:text-qnap-blue transition-colors uppercase tracking-widest border-b border-slate-700 pb-2">${item.media}</span><h3 class="text-xl font-serif leading-snug mb-8 group-hover:text-slate-300 transition-colors font-bold text-slate-100">${item.title}</h3><div class="text-[9px] font-bold text-slate-400 group-hover:text-qnap-blue transition-all flex items-center gap-2">READ ARTICLE <i data-lucide="external-link" class="w-3 h-3"></i></div>`;
+            newsContainer.appendChild(el);
+        });
+
+        document.getElementById('scroll-left').onclick = () => newsContainer.scrollBy({left:-400, behavior:'smooth'});
+        document.getElementById('scroll-right').onclick = () => newsContainer.scrollBy({left:400, behavior:'smooth'});
+
+        // Initial Render
+        renderProducts('all');
+
+        // Nav and Back to top
+        const sections = document.querySelectorAll('section, header');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const backToTop = document.getElementById('back-to-top');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            if (window.scrollY > 500) backToTop.classList.add('visible'); else backToTop.classList.remove('visible');
+            sections.forEach(section => { if (scrollY >= (section.offsetTop - 200)) current = '#' + section.getAttribute('id'); });
+            navLinks.forEach(link => { link.classList.remove('active'); if (link.getAttribute('href') === current) link.classList.add('active'); });
+        });
+
+        function toggleFaq(el) { el.classList.toggle('active'); }
+        function closeMenu() { document.getElementById('mobile-menu').classList.add('hidden'); }
+        document.getElementById('menu-btn').onclick = () => document.getElementById('mobile-menu').classList.toggle('hidden');
+
+        // Init Lucide Icons
+        lucide.createIcons();
+
+        // Init Reveal Observer
+        document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+        // Counter Animation
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !entry.target.classList.contains('counted')) {
+                    entry.target.classList.add('counted');
+                    const target = parseFloat(entry.target.dataset.target);
+                    const suffix = entry.target.dataset.suffix || '';
+                    const isDecimal = target % 1 !== 0;
+                    const duration = 2000;
+                    const startTime = performance.now();
+
+                    function updateCounter(currentTime) {
+                        const elapsed = currentTime - startTime;
+                        const progress = Math.min(elapsed / duration, 1);
+                        const easeOut = 1 - Math.pow(1 - progress, 3);
+                        const current = target * easeOut;
+
+                        entry.target.textContent = (isDecimal ? current.toFixed(1) : Math.floor(current)) + suffix;
+
+                        if (progress < 1) requestAnimationFrame(updateCounter);
+                    }
+                    requestAnimationFrame(updateCounter);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll('.counter').forEach(el => counterObserver.observe(el));
+
+        // Nav Scroll State
+        const nav = document.querySelector('nav');
+        let lastScroll = 0;
+
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.scrollY;
+
+            if (currentScroll > 100) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+
+            // Scroll Progress Bar
+            const scrollProgress = document.getElementById('scroll-progress');
+            const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = (currentScroll / scrollHeight) * 100;
+            scrollProgress.style.width = scrollPercent + '%';
+
+            lastScroll = currentScroll;
+        });
+
+        // Parallax Effect for Hero Background
+        const heroSection = document.getElementById('hero');
+        if (heroSection) {
+            window.addEventListener('scroll', () => {
+                const scrolled = window.scrollY;
+                const parallaxBg = heroSection.querySelector('.bg-frosted');
+                if (parallaxBg && scrolled < window.innerHeight) {
+                    parallaxBg.style.transform = `translateY(${scrolled * 0.3}px)`;
+                }
+            });
+        }
+
+        // Image Loading Animation
+        document.querySelectorAll('img').forEach(img => {
+            if (!img.complete) {
+                img.classList.add('img-loading');
+                img.addEventListener('load', () => {
+                    img.classList.remove('img-loading');
+                    img.classList.add('img-loaded');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
