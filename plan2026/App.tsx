@@ -2,24 +2,33 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroSlide } from './components/HeroSlide';
+import { CompetitorSection } from './components/CompetitorSection';
 import { InsightSlide } from './components/InsightSlide';
+import { TheMoatSection } from './components/TheMoatSection'; 
+import { ThreeMoatsSection } from './components/ThreeMoatsSection'; 
 import { TimelineSlide } from './components/TimelineSlide';
 import { VideoGallery } from './components/VideoGallery';
 import { AcademySection } from './components/AcademySection';
 import { FlagshipEventSection } from './components/FlagshipEventSection';
+import { AudienceSection } from './components/AudienceSection';
+import { ProfessionalAreaSection } from './components/ProfessionalAreaSection';
 import { LineEngagementSection } from './components/LineEngagementSection';
 import { LineContentShowcase } from './components/LineContentShowcase';
+import { MarketingShowcase } from './components/MarketingShowcase';
+import { YoutubeShowcase } from './components/YoutubeShowcase';
 import { BusinessAccelerationLab } from './components/BusinessAccelerationLab';
 import { MultiModelPhilosophySection } from './components/MultiModelPhilosophySection';
 import { ModelEcosystemSection } from './components/ModelEcosystemSection';
 import { StrategicAllianceSection } from './components/StrategicAllianceSection';
-import { CoreVisionSection } from './components/CoreVisionSection';
+import { ConcentricStrategySection } from './components/ConcentricStrategySection';
 import { KPIDashboard } from './components/KPIDashboard';
+import { SummarySection } from './components/SummarySection';
 import { PartnerSection } from './components/PartnerSection';
 import { Footer } from './components/Footer';
 import { FloatingCTA } from './components/FloatingCTA';
 import { BackToTop } from './components/BackToTop';
-import { FadeIn } from './components/ui/Motion';
+import { FadeIn, FireflyBackground } from './components/ui/Motion';
+import { FireflyModelsSection } from './components/FireflyModelsSection';
 import { Lock, Unlock } from 'lucide-react';
 
 const SectionWrapper: React.FC<{ children: React.ReactNode; id: string; bgColor?: string }> = ({ children, id, bgColor = "bg-black" }) => {
@@ -57,7 +66,7 @@ const SectionWrapper: React.FC<{ children: React.ReactNode; id: string; bgColor?
     <div 
       id={id} 
       ref={sectionRef}
-      className={`w-full min-h-screen snap-start flex flex-col justify-center transition-all duration-300 ease-out will-change-transform ${bgColor} pt-20 md:pt-0`}
+      className={`w-full min-h-screen snap-start flex flex-col justify-start md:justify-center transition-all duration-300 ease-out will-change-transform ${bgColor} pt-0`}
     >
       {children}
     </div>
@@ -86,18 +95,27 @@ export default function App() {
     // Define the order of sections based on render logic
     const sections = [
       'home',
-      'insight',
-      'community',
-      'community-details',
-      'lab',
-      'timeline',
-      'academy',
-      'flagship',
+      'competitor',  // NEW: Competitor Comparison
+      'moat',        // 1. The Why & Strategy (Part 2)
+      'three-moats', // NEW: The Three Pillars
+      'insight',     // 1. The Why & Strategy (Part 3)
+      'community',   // 2. Daily Engagement
+      'community-details', // 2. Daily Engagement (Content)
+      'youtube',     // NEW: Youtube Showcase
+      'marketing',   // NEW: Marketing Showcase
+      'lab',         // 3. Sales Enablement (Tools/Ice Breaking)
+      'philosophy',  // 3. Sales Enablement (Philosophy)
+      'timeline',    // 4. Market Impact (Timeline)
       ...(isVendorMode ? ['videos'] : []),
-      'philosophy',
-      ...(isVendorMode ? ['ecosystem', 'vision'] : []),
-      'alliance',
-      'kpi',
+      'firefly',     // NEW: Firefly Models Section
+      'ecosystem',   // Now Public
+      'academy',     // 5. Education (Moved after Ecosystem)
+      'alliance',    // Public
+      'flagship',    // 5. Market Impact (Event) (Moved after Alliance)
+      ...(isVendorMode ? ['audience', 'domain'] : []), // Changed: Only in Vendor Mode
+      'strategy',    // Now Public
+      'kpi',         // 6. Proof
+      'summary',     // 7. Summary (New)
       ...(isVendorMode ? ['partner', 'contact'] : [])
     ];
 
@@ -115,13 +133,12 @@ export default function App() {
         let targetIndex = currentIndex;
 
         if (e.key === 'ArrowDown' || e.key === 'PageDown') {
-          targetIndex = Math.min(currentIndex + 1, sections.length - 1 + (isVendorMode ? 0 : 1)); // +1 for the non-vendor end slide if needed, strictly sticking to ID list though.
+          targetIndex = Math.min(currentIndex + 1, sections.length - 1 + (isVendorMode ? 0 : 1)); 
         } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
           targetIndex = Math.max(currentIndex - 1, 0);
         }
 
-        // Handle the dynamic end slide for non-vendor mode which doesn't have an ID in the list
-        // If we are at the end of the list and press down, and not in vendor mode, just scroll to bottom
+        // Handle the dynamic end slide for non-vendor mode
         if (!isVendorMode && currentIndex === sections.length - 1 && (e.key === 'ArrowDown' || e.key === 'PageDown')) {
              container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
              return;
@@ -148,6 +165,9 @@ export default function App() {
     >
       {/* 🚀 GLOBAL TEXTURE OVERLAY */}
       <div className="fixed inset-0 pointer-events-none z-[200] opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
+      
+      {/* 🔥 FIREFLY FLUID BACKGROUND */}
+      <FireflyBackground />
 
       <Navbar isVendorMode={isVendorMode} onLogoSecretTrigger={toggleMode} />
       
@@ -161,53 +181,89 @@ export default function App() {
         </div>
       </div>
 
+      {/* 1. HERO */}
       <SectionWrapper id="home">
         <HeroSlide />
       </SectionWrapper>
 
+      {/* NEW: COMPETITOR COMPARISON (Placed after Home) */}
+      <SectionWrapper id="competitor">
+        <FadeIn fullWidth>
+          <CompetitorSection />
+        </FadeIn>
+      </SectionWrapper>
+
+      {/* 2. THE MOAT (The Why) */}
+      <SectionWrapper id="moat">
+        <FadeIn fullWidth>
+          <TheMoatSection />
+        </FadeIn>
+      </SectionWrapper>
+
+      {/* NEW SECTION: The Three Pillars */}
+      <SectionWrapper id="three-moats">
+        <FadeIn fullWidth>
+          <ThreeMoatsSection />
+        </FadeIn>
+      </SectionWrapper>
+
+      {/* 3. INSIGHT STRATEGY */}
       <SectionWrapper id="insight">
         <FadeIn fullWidth>
           <InsightSlide />
         </FadeIn>
       </SectionWrapper>
 
+      {/* 4. LINE ENGAGEMENT (Daily Sticky) */}
       <SectionWrapper id="community">
         <FadeIn fullWidth>
           <LineEngagementSection />
         </FadeIn>
       </SectionWrapper>
 
+      {/* 5. LINE CONTENT (Knowledge) */}
       <SectionWrapper id="community-details">
         <FadeIn fullWidth delay={200}>
           <LineContentShowcase />
         </FadeIn>
       </SectionWrapper>
 
-      {/* 🧪 NEW LAB SECTION */}
+      {/* NEW: YOUTUBE SHOWCASE */}
+      <SectionWrapper id="youtube">
+        <FadeIn fullWidth>
+          <YoutubeShowcase />
+        </FadeIn>
+      </SectionWrapper>
+
+      {/* NEW: MARKETING SHOWCASE */}
+      <SectionWrapper id="marketing">
+        <FadeIn fullWidth>
+          <MarketingShowcase />
+        </FadeIn>
+      </SectionWrapper>
+
+      {/* 6. LAB (Ice Breaking & Tools) */}
       <SectionWrapper id="lab">
         <FadeIn fullWidth>
           <BusinessAccelerationLab />
         </FadeIn>
       </SectionWrapper>
 
+      {/* 7. PHILOSOPHY (Sales Enablement) */}
+      <SectionWrapper id="philosophy">
+        <FadeIn fullWidth>
+          <MultiModelPhilosophySection />
+        </FadeIn>
+      </SectionWrapper>
+
+      {/* 8. TIMELINE (Market Impact) */}
       <SectionWrapper id="timeline">
         <FadeIn fullWidth>
           <TimelineSlide />
         </FadeIn>
       </SectionWrapper>
 
-      <SectionWrapper id="academy">
-        <FadeIn fullWidth>
-          <AcademySection />
-        </FadeIn>
-      </SectionWrapper>
-
-      <SectionWrapper id="flagship">
-        <FadeIn fullWidth>
-          <FlagshipEventSection />
-        </FadeIn>
-      </SectionWrapper>
-
+      {/* VENDOR MODE SECTIONS */}
       {isVendorMode && (
         <SectionWrapper id="videos">
           <FadeIn fullWidth>
@@ -216,37 +272,72 @@ export default function App() {
         </SectionWrapper>
       )}
 
-      <SectionWrapper id="philosophy">
+      {/* NEW SECTION: Firefly Models */}
+      <SectionWrapper id="firefly">
+        <FireflyModelsSection />
+      </SectionWrapper>
+
+      {/* NOW PUBLIC SECTIONS */}
+      <SectionWrapper id="ecosystem">
         <FadeIn fullWidth>
-          <MultiModelPhilosophySection />
+          <ModelEcosystemSection />
         </FadeIn>
       </SectionWrapper>
 
-      {isVendorMode && (
-        <SectionWrapper id="ecosystem">
-          <FadeIn fullWidth>
-            <ModelEcosystemSection />
-          </FadeIn>
-        </SectionWrapper>
-      )}
-
-      {isVendorMode && (
-        <SectionWrapper id="vision">
-          <FadeIn fullWidth>
-            <CoreVisionSection />
-          </FadeIn>
-        </SectionWrapper>
-      )}
-
+      {/* 9. ACADEMY (Education) - Moved */}
+      <SectionWrapper id="academy">
+        <FadeIn fullWidth>
+          <AcademySection />
+        </FadeIn>
+      </SectionWrapper>
+      
       <SectionWrapper id="alliance">
         <FadeIn fullWidth>
           <StrategicAllianceSection />
         </FadeIn>
       </SectionWrapper>
 
+      {/* 10. FLAGSHIP EVENT (Market Impact) - Moved */}
+      <SectionWrapper id="flagship">
+        <FadeIn fullWidth>
+          <FlagshipEventSection />
+        </FadeIn>
+      </SectionWrapper>
+
+      {/* NEW: AUDIENCE PROFILE SECTION & PROFESSIONAL AREA (Vendor Mode Only) */}
+      {isVendorMode && (
+        <>
+          <SectionWrapper id="audience">
+            <FadeIn fullWidth>
+              <AudienceSection />
+            </FadeIn>
+          </SectionWrapper>
+
+          <SectionWrapper id="domain">
+            <FadeIn fullWidth>
+              <ProfessionalAreaSection />
+            </FadeIn>
+          </SectionWrapper>
+        </>
+      )}
+
+      <SectionWrapper id="strategy">
+        <FadeIn fullWidth>
+          <ConcentricStrategySection />
+        </FadeIn>
+      </SectionWrapper>
+
+      {/* 11. KPI PROOF */}
       <SectionWrapper id="kpi">
         <FadeIn fullWidth>
           <KPIDashboard />
+        </FadeIn>
+      </SectionWrapper>
+
+      {/* 12. SUMMARY (NEW) */}
+      <SectionWrapper id="summary">
+        <FadeIn fullWidth>
+          <SummarySection />
         </FadeIn>
       </SectionWrapper>
 
@@ -267,6 +358,7 @@ export default function App() {
             <div className="text-center">
               <p className="text-gray-600 font-mono text-xs tracking-widest uppercase mb-4">End of Adobe Presentation</p>
               <h2 className="text-2xl font-black">Weblink Adobe FY26</h2>
+              <p className="text-gray-700 text-[10px] mt-2 font-light tracking-wide">內容僅供 FY26 內部策略規劃使用</p>
             </div>
          </div>
       )}

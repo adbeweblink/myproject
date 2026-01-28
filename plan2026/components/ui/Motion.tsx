@@ -131,27 +131,40 @@ export const Magnetic: React.FC<{ children: React.ReactElement; strength?: numbe
   );
 };
 
-// Fix for missing DecryptionText export
-export const DecryptionText: React.FC<{ text: string }> = ({ text }) => {
-  const [displayText, setDisplayText] = useState('');
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+";
+/**
+ * FireflyBackground
+ * 產生跟隨滑鼠的「螢火蟲」光暈效果，模擬 Adobe Firefly 的漸層流體感。
+ */
+export const FireflyBackground: React.FC = () => {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    let iteration = 0;
-    const interval = setInterval(() => {
-      setDisplayText(
-        text.split("").map((letter, index) => {
-          if (index < iteration) return text[index];
-          return chars[Math.floor(Math.random() * chars.length)];
-        }).join("")
-      );
-      
-      if (iteration >= text.length) clearInterval(interval);
-      iteration += 1 / 3;
-    }, 30);
-    
-    return () => clearInterval(interval);
-  }, [text]);
+    const handleMouseMove = (event: MouseEvent) => {
+      // 使用 requestAnimationFrame 優化效能
+      requestAnimationFrame(() => {
+        setMousePosition({ x: event.clientX, y: event.clientY });
+      });
+    };
 
-  return <>{displayText}</>;
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  return (
+    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+      <div 
+        className="absolute w-[600px] h-[600px] bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-red-600/20 blur-[100px] rounded-full mix-blend-screen transition-transform duration-300 ease-out will-change-transform opacity-60"
+        style={{
+          transform: `translate(${mousePosition.x - 300}px, ${mousePosition.y - 300}px)`,
+        }}
+      />
+      {/* 增加第二層光暈，製造層次感 */}
+      <div 
+        className="absolute w-[300px] h-[300px] bg-white/10 blur-[60px] rounded-full mix-blend-overlay transition-transform duration-100 ease-out will-change-transform"
+        style={{
+          transform: `translate(${mousePosition.x - 150}px, ${mousePosition.y - 150}px)`,
+        }}
+      />
+    </div>
+  );
 };

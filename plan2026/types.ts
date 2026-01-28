@@ -18,6 +18,7 @@ export interface EventTypes {
 export interface EventItem {
   id: number;
   date: string;
+  displayDate?: string; // Optional custom display label (e.g. "3月")
   name: string;
   type: EventTypeDefinition;
   status: string;
@@ -54,10 +55,13 @@ export interface AllianceItem {
   icon: LucideIcon;
   partners: AlliancePartner[];
   desc: string;
+  relationship: string; // Added: Connection to Adobe
+  opportunity: string;  // Added: Business benefit
   color: string;
   textColor: string;
   bg: string;
   link?: string;
+  image: string; // Added: Background image
 }
 
 export interface QuarterItem {

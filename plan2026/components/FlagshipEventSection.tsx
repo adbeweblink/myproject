@@ -14,7 +14,7 @@ import { SectionHeading } from './ui/Shared';
 export const FlagshipEventSection: React.FC = () => {
 
   return (
-    <section className="h-screen pt-24 pb-8 md:pt-32 md:pb-10 px-6 md:px-20 border-b border-white/5 bg-[#0a0a0a] flex flex-col justify-center overflow-hidden">
+    <section className="min-h-screen pt-24 pb-8 md:pt-32 md:pb-10 px-6 md:px-20 border-b border-white/5 bg-[#0a0a0a] flex flex-col justify-start md:justify-center overflow-hidden">
       <div className="shrink-0 mb-6">
         <SectionHeading 
           title="年度旗艦盛會" 
@@ -24,17 +24,17 @@ export const FlagshipEventSection: React.FC = () => {
 
         <div className="mb-6 hidden md:block">
           <p className="text-base md:text-lg text-gray-300 max-w-4xl leading-relaxed">
-            Weblink 作為 Adobe 在台最重要的戰略執行夥伴，<strong className="text-white">策劃 (Curate) 並 執行 (Execute)</strong> 年度指標性盛會，
+            頂尖創意人匯聚於此，激發靈感、學習新知、拓展人脈，親身體驗最新技術與未來創意趨勢。Weblink 作為 Adobe 在台最重要的戰略執行夥伴，<strong className="text-white">策劃 (Curate) 並 執行 (Execute)</strong> 年度指標性盛會，
             這不僅是軟體發表，更是台灣創意產業的技術指標。
           </p>
         </div>
       </div>
 
       {/* Main Events Twin Towers Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 mb-8 flex-1 min-h-0">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-8 mb-8 flex-1 min-h-0">
         
         {/* Event 1: First Half - Creator Solutions Day */}
-        <div className="group relative rounded-3xl overflow-hidden border border-white/10 bg-[#111] hover:border-cyan-500/50 transition-all duration-500 flex flex-col h-full">
+        <div className="group relative rounded-3xl overflow-hidden border border-white/10 bg-[#111] hover:border-cyan-500/50 transition-all duration-500 flex flex-col h-full min-h-[400px]">
           {/* Background Image Layer */}
           <img 
             src="https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=2000&auto=format&fit=crop" 
@@ -47,7 +47,7 @@ export const FlagshipEventSection: React.FC = () => {
           <div className="relative p-6 pb-12 md:p-8 flex flex-col h-full z-10">
             <div className="flex justify-between items-start mb-4">
               <span className="bg-cyan-950/80 backdrop-blur-md text-cyan-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-cyan-800">
-                1H 2026 • 上半年
+                2026.06.22
               </span>
               <Layers className="text-cyan-500 group-hover:scale-110 transition-transform" size={24} />
             </div>
@@ -80,7 +80,7 @@ export const FlagshipEventSection: React.FC = () => {
         </div>
 
         {/* Event 2: Second Half - Creator Link */}
-        <div className="group relative rounded-3xl overflow-hidden border border-white/10 bg-[#111] hover:border-red-500/50 transition-all duration-500 flex flex-col h-full">
+        <div className="group relative rounded-3xl overflow-hidden border border-white/10 bg-[#111] hover:border-red-500/50 transition-all duration-500 flex flex-col h-full min-h-[400px]">
           {/* Background Image Layer */}
           <img 
             src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=2000&auto=format&fit=crop" 
@@ -93,7 +93,7 @@ export const FlagshipEventSection: React.FC = () => {
           <div className="relative p-6 pb-12 md:p-8 flex flex-col h-full z-10">
             <div className="flex justify-between items-start mb-4">
               <span className="bg-red-950/80 backdrop-blur-md text-red-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-red-800">
-                2H 2026 • 下半年
+                2026.11.13
               </span>
               <Zap className="text-red-500 group-hover:scale-110 transition-transform" size={24} />
             </div>

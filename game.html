@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GT ARCHIVES | REALITY SPEC</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        gt: {
+                            black: '#050505',
+                            glass: 'rgba(255, 255, 255, 0.05)',
+                            accent: '#e11d48', // GT Red
+                            blue: '#3b82f6',   
+                            text: '#f3f4f6',
+                            muted: '#9ca3af',
+                            border: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans TC', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        display: ['Rajdhani', 'sans-serif'],
+                    },
+                    backgroundImage: {
+                        'sidebar-aero': 'linear-gradient(90deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0) 100%)',
+                        'sunglasses': 'linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 100%)',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'slide-up': 'slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'pulse-slow': 'pulse 3s infinite',
+                        'shutter-close': 'shutterClose 0.8s cubic-bezier(0.8, 0, 0.2, 1) forwards',
+                        'marquee': 'marquee 30s linear infinite',
+                        'glitch': 'glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite',
+                    },
+                    keyframes: {
+                        shutterClose: {
+                            '0%': { height: '0%' },
+                            '100%': { height: '51%' }
+                        },
+                        marquee: {
+                            '0%': { transform: 'translateX(100%)' },
+                            '100%': { transform: 'translateX(-100%)' }
+                        },
+                        glitch: {
+                            '0%': { transform: 'translate(0)' },
+                            '20%': { transform: 'translate(-2px, 2px)' },
+                            '40%': { transform: 'translate(-2px, -2px)' },
+                            '60%': { transform: 'translate(2px, 2px)' },
+                            '80%': { transform: 'translate(2px, -2px)' },
+                            '100%': { transform: 'translate(0)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #050505;
+            color: #f3f4f6;
+            font-family: 'Noto Sans TC', sans-serif;
+            overflow: hidden;
+        }
+
+        .film-grain {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9998; opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .scanlines {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
+            background-size: 100% 4px; opacity: 0.1;
+        }
+
+        ::-webkit-scrollbar { width: 2px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: #e11d48; }
+
+        .leaflet-container { background: #08080a; font-family: 'Noto Sans TC', sans-serif; }
+        .leaflet-tile-pane { filter: brightness(1.35) contrast(1.2) saturate(1.2); }
+        .leaflet-control-attribution { display: none; }
+
+        /* Marker Styles */
+        .marker-triangle {
+            width: 0; height: 0;
+            border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 14px solid #e11d48;
+            position: absolute; top: -22px; left: 50%; transform-origin: center top; 
+            animation: spin-y 4s linear infinite; filter: drop-shadow(0 0 4px #e11d48);
+        }
+        @keyframes spin-y { 0% { transform: translateX(-50%) rotateY(0deg); } 100% { transform: translateX(-50%) rotateY(360deg); } }
+
+        .marker-dot {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            border-radius: 50%; box-shadow: 0 0 15px rgba(225, 29, 72, 0.6);
+            border: 2px solid rgba(255,255,255,0.9); transition: all 0.5s ease;
+        }
+        .marker-pulse {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 40px; height: 40px; background: rgba(225, 29, 72, 0.2);
+            border-radius: 50%; border: 1px solid rgba(225, 29, 72, 0.4);
+            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+        @keyframes pulse-ring { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(2.0); opacity: 0; } }
+        
+        input:focus, textarea:focus { outline: none; border-color: #e11d48; box-shadow: 0 0 10px rgba(225, 29, 72, 0.2); }
+    </style>
+</head>
+<body class="overflow-hidden selection:bg-gt-accent selection:text-white">
+    <div class="film-grain"></div>
+    <div class="scanlines"></div>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo } = React;
+
+        // --- Utils ---
+        const extractYoutubeId = (url) => {
+            if (!url) return null;
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length >= 11) ? match[2].slice(0, 11) : null;
+        };
+
+        const generateId = () => Math.random().toString(36).substr(2, 9);
+
+        // --- Coordinate Parser ---
+        const parseCoords = (input) => {
+            if (!input) return null;
+            const str = input.trim().toUpperCase().replace(/[()]/g, '');
+            const parts = str.split(/[,\s]+/).map(Number).filter(n => !isNaN(n));
+            if (parts.length === 2 && Math.abs(parts[0]) <= 90 && Math.abs(parts[1]) <= 180) return parts;
+            const complexParts = str.split(',');
+            if (complexParts.length === 2) {
+                const parsePart = (p) => {
+                    p = p.trim();
+                    let multiplier = 1;
+                    if (p.endsWith('S') || p.endsWith('W')) multiplier = -1;
+                    const clean = p.replace(/[NSEW°'"′″]/g, ' ').trim();
+                    const nums = clean.split(/\s+/).map(Number);
+                    if (nums.some(isNaN)) return null;
+                    if (nums.length === 1) return nums[0] * multiplier;
+                    if (nums.length === 2) return (nums[0] + nums[1]/60) * multiplier;
+                    if (nums.length === 3) return (nums[0] + nums[1]/60 + nums[2]/3600) * multiplier;
+                    return null;
+                };
+                const lat = parsePart(complexParts[0]);
+                const lng = parsePart(complexParts[1]);
+                if (lat !== null && lng !== null) return [lat, lng];
+            }
+            return null;
+        };
+
+        // --- AI Keyword Knowledge Base (China Spec) ---
+        const AI_KEYWORDS = [
+            { key: 'SHANGHAI', aliases: ['上海'], loc: '中國上海', desc: '魔都夜色。行駛在高架道路上，外灘與陸家嘴的璀璨燈火盡收眼底，感受現代化大都會的脈搏。' },
+            { key: 'CHONGQING', aliases: ['重慶', '重庆'], loc: '中國重慶', desc: '8D魔幻城市。重慶錯綜複雜的立體交通網與穿樓輕軌，是對導航與駕駛技術的終極挑戰。' },
+            { key: 'BEIJING', aliases: ['北京'], loc: '中國北京', desc: '帝都巡航。從古老的胡同到宏偉的長安街，歷史與現代在車窗外交錯而過。' },
+            { key: 'GUANGZHOU', aliases: ['廣州', '广州'], loc: '中國廣州', desc: '羊城風情。穿梭於廣州塔與老城區之間，體驗南國都市的繁華與悠閒。' },
+            { key: 'SHENZHEN', aliases: ['深圳'], loc: '中國深圳', desc: '科技之都。寬闊的林蔭大道與高聳入雲的摩天大樓，展現中國矽谷的極致速度感。' },
+            { key: 'WUHAN', aliases: ['武漢', '武汉'], loc: '中國武漢', desc: '江城武漢。跨越壯觀的長江大橋，感受九省通衢的交通樞紐氣勢與江風拂面。' },
+            { key: 'CHENGDU', aliases: ['成都'], loc: '中國四川', desc: '天府之國。悠閒的城市節奏，寬窄巷子周邊的街景充滿生活氣息與美食的香氣。' },
+            { key: 'HANGZHOU', aliases: ['杭州'], loc: '中國浙江', desc: '人間天堂。環繞西湖的林蔭道路，景色宜人，適合放鬆心情的休閒駕駛。' },
+            { key: 'XIAN', aliases: ['西安', 'XI\'AN'], loc: '中國陝西', desc: '古都長安。行駛在古城牆下，歷史的厚重感與現代城市的活力完美融合。' },
+            { key: 'SUZHOU', aliases: ['蘇州', '苏州'], loc: '中國江蘇', desc: '江南水鄉。在白牆黑瓦與小橋流水間穿行，感受古典園林城市的優雅韻味。' },
+            { key: 'GUIZHOU', aliases: ['貴州', '贵州'], loc: '中國貴州', desc: '天路之旅。行駛在世界最高的橋樑之上，穿越雲端，體驗工程奇蹟帶來的震撼。' },
+            { key: 'TIBET', aliases: ['西藏', '拉薩', '拉萨'], loc: '中國西藏', desc: '雪域高原。通往拉薩的朝聖之路，稀薄的空氣與壯麗的雪山景色，淨化心靈的旅程。' },
+            { key: 'HUBEI', aliases: ['湖北'], loc: '中國湖北', desc: '水上公路。車在水中行，人在畫中游，體驗獅子關獨特的親水駕駛樂趣。' },
+            { key: 'HIGHWAY', aliases: ['高速', 'EXPRESSWAY'], loc: '高速路段', desc: '高速巡航路段。路面平整開闊，適合測試車輛的空氣動力學穩定性與中段加速能力。' },
+            { key: 'NIGHT', aliases: ['夜景', '夜間'], loc: '城市夜景', desc: '城市夜戰。霓虹燈光在車身上流動，雨夜的路面反射帶來獨特的賽博龐克氛圍。' },
+            { key: 'RAIN', aliases: ['雨', 'WET'], loc: '濕滑路面', desc: '雨戰測試。濕滑路面極度考驗輪胎排水性與駕駛者對抓地力的細膩感知。' }
+        ];
+
+        const analyzeTitle = (title) => {
+            const upper = title.toUpperCase();
+            const matches = AI_KEYWORDS.filter(k => 
+                upper.includes(k.key) || k.aliases.some(alias => upper.includes(alias.toUpperCase()))
+            );
+            
+            if (matches.length > 0) {
+                return {
+                    loc: matches[0].loc,
+                    desc: matches.map(m => m.desc).join(' ')
+                };
+            }
+            return {
+                loc: '偵測位置中',
+                desc: '經由衛星影像分析：這是一個極具特色的駕駛路段，展現了當地的獨特風貌，路況良好，適合進行性能巡航。'
+            };
+        };
+
+        // --- Initial Data (V9.2 Reality Spec) ---
+        const INITIAL_DATA = [
+            { id: 'cn-shanghai', title: '上海 外灘萬國建築博覽', subtitle: '中國上海', coords: [31.2304, 121.4906], videoId: 't88kN4Ojyew', duration: '4K 60', tags: ['NIGHT', 'URBAN'], weather: 'Clear', desc: '上海百年外灘。左手是萬國建築群的古典優雅，右手是陸家嘴的摩天大樓，在夜色中穿梭於歷史與未來之間。', stats: { speed: 80, tech: 40, aero: 50, stability: 90, scenery: 100, surface: 95 } },
+            { id: 'cn-chongqing', title: '重慶 解放碑與洪崖洞', subtitle: '中國重慶', coords: [29.5572, 106.5770], videoId: '8T044v8EG5E', duration: '4K HDR', tags: ['COMPLEX', 'CITY'], weather: 'Cloudy', desc: '8D魔幻之都核心。在解放碑的繁華商圈與洪崖洞的吊腳樓夜景中穿行，體驗山城獨有的立體交通與賽博龐克氛圍。', stats: { speed: 50, tech: 90, aero: 30, stability: 60, scenery: 90, surface: 80 } },
+            { id: 'cn-guilin', title: '桂林 陽朔十里畫廊', subtitle: '中國廣西', coords: [24.7767, 110.4927], videoId: 'Avq4pQW26wo', duration: 'SCENIC', tags: ['NATURE', 'MOUNTAIN'], weather: 'Sunny', desc: '陽朔山水甲桂林。行駛在十里畫廊的喀斯特峰林之間，兩旁是田園風光與奇峰異石，如同在流動的水墨畫中駕駛。', stats: { speed: 60, tech: 50, aero: 40, stability: 80, scenery: 100, surface: 70 } },
+            { id: 'cn-chengdu', title: '成都 春熙路太古里', subtitle: '中國四川', coords: [30.6586, 104.0815], videoId: 'QJhBdLHH_iM', duration: 'CITY', tags: ['URBAN', 'RELAX'], weather: 'Overcast', desc: '成都時尚中心。在IFS與太古里的古今交融建築群旁慢速巡航，感受天府之國的悠閒節奏與潮流氣息。', stats: { speed: 70, tech: 30, aero: 60, stability: 90, scenery: 80, surface: 90 } },
+            { id: 'cn-hubei', title: '恩施 獅子關水上棧道', subtitle: '中國湖北', coords: [29.9810, 109.4970], videoId: 'vapAobXR0Hc', duration: 'UNIQUE', tags: ['WATER', 'NATURE'], weather: 'Clear', desc: '廊橋遺夢。全球罕見的漂浮公路，車輛行駛在碧綠的河面之上，激起層層波紋，體驗極致的親水駕駛樂趣。', stats: { speed: 30, tech: 70, aero: 20, stability: 40, scenery: 100, surface: 60 } },
+            { id: 'cn-shenzhen', title: '深圳 福田中心區', subtitle: '中國廣東', coords: [22.5431, 114.0579], videoId: 'Xl96qJmT-mQ', duration: '4K', tags: ['MODERN', 'FAST'], weather: 'Sunny', desc: '改革開放最前線。行駛在深南大道上，兩側是平安金融中心等超級摩天大樓，展現中國科技之都的現代與速度。', stats: { speed: 90, tech: 40, aero: 80, stability: 90, scenery: 85, surface: 100 } },
+            { id: 'cn-xian', title: '西安 城牆與鐘樓', subtitle: '中國陝西', coords: [34.2594, 108.9470], videoId: 'MbTJGCHeSwM', duration: 'HISTORY', tags: ['CULTURE', 'CITY'], weather: 'Night', desc: '守望長安。圍繞著明代古城牆與城市中心的鐘樓行駛，金碧輝煌的夜景讓人彷彿穿越回大唐盛世。', stats: { speed: 50, tech: 40, aero: 30, stability: 80, scenery: 95, surface: 85 } },
+            { id: 'cn-harbin', title: '哈爾濱 中央大街', subtitle: '中國黑龍江', coords: [45.7733, 126.6200], videoId: '0lt1HzIld50', duration: 'SNOW', tags: ['WINTER', 'SLIPPERY'], weather: 'Snow', desc: '東方莫斯科。行駛在充滿俄式風情的中央大街周邊，冰雪覆蓋的索菲亞教堂與巴洛克建築，構成獨特的北國風光。', stats: { speed: 40, tech: 80, aero: 50, stability: 30, scenery: 90, surface: 40 } },
+            { id: 'cn-wuhan', title: '武漢 武漢長江大橋', subtitle: '中國湖北', coords: [30.5489, 114.2867], videoId: 'KRHYGO9zJhA', duration: 'BRIDGE', tags: ['RIVER', 'MEGA'], weather: 'Haze', desc: '萬里長江第一橋。橫跨波濤洶湧的長江，連接著龜山與蛇山，感受工業時代的鋼鐵巨龍與江城氣魄。', stats: { speed: 70, tech: 30, aero: 60, stability: 80, scenery: 85, surface: 90 } },
+            { id: 'cn-tianjin', title: '天津 五大道文化區', subtitle: '中國天津', coords: [39.1128, 117.2069], videoId: '41MXJGjhTBM', duration: 'CITY', tags: ['CLASSIC', 'URBAN'], weather: 'Sunny', desc: '萬國建築博覽會。在馬場道、睦南道等五條街道間穿行，兩旁是保存完好的英、法、義式洋房，靜謐而優雅。', stats: { speed: 40, tech: 50, aero: 20, stability: 70, scenery: 90, surface: 85 } },
+            { id: 'cn-hangzhou', title: '杭州 西湖景區', subtitle: '中國浙江', coords: [30.2575, 120.1444], videoId: '30FDYHukF0k', duration: 'RELAX', tags: ['LAKE', 'SCENIC'], weather: 'Cloudy', desc: '西湖美景三月天。沿著南山路或北山街行駛，一邊是波光粼粼的西湖，一邊是鬱鬱蔥蔥的梧桐，最愜意的湖濱駕駛。', stats: { speed: 40, tech: 40, aero: 30, stability: 90, scenery: 100, surface: 95 } },
+            { id: 'cn-guizhou', title: '貴州 北盤江第一大橋', subtitle: '中國貴州', coords: [26.3927, 104.6736], videoId: 'aCBn1dcEgQg', duration: 'HIGH', tags: ['BRIDGE', 'MOUNTAIN'], weather: 'Fog', desc: '世界最高橋。懸浮在565米的高空之上，穿越雲霧繚繞的峽谷，體驗人類工程挑戰自然極限的震撼視角。', stats: { speed: 80, tech: 60, aero: 90, stability: 50, scenery: 100, surface: 90 } },
+            { id: 'cn-lhasa', title: '拉薩 布達拉宮與北京路', subtitle: '中國西藏', coords: [29.6555, 91.1185], videoId: 'cQEEkoRDlhI', duration: 'HIGH', tags: ['HOLY', 'MOUNTAIN'], weather: 'Clear', desc: '日光之城。行駛在北京中路上，正對著雄偉的布達拉宮，在高原純淨的陽光下，感受信仰與歷史的莊嚴。', stats: { speed: 50, tech: 50, aero: 40, stability: 70, scenery: 100, surface: 80 } },
+            { id: 'cn-nanjing', title: '南京 新街口', subtitle: '中國江蘇', coords: [32.0438, 118.7787], videoId: 'mP7k0E3EluI', duration: 'HISTORY', tags: ['CULTURE', 'CITY'], weather: 'Rain', desc: '中華第一商圈。在新街口的繁華燈火與中山東路的法式梧桐拱廊下穿行，體驗金陵城的現代繁華與民國底蘊。', stats: { speed: 50, tech: 40, aero: 30, stability: 80, scenery: 90, surface: 85 } },
+            { id: 'cn-qingdao', title: '青島 嶗山沿海公路', subtitle: '中國山東', coords: [36.0636, 120.3739], videoId: 'faHKHXMp9Qk', duration: 'OCEAN', tags: ['BEACH', 'SUMMER'], weather: 'Sunny', desc: '最美濱海路。沿著東海路與嶗山環海公路行駛，左手青山右手碧海，紅瓦綠樹間享受海風與彎道的樂趣。', stats: { speed: 60, tech: 40, aero: 50, stability: 80, scenery: 95, surface: 90 } },
+            { id: 'cn-dali', title: '大理 洱海環湖路', subtitle: '中國雲南', coords: [25.6983, 100.2294], videoId: 'rFdDb2yDu80', duration: 'NATURE', tags: ['LAKE', 'MOUNTAIN'], weather: 'Clear', desc: '蒼山洱海。在網紅環海西路上自由馳騁，路邊是金色的稻田與波光粼粼的洱海，雲南慢生活的最佳寫照。', stats: { speed: 50, tech: 40, aero: 30, stability: 80, scenery: 100, surface: 80 } }
+        ];
+
+        // --- Components ---
+        const Icon = ({ name, size = 20, className }) => {
+            const lucide = window.lucide;
+            if (!lucide) return null;
+            useEffect(() => { lucide.createIcons(); }, [name]);
+            return <i data-lucide={name} width={size} height={size} className={className}></i>;
+        };
+
+        const ScrambleText = ({ text, className }) => {
+            const [displayText, setDisplayText] = useState(text);
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/-><";
+            useEffect(() => {
+                let iteration = 0;
+                let interval = setInterval(() => {
+                    setDisplayText(text.split("").map((letter, index) => {
+                        if (index < iteration) return text[index];
+                        return chars[Math.floor(Math.random() * chars.length)];
+                    }).join(""));
+                    if (iteration >= text.length) clearInterval(interval);
+                    iteration += 1 / 2; 
+                }, 30);
+                return () => clearInterval(interval);
+            }, [text]);
+            return <span className={className}>{displayText}</span>;
+        };
+
+        const RadarChart = ({ stats }) => {
+            const size = 100; const center = size / 2; const radius = 35;
+            const axes = ['speed', 'tech', 'aero', 'stability', 'scenery', 'surface'];
+            const labels = ['SPD', 'TEC', 'ARO', 'STB', 'SCN', 'SRF'];
+            const getPoints = (values) => axes.map((axis, i) => {
+                const angle = (Math.PI * 2 * i) / 6 - Math.PI / 2;
+                const value = values[axis] || 0;
+                const r = (value / 100) * radius;
+                return `${center + r * Math.cos(angle)},${center + r * Math.sin(angle)}`;
+            }).join(' ');
+            return (
+                <div className="relative w-[100px] h-[100px] mx-auto">
+                    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+                        {[100, 66, 33].map((p, i) => (
+                            <polygon key={i} points={axes.map((_, j) => {
+                                const angle = (Math.PI * 2 * j) / 6 - Math.PI / 2;
+                                const r = (p / 100) * radius;
+                                return `${center + r * Math.cos(angle)},${center + r * Math.sin(angle)}`;
+                            }).join(' ')} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
+                        ))}
+                        <polygon points={getPoints(stats)} fill="rgba(225, 29, 72, 0.5)" stroke="#e11d48" strokeWidth="1.5" className="transition-all duration-700 ease-out" />
+                        {labels.map((label, i) => {
+                             const angle = (Math.PI * 2 * i) / 6 - Math.PI / 2; const r = radius + 10;
+                             return <text key={i} x={center + r * Math.cos(angle)} y={center + r * Math.sin(angle)} textAnchor="middle" dominantBaseline="middle" fill="#6b7280" fontSize="6" fontFamily="monospace" fontWeight="bold">{label}</text>;
+                        })}
+                    </svg>
+                </div>
+            );
+        };
+
+        const TrackListItem = ({ item, isActive, onClick, onDelete, onEdit }) => (
+            <div onClick={() => onClick(item)} className={`group relative cursor-pointer transition-all duration-300 overflow-hidden border-b border-white/5 py-4 pl-4 pr-4 ${isActive ? 'bg-white/5' : 'hover:bg-white/5'}`}>
+                <div className={`absolute left-0 top-0 bottom-0 w-1 transition-colors duration-300 ${isActive ? 'bg-gt-accent' : 'bg-transparent group-hover:bg-white/20'}`}></div>
+                <div className="flex justify-between items-center relative z-10">
+                    <div className="flex flex-col gap-1 flex-1">
+                        <div className="flex items-center gap-2">
+                            <span className={`text-[9px] font-display font-bold tracking-widest px-1.5 py-0.5 rounded-sm ${isActive ? 'bg-gt-accent text-white' : 'bg-white/10 text-gt-muted'}`}>{item.id.split('-')[0].toUpperCase().substr(0,4)}</span>
+                            <span className="text-[10px] font-mono text-gt-muted flex items-center gap-1"><Icon name={item.weather === 'Sunny' ? 'sun' : item.weather === 'Rain' ? 'cloud-rain' : 'cloud'} size={10} />{item.weather.toUpperCase()}</span>
+                        </div>
+                        <h3 className={`text-lg font-display font-bold uppercase italic leading-none transition-colors ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-gray-200'}`}>{item.title}</h3>
+                        <p className="text-[10px] font-mono text-gt-muted truncate max-w-[200px]">{item.subtitle}</p>
+                    </div>
+                    
+                    <div className="flex items-center gap-1">
+                        <button onClick={(e) => onEdit(item, e)} className="p-2 text-gt-muted hover:text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-white/10 rounded-full" title="編輯">
+                            <Icon name="pencil" size={14} />
+                        </button>
+                        <button onClick={(e) => onDelete(item.id, e)} className="p-2 text-gt-muted hover:text-gt-accent opacity-0 group-hover:opacity-100 transition-all hover:bg-white/10 rounded-full" title="刪除">
+                            <Icon name="trash-2" size={14} />
+                        </button>
+                        <div className={`transform transition-all duration-300 ${isActive ? 'translate-x-0 opacity-100 text-gt-accent' : 'translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-50 text-white'}`}><Icon name="chevron-right" size={18} /></div>
+                    </div>
+                </div>
+                <div className="absolute inset-0 bg-gt-accent/5 opacity-0 group-hover:opacity-100 pointer-events-none mix-blend-overlay"></div>
+            </div>
+        );
+
+        const ShutterWipe = ({ isActive }) => {
+            if (!isActive) return null;
+            return (
+                <div className="fixed inset-0 z-[100] pointer-events-none">
+                    <div className="absolute top-0 left-0 w-full bg-black animate-shutter-close origin-top"></div>
+                    <div className="absolute bottom-0 left-0 w-full bg-black animate-shutter-close origin-bottom"></div>
+                </div>
+            );
+        };
+
+        const EditorModal = ({ onClose, onSave, selectedLocation, initialData }) => {
+            const [formData, setFormData] = useState({ title: '', subtitle: '', url: '', desc: '', coordsStr: '' });
+            const [videoThumbnail, setVideoThumbnail] = useState(null);
+            const [isFetchingTitle, setIsFetchingTitle] = useState(false);
+            const [aiStatus, setAiStatus] = useState(null);
+
+            useEffect(() => {
+                if (initialData) {
+                    setFormData({
+                        title: initialData.title,
+                        subtitle: initialData.subtitle,
+                        url: `https://www.youtube.com/watch?v=${initialData.videoId}`,
+                        desc: initialData.desc,
+                        coordsStr: `${initialData.coords[0]}, ${initialData.coords[1]}`
+                    });
+                }
+            }, [initialData]);
+
+            useEffect(() => {
+                if (selectedLocation) {
+                    setFormData(prev => ({ ...prev, coordsStr: `${selectedLocation.lat.toFixed(6)}, ${selectedLocation.lng.toFixed(6)}` }));
+                }
+            }, [selectedLocation]);
+
+            useEffect(() => {
+                if(!formData.url) return;
+                const videoId = extractYoutubeId(formData.url);
+                if (videoId) {
+                    setVideoThumbnail(`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`);
+                    
+                    if (!initialData || (initialData && !formData.title)) {
+                        setIsFetchingTitle(true);
+                        setAiStatus('analyzing');
+                        
+                        fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`)
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.title) {
+                                    const aiData = analyzeTitle(data.title);
+                                    setFormData(prev => ({ 
+                                        ...prev, 
+                                        title: data.title.toUpperCase(), 
+                                        subtitle: aiData.loc,
+                                        desc: aiData.desc
+                                    }));
+                                    setAiStatus('done');
+                                }
+                            })
+                            .catch(err => {
+                                console.warn("AI Fetch failed", err);
+                                setAiStatus('error');
+                            })
+                            .finally(() => setIsFetchingTitle(false));
+                    }
+                } else {
+                    setVideoThumbnail(null);
+                    setAiStatus(null);
+                }
+            }, [formData.url]);
+
+            const handleSubmit = () => {
+                const videoId = extractYoutubeId(formData.url);
+                const parsedCoords = parseCoords(formData.coordsStr);
+
+                if (!videoId) return alert('錯誤：無法解析 YouTube 連結');
+                if (!formData.title) return alert('錯誤：請輸入標題');
+                if (!parsedCoords) return alert('錯誤：座標無效');
+                
+                onSave({
+                    id: initialData ? initialData.id : generateId(),
+                    title: formData.title,
+                    subtitle: formData.subtitle || '自訂地點',
+                    coords: parsedCoords,
+                    videoId,
+                    duration: 'Custom',
+                    tags: ['CUSTOM'],
+                    weather: 'Sunny',
+                    desc: formData.desc || '無描述',
+                    stats: initialData ? initialData.stats : { speed: 50, tech: 50, aero: 50, stability: 50, scenery: 50, surface: 50 }
+                });
+            };
+
+            return (
+                <div className="fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm flex items-center justify-center p-6 animate-fade-in pointer-events-auto">
+                    <div className="w-full max-w-lg bg-black/95 border border-gt-border shadow-2xl relative flex flex-col max-h-[90vh]">
+                        <div className="h-1 w-full bg-gradient-to-r from-gt-accent to-transparent shrink-0"></div>
+                        
+                        <div className="p-8 flex-1 overflow-y-auto custom-scrollbar">
+                            <div className="flex justify-between items-center mb-8">
+                                <h2 className="text-2xl font-display font-bold italic tracking-wider text-white">
+                                    {initialData ? 'EDIT ENTRY' : 'NEW ENTRY'} <span className="text-gt-accent">//</span> 編輯作業
+                                </h2>
+                                <button onClick={onClose}><Icon name="x" className="text-white hover:text-gt-accent transition-colors" /></button>
+                            </div>
+                            <div className="space-y-5">
+                                <div>
+                                    <label className="block text-xs font-mono text-gt-muted mb-1 flex items-center gap-2">
+                                        YouTube 連結 
+                                        {aiStatus === 'analyzing' && <span className="text-gt-accent animate-pulse font-bold">[AI ANALYZING...]</span>}
+                                        {aiStatus === 'done' && <span className="text-green-400 font-bold">[DATA LINKED]</span>}
+                                    </label>
+                                    <input type="text" className="w-full bg-white/5 border border-white/10 p-3 text-sm text-white focus:border-gt-accent font-mono" value={formData.url} onChange={e => setFormData({...formData, url: e.target.value})} placeholder="Paste URL..." />
+                                    {videoThumbnail && <div className="mt-2 w-full aspect-video bg-black bg-cover bg-center rounded border border-white/10" style={{backgroundImage: `url(${videoThumbnail})`}}></div>}
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div><label className="block text-xs font-mono text-gt-muted mb-1">賽道標題 (Auto)</label><input type="text" className="w-full bg-white/5 border border-white/10 p-3 text-sm text-white focus:border-gt-accent" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} /></div>
+                                    <div><label className="block text-xs font-mono text-gt-muted mb-1">地點 (AI Auto)</label><input type="text" className="w-full bg-white/5 border border-white/10 p-3 text-sm text-white focus:border-gt-accent" value={formData.subtitle} onChange={e => setFormData({...formData, subtitle: e.target.value})} /></div>
+                                </div>
+                                <div><label className="block text-xs font-mono text-gt-muted mb-1">介紹 (AI Auto-Gen)</label><textarea className="w-full bg-white/5 border border-white/10 p-3 text-sm text-white focus:border-gt-accent resize-none h-20" value={formData.desc} onChange={e => setFormData({...formData, desc: e.target.value})}></textarea></div>
+                                <div>
+                                    <label className="block text-xs font-mono text-gt-muted mb-1">定位座標</label>
+                                    <input type="text" className={`w-full bg-white/5 border p-3 text-sm text-gt-accent focus:border-gt-accent font-mono ${selectedLocation ? 'border-gt-accent/50' : 'border-white/10'}`} value={formData.coordsStr} onChange={e => setFormData({...formData, coordsStr: e.target.value})} placeholder="EX: 41.40338, 2.17403" />
+                                </div>
+                                <div className="flex gap-4 mt-8 pt-4 border-t border-white/10">
+                                    <button onClick={onClose} className="flex-1 py-3 text-xs font-bold tracking-widest text-gray-400 hover:text-white transition-colors">取消</button>
+                                    <button onClick={handleSubmit} className="flex-1 py-3 bg-white text-black text-xs font-bold tracking-widest hover:bg-gt-accent hover:text-white transition-all duration-300 transform hover:skew-x-[-10deg]">確認保存</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const BottomTicker = () => (
+            <div className="absolute bottom-0 left-0 right-0 h-6 bg-black/80 backdrop-blur border-t border-white/10 z-20 flex items-center overflow-hidden pointer-events-none">
+                <div className="flex items-center gap-2 px-4 bg-gt-accent h-full z-10 shadow-lg">
+                    <span className="text-[10px] font-bold text-white tracking-widest">LIVE FEED</span>
+                </div>
+                <div className="whitespace-nowrap animate-marquee flex gap-12 items-center text-[10px] font-mono text-gray-400">
+                    <span>SYSTEM: GT MANAGER MODE ACTIVE</span>
+                    <span>AI MODULE: <span className="text-green-400">ONLINE</span></span>
+                    <span>WEATHER: LOCALIZED UPDATES ENABLED</span>
+                </div>
+            </div>
+        );
+
+        // --- Main App ---
+        const App = () => {
+            const mapRef = useRef(null);
+            const mapInstance = useRef(null);
+            const markersRef = useRef({});
+
+            // State - V9.2 (Force Reset for Reality Data)
+            const [tracks, setTracks] = useState(() => {
+                try {
+                    const saved = localStorage.getItem('gt_tracks_v9_2');
+                    return saved ? JSON.parse(saved) : INITIAL_DATA;
+                } catch(e) {
+                    return INITIAL_DATA;
+                }
+            });
+            const [activeTrackId, setActiveTrackId] = useState(null);
+            const [isEditing, setIsEditing] = useState(false); 
+            const [editingTrack, setEditingTrack] = useState(null); 
+            const [newTrackLocation, setNewTrackLocation] = useState(null);
+            const [isWiping, setIsWiping] = useState(false);
+
+            useEffect(() => {
+                localStorage.setItem('gt_tracks_v9_2', JSON.stringify(tracks));
+            }, [tracks]);
+
+            useEffect(() => {
+                if (!mapRef.current || mapInstance.current) return;
+
+                // Center on China by default
+                mapInstance.current = L.map(mapRef.current, { zoomControl: false, attributionControl: false, minZoom: 3, maxBounds: [[-85, -180], [85, 180]], maxBoundsViscosity: 1.0 }).setView([35.8617, 104.1954], 4);
+                L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}&hl=zh-TW', { maxZoom: 20, noWrap: true }).addTo(mapInstance.current);
+                
+                mapInstance.current.on('click', (e) => {
+                    if (document.body.classList.contains('is-editing')) {
+                        setNewTrackLocation(e.latlng);
+                        mapInstance.current.flyTo(e.latlng, mapInstance.current.getZoom(), { duration: 0.5 });
+                    }
+                });
+            }, []);
+
+            useEffect(() => {
+                if (isEditing) {
+                    document.body.classList.add('is-editing');
+                    if(mapInstance.current) mapInstance.current.getContainer().style.cursor = 'crosshair';
+                } else {
+                    document.body.classList.remove('is-editing');
+                    setNewTrackLocation(null);
+                    if(mapInstance.current) mapInstance.current.getContainer().style.cursor = '';
+                }
+            }, [isEditing]);
+
+            useEffect(() => {
+                if (!mapInstance.current) return;
+                Object.values(markersRef.current).forEach(m => m.remove());
+                markersRef.current = {};
+
+                tracks.forEach(track => {
+                    const isActive = activeTrackId === track.id;
+                    const color = isActive ? '#e11d48' : '#ffffff';
+                    const size = isActive ? 12 : 8;
+                    const zIndex = isActive ? 1000 : 1;
+
+                    const icon = L.divIcon({
+                        className: 'custom-marker',
+                        html: `<div style="position:relative; width: ${size}px; height: ${size}px;">${isActive ? `<div class="marker-triangle"></div><div class="marker-pulse"></div>` : ''}<div class="marker-dot" style="background-color: ${color}; width: ${size}px; height: ${size}px; border-color: ${isActive ? 'white' : 'rgba(255,255,255,0.5)'};"></div></div>`,
+                        iconSize: [size, size],
+                        iconAnchor: [size/2, size/2]
+                    });
+
+                    const marker = L.marker(track.coords, { icon, zIndexOffset: zIndex }).addTo(mapInstance.current).on('click', () => handleSelectTrack(track));
+                    markersRef.current[track.id] = marker;
+                });
+            }, [tracks, activeTrackId]);
+
+            const handleSelectTrack = (track) => {
+                setActiveTrackId(track.id);
+                if (mapInstance.current) mapInstance.current.flyTo(track.coords, 15, { duration: 2.5, easeLinearity: 0.1 });
+            };
+
+            const handleSaveTrack = (trackData) => {
+                setTracks(prev => {
+                    const exists = prev.find(t => t.id === trackData.id);
+                    if (exists) {
+                        return prev.map(t => t.id === trackData.id ? trackData : t);
+                    }
+                    return [...prev, trackData];
+                });
+                setIsEditing(false);
+                setEditingTrack(null);
+                setNewTrackLocation(null);
+                
+                setActiveTrackId(trackData.id);
+                if (mapInstance.current) mapInstance.current.flyTo(trackData.coords, 15, { duration: 2.5, easeLinearity: 0.1 });
+            };
+
+            const handleDeleteTrack = (id, e) => {
+                e.stopPropagation();
+                if(confirm('警告：確定要永久刪除此賽道紀錄嗎？\n(此操作無法復原)')) {
+                    const newTracks = tracks.filter(t => t.id !== id);
+                    setTracks(newTracks);
+                    if (activeTrackId === id) setActiveTrackId(null);
+                }
+            };
+
+            const handleEditTrack = (item, e) => {
+                e.stopPropagation();
+                setEditingTrack(item);
+                setIsEditing(true);
+            };
+
+            const handleEnterCourse = () => {
+                setIsWiping(true);
+                const activeTrack = tracks.find(t => t.id === activeTrackId);
+                if (activeTrack) {
+                    setTimeout(() => {
+                        window.open(`https://www.youtube.com/watch?v=${activeTrack.videoId}`, '_blank');
+                        setIsWiping(false);
+                    }, 800);
+                }
+            };
+
+            const activeTrack = tracks.find(t => t.id === activeTrackId);
+
+            return (
+                <div className="relative w-full h-screen bg-black overflow-hidden flex flex-col md:flex-row font-sans">
+                    <div ref={mapRef} className="absolute inset-0 z-0" />
+                    <div className="absolute inset-0 z-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.4)_100%)]" />
+
+                    {/* Left Sidebar */}
+                    <div className="relative z-10 w-full md:w-[420px] h-full flex flex-col pointer-events-none bg-sidebar-aero backdrop-blur-md shadow-2xl border-r border-white/5">
+                        <div className="p-8 pb-4 pointer-events-auto">
+                            <h1 className="text-4xl font-display font-black italic tracking-tighter text-white drop-shadow-lg leading-none">
+                                GT <span className="text-gt-accent">ARCHIVES</span>
+                            </h1>
+                            <div className="flex items-center gap-2 mt-2">
+                                <div className="h-[2px] w-8 bg-gt-accent"></div>
+                                <span className="text-[10px] font-mono tracking-[0.3em] text-gt-muted">REALITY SPEC // V9.2</span>
+                            </div>
+                        </div>
+                        <div className="flex-1 overflow-y-auto pointer-events-auto custom-scrollbar">
+                            <div className="px-0 py-2">
+                                {tracks.map(track => (
+                                    <TrackListItem 
+                                        key={track.id} 
+                                        item={track} 
+                                        isActive={activeTrackId === track.id} 
+                                        onClick={handleSelectTrack} 
+                                        onDelete={handleDeleteTrack}
+                                        onEdit={handleEditTrack}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                        <div className="p-6 border-t border-white/5 pointer-events-auto">
+                            <button onClick={() => { setEditingTrack(null); setIsEditing(true); }} className="w-full py-3 border border-white/20 hover:bg-white hover:text-black transition-all text-xs font-bold tracking-widest flex items-center justify-center gap-2 group">
+                                <Icon name="plus" size={14} /><span>REGISTER NEW ENTRY</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Right Info Panel */}
+                    {activeTrack && (
+                        <div className="absolute bottom-12 right-8 z-10 w-[90%] md:w-[400px] flex flex-col gap-4 animate-slide-up pointer-events-none">
+                            <div className="w-full aspect-video rounded-sm overflow-hidden border border-white/20 shadow-2xl relative group cursor-pointer transition-transform hover:scale-[1.02] pointer-events-auto" onClick={handleEnterCourse}>
+                                <img src={`https://img.youtube.com/vi/${activeTrack.videoId}/hqdefault.jpg`} alt="Preview" className="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" />
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-transparent transition-colors">
+                                    <div className="bg-gt-accent/90 p-3 rounded-full shadow-lg backdrop-blur-sm transform group-hover:scale-110 transition-transform"><Icon name="play" size={24} className="text-white fill-current ml-1" /></div>
+                                </div>
+                                <div className="absolute top-2 left-2 bg-black/60 backdrop-blur px-2 py-0.5 border-l-2 border-gt-accent"><span className="text-[10px] font-display font-bold tracking-widest text-white">REPLAY PREVIEW</span></div>
+                            </div>
+                            <div className="bg-sunglasses backdrop-blur-xl border-t-2 border-gt-accent p-6 shadow-2xl relative overflow-hidden group rounded-sm border-b border-white/5 flex gap-4 pointer-events-auto">
+                                <div className="flex-1 relative z-10">
+                                    <div className="mb-4">
+                                        <h2 className="text-2xl font-display font-bold uppercase italic text-white drop-shadow-md leading-none mb-1"><ScrambleText text={activeTrack.title} /></h2>
+                                        <div className="text-[10px] font-mono text-gt-muted tracking-widest"><ScrambleText text={activeTrack.subtitle} /></div>
+                                    </div>
+                                    <p className="text-xs text-gray-300 leading-relaxed mb-4 font-light border-l-2 border-white/20 pl-3 line-clamp-3">{activeTrack.desc}</p>
+                                    <button onClick={handleEnterCourse} className="w-full py-3 bg-gt-blue/90 hover:bg-gt-blue transition-all text-white font-bold tracking-widest text-xs flex items-center justify-center gap-3 shadow-lg hover:shadow-blue-500/30 border border-white/10">
+                                        <Icon name="external-link" size={16} /><span>ENTER COURSE</span>
+                                    </button>
+                                </div>
+                                <div className="w-[100px] flex items-center justify-center border-l border-white/5 pl-2"><RadarChart stats={activeTrack.stats} /></div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Bottom Ticker */}
+                    <BottomTicker />
+
+                    {/* Modals & Overlays */}
+                    {isEditing && <EditorModal onClose={() => setIsEditing(false)} onSave={handleSaveTrack} selectedLocation={newTrackLocation} initialData={editingTrack} />}
+                    <ShutterWipe isActive={isWiping} />
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

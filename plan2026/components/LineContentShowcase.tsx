@@ -28,7 +28,7 @@ export const LineContentShowcase: React.FC = () => {
       id: 2,
       icon: ImageIcon,
       category: "Event Connect",
-      title: "當地近期活動佈達",
+      title: "在地近期活動佈達",
       desc: "整合全台實體研討會、線上直播與快充學堂報名資訊。精準鎖定您所在城市的創意盛會。",
       color: "bg-blue-600",
       stats: "活動第一線"
@@ -37,8 +37,8 @@ export const LineContentShowcase: React.FC = () => {
       id: 3,
       icon: Zap,
       category: "Analysis & Report",
-      title: "在地化的產品比較整理",
-      desc: "針對台灣企業常見的軟硬體組合，提供最貼近實際使用情境的橫向測評。包含 AI 效能比對、版本差異分析。",
+      title: "在地化產品比較整理",
+      desc: "針對台灣企業常見的軟硬體組合，提供最貼近實際使用情境的橫向評測。包含 AI 效能比對、版本差異分析。",
       color: "bg-yellow-500",
       stats: "採購必讀"
     },
@@ -46,7 +46,7 @@ export const LineContentShowcase: React.FC = () => {
       id: 4,
       icon: ShieldCheck,
       category: "Tech Support",
-      title: "AI智能技術支援協助",
+      title: "AI 智能技術支援協助",
       desc: "遇到 AI 功能無法啟動或資安合規疑問？我們的專欄提供模組化的疑難排解與技術導引。",
       color: "bg-green-600",
       stats: "創意守護"
@@ -120,7 +120,7 @@ export const LineContentShowcase: React.FC = () => {
   }, []);
 
   return (
-    <section className="h-screen py-10 px-6 md:px-20 border-b border-white/5 bg-[#0e0e0e] flex flex-col justify-center overflow-hidden relative">
+    <section className="min-h-screen py-10 px-6 md:px-20 border-b border-white/5 bg-[#0e0e0e] flex flex-col justify-center overflow-hidden relative">
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
       <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e0e] via-transparent to-[#0e0e0e]"></div>
 

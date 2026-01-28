@@ -4,8 +4,8 @@ import { Cpu, Bot, Network } from 'lucide-react';
 import { SectionHeading, Card } from './ui/Shared';
 
 export const InsightSlide: React.FC = () => (
-  <section className="h-screen py-8 md:py-10 px-6 md:px-20 flex flex-col justify-center border-b border-white/5 overflow-hidden">
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center h-full max-h-[90vh]">
+  <section className="min-h-screen py-10 pt-24 md:pt-10 px-6 md:px-20 flex flex-col justify-start md:justify-center border-b border-white/5 overflow-hidden">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center h-full">
       <div className="flex flex-col justify-center">
         <SectionHeading 
           title={`行銷即服務 2.0：\n注入 AI 基因，專注 Adobe 增長`}
@@ -26,7 +26,7 @@ export const InsightSlide: React.FC = () => (
             </h3>
             <p className="text-gray-400 text-xs md:text-sm leading-tight">
               <span className="text-blue-400 font-bold">AI 動能注入：</span> 
-              在行銷曝光過程輔以 AI 動能，將傳統技術支援轉化為<strong className="text-white">知識架構</strong>，提高製作速度與品質，讓更多用戶耳目一新，也對於後續內容寄予更多期待與關注。
+              在行銷曝光過程中輔以 AI 動能，將傳統技術支援轉化為<strong className="text-white">知識架構</strong>，提高製作速度與品質，讓更多用戶耳目一新，也對後續內容寄予更多期待與關注。
             </p>
           </Card>
           
@@ -36,7 +36,8 @@ export const InsightSlide: React.FC = () => (
             </h3>
             <p className="text-gray-400 text-xs md:text-sm leading-tight">
               <span className="text-purple-400 font-bold">加速銷售締結：</span>
-              優化過的行銷文檔資源作為最強後盾。提供智能知識庫，彙整各種 <strong className="text-white">Adobe 消化過的資訊</strong> 與 ROI 評估報告，透過專業呈現回應客戶質疑，大幅縮短成交週期。
+              <strong className="text-white">工具滲透率 (Tool Penetration) 與成交率呈正相關。</strong>
+              當業務越頻繁使用智能知識庫與 ROI 評估報告，回應客戶質疑的精準度越高，進而大幅縮短成交週期，讓優化過的行銷資源成為最強後盾。
             </p>
           </Card>
 
@@ -51,7 +52,7 @@ export const InsightSlide: React.FC = () => (
         </div>
       </div>
       
-      <div className="relative h-64 md:h-full max-h-[500px] w-full rounded-2xl overflow-hidden shadow-2xl group border border-gray-700 hidden lg:block">
+      <div className="relative h-64 md:h-full min-h-[300px] md:max-h-[500px] w-full rounded-2xl overflow-hidden shadow-2xl group border border-gray-700 hidden lg:block">
          <img 
            src="https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=2000&auto=format&fit=crop" 
            alt="AI Strategy Team" 
