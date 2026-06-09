@@ -255,14 +255,18 @@
                         { id: "ral", name: "Runway Aleph", tags: ["自然語言"], rates: { "720p": 50 }, desc: "自然語言影片編輯。創新的一體化生成體驗。" }
                     ]},
                     luma: { name: "Luma AI", models: [
-                        { id: "r2f", name: "Ray2 Flash", tags: ["極速"], isNew: true, rates: { "540p": 10, "720p": 25, "1080p": 50, "4K": 75 }, desc: "極速預覽與自然連續運動。物理感真實。" },
+                        { id: "r2f", name: "Ray2 Flash", tags: ["極速"], rates: { "540p": 10, "720p": 25, "1080p": 50, "4K": 75 }, desc: "極速預覽與自然連續運動。物理感真實。" },
                         { id: "r2", name: "Ray2", tags: ["穩定"], rates: { "540p": 20, "720p": 50, "1080p": 100, "4K": 150 }, desc: "標準版。在畫質與動態穩定性間取得優異平衡。" },
                         { id: "r3h", name: "Ray3 (HDR)", tags: ["HDR"], isNew: true, rates: { "360p": 75, "540p": 225, "720p": 300, "1080p": 375, "4K": 450 }, desc: "超高動態範圍。色彩深度與光影表現驚艷。" },
                         { id: "r3s", name: "Ray3 (SDR)", tags: ["高畫質"], rates: { "360p": 25, "540p": 75, "720p": 100, "1080p": 125, "4K": 150 }, desc: "高美感品質。動作流暢度大幅提升的標準版。" }
                     ]},
                     google: { name: "Google Veo", models: [
                         { id: "v31", name: "Veo 3.1", tags: ["高品質"], rates: { "720p": 50, "1080p": 50 }, desc: "寫實動作且高品質輸出。適合專業廣告場景。" },
-                        { id: "v3f", name: "Veo 3.1 Fast", tags: ["快速生成"], rates: { "720p": 10, "1080p": 10 }, desc: "Google 極速影片生成技術。高效能創作首選。" }
+                        { id: "v3f", name: "Veo 3.1 Fast", tags: ["快速生成"], rates: { "720p": 10, "1080p": 10 }, desc: "Google 極速影片生成。註：官方為每支約 40 點固定計費（非按秒）。" }
+                    ]},
+                    kling: { name: "Kling AI", models: [
+                        { id: "kl3", name: "Kling 3.0", tags: ["旗艦"], isNew: true, rates: { "720p": 35, "1080p": 70 }, desc: "Kling 最新旗艦（2026 上線）。動態一致性大幅提升。點數依官方公告為準。" },
+                        { id: "kl25", name: "Kling 2.5 Turbo", tags: ["高效"], rates: { "720p": 25, "1080p": 50 }, desc: "高效影片生成，速度與品質兼顧。點數依官方公告為準。" }
                     ]},
                     pika: { name: "Pika Labs", models: [
                         { id: "pk2", name: "Pika 2.2", tags: ["影格平滑"], rates: { "720p": 25, "1080p": 50 }, desc: "10秒長影片平滑影格轉換。具備藝術動漫感。" }
@@ -282,14 +286,15 @@
                     { id: "fv5", provider: "Adobe", type: "gen", name: "Firefly Image 5 (Preview)", isNew: true, cost: 5, tags: ["光影極致"], desc: "最強光影控制與寫實細節。扣 5 點。" },
                     { id: "fv4u", provider: "Adobe", type: "gen", name: "Firefly Image 4 Ultra", isNew: true, cost: 20, tags: ["商業解析"], desc: "商業印刷級超高畫質。極致細節與色彩精度。扣 20 點。" },
                     { id: "fv3", provider: "Adobe", type: "gen", name: "Firefly Image 3", cost: 1, type_std: true, tags: ["通用穩定"], desc: "目前最常用的標準穩定版本。扣 1 點。" },
-                    { id: "g3", provider: "Google", type: "gen", name: "Gemini 3", isNew: true, cost: 40, tags: ["語意理解"], desc: "專業級圖像理解與複雜提示準確性。費率 40 點。" },
-                    { id: "g25", provider: "Google", type: "gen", name: "Gemini 2.5 Flash", cost: 10, tags: ["快速發想"], desc: "極速生成體驗。適合快速原型設計與 Express 使用。" },
+                    { id: "g31", provider: "Google", type: "gen", name: "Gemini 3.1 (Nano Banana 2)", isNew: true, cost: 40, tags: ["精準文字"], desc: "最新世代。圖像內精準文字生成，細節再升級。費率 40 點。" },
+                    { id: "g3", provider: "Google", type: "gen", name: "Gemini 3 (Nano Banana Pro)", isNew: true, cost: 40, tags: ["語意理解"], desc: "專業級圖像理解與複雜提示準確性。費率 40 點。" },
+                    { id: "g25", provider: "Google", type: "gen", name: "Gemini 2.5 (Nano Banana)", cost: 10, tags: ["快速發想"], desc: "極速生成體驗。適合快速原型設計與 Express 使用。" },
                     { id: "im4", provider: "Google", type: "gen", name: "Imagen 4", cost: 20, tags: ["明亮鮮豔"], desc: "Google 最新寫實美學。色彩對比與明亮度優異。" },
-                    { id: "f11u", provider: "Black Forest Labs", type: "gen", name: "FLUX1.1 Pro Ultra", isNew: true, cost: 20, tags: ["頂規畫質"], desc: "FLUX 系列中最強解析度版本。製作級品質。" },
-                    { id: "f11p", provider: "Black Forest Labs", type: "gen", name: "FLUX1.1 Pro", cost: 10, tags: ["極速高品質"], desc: "兼顧速度與畫質。專業數位創作的最佳首選。" },
+                    { id: "f11u", provider: "Black Forest Labs", type: "gen", name: "FLUX.1.1 Pro Ultra", isNew: true, cost: 20, tags: ["頂規畫質"], desc: "FLUX 系列中最強解析度版本。製作級品質。" },
+                    { id: "f11p", provider: "Black Forest Labs", type: "gen", name: "FLUX.1.1 Pro", cost: 10, tags: ["極速高品質"], desc: "兼顧速度與畫質。專業數位創作的最佳首選。" },
                     { id: "fkp", provider: "Black Forest Labs", type: "gen", name: "FLUX.1 Kontext [pro]", isNew: true, cost: 10, tags: ["專業通用"], desc: "穩定通用的商務繪圖模型。平衡性極佳。" },
                     { id: "fkm", provider: "Black Forest Labs", type: "gen", name: "FLUX Kontext MAX", isNew: true, cost: 10, tags: ["極限細節"], desc: "最大化紋理細節表現。對提示詞捕捉極為精確。" },
-                    { id: "gpt", provider: "OpenAI", type: "gen", name: "GPT Image", cost: 60, tags: ["指令精確"], desc: "最強自然語言理解。生成逼真、精確的構圖。" },
+                    { id: "gpt", provider: "OpenAI", type: "gen", name: "GPT-Image 1.5", cost: 60, tags: ["指令精確"], desc: "最強自然語言理解。生成逼真、精確的構圖。" },
                     { id: "idi", provider: "Ideogram", type: "gen", name: "Ideogram 3.0", isNew: true, cost: 20, tags: ["文字排版"], desc: "內建文字排版與高解析度輸出的專家模型。" },
                     { id: "tps", provider: "Topaz Labs", type: "enhance", name: "Topaz Up to 25MP", cost: 10, tags: ["解析度修復"], desc: "專業級影像放大、去噪與細節銳利化修復。" },
                     { id: "tpb", provider: "Topaz Labs", type: "enhance", name: "Topaz Bloom", cost: 35, tags: ["創意增強"], desc: "1MP至9MP創意細節增補。提升影像藝術質感。" },
