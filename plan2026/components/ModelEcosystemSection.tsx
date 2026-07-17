@@ -69,6 +69,7 @@ export const ModelEcosystemSection: React.FC = () => {
     {
       name: "Runway",
       models: [
+        { name: "Gen-4.5", sub: "Video / Image", type: "video" },
         { name: "Gen-4", sub: "Video / Image", type: "video" },
         { name: "Aleph", type: "video" }
       ],

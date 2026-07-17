@@ -5,8 +5,8 @@ import { SectionHeading } from './ui/Shared';
 import { FadeIn } from './ui/Motion';
 
 const COMPARISON_DATA = [
-  { feature: '影片剪輯', adobe: 'Premiere Pro', apple: 'Final Cut Pro', affinity: 'X', ai: 'Sora、Veo 3' },
-  { feature: '特效合成', adobe: 'After Effects', apple: 'Motion', affinity: 'X', ai: 'Sora、Veo 3' },
+  { feature: '影片剪輯', adobe: 'Premiere Pro', apple: 'Final Cut Pro', affinity: 'X', ai: 'Sora、Veo 3.1' },
+  { feature: '特效合成', adobe: 'After Effects', apple: 'Motion', affinity: 'X', ai: 'Sora、Veo 3.1' },
   { feature: '轉檔輸出', adobe: 'Media Encoder', apple: 'Compressor', affinity: 'X', ai: 'X' },
   { feature: '影像編修', adobe: 'Photoshop', apple: 'Pixelmator Pro', affinity: 'Affinity Photo', ai: 'Midjourney、Gemini 3' },
   { feature: '向量插畫', adobe: 'Illustrator', apple: 'X', affinity: 'Affinity Designer', ai: 'Midjourney、Gemini 3' },
@@ -31,8 +31,8 @@ const TOOL_DESCRIPTIONS: Record<string, string> = {
   'NotebookLM': 'Google 的 AI 筆記助理，能快速摘要文件並回答問題，適合整理大量資料與學習。',
   'Midjourney': '目前公認圖像生成品質最高的 AI 工具之一，透過 Prompt 產生藝術級影像，風格多變。',
   'Gemini 3': 'Google 最新多模態 AI 模型，具備強大的圖像辨識與生成能力，並深度整合於 Workspace。',
-  'Sora': 'OpenAI 的文字轉影片模型，能生成長達一分鐘的高畫質影片，物理模擬能力驚人 (尚未公測)。',
-  'Veo 3': 'Google DeepMind 的影片生成模型，專注於高解析度與電影級的鏡頭語言控制，支援 1080p+。',
+  'Sora': 'OpenAI 的文字轉影片模型，Sora 2 / Sora 2 Pro 已正式上市，並整合為 Adobe Firefly 官方夥伴模型，高畫質影片與物理模擬能力驚人。',
+  'Veo 3.1': 'Google DeepMind 的影片生成模型，專注於高解析度與電影級的鏡頭語言控制，支援 1080p+。',
   'Audition': '專業音訊工作站，提供混音、降噪與 AI 語音增強功能，是廣播與 Podcast 的首選。',
   'Logic Pro': 'Apple 的全方位音樂製作軟體，內建大量虛擬樂器與 loops，適合專業音樂創作。',
   'Acrobat Studio': '全方位的 PDF 解決方案，不僅是閱讀器，更包含編輯、簽署、表單與資安保護功能。',

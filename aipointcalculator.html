@@ -114,7 +114,7 @@
                 <div class="p-4 bg-blue-50 rounded-2xl text-blue-600 flex-shrink-0"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></div>
                 <div>
                     <h4 class="font-black text-slate-900 tracking-tight text-base uppercase">2025/12/18 官方數據同步</h4>
-                    <p class="text-xs text-slate-500 mt-1.5 leading-relaxed font-bold">已同步：Firefly 5 (5pt), Sora 2 (30pt), FLUX1.1 Pro Ultra (20pt), Runway 1080p (40pt)。</p>
+                    <p class="text-xs text-slate-500 mt-1.5 leading-relaxed font-bold">已同步：Firefly 5 (5pt), Sora 2 (30pt), FLUX1.1 Pro Ultra (20pt), Runway 1080p (40pt)。第三方模型採變動費率，實際扣點以 Firefly 生成介面即時顯示為準。</p>
                 </div>
             </div>
             <a href="https://helpx.adobe.com/tw/firefly/web/get-started/learn-the-basics/non-adobe-models-in-adobe-products.html" target="_blank" class="bg-white p-6 rounded-3xl border border-slate-200 text-sm font-bold flex items-center justify-between hover:border-blue-400 hover:shadow-lg transition-all group shadow-sm">
@@ -262,7 +262,7 @@
                     ]},
                     google: { name: "Google Veo", models: [
                         { id: "v31", name: "Veo 3.1", tags: ["高品質"], rates: { "720p": 50, "1080p": 50 }, desc: "寫實動作且高品質輸出。適合專業廣告場景。" },
-                        { id: "v3f", name: "Veo 3.1 Fast", tags: ["快速生成"], rates: { "720p": 10, "1080p": 10 }, desc: "Google 極速影片生成。註：官方為每支約 40 點固定計費（非按秒）。" }
+                        { id: "v3f", name: "Veo 3.1 Fast", tags: ["快速生成"], rates: { "720p": 40, "1080p": 40 }, desc: "Google 極速影片生成。官方為每支固定計費。" }
                     ]},
                     kling: { name: "Kling AI", models: [
                         { id: "kl3", name: "Kling 3.0", tags: ["旗艦"], isNew: true, rates: { "720p": 35, "1080p": 70 }, desc: "Kling 最新旗艦（2026 上線）。動態一致性大幅提升。點數依官方公告為準。" },
@@ -307,7 +307,7 @@
                 ]}
             },
             categories: {
-                image: { id: 'image', title: '圖像設計', subtitle: 'Firefly 4/5, FLUX.2, Gemini 3', icon: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>', bg: 'bg-gradient-to-br from-orange-400 to-pink-600', color: 'text-orange-600', type: 'image' },
+                image: { id: 'image', title: '圖像設計', subtitle: 'Firefly 4/5, FLUX 1.1, Gemini 3', icon: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>', bg: 'bg-gradient-to-br from-orange-400 to-pink-600', color: 'text-orange-600', type: 'image' },
                 video: { id: 'video', title: '影片生成', subtitle: 'Sora 2, Runway 4.5, Luma', icon: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 3v18"/><path d="M3 7.5h4"/><path d="M3 12h18"/><path d="M3 16.5h4"/><path d="M17 3v18"/><path d="M17 7.5h4"/><path d="M17 16.5h4"/></svg>', bg: 'bg-gradient-to-br from-blue-500 to-indigo-600', color: 'text-blue-600', type: 'video' },
                 audio: { id: 'audio', title: '音訊音樂', subtitle: 'ElevenLabs, GenMusic', icon: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>', bg: 'bg-gradient-to-br from-yellow-400 to-orange-500', color: 'text-yellow-600', type: 'audio' }
             },
@@ -425,10 +425,10 @@
             },
 
             renderConfigurator() {
-                const m = this.data.sel.model, body = this.$el('modal-body'), unit = m.unit || (this.data.cat.type === 'video' ? '秒' : '張');
+                const m = this.data.sel.model, body = this.$el('modal-body'), unit = m.unit || (this.data.cat.type === 'video' ? '支(5秒)' : '張');
                 this.renderBackButton(this.data.cat.type === 'image' ? 3 : 2);
                 const card = document.createElement('div'); card.className = "bg-white p-8 rounded-3xl border border-slate-100 shadow-sm animate-reveal";
-                card.innerHTML = `<h4 class="font-black text-2xl text-slate-900 leading-tight">${m.name}</h4><p class="text-sm text-slate-400 mt-2 pb-6 border-b border-slate-50 leading-relaxed">${m.desc}</p>${m.rates ? `<div class="mt-8"><label class="text-[10px] font-black uppercase tracking-widest text-slate-400">解析度規格 (每秒消耗)</label><div id="res-grid" class="grid grid-cols-2 gap-2 mt-3"></div></div>` : ''}<div class="mt-8"><label class="text-[10px] font-black uppercase tracking-widest text-slate-400">預估產量 (${unit})</label><input type="number" id="qty-in" value="1" class="w-full text-5xl font-black p-4 text-center bg-transparent border-b-2 border-slate-100 outline-none focus:border-blue-500 transition-colors font-mono"><input type="range" id="qty-sl" min="1" max="1000" value="1" class="w-full mt-7 custom-range"></div>`;
+                card.innerHTML = `<h4 class="font-black text-2xl text-slate-900 leading-tight">${m.name}</h4><p class="text-sm text-slate-400 mt-2 pb-6 border-b border-slate-50 leading-relaxed">${m.desc}</p>${m.rates ? `<div class="mt-8"><label class="text-[10px] font-black uppercase tracking-widest text-slate-400">解析度規格 (每支 5 秒消耗)</label><div id="res-grid" class="grid grid-cols-2 gap-2 mt-3"></div></div>` : ''}<div class="mt-8"><label class="text-[10px] font-black uppercase tracking-widest text-slate-400">預估產量 (${unit})</label><input type="number" id="qty-in" value="1" class="w-full text-5xl font-black p-4 text-center bg-transparent border-b-2 border-slate-100 outline-none focus:border-blue-500 transition-colors font-mono"><input type="range" id="qty-sl" min="1" max="1000" value="1" class="w-full mt-7 custom-range"></div>`;
                 body.appendChild(card);
                 if(m.rates) {
                     const rg = card.querySelector('#res-grid');
@@ -447,7 +447,7 @@
 
             confirmAdd() {
                 const m = this.data.sel.model, r = (this.data.plan === 'pro' && m.type_std) ? 0 : (m.rates ? m.rates[this.data.sel.res] : m.cost);
-                this.data.cart[this.data.plan].push({ id: Date.now()+Math.random(), name: this.data.cat.title, subname: `${m.name}${this.data.sel.res ? ` (${this.data.sel.res})` : ''}`, total: r*this.data.sel.qty, qty: this.data.sel.qty, unit: m.unit || (this.data.cat.type === 'video' ? '秒' : '張'), formula: `${r} pt × ${this.data.sel.qty}` });
+                this.data.cart[this.data.plan].push({ id: Date.now()+Math.random(), name: this.data.cat.title, subname: `${m.name}${this.data.sel.res ? ` (${this.data.sel.res})` : ''}`, total: r*this.data.sel.qty, qty: this.data.sel.qty, unit: m.unit || (this.data.cat.type === 'video' ? '支(5秒)' : '張'), formula: `${r} pt × ${this.data.sel.qty}` });
                 this.renderCart(); this.showToast(`已成功規劃：${m.name}`); this.closeAllModals();
             },
 
