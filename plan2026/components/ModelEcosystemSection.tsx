@@ -78,6 +78,16 @@ export const ModelEcosystemSection: React.FC = () => {
       text: "text-pink-400"
     },
     {
+      name: "Kling AI",
+      models: [
+        { name: "Kling 3.0", sub: "Video / Omni", type: "video" },
+        { name: "Kling 2.5 Turbo", type: "video" }
+      ],
+      color: "border-emerald-500/50",
+      bg: "bg-emerald-900/10",
+      text: "text-emerald-400"
+    },
+    {
       name: "Pika Labs",
       models: [
         { name: "Pika 2.2", type: "video" }

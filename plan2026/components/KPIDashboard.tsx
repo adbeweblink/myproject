@@ -44,7 +44,7 @@ const AnimatedNumber = ({ value }: { value: string }) => {
 export const KPIDashboard: React.FC = () => {
   // 現有數據 (量變基礎)
   const rawStats = [
-    { value: "118,000+", label: "LINE 社群好友", icon: Users, color: "text-green-400", bg: "bg-green-900/20" },
+    { value: "119,000+", label: "LINE 社群好友", icon: Users, color: "text-green-400", bg: "bg-green-900/20" },
     { value: "50,000+", label: "年度行銷觸及", icon: Target, color: "text-blue-400", bg: "bg-blue-900/20" },
     { value: "26,000+", label: "EDM 訂閱用戶", icon: Globe, color: "text-yellow-400", bg: "bg-yellow-900/20" },
   ];

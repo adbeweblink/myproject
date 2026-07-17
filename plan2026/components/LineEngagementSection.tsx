@@ -149,7 +149,7 @@ export const LineEngagementSection: React.FC = () => {
               <span>免費加入好友</span>
             </button>
             <div className="flex items-center gap-4 px-5 py-3 border border-white/10 rounded-full text-gray-400">
-               <span className="text-xs">已有 11.7 萬人訂閱</span>
+               <span className="text-xs">已有 11.9 萬人訂閱</span>
                <div className="flex -space-x-2">
                   {[1,2,3,4].map(i => (
                     <div key={i} className="w-5 h-5 rounded-full bg-gray-700 border border-[#161616]"></div>
