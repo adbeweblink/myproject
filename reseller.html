@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">   
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adobe 授權經銷商名錄</title> 
+    <style>
+        :root {
+            --primary-red: #eb1000;
+            --dark-red: #b50d00;
+            --bg-gray: #f5f5f5;
+            --text-dark: #333;
+            --text-gray: #666;
+            --border-color: #e0e0e0;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans TC", sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-gray);
+            color: var(--text-dark);
+            padding-bottom: 40px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(to right, #b91c1c, #7f1d1d);
+            color: white;
+            padding: 1.5rem 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-subtitle {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .header-subtitle { display: block; }
+        }
+
+        /* Main Layout */
+        .container {
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        @media (min-width: 900px) {
+            .container {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+        }
+
+        /* Sidebar Filters */
+        .sidebar {
+            width: 100%;
+            flex-shrink: 0;
+        }
+
+        @media (min-width: 900px) {
+            .sidebar { width: 280px; position: sticky; top: 100px; }
+        }
+
+        .filter-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+        }
+
+        .filter-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #374151;
+        }
+        
+        /* Map Container for Visual Cue - REMOVED */
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 35px 10px 35px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 2px rgba(235, 16, 0, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            width: 16px;
+            height: 16px;
+        }
+
+        .clear-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+            padding: 2px;
+            border-radius: 50%;
+        }
+        
+        .clear-icon:hover {
+            background-color: #eee;
+            color: #666;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: white;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: 10px;
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            color: #4b5563;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .reset-btn:hover {
+            background: #e5e7eb;
+        }
+
+        /* Results List */
+        .results-area {
+            flex-grow: 1;
+            min-width: 0; /* Fix for flexbox truncation */
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .filter-tag {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .reseller-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            transition: all 0.2s;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .reseller-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #fecaca;
+            transform: translateY(-2px);
+        }
+
+        .reseller-name-tw {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 0.25rem;
+        }
+
+        .reseller-card:hover .reseller-name-tw {
+            color: #b91c1c;
+        }
+
+        .reseller-name-en {
+            font-size: 0.875rem;
+            color: #6b7280;
+            font-weight: 500;
+            margin-bottom: 1.5rem; /* Increased margin since description is removed */
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+            background: #f9fafb;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+        }
+
+        @media (min-width: 640px) {
+            .contact-grid { grid-template-columns: 1fr 1fr; }
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            color: #4b5563;
+            overflow: hidden;
+        }
+
+        .contact-item svg {
+            flex-shrink: 0;
+            margin-top: 2px;
+            color: #ef4444;
+        }
+        
+        .contact-content {
+            min-width: 0;
+            word-break: break-all;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #9ca3af;
+            margin-left: 6px;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .copy-btn:hover { 
+            color: #ef4444; 
+            background-color: #fee2e2;
+        }
+
+        .visit-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-decoration: none;
+            margin-top: 1rem;
+            transition: all 0.2s;
+        }
+        
+        @media (min-width: 768px) {
+             .visit-btn {
+                position: absolute;
+                bottom: 1.5rem;
+                right: 1.5rem;
+                margin-top: 0;
+             }
+        }
+
+        .visit-btn:hover {
+            background: #b91c1c;
+            color: white;
+            border-color: #b91c1c;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            color: #6b7280;
+        }
+
+        .hidden { display: none !important; }
+
+        /* Toast Notification */
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #1f2937;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s;
+            z-index: 1000;
+            pointer-events: none;
+        }
+        #toast.show {
+            opacity: 1;
+            bottom: 40px;
+        }
+
+        /* Helper for SVG icons */
+        .icon { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2; fill: none; }
+        .icon-sm { width: 14px; height: 14px; }
+        .icon-lg { width: 20px; height: 20px; }
+
+        footer {
+            text-align: center;
+            color: #9ca3af;
+            font-size: 0.75rem;
+            margin-top: 3rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-content">
+        <div class="header-title">
+            Adobe 授權經銷商名錄
+        </div>
+        <div class="header-subtitle">台灣授權合作夥伴名單</div>
+    </div>
+</header>
+
+<div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="filter-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid #eee; padding-bottom: 1rem;">
+                <div style="display: flex; align-items: center; gap: 8px; font-weight: bold; font-size: 1.1rem;">
+                    <svg class="icon icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                    條件篩選
+                </div>
+                <button id="global-reset-btn" class="hidden" style="background:none; border:none; color:#dc2626; cursor:pointer; font-size:0.85rem; text-decoration:underline;">重置所有</button>
+            </div>
+
+            <!-- 1. Keyword Search -->
+            <div class="filter-group">
+                <div class="filter-title">關鍵字搜尋</div>
+                <div class="search-box">
+                    <svg class="icon search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" id="search-input" class="search-input" placeholder="輸入名稱、電話、地址...">
+                    <svg id="search-clear" class="hidden clear-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </div>
+            </div>
+
+            <!-- 2. Region Filter -->
+            <div class="filter-group">
+                <div class="filter-title">
+                    <svg class="icon" style="color:#dc2626;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    所在地區
+                </div>
+                <!-- Removed: map-cue div -->
+                <select id="region-select">
+                    <option value="All">全台灣 (含服務全台)</option>
+                    <option value="North">北區 (台北/新北/基隆)</option>
+                    <option value="TaoZhuMiao">桃竹苗區</option>
+                    <option value="Central">中區 (台中/彰化/南投)</option>
+                    <option value="South">南區 (台南/高雄/屏東)</option>
+                    <option value="East">東區 (宜蘭/花蓮/台東)</option>
+                </select>
+                <p style="font-size: 0.75rem; color: #9ca3af; margin-top: 0.5rem;">* 選擇地區後，亦會顯示服務全台的經銷商。</p>
+            </div>
+
+            <button id="reset-btn-main" class="reset-btn">
+                <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                清除所有條件
+            </button>
+        </div>
+    </aside>
+
+    <!-- Results -->
+    <div class="results-area">
+        <div class="results-header">
+            <h3 style="font-size: 1.25rem; font-weight: 700;">
+                搜尋結果 
+                <span id="result-count" style="font-size: 0.875rem; font-weight: normal; background: #f3f4f6; padding: 2px 8px; border-radius: 99px; margin-left: 8px;">...</span>
+            </h3>
+            <div id="active-tags" class="tag-container"></div>
+        </div>
+
+        <div id="reseller-list">
+            <!-- Cards injected here -->
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    <span>已複製到剪貼簿</span>
+</div>
+
+<footer>
+    <p>© 2025 Adobe Partner Finder System. 資料僅供內部參考。</p>
+    <p style="margin-top: 5px;">資料來源：Adobe Partner Connection Portal & 授權經銷體系 | 更新日期：2025/11/28</p>
+</footer>
+
+<!-- JS Logic -->
+<script>
+    // ==========================================
+    // 經銷商資料庫 (RESELLERS_DATA) - 已移除 Email, 標籤與描述 (展碁國際資訊已移除)
+    // ==========================================
+    const RESELLERS_DATA = [
+        // Platinum
+        { id: 'p1', nameEn: 'Systex Software and Service Corporation', nameTw: '精誠軟體服務股份有限公司', region: 'Taipei,All', address: '台北市中正區羅斯福路二段100號17樓', phone: '(02) 2367-0188' },
+        { id: 'p2', nameEn: 'Acer E-Enabling Service Business', nameTw: '宏碁資訊服務股份有限公司', region: 'Taipei,All', address: '115臺北市南港區南港路三段9號18樓', phone: '(02) 2784-1000' },
+        // Gold
+        { id: 'n7', nameEn: 'Evertop Information', nameTw: '長峰資訊股份有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2788-2408' },
+        { id: 'n5', nameEn: 'Jen Hong International', nameTw: '朕宏國際實業有限公司', region: 'Taipei,North', address: '台北市北投區', phone: '(02) 2897-6878' },
+        { id: 'n4', nameEn: 'Shin Chi Cloud', nameTw: '昕奇雲端科技股份有限公司', region: 'Taipei,North', address: '台北市內湖區', phone: '(02) 8792-3677' },
+        { id: 'n8', nameEn: 'I-Planet International', nameTw: '智域國際股份有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2727-8077' },
+        { id: 'n2', nameEn: 'Tomorrow Info', nameTw: '明日資訊有限公司', region: 'Taipei,North', address: '台北市', phone: '(03) 317-3742' },
+        { id: 'g2', nameEn: 'Otsuka Information Technology', nameTw: '大塚資訊科技股份有限公司', region: 'NewTaipei,All', address: '新北市', phone: '(02) 8964-6668' },
+        { id: 'n1', nameEn: 'Quickly 3C', nameTw: '快克利有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2511-9098' },
+        { id: 'new1', nameEn: 'Liso Information Co., Ltd.', nameTw: '力梭資訊股份有限公司', region: 'NewTaipei,North', address: '新北市', phone: '(02) 8969-0901' },
+        { id: 'n3', nameEn: 'Keyi International', nameTw: '科益國際股份有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2585-8725' },
+        { id: 'n6', nameEn: 'Chuangjie International', nameTw: '創捷國際有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2570-3233' },
+        { id: 'new2', nameEn: 'Tyche Information Co., Ltd.', nameTw: '台奇資訊有限公司', region: 'NewTaipei,North', address: '新北市', phone: '(02) 8983-3989' },
+        
+        // Certified
+        { id: 'g3', nameEn: 'Yifan Technology', nameTw: '逸凡科技股份有限公司', region: 'Taipei,All', address: '台北市', phone: '0800-098-598' },
+        { id: 'g4', nameEn: 'BestCom Infotech Corp.', nameTw: '大綜電腦系統股份有限公司', region: 'Kaohsiung,All', address: '高雄市', phone: '(07) 345-8011' },
+        { id: 'g5', nameEn: 'Xunda Computer', nameTw: '訊達電腦股份有限公司', region: 'Taipei,All', address: '台北市', phone: '(02) 2501-5568 #2285' },
+        { id: 'n9', nameEn: 'Guanglian International', nameTw: '光聯國際股份有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 8768-1631' },
+        { id: 'n10', nameEn: 'Jinte Enterprise', nameTw: '勁特企業有限公司', region: 'NewTaipei,North', address: '新北市', phone: '(02) 8685-4166' },
+        { id: 'n11', nameEn: 'Zhenchuan Info', nameTw: '真傳資訊有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2754-8510' },
+        { id: 'n12', nameEn: 'Qiaoju Info', nameTw: '僑巨資訊企業有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2522-1212' },
+        { id: 'n13', nameEn: 'TeraSoft', nameTw: '台灣碩軟軟體有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2176-5186' },
+        { id: 'n14', nameEn: 'Ability International', nameTw: '佳能國際股份有限公司', region: 'Taipei,North', address: '台北市', phone: '0800-055-056' },
+        { id: 't1', nameEn: 'Youshuo Computer', nameTw: '又碩電腦科技股份有限公司', region: 'TaoZhuMiao,North', address: '桃園市', phone: '(03) 463-9119' },
+        { id: 't2', nameEn: 'Weice Computer', nameTw: '威策電腦股份有限公司', region: 'TaoZhuMiao,North', address: '桃園市', phone: '(03) 301-9789' },
+        { id: 't3', nameEn: 'Kaimo Technology', nameTw: '凱模科技有限公司', region: 'TaoZhuMiao,North', address: '桃園市', phone: '(03) 218-0011' },
+        { id: 'c1', nameEn: 'Se Mai Technology', nameTw: '瑟麥科技事業有限公司', region: 'Taichung,Central', address: '台中市', phone: '(04) 2475-0698' },
+        { id: 'c2', nameEn: 'Show Yi International', nameTw: '首羿國際股份有限公司', region: 'Taichung,Central', address: '台中市', phone: '(04) 2258-3355' },
+        { id: 'c3', nameEn: 'Quantai Info', nameTw: '銓太資訊有限公司', region: 'Taichung,Central', address: '台中市', phone: '(04) 2312-7008' },
+        { id: 'c4', nameEn: 'Xin-En Technology', nameTw: '昕恩科技有限公司', region: 'Taichung,Central', address: '台中市', phone: '(04) 2202-0158' },
+        { id: 's1', nameEn: 'Gao Jie Xin', nameTw: '高傑信股份有限公司', region: 'Kaohsiung,South', address: '高雄市', phone: '(07) 975-6888' },
+        { id: 's2', nameEn: 'Yunchuan Technology', nameTw: '允傳科技股份有限公司', region: 'Kaohsiung,South', address: '高雄市', phone: '(07) 348-5625' },
+        { id: 's3', nameEn: 'Diyiming Computer', nameTw: '帝易明電腦有限公司', region: 'Tainan,South', address: '台南市', phone: '(06) 222-4339' },
+        { id: 's4', nameEn: 'Deyuan Computer', nameTw: '德源電腦有限公司', region: 'Tainan,South', address: '台南市', phone: '(06) 228-4367' },
+        { id: 's5', nameEn: 'Song Yue International', nameTw: '淞鉞國際有限公司', region: 'Kaohsiung,South', address: '高雄市', phone: '(07) 588-5272' },
+        { id: 'e1', nameEn: 'Haoshi Tech Studio', nameTw: '好時科技工作室', region: 'East', address: '台東縣', phone: '089-311220' }
+    ];
+
+    // --- 2. 狀態管理 ---
+    let state = {
+        region: 'All',
+        search: '',
+    };
+
+    // --- 3. 初始化 ---
+    function init() {
+        renderFilters();
+        renderResellers();
+        setupEventListeners();
+    }
+
+    // --- 4. 渲染函式 ---
+
+    function renderFilters() {
+        // 更新地區選擇器
+        document.getElementById('region-select').value = state.region;
+        
+        // 檢查是否有篩選條件被啟用
+        const hasFilter = state.region !== 'All' || state.search !== '';
+        const resetBtns = document.querySelectorAll('#global-reset-btn, #reset-btn-main');
+        resetBtns.forEach(btn => {
+            if(hasFilter) btn.classList.remove('hidden');
+            else btn.classList.add('hidden');
+        });
+    }
+
+    function renderResellers() {
+        const listContainer = document.getElementById('reseller-list');
+        const countEl = document.getElementById('result-count');
+        const tagsContainer = document.getElementById('active-tags');
+
+        const term = state.search.toLowerCase().trim();
+        const termNumeric = term.replace(/\D/g, '');
+
+        // 資料過濾邏輯
+        const filtered = RESELLERS_DATA.filter(item => {
+            const matchRegion = state.region === 'All' || item.region.includes(state.region) || item.region.includes('All');
+            
+            let matchSearch = true;
+            if(term) {
+                const phoneNumeric = item.phone.replace(/\D/g, '');
+                const matchPhone = item.phone.includes(term) || (termNumeric.length > 0 && phoneNumeric.includes(termNumeric));
+                
+                matchSearch = 
+                    item.nameTw.toLowerCase().includes(term) ||
+                    item.nameEn.toLowerCase().includes(term) ||
+                    item.address.toLowerCase().includes(term) ||
+                    matchPhone;
+            }
+            return matchRegion && matchSearch;
+        });
+
+        countEl.innerText = `${filtered.length} 家`;
+
+        // 標籤顯示
+        let tagsHtml = '';
+        if (state.search) tagsHtml += `<span class="filter-tag">搜尋: ${state.search} <svg class="icon icon-sm" style="cursor:pointer" onclick="updateState('search', '')" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>`;
+        if (state.region !== 'All') {
+            const regionMap = { 'North': '北區', 'TaoZhuMiao': '桃竹苗', 'Central': '中區', 'South': '南區', 'East': '東區' };
+            tagsHtml += `<span class="filter-tag" style="background:#dbeafe; color:#1e40af">區域: ${regionMap[state.region] || state.region} <svg class="icon icon-sm" style="cursor:pointer" onclick="updateState('region', 'All')" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>`;
+        }
+        tagsContainer.innerHTML = tagsHtml;
+
+        if (filtered.length === 0) {
+            listContainer.innerHTML = `
+                <div class="empty-state">
+                    <svg class="icon" style="width:48px; height:48px; color:#d1d5db; margin:0 auto 10px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <h3 style="font-size:1.1rem; font-weight:bold; color:#4b5563; margin-bottom:8px;">沒有找到符合條件的經銷商</h3>
+                    <p style="color:#6b7280; font-size:0.9rem;">請嘗試使用其他關鍵字或放寬篩選條件。</p>
+                    <button onclick="resetAll()" style="margin-top:1rem; color:#dc2626; background:none; border:none; cursor:pointer; text-decoration:underline;">重置所有篩選</button>
+                </div>
+            `;
+            return;
+        }
+
+        listContainer.innerHTML = filtered.map(item => {
+            // 依指示：只有展碁國際(d1)顯示網站按鈕 (已移除 d1，故此邏輯已無作用)
+            const showWebsite = item.id === 'd1' && item.website; 
+
+            return `
+                <div class="reseller-card">
+                    
+                    <div>
+                        <h2 class="reseller-name-tw">${item.nameTw}</h2>
+                        <p class="reseller-name-en">${item.nameEn}</p>
+
+                        <div class="contact-grid">
+                            <div class="contact-item">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                                <span class="contact-content" style="grid-column: 1 / -1;">${item.address}</span>
+                            </div>
+                            <div class="contact-item">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                <div class="contact-content">
+                                    ${item.phone}
+                                    <button class="copy-btn" onclick="copyToClipboard('${item.phone}')" title="複製電話">
+                                        <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${showWebsite ? `
+                    <a href="${item.website}" target="_blank" rel="noopener noreferrer" class="visit-btn">
+                        <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                        造訪網站
+                        <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                    </a>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
+    }
+
+    // --- 5. 互動邏輯 ---
+
+    window.updateState = function(key, value) {
+        state[key] = value;
+        
+        if(key === 'search') document.getElementById('search-input').value = value;
+        
+        renderFilters();
+        renderResellers();
+        
+        if(key === 'search') {
+            const clearBtn = document.getElementById('search-clear');
+            if(value) clearBtn.classList.remove('hidden');
+            else clearBtn.classList.add('hidden');
+        }
+    };
+
+    window.resetAll = function() {
+        state.region = 'All';
+        state.search = '';
+        document.getElementById('search-input').value = '';
+        document.getElementById('search-clear').classList.add('hidden');
+        renderFilters();
+        renderResellers();
+    };
+
+    window.copyToClipboard = function(text) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            // Use execCommand for broader compatibility in iFrames
+            const successful = document.execCommand('copy');
+            if (successful) {
+                const toast = document.getElementById('toast');
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2000);
+            }
+        } catch (err) {
+            console.error('Copy failed', err);
+        }
+        document.body.removeChild(textArea);
+    };
+
+    function setupEventListeners() {
+        document.getElementById('region-select').addEventListener('change', (e) => {
+            updateState('region', e.target.value);
+        });
+
+        const searchInput = document.getElementById('search-input');
+        searchInput.addEventListener('input', (e) => {
+            updateState('search', e.target.value);
+        });
+        
+        document.getElementById('search-clear').addEventListener('click', () => {
+            updateState('search', '');
+        });
+
+        document.getElementById('global-reset-btn').addEventListener('click', resetAll);
+        document.getElementById('reset-btn-main').addEventListener('click', resetAll);
+    }
+
+    init();
+</script>
+</body>
+</html>

@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>做場製譜小幫手 v20.9 (Paladin Style)</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Roboto+Mono:wght@400;700&display=swap');
+        
+        :root { --primary-color: #2563eb; --bg-color: #ffffff; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f3f4f6; overscroll-behavior: none; }
+
+        @media print {
+            @page { size: A4; margin: 10mm; }
+            body { background-color: white; -webkit-print-color-adjust: exact; }
+            .no-print { display: none !important; }
+            .page-break { page-break-before: always; margin-top: 2rem; display: block; }
+            .print-container { 
+                width: 100% !important; 
+                min-height: auto !important; 
+                padding: 0 !important; 
+                box-shadow: none !important; 
+                border: none !important; 
+                margin: 0 !important; 
+                transform: none !important;
+            }
+            .print-bg { background-color: white !important; }
+            input, select, textarea { border: none !important; background: transparent !important; }
+            input::placeholder, textarea::placeholder { color: transparent !important; }
+            .border-none-print { border: none !important; }
+            .chord-cell.has-chord { border: 1px solid #000 !important; background: transparent !important; }
+            .chord-cell.no-chord { border: none !important; background: transparent !important; }
+            .play-marker { display: none !important; }
+            .loop-range-active { background-color: transparent !important; }
+            .hover-trigger:hover { background-color: transparent !important; }
+            .validation-warning { display: none !important; }
+            .group:hover .opacity-0 { opacity: 0 !important; } 
+        }
+
+        .jianpu-font { font-family: 'Roboto Mono', monospace; letter-spacing: -0.05em; }
+        .chord-font { font-family: 'Roboto Mono', monospace; font-weight: 700; }
+
+        /* --- Absolute Layout Engine --- */
+        .beat-container { position: relative; height: 100%; display: flex; align-items: flex-end; }
+        .note-column { position: relative; width: 100%; height: 64px; }
+        .note-num-layer { position: absolute; bottom: 18px; left: 0; width: 100%; text-align: center; font-weight: bold; font-size: 1.3em; line-height: 1; z-index: 10; font-family: 'Roboto Mono', monospace; }
+        .accidental { position: absolute; top: 0; left: 50%; transform: translateX(-140%); font-size: 0.5em; line-height: 1; font-weight: bold; }
+        .dot-high-layer { position: absolute; bottom: 38px; left: 0; width: 100%; text-align: center; line-height: 0.5; font-weight: 900; color: #000; }
+        .dot-low-layer { position: absolute; bottom: 10px; left: 0; width: 100%; text-align: center; line-height: 0.5; font-weight: 900; color: #000; }
+        .beam-group { position: absolute; bottom: 0; left: 0; width: 100%; height: 8px; pointer-events: none; z-index: 5; }
+        .beam-line { position: absolute; height: 2.5px; background-color: #9ca3af; } 
+        
+        .chord-text { font-size: clamp(0.9rem, 1.1rem, 1.3rem); font-family: 'Roboto Mono', monospace; font-weight: 700; color: #000; letter-spacing: -0.02em; line-height: 1.2; } 
+        
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(3px); transition: opacity 0.2s; }
+        .modal-content { background: white; border-radius: 0.8rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); width: 100%; max-width: 36rem; max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; animation: popUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes popUp { 0% { opacity: 0; transform: scale(0.95) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+        
+        .btn-press { transition: transform 0.1s, background-color 0.2s; }
+        .btn-press:active { transform: scale(0.95); }
+        
+        .scroller::-webkit-scrollbar { width: 6px; height: 6px; }
+        .scroller::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 3px; }
+
+        .circle-container { position: relative; width: 280px; height: 280px; margin: 0 auto; border-radius: 50%; border: 1px solid #e2e8f0; }
+        .circle-btn { position: absolute; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: 'Roboto Mono'; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .circle-btn:active { transform: scale(0.9); }
+
+        .active-playing-bar { box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.5); border-color: #2563eb !important; background-color: rgba(239, 246, 255, 0.5); }
+        .loop-range-active { background-color: rgba(254, 243, 199, 0.4); border-top: 2px dashed #f59e0b !important; border-bottom: 2px dashed #f59e0b !important; }
+        .loop-start-bar { border-left: 4px solid #f59e0b !important; }
+        .loop-end-bar { border-right: 4px solid #f59e0b !important; }
+        
+        .app-btn { @apply px-3 py-1.5 rounded-lg text-sm font-bold transition-all shadow-sm flex items-center justify-center gap-2 border border-transparent; }
+        .app-btn:active { transform: scale(0.95); }
+        .app-btn-primary { @apply bg-blue-600 text-white hover:bg-blue-500; }
+        .app-btn-secondary { @apply bg-slate-600 text-white hover:bg-slate-500; }
+        .app-btn-success { @apply bg-green-600 text-white hover:bg-green-500; }
+        .app-btn-warning { @apply bg-orange-500 text-white hover:bg-orange-400; }
+        
+        .seg-group { @apply flex bg-slate-200/80 p-1 rounded-lg gap-1; }
+        .seg-btn { @apply px-3 py-1 text-xs font-bold rounded transition-all flex items-center gap-1.5 text-gray-500 hover:text-gray-700 hover:bg-white/50; }
+        .seg-btn.active { @apply bg-white text-blue-600 shadow-sm ring-1 ring-black/5; }
+
+        .hover-trigger { transition: background-color 0.1s; }
+        .hover-trigger:hover { background-color: rgba(0, 0, 0, 0.08); border-radius: 4px; }
+        
+        .repeat-start { border-left: 4px double #000 !important; position: relative; }
+        .repeat-start::before { content: ''; position: absolute; top: 50%; left: 2px; transform: translateY(-50%); width: 4px; height: 12px; background-image: radial-gradient(circle, #000 1.5px, transparent 2px); background-size: 100% 50%; background-repeat: repeat-y; }
+        .repeat-end { border-right: 4px double #000 !important; position: relative; }
+        .repeat-end::after { content: ''; position: absolute; top: 50%; right: 2px; transform: translateY(-50%); width: 4px; height: 12px; background-image: radial-gradient(circle, #000 1.5px, transparent 2px); background-size: 100% 50%; background-repeat: repeat-y; }
+
+        .voice-2 .note-num-layer, .voice-2 .dot-high-layer, .voice-2 .dot-low-layer { color: #ef4444 !important; }
+        .voice-2 .beam-line { background-color: #fca5a5 !important; }
+        
+        .bar-number { position: absolute; top: 2px; left: 4px; font-size: 0.65rem; color: #9ca3af; font-family: 'Roboto Mono'; font-weight: bold; pointer-events: none; }
+        
+        /* Dot helpers */
+        .dot-high { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); font-size: 1.4em; font-weight: 900; line-height: 0; color: inherit; }
+        .dot-high-2 { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); font-size: 1em; font-weight: 900; display: flex; flex-direction: column; line-height: 0.4; align-items: center; color: inherit; }
+        .dot-low { position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); font-size: 1.4em; font-weight: 900; line-height: 0; color: inherit; }
+        .dot-low-2 { position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); font-size: 1em; font-weight: 900; display: flex; flex-direction: column; line-height: 0.4; align-items: center; color: inherit; }
+        
+        /* Validation Warning */
+        .bar-invalid { border: 2px solid #ef4444 !important; background-color: rgba(254, 226, 226, 0.3); }
+        .invalid-badge { position: absolute; top: 0; right: 0; background-color: #ef4444; color: white; font-size: 0.6rem; padding: 1px 4px; border-bottom-left-radius: 4px; font-weight: bold; z-index: 50; }
+
+        /* Segmented Button Group */
+        .segmented-group { display: flex; background: rgba(30, 41, 59, 0.5); padding: 3px; border-radius: 6px; gap: 2px; }
+        .segmented-btn { padding: 4px 10px; font-size: 0.75rem; border-radius: 4px; font-weight: bold; transition: all 0.2s; color: #cbd5e1; }
+        .segmented-btn.active { background: white; color: #0f172a; shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .segmented-btn.inactive:hover { background: rgba(255,255,255,0.1); color: white; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo } = React;
+
+        // --- Data & Constants ---
+        const STYLES = ["Slow Soul", "Soul", "R&B", "Rock", "Slow Rock", "Folk", "Bossa Nova", "Jazz", "Funk", "Disco", "EDM", "Pop Ballad", "March", "Waltz", "Cha Cha"];
+        const KEYS_CIRCLE = [
+            { k: "C", deg: 0 }, { k: "G", deg: 30 }, { k: "D", deg: 60 }, { k: "A", deg: 90 }, { k: "E", deg: 120 }, { k: "B", deg: 150 },
+            { k: "Gb", label:"F#/Gb", deg: 180 }, { k: "Db", label:"C#/Db", deg: 210 }, { k: "Ab", deg: 240 }, { k: "Eb", deg: 270 }, { k: "Bb", deg: 300 }, { k: "F", deg: 330 }
+        ];
+        
+        const NOTE_TO_SEMITONE = { "C": 0, "C#": 1, "Db": 1, "D": 2, "D#": 3, "Eb": 3, "E": 4, "F": 5, "F#": 6, "Gb": 6, "G": 7, "G#": 8, "Ab": 8, "A": 9, "A#": 10, "Bb": 10, "B": 11 };
+        const SEMITONE_TO_NOTE = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
+        const MAJOR_SCALE_INTERVALS = [0, 2, 4, 5, 7, 9, 11];
+        const KEY_MAP = { "C": ["C", "D", "E", "F", "G", "A", "B"], "C#": ["C#", "D#", "E#", "F#", "G#", "A#", "B#"], "Db": ["Db", "Eb", "F", "Gb", "Ab", "Bb", "C"], "D": ["D", "E", "F#", "G", "A", "B", "C#"], "Eb": ["Eb", "F", "G", "Ab", "Bb", "C", "D"], "E": ["E", "F#", "G#", "A", "B", "C#", "D#"], "F": ["F", "G", "A", "Bb", "C", "D", "E"], "F#": ["F#", "G#", "A#", "B", "C#", "D#", "E#"], "Gb": ["Gb", "Ab", "Bb", "Cb", "Db", "Eb", "F"], "G": ["G", "A", "B", "C", "D", "E", "F#"], "G#": ["G#", "A#", "B#", "C#", "D#", "E#", "F##"], "Ab": ["Ab", "Bb", "C", "Db", "Eb", "F", "G"], "A": ["A", "B", "C#", "D", "E", "F#", "G#"], "Bb": ["Bb", "C", "D", "Eb", "F", "G", "A"], "B": ["B", "C#", "D#", "E", "F#", "G#", "A#"] };
+        const SECTION_TYPES = ["Intro", "Verse", "Chorus", "Pre-Chorus", "Bridge", "Interlude", "Solo", "Outro", "Ending", "Tag", "Hidden", "Practice"];
+        const SECTION_SUFFIXES = ["", "A", "B", "C", "D", "1", "2", "3"];
+        
+        const RHYTHM_TYPES = {
+            "q": { label: "X", slots: 1, duration: 1, desc: "四分 (Quarter)", beams: [], audio: [{time: 0, dur: "4n"}] },
+            "e": { label: "XX", slots: 2, duration: 1, desc: "八分 (8th)", beams: [{b: 6, l: 10, w: 80}], audio: [{time: 0, dur: "8n"}, {time: 0.5, dur: "8n"}] },
+            "s": { label: "XXXX", slots: 4, duration: 1, desc: "十六分 (16th)", beams: [{b: 6, l: 5, w: 90}, {b: 2, l: 5, w: 90}], audio: [{time: 0, dur: "16n"}, {time: 0.25, dur: "16n"}, {time: 0.5, dur: "16n"}, {time: 0.75, dur: "16n"}] },
+            "e_s": { label: "X XX", slots: 3, duration: 1, desc: "前八後十六", beams: [{b: 6, l: 5, w: 90}, {b: 2, l: 50, w: 45}], audio: [{time: 0, dur: "8n"}, {time: 0.5, dur: "16n"}, {time: 0.75, dur: "16n"}] }, 
+            "s_e": { label: "XX X", slots: 3, duration: 1, desc: "前十六後八", beams: [{b: 6, l: 5, w: 90}, {b: 2, l: 5, w: 45}], audio: [{time: 0, dur: "16n"}, {time: 0.25, dur: "16n"}, {time: 0.5, dur: "8n"}] }, 
+            "sync": { label: "X X X", slots: 3, duration: 1, desc: "小切分 (Sync)", beams: [{b: 6, l: 5, w: 90}, {b: 2, l: 5, w: 25}, {b: 2, l: 70, w: 25}], audio: [{time: 0, dur: "16n"}, {time: 0.25, dur: "8n"}, {time: 0.75, dur: "16n"}] },
+            "tri": { label: "(3)", slots: 3, duration: 1, desc: "三連音 (Triplets)", beams: [{b: 6, l: 5, w: 90}], audio: [{time: 0, dur: "8t"}, {time: 0.333, dur: "8t"}, {time: 0.666, dur: "8t"}] },
+            "quint": { label: "(5)", slots: 5, duration: 1, desc: "五連音", beams: [{b: 6, l: 2, w: 96}, {b: 2, l: 2, w: 96}], audio: Array(5).fill(0).map((_,i) => ({time: i*0.2, dur: "32n"})) },
+            "sext": { label: "(6)", slots: 6, duration: 1, desc: "六連音", beams: [{b: 6, l: 2, w: 96}, {b: 2, l: 2, w: 96}], audio: Array(6).fill(0).map((_,i) => ({time: i*0.166, dur: "32n"})) },
+            "q_dot": { label: "X.", slots: 1, duration: 1.5, desc: "附點四分 (1.5拍)", beams: [], audio: [{time: 0, dur: "4n."}] },
+            "e_dot": { label: "X. X", slots: 2, duration: 1, desc: "正附點 (3:1)", beams: [{b: 6, l: 10, w: 80}, {b: 2, l: 75, w: 15}], audio: [{time: 0, dur: "8n."}, {time: 0.75, dur: "16n"}] }, 
+            "rev_e_dot": { label: "X X.", slots: 2, duration: 1, desc: "反附點 (1:3)", beams: [{b: 6, l: 10, w: 80}, {b: 2, l: 10, w: 15}], audio: [{time: 0, dur: "16n"}, {time: 0.25, dur: "8n."}] }, 
+            "off": { label: "0", slots: 0, duration: 1, desc: "全休止", beams: [], audio: [] },
+            "e_rest": { label: "0 X", slots: 2, duration: 1, desc: "八分休止 (反拍)", beams: [{b: 6, l: 55, w: 35}], audio: [{time: 0.5, dur: "8n"}] }, 
+            "e_tail": { label: "X", slots: 2, duration: 0.5, desc: "後半拍 (0.5拍)", beams: [{b: 6, l: 10, w: 80}], audio: [{time: 0, dur: "8n"}] }, 
+            "dash": { label: "-", slots: 0, duration: 1, desc: "延音線", beams: [], audio: [] },
+            "sus_e": { label: "- X", slots: 2, duration: 1, desc: "延半拍+八分", beams: [{b: 6, l: 55, w: 35}], audio: [{time: 0.5, dur: "8n"}] },
+            "empty": { label: "/", slots: 0, duration: 1, desc: "空白", beams: [], audio: [] },
+        };
+
+        const CUE_OPTIONS = {
+            "鍵盤": [{ val: "PN", label: "Piano" }, { val: "EP", label: "E.Piano" }, { val: "SY", label: "Synth" }, { val: "OG", label: "Organ" }, { val: "Pad", label: "Pad" }],
+            "吉他": [{ val: "AG", label: "A.Guitar" }, { val: "EG", label: "E.Guitar" }, { val: "GT", label: "Guitar" }, { val: "Clean", label: "Clean" }, { val: "Dist", label: "Dist" }, { val: "Solo", label: "Solo" }],
+            "打擊": [{ val: "Dr fill", label: "Dr fill" }, { val: "Dr in", label: "Dr in" }, { val: "Kick", label: "Kick" }, { val: "HH", label: "Hi-Hat" }, { val: "Cym", label: "Cymbal" }, { val: "Break", label: "Break" }, { val: "Stop", label: "Stop" }],
+            "管弦": [{ val: "Str", label: "Strings" }, { val: "Brass", label: "Brass" }, { val: "Sax", label: "Sax" }, { val: "Tutti", label: "Tutti" }],
+            "人聲": [{ val: "Vo", label: "Vocal" }, { val: "Cho", label: "Chorus" }, { val: "Unis", label: "Unison" }]
+        };
+
+        const METRONOME_SOUNDS = [
+            { id: "click", label: "電子 (Rim)", high: "rim-high", low: "rim-low" },
+            { id: "wood", label: "木魚 (Wood)", high: "wood-high", low: "wood-low" },
+            { id: "drum", label: "鼓聲 (Drum)", high: "drum-high", low: "drum-low" }
+        ];
+
+        // --- Audio Helpers ---
+        const getNoteFromDegree=(d,k)=>{if(!d||d==="0"||d==="-")return null;const m=d.match(/^([#b]?)([1-7])(.*)$/);if(!m)return null;const acc=m[1],deg=parseInt(m[2]),octMod=m[3];const kn=k.replace(/m$/,"");const rs=NOTE_TO_SEMITONE[kn];if(rs===undefined)return null;let i=MAJOR_SCALE_INTERVALS[deg-1];if(acc==="#")i+=1;if(acc==="b")i-=1;let fs=rs+i;let oct=4;if(octMod.includes("''"))oct+=2;else if(octMod.includes("'"))oct+=1;else if(octMod.includes(".."))oct-=2;else if(octMod.includes("."))oct-=1;while(fs>=12){fs-=12;oct+=1}while(fs<0){fs+=12;oct-=1}return SEMITONE_TO_NOTE[fs]+oct};
+        const getChordNotes=(c,k)=>{if(!c)return[];const nm=c.match(/^([1-7])([#b]?)(.*)$/);if(nm)return getAbsoluteChordNotes(convertChord(c,k));return getAbsoluteChordNotes(c)};
+        const getAbsoluteChordNotes=(ac)=>{if(!ac)return[];const pts=ac.split("/");const mc=pts[0];const m=mc.match(/^([A-G][#b]?)(.*)$/);if(!m)return[];const r=m[1],s=m[2];const rv=NOTE_TO_SEMITONE[r];if(rv===undefined)return[];let ints=[0,4,7];if(s.includes("m")&&!s.includes("maj")){ints=[0,3,7];if(s.includes("7")&&!s.includes("maj"))ints.push(10)}else if(s.includes("dim")||s.includes("o")){ints=[0,3,6]}else if(s.includes("aug")||s.includes("+")){ints=[0,4,8]}else{if(s.includes("7")){if(s.includes("maj")||s.includes("M"))ints.push(11);else ints.push(10)}}return ints.map(i=>{let st=rv+i;let o=3;if(st>=12){st-=12;o++}return SEMITONE_TO_NOTE[st]+o})};
+        const convertChord=(i,k)=>{if(!k||!KEY_MAP[k])return i;const m=i.match(/^([#b]?)([1-7])(.*)$/);if(!m){const m2=i.match(/^([1-7])(.*)$/);if(!m2)return i;const d=parseInt(m2[1]),s=m2[2],r=KEY_MAP[k][d-1];if(s.includes('/')){const p=s.split('/');const bd=parseInt(p[1]);const b=!isNaN(bd)?(KEY_MAP[k][bd-1]||p[1]):p[1];return r+p[0]+"/"+b}return r+s}const acc=m[1],d=parseInt(m[2]),s=m[3],r=KEY_MAP[k][d-1];return(acc||"")+r+s};
+        const formatChordDisplay=(c)=>{if(!c)return "";return c.replace(/maj7/g,"M7").replace(/dim/g,"o").replace(/aug/g,"+").replace(/sus4/g,"sus")};
+        const AccidentalText=({text})=>{if(!text)return null;const p=text.split(/(#|b)/g);return(<span>{p.map((pt,i)=>{if(pt==='#'||pt==='b')return<sup key={i}className="text-[0.6em] font-bold mx-[1px]">{pt==='#'?'♯':'♭'}</sup>;return pt})}</span>)};
+        const validateChord=(s)=>{if(!s)return true;return /^([1-7]|[A-G][#b]?)/.test(s)};
+        const parseNote=(s)=>{if(!s)return{num:'',acc:'',octave:0};const m=s.match(/^([#b]?)([0-7\-])(.*)$/);if(!m)return{num:s,acc:'',octave:0};const acc=m[1],num=m[2],rest=m[3];let oct=0;if(rest.includes("''"))oct=2;else if(rest.includes("'"))oct=1;else if(rest.includes(".."))oct-=2;else if(rest.includes("."))oct=-1;return{num,acc,octave:oct}};
+        const buildNoteStr=({num,acc,octave})=>{if(!num)return "";let s="";if(octave===2)s="''";else if(octave===1)s="'";else if(octave===-1)s=".";else if(octave===-2)s="..";return `${acc}${num}${s}`};
+
+        // --- Components ---
+        const Note = ({ val }) => {
+            if (!val || val === "0") return (<div className="note-column"><span className="note-num-layer">0</span></div>);
+            if (val === "-") return (<div className="note-column"><span className="note-num-layer">-</span></div>);
+            const { num, acc, octave } = parseNote(val);
+            return (
+                <div className="note-column">
+                    <div className="dot-high-layer">{octave === 2 && <span className="dot-high-2"><span>.</span><span>.</span></span>}{octave === 1 && <span className="dot-high">.</span>}</div>
+                    <div className="note-num-layer">{acc && <span className="accidental">{acc === '#' ? '♯' : '♭'}</span>}{num}</div>
+                    <div className="dot-low-layer">{octave === -1 && <span className="dot-low">.</span>}{octave === -2 && <span className="dot-low-2"><span>.</span><span>.</span></span>}</div>
+                </div>
+            );
+        };
+
+        const RhythmRender = ({ type, notes, isPreview = false, isVoice2 = false }) => {
+            const def = RHYTHM_TYPES[type] || RHYTHM_TYPES['empty'];
+            const displayData = isPreview ? Array(def.slots).fill('X') : (Array.isArray(notes) ? notes : []).map(n => n || "");
+            const isSimple = ['off', 'dash', 'empty', 'q', 'q_dot'].includes(type);
+            const voiceClass = isVoice2 ? "voice-2" : "";
+            
+            if (isPreview) {
+                 return (
+                    <div className="w-full h-full flex items-center justify-center relative">
+                        <div className="relative flex flex-col items-center justify-end" style={{ height: '30px' }}>
+                             {!isSimple && (<div className="absolute bottom-0 left-0 w-full h-[10px] pointer-events-none">{def.beams && def.beams.map((beam, idx) => (<div key={idx} className="absolute h-[3px] bg-gray-400" style={{ left: `${beam.l}%`, width: `${beam.w}%`, bottom: `${beam.b}px` }}></div>))}</div>)}
+                             {!isSimple && (type === 'tri' || type === 'sext' || type === 'quint') && (<><div className="absolute top-[-5px] left-1/2 -translate-x-1/2 text-[0.8em] scale-75 font-bold bg-white px-0.5 leading-none">{type === 'tri' ? '3' : (type === 'quint' ? '5' : '6')}</div><div className="absolute top-0 left-[10%] right-[10%] border-t border-gray-400"></div></>)}
+                             <div className={`flex w-full ${isSimple ? 'justify-center' : 'justify-around'} items-end z-10 ${!isSimple ? 'mb-[6px]' : ''}`}>{displayData.map((n, i) => (<div key={i} className="flex flex-col items-center"><span className="font-bold text-lg leading-none">{isSimple && type !== 'q' && type !== 'q_dot' ? (type==='off'?'0':(type==='dash'?'-':'')) : 'X'}{type.includes('dot') && i === (type==='rev_e_dot'?1:0) && '.'}</span></div>))}</div>
+                        </div>
+                    </div>
+                );
+            }
+
+            let content;
+            if (isSimple) {
+                content = (
+                    <div className={`w-full h-full relative ${voiceClass}`}>
+                        <Note val={displayData[0]} />
+                        {type === 'q_dot' && <span className="absolute bottom-[12px] right-[-4px] font-bold text-lg leading-none">.</span>}
+                    </div>
+                );
+            } else {
+                const tupletMark = type === 'tri' ? '3' : (type === 'quint' ? '5' : (type === 'sext' ? '6' : null));
+                content = (
+                    <div className={`w-full h-full relative ${voiceClass}`}>
+                        {tupletMark && (<><div className="absolute top-[-5px] left-1/2 -translate-x-1/2 text-[0.8em] scale-75 font-bold z-10 bg-white px-0.5">{tupletMark}</div><div className="absolute top-[2px] left-[10%] right-[10%] border-t border-gray-400"></div></>)}
+                        <div className="beam-group">{def.beams && def.beams.map((beam, idx) => (<div key={idx} className="beam-line" style={{ left: `${beam.l}%`, width: `${beam.w}%`, bottom: `${beam.b}px` }}></div>))}</div>
+                        <div className="absolute inset-0 flex items-end justify-around">{displayData.map((n, i) => (<div key={i} className="flex-1 relative h-full"><Note val={n} />{type === 'e_dot' && i === 0 && <span className="absolute bottom-[12px] right-[-2px] font-bold text-lg leading-none">.</span>}{type === 'rev_e_dot' && i === 1 && <span className="absolute bottom-[12px] right-[-2px] font-bold text-lg leading-none">.</span>}</div>))}</div>
+                    </div>
+                );
+            }
+            return <div className={`beat-container w-full ${voiceClass}`}>{content}</div>;
+        };
+
+        const ChordInput = ({ value, mode, displayKey }) => {
+            let displayValue = value;
+            if (mode === 'absolute') displayValue = convertChord(value, displayKey);
+            displayValue = formatChordDisplay(displayValue);
+            return (<span className="chord-text block w-full text-left truncate px-1 font-bold chord-font text-gray-800 tracking-tight" title={value}><AccidentalText text={displayValue} /></span>);
+        };
+
+        // --- Modals ---
+        const MelodyInput=({value,onChange,onNext,autoFocus})=>{const parsed=parseNote(value);const inputRef=useRef(null);useEffect(()=>{if(autoFocus&&inputRef.current){inputRef.current.value="";inputRef.current.focus()}},[autoFocus]);const update=(newParsed)=>{onChange(buildNoteStr(newParsed));if(inputRef.current)inputRef.current.focus()};const toggleOctave=(targetOctave)=>{const newOctave=parsed.octave===targetOctave?0:targetOctave;update({...parsed,octave:newOctave})};const toggleAcc=(targetAcc)=>{const newAcc=parsed.acc===targetAcc?'':targetAcc;update({...parsed,acc:newAcc})};return(<div className="flex flex-col items-center gap-1 p-1 bg-gray-50 rounded border border-gray-200 relative group"><div className="flex gap-1"><button onClick={()=>toggleOctave(2)}className="toggle-btn w-4 h-4 flex items-center justify-center"title="高兩個八度"><div className={`flex flex-col gap-[1px] leading-none ${parsed.octave===2?'text-blue-600 font-bold':'text-gray-300'}`}><div className="w-1 h-1 rounded-full bg-current"></div><div className="w-1 h-1 rounded-full bg-current"></div></div></button><button onClick={()=>toggleOctave(1)}className="toggle-btn w-4 h-4 flex items-center justify-center"title="高八度"><div className={`w-1 h-1 rounded-full ${parsed.octave===1?'bg-blue-600':'bg-gray-300'}`}></div></button></div><div className="flex items-center gap-1"><div className="flex flex-col gap-1"><button onClick={()=>toggleAcc('#')}className={`text-[10px] w-4 h-4 flex items-center justify-center rounded ${parsed.acc==='#'?'bg-blue-600 text-white':'bg-white text-gray-400 border'}`}>#</button><button onClick={()=>toggleAcc('b')}className={`text-[10px] w-4 h-4 flex items-center justify-center rounded ${parsed.acc==='b'?'bg-blue-600 text-white':'bg-white text-gray-400 border'}`}>b</button></div><input ref={inputRef}type="text"value={parsed.num}onChange={(e)=>{const val=e.target.value;if(val===''||/^[0-7\-]$/.test(val)){update({...parsed,num:val});if(val!==''&&onNext)onNext()}}}onKeyDown={(e)=>{if(['ArrowRight','Enter'].includes(e.key)&&onNext){e.preventDefault();onNext()}if(e.key==='Backspace'&&parsed.num===''){}}}className={`w-8 h-8 border rounded text-center font-mono text-lg focus:outline-none font-bold z-10 bg-white shadow-sm focus:ring-2 focus:ring-blue-300 ${!parsed.num?'bg-gray-50':''}`}placeholder="-"/></div><div className="flex gap-1"><button onClick={()=>toggleOctave(-2)}className="toggle-btn w-4 h-4 flex items-center justify-center"title="低兩個八度"><div className={`flex flex-col gap-[1px] leading-none ${parsed.octave===-2?'text-blue-600 font-bold':'text-gray-300'}`}><div className="w-1 h-1 rounded-full bg-current"></div><div className="w-1 h-1 rounded-full bg-current"></div></div></button><button onClick={()=>toggleOctave(-1)}className="toggle-btn w-4 h-4 flex items-center justify-center"title="低八度"><div className={`w-1 h-1 rounded-full ${parsed.octave===-1?'bg-blue-600':'bg-gray-300'}`}></div></button></div></div>)};
+        const CircleOfFifths=({onSelect,current})=>{const r=110;const center=140;return(<div className="circle-container bg-white relative"><div className="absolute inset-0 rounded-full flex items-center justify-center text-gray-300 text-xs font-bold pointer-events-none">SELECT KEY</div>{KEYS_CIRCLE.map((kObj,i)=>{const angleRad=(kObj.deg-90)*(Math.PI/180);const x=center+r*Math.cos(angleRad)-22;const y=center+r*Math.sin(angleRad)-22;const isSelected=current===kObj.k;return(<button key={kObj.k}onClick={()=>onSelect(kObj.k)}className={`circle-btn btn-press text-sm ${isSelected?'bg-blue-600 text-white shadow-lg scale-110 z-10 ring-2 ring-blue-300':'bg-white hover:bg-gray-100 text-gray-700'}`}style={{left:`${x}px`,top:`${y}px`}}><AccidentalText text={kObj.label||kObj.k}/></button>)})}</div>)};
+        const KeyManagerModal=({keys,onUpdateKey,onRemoveKey,onAddKey,onClose})=>{const [activeIdx,setActiveIdx]=useState(0);return(<div className="modal-overlay"onClick={onClose}><div className="modal-content p-4 max-w-lg"onClick={e=>e.stopPropagation()}><div className="flex justify-between items-center mb-4 border-b pb-2"><h3 className="font-bold text-lg">調號設定 (五度圈)</h3><button onClick={onClose}className="btn-press w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center"><i className="fas fa-times"></i></button></div><div className="flex flex-col md:flex-row gap-6"><div className="flex-1 space-y-3"><label className="text-xs font-bold text-gray-500">轉調列表 (點擊編輯)</label>{keys.map((k,idx)=>(<div key={idx}onClick={()=>setActiveIdx(idx)}className={`flex items-center justify-between p-3 rounded cursor-pointer border-2 transition ${activeIdx===idx?'border-blue-500 bg-blue-50':'border-transparent bg-gray-50 hover:bg-gray-100'}`}><div className="flex items-center gap-2"><span className="font-bold text-gray-400 text-xs">#{idx+1}</span><span className="font-bold text-xl"><AccidentalText text={k}/></span></div>{idx>0&&<button onClick={(e)=>{e.stopPropagation();onRemoveKey(idx)}}className="text-red-400 hover:text-red-600 btn-press"><i className="fas fa-trash"></i></button>}</div>))}{keys.length<5&&(<button onClick={onAddKey}className="w-full py-2 border-2 border-dashed border-blue-300 text-blue-500 font-bold rounded hover:bg-blue-50 btn-press"><i className="fas fa-plus mr-2"></i>新增轉調</button>)}</div><div className="flex-shrink-0 flex items-center justify-center p-2 bg-gray-50 rounded-xl"><CircleOfFifths current={keys[activeIdx]}onSelect={(k)=>onUpdateKey(activeIdx,k)}/></div></div><button onClick={onClose}className="mt-4 w-full bg-blue-600 text-white py-2 rounded font-bold btn-press shadow">完成</button></div></div>)};
+        const SelectionModal=({title,options,current,onSelect,onCustom,onClose})=>(<div className="modal-overlay"onClick={onClose}><div className="modal-content p-4"onClick={e=>e.stopPropagation()}><div className="flex justify-between items-center mb-4 border-b pb-2 sticky top-0 bg-white z-10"><h3 className="font-bold text-lg">{title}</h3><button onClick={onClose}className="btn-press w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center"><i className="fas fa-times text-xl"></i></button></div><div className="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto scroller max-h-[60vh] pb-4">{options.map(opt=>(<button key={opt}onClick={()=>{onSelect(opt);onClose()}}className={`btn-press p-2 border rounded text-left text-sm ${current===opt?'bg-blue-600 text-white shadow':'bg-white hover:bg-gray-50'}`}>{opt}</button>))}</div><div className="mt-2 pt-2 border-t flex gap-2"><input type="text"className="flex-1 border p-1 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"placeholder="自訂..."defaultValue={options.includes(current)?"":current}onChange={(e)=>onCustom(e.target.value)}/><button onClick={onClose}className="px-3 bg-blue-600 text-white rounded text-sm btn-press">確定</button></div></div></div>);
+        const TimeSignatureModal=({currentBeats,currentBarsPerLine,onSave,onClose})=>{const [beats,setBeats]=useState(currentBeats);const [barsPerLine,setBarsPerLine]=useState(currentBarsPerLine||4);return(<div className="modal-overlay"onClick={onClose}><div className="modal-content p-5"onClick={e=>e.stopPropagation()}><div className="flex justify-between items-center mb-4 border-b pb-2"><h3 className="font-bold text-lg">拍號與排版設定</h3><button onClick={onClose}className="btn-press"><i className="fas fa-times text-gray-400"></i></button></div><div className="space-y-6"><div className="grid grid-cols-2 gap-6"><div><label className="block text-sm font-bold text-gray-600 mb-2">每小節拍數</label><div className="flex items-center gap-2"><button onClick={()=>setBeats(Math.max(2,beats-1))}className="w-8 h-8 rounded bg-gray-200 font-bold hover:bg-gray-300">-</button><span className="text-xl font-mono font-bold w-8 text-center">{beats}</span><button onClick={()=>setBeats(Math.min(16,beats+1))}className="w-8 h-8 rounded bg-gray-200 font-bold hover:bg-gray-300">+</button></div><p className="text-xs text-gray-400 mt-1">顯示為: {beats}/4</p></div><div><label className="block text-sm font-bold text-gray-600 mb-2">每行小節數</label><div className="flex gap-2">{[2,3,4].map(n=>(<button key={n}onClick={()=>setBarsPerLine(n)}className={`w-8 h-8 rounded font-bold border ${barsPerLine===n?'bg-blue-600 text-white border-blue-600':'bg-white text-gray-600 border-gray-300'}`}>{n}</button>))}</div><p className="text-xs text-gray-400 mt-1">影響版面寬度</p></div></div></div><div className="mt-6 flex justify-end"><button onClick={()=>{onSave(beats,barsPerLine);onClose()}}className="btn-press bg-blue-600 text-white px-6 py-2 rounded shadow font-bold">套用設定</button></div></div></div>)};
+        const BarNoteModal=({value,cues={},beatCount,keys=[],currentKeyChange, repeatStart, repeatEnd, onSaveText,onSaveCue,onCountChange,onKeyChange, onRepeatChange, onClose})=>{const [textVal,setTextVal]=useState(value);const [selectedBeat,setSelectedBeat]=useState(0);const [localCues,setLocalCues]=useState(cues);const [localKeyChange,setLocalKeyChange]=useState(currentKeyChange);const [localRepStart,setLocalRepStart]=useState(repeatStart||false);const [localRepEnd,setLocalRepEnd]=useState(repeatEnd||false);const handleSave=()=>{onSaveText(textVal);Object.keys(localCues).forEach(idx=>onSaveCue(parseInt(idx),localCues[idx]));if(onKeyChange)onKeyChange(localKeyChange);if(onRepeatChange)onRepeatChange(localRepStart,localRepEnd);onClose()};return(<div className="modal-overlay"onClick={onClose}><div className="modal-content p-0"onClick={e=>e.stopPropagation()}><div className="flex justify-between items-center p-3 border-b bg-gray-50 rounded-t"><h3 className="font-bold text-base">小節設定</h3><button onClick={onClose}><i className="fas fa-times text-gray-400"></i></button></div><div className="p-3 bg-white border-b flex gap-4"><label className="flex items-center gap-2 text-sm font-bold cursor-pointer hover:text-blue-600 bg-gray-50 p-2 rounded flex-1 justify-center"><input type="checkbox"checked={localRepStart}onChange={e=>setLocalRepStart(e.target.checked)}className="w-4 h-4"/> 前反覆 ( ||: )</label><label className="flex items-center gap-2 text-sm font-bold cursor-pointer hover:text-blue-600 bg-gray-50 p-2 rounded flex-1 justify-center"><input type="checkbox"checked={localRepEnd}onChange={e=>setLocalRepEnd(e.target.checked)}className="w-4 h-4"/> 後反覆 ( :|| )</label></div><div className="p-3 border-b bg-white flex justify-between items-center"><span className="text-xs font-bold text-gray-500">調整拍數</span><div className="flex items-center gap-2"><button onClick={()=>onCountChange(-1)}className="btn-press w-6 h-6 rounded bg-gray-100 font-bold">-</button><span className="font-mono font-bold w-4 text-center">{beatCount}</span><button onClick={()=>onCountChange(1)}className="btn-press w-6 h-6 rounded bg-gray-100 font-bold">+</button></div></div><div className="p-3 bg-blue-50 border-b"><div className="text-xs font-bold text-blue-800 mb-1">指定拍點標記 (Cue)</div><div className="flex gap-1 mb-2 overflow-x-auto pb-1">{Array.from({length:beatCount}).map((_,i)=>(<button key={i}onClick={()=>setSelectedBeat(i)}className={`btn-press flex-shrink-0 px-2 py-1 rounded text-xs font-bold border ${selectedBeat===i?'bg-blue-600 text-white':'bg-white text-gray-600'}`}>第{i+1}拍 {localCues[i]&&<span className="text-yellow-300">●</span>}</button>))}</div><div className="flex gap-2"><input type="text"value={localCues[selectedBeat]||""}onChange={(e)=>setLocalCues({...localCues,[selectedBeat]:e.target.value})}className="flex-1 border border-blue-300 rounded px-2 py-1 text-sm focus:outline-none"placeholder={`輸入第 ${selectedBeat+1} 拍標記...`}/><button onClick={()=>setLocalCues({...localCues,[selectedBeat]:""})}className="btn-press text-red-500 text-xs px-2 bg-white border rounded">清除</button></div></div><div className="p-3 bg-white border-b"><label className="text-xs font-bold text-gray-500 block mb-1">全小節提示 (Bar Note)</label><input type="text"value={textVal}onChange={(e)=>setTextVal(e.target.value)}className="w-full border-b border-gray-300 text-sm p-1 focus:outline-none"placeholder="例如: Break, Piano only..."/></div><div className="p-3 overflow-y-auto scroller flex-1 bg-white h-48"><div className="text-xs font-bold text-gray-400 mb-2">快速選擇</div><div className="space-y-3">{Object.entries(CUE_OPTIONS).map(([group,items])=>(<div key={group}><div className="text-[10px] font-bold text-gray-500 mb-1 bg-gray-100 px-1 rounded inline-block">{group}</div><div className="grid grid-cols-3 gap-1">{items.map(item=>(<button key={item.val}onClick={()=>setLocalCues({...localCues,[selectedBeat]:item.val})}className={`btn-press text-left text-[10px] p-1 border rounded hover:bg-blue-50 ${localCues[selectedBeat]===item.val?'bg-blue-100 border-blue-500':'bg-white border-gray-200'}`}><span className="font-bold">{item.val}</span></button>))}</div></div>))}</div></div><div className="p-3 border-t bg-gray-50 sticky bottom-0 z-10 flex justify-end"><button onClick={handleSave}className="btn-press bg-blue-600 text-white px-4 py-1.5 rounded text-sm font-bold shadow hover:bg-blue-700">確定</button></div></div></div>)};
+        
+        const BeatModal = ({ beat, voice2, sectionBars, onSave, onClose, onApplyToSection }) => {
+            const [localBeat, setLocalBeat] = useState(beat);
+            const [localVoice2, setLocalVoice2] = useState(voice2);
+            const [activeTab, setActiveTab] = useState(0);
+            const [focusIndex, setFocusIndex] = useState(null);
+            
+            const handleNoteChange = (idx, val, isV2) => {
+                if (isV2) {
+                    const newNotes = [...(localVoice2?.notes || Array(localBeat.notes.length).fill(""))];
+                    newNotes[idx] = val;
+                    setLocalVoice2({ ...localVoice2, type: localBeat.type, notes: newNotes });
+                } else {
+                    const newNotes = [...localBeat.notes];
+                    newNotes[idx] = val;
+                    setLocalBeat({ ...localBeat, notes: newNotes });
+                }
+            };
+            
+            const def = RHYTHM_TYPES[localBeat.type];
+            
+            const toggleVoice2 = () => {
+                if (localVoice2) {
+                    setLocalVoice2(null);
+                    setActiveTab(0);
+                } else {
+                    setLocalVoice2({ type: localBeat.type, notes: Array(def.slots).fill("") });
+                }
+            };
+            
+            const handleSave = () => {
+                const originalHasVoice2 = !!voice2;
+                const newHasVoice2 = !!localVoice2;
+                
+                if (originalHasVoice2 !== newHasVoice2) {
+                    onSave(localBeat, localVoice2, true); 
+                } else {
+                    onSave(localBeat, localVoice2, false);
+                }
+                onClose();
+            };
+
+            return (
+                <div className="modal-overlay" onClick={onClose}>
+                    <div className="modal-content p-0" onClick={e => e.stopPropagation()}>
+                        <div className="flex justify-between items-center p-3 border-b bg-gray-50">
+                            <h3 className="font-bold text-base">節奏與旋律</h3>
+                            <button onClick={onClose}><i className="fas fa-times text-gray-400"></i></button>
+                        </div>
+                        
+                        <div className="p-2 border-b bg-gray-100 flex gap-2">
+                            <button onClick={() => setActiveTab(0)} className={`flex-1 py-1 text-sm font-bold rounded ${activeTab === 0 ? 'bg-white shadow text-blue-600' : 'text-gray-500'}`}>主旋律</button>
+                            <div className="flex items-center gap-2 flex-1">
+                                <button onClick={() => setActiveTab(1)} disabled={!localVoice2} className={`flex-1 py-1 text-sm font-bold rounded ${activeTab === 1 ? 'bg-white shadow text-red-500' : (localVoice2 ? 'text-gray-500' : 'text-gray-300 bg-gray-50')}`}>第二部 {localVoice2 ? '(On)' : ''}</button>
+                                <button onClick={toggleVoice2} className={`px-2 py-1 text-xs rounded border ${localVoice2 ? 'bg-red-100 text-red-600 border-red-200' : 'bg-white text-gray-500'}`}>{localVoice2 ? '關閉' : '開啟'}</button>
+                            </div>
+                        </div>
+                        
+                        {localVoice2 && (
+                            <div className="px-2 pt-2 flex justify-end">
+                                <div className="text-[10px] text-gray-400">提示: 開啟/關閉第二部將自動套用至整段</div>
+                            </div>
+                        )}
+
+                        <div className="p-4 space-y-4 overflow-y-auto scroller">
+                            {/* RHYTHM SELECTOR */}
+                            <div>
+                                <div className="bg-blue-50 p-2 rounded border border-blue-100 mb-4 text-xs text-blue-800">
+                                    <strong>💡 輸入小撇步：</strong><br/>
+                                    • <strong>二分音符 (2拍)</strong>：第1格選四分，第2格選「延音線 (-)」。<br/>
+                                    • <strong>全音符 (4拍)</strong>：第1格選四分，後3格都選「延音線」。
+                                </div>
+                                
+                                <label className="text-xs font-bold text-gray-500 block mb-1">1. 選擇節奏型 ({activeTab === 0 ? "主旋律" : "第二部"})</label>
+                                <div className="grid grid-cols-4 gap-x-2 gap-y-4">
+                                    {Object.entries(RHYTHM_TYPES).map(([key, def]) => (
+                                        <div key={key} className="flex flex-col items-center">
+                                            <button onClick={() => {
+                                                const slots = def.slots;
+                                                if (activeTab === 1 && localVoice2) {
+                                                    setLocalVoice2({ ...localVoice2, type: key, notes: Array(slots).fill("") });
+                                                    setFocusIndex(0);
+                                                } else {
+                                                    setLocalBeat({ ...localBeat, type: key, notes: Array(slots).fill("") });
+                                                    setFocusIndex(0);
+                                                }
+                                            }} className={`btn-press w-full h-14 border rounded flex items-center justify-center overflow-hidden ${(activeTab === 1 ? localVoice2?.type : localBeat.type) === key ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500' : 'bg-white hover:bg-gray-50'}`}>
+                                                <div className="transform scale-90 w-full h-full">
+                                                    <RhythmRender type={key} notes={[]} isPreview={true} />
+                                                </div>
+                                            </button>
+                                            <span className="text-[10px] text-gray-500 font-bold mt-1 text-center">{def.desc}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            
+                            {/* MELODY INPUT */}
+                            {(activeTab === 0 || localVoice2) && RHYTHM_TYPES[activeTab === 1 ? localVoice2.type : localBeat.type].slots > 0 && (
+                                <div className={`p-3 rounded border ${activeTab === 1 ? 'bg-red-50 border-red-200' : 'bg-yellow-50 border-yellow-200'}`}>
+                                    <label className={`text-xs font-bold block mb-2 ${activeTab === 1 ? 'text-red-800' : 'text-yellow-800'}`}>2. 輸入旋律 ({activeTab === 1 ? '第二部 - 紅色' : '主旋律'})</label>
+                                    <div className="flex gap-2 justify-center mb-2 relative flex-wrap">
+                                        {(activeTab === 1 ? localVoice2 : localBeat).notes.map((n, i) => (
+                                            <MelodyInput key={i} value={n} autoFocus={focusIndex === i} onChange={(val) => handleNoteChange(i, val, activeTab === 1)} onNext={() => {
+                                                if (i < (activeTab === 1 ? localVoice2 : localBeat).notes.length - 1) {
+                                                    setFocusIndex(i + 1)
+                                                }
+                                            }} />
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        <div className="p-3 border-t bg-gray-50 sticky bottom-0 z-10 flex justify-end">
+                            <button onClick={handleSave} className="btn-press bg-blue-600 text-white px-4 py-1.5 rounded text-sm font-bold shadow hover:bg-blue-700">確定</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+        
+        const ChordModal=({value,onSave,onClose,chordMode,displayKey})=>{const [localValue,setLocalValue]=useState(value);const [root,setRoot]=useState("");const [acc,setAcc]=useState("");const [quality,setQuality]=useState("");const [ext,setExt]=useState("");const [bass,setBass]=useState("");const build=(r,a,q,e,b)=>{let res=(r||"")+(a||"")+(q||"")+(e||"");if(b)res+="/"+b;setLocalValue(res)};const confirmSave=()=>{if(!validateChord(localValue))alert("和弦格式提示：建議以數字或音名開頭。");onSave(localValue);onClose()};const roots=chordMode==='absolute'&&KEY_MAP[displayKey]?KEY_MAP[displayKey]:["1","2","3","4","5","6","7"];const accs=[{l:"♮",v:""},{l:"♯",v:"#"},{l:"♭",v:"b"}];const qualities=[{l:"Maj",v:""},{l:"min",v:"m"},{l:"dim",v:"o"},{l:"aug",v:"+"}];const exts=[{l:"-",v:""},{l:"7",v:"7"},{l:"M7",v:"M7"},{l:"m7",v:"m7"},{l:"sus",v:"sus4"},{l:"2",v:"2"},{l:"add9",v:"add9"},{l:"6",v:"6"},{l:"11",v:"11"},{l:"13",v:"13"}];return(<div className="modal-overlay"onClick={onClose}><div className="modal-content p-0 w-full max-w-2xl"onClick={e=>e.stopPropagation()}><div className="flex justify-between items-center p-3 border-b bg-gray-50"><h3 className="font-bold text-lg">和弦構造器 ({chordMode==='absolute'?'和弦名':'級數'})</h3><button onClick={onClose}><i className="fas fa-times text-gray-400"></i></button></div><div className="p-4 bg-white border-b sticky top-0 z-10"><div className="flex gap-2"><div className="flex-1 h-12 bg-blue-50 border-2 border-blue-200 rounded flex items-center justify-center text-2xl font-mono font-bold text-blue-700 shadow-inner"><AccidentalText text={localValue||"選擇..."}/></div><button onClick={()=>{setRoot("");setAcc("");setQuality("");setExt("");setBass("");build("","","","","")}}className="btn-press px-3 rounded border border-red-200 text-red-500 font-bold hover:bg-red-50">清除</button><button onClick={confirmSave}className="btn-press px-4 rounded bg-blue-600 text-white font-bold hover:bg-blue-700 shadow">確定</button></div></div><div className="grid grid-cols-5 h-64 divide-x divide-gray-100 bg-gray-50 text-sm"><div className="flex flex-col overflow-y-auto scroller bg-white">{roots.map(r=><button key={r}onClick={()=>{setRoot(r);build(r,acc,quality,ext,bass)}}className={`p-2 font-bold hover:bg-blue-50 ${localValue.startsWith(r)&&r!==""?'bg-blue-600 text-white':'text-gray-700'}`}><AccidentalText text={r}/></button>)}</div><div className="flex flex-col bg-gray-50">{accs.map(a=><button key={a.v}onClick={()=>{setAcc(a.v);build(root,a.v,quality,ext,bass)}}className={`flex-1 font-bold text-lg hover:bg-gray-200`}>{a.l}</button>)}</div><div className="flex flex-col bg-white overflow-y-auto scroller">{qualities.map(q=><button key={q.v}onClick={()=>{setQuality(q.v);build(root,acc,q.v,ext,bass)}}className={`p-2 border-b hover:bg-blue-50`}>{q.l}</button>)}</div><div className="flex flex-col bg-gray-50 overflow-y-auto scroller">{exts.map(e=><button key={e.v}onClick={()=>{setExt(e.v);build(root,acc,quality,e.v,bass)}}className={`p-2 border-b hover:bg-blue-50`}>{e.l}</button>)}</div><div className="flex flex-col bg-white overflow-y-auto scroller"><button onClick={()=>{setBass("");build(root,acc,quality,ext,"")}}className="p-1 text-red-300 text-xs">無</button>{roots.map(b=><button key={b}onClick={()=>{setBass(b);build(root,acc,quality,ext,b)}}className={`p-2 hover:bg-blue-50`}>/<AccidentalText text={b}/></button>)}</div></div></div></div>)};
+        const MetronomeModal=({settings,onChange,onClose})=>{return(<div className="modal-overlay"onClick={onClose}><div className="modal-content p-4 max-w-sm"onClick={e=>e.stopPropagation()}><div className="flex justify-between items-center mb-4 border-b pb-2"><h3 className="font-bold text-lg">節拍器 (Drum Machine)</h3><button onClick={onClose}><i className="fas fa-times text-gray-400"></i></button></div><div className="space-y-4"><div className="flex items-center justify-between"><label className="font-bold">開啟節奏</label><input type="checkbox"checked={settings.on}onChange={e=>onChange({...settings,on:e.target.checked})}className="w-5 h-5"/></div><div><label className="font-bold block mb-1">音量 ({settings.vol}dB)</label><input type="range"min="-40"max="0"step="1"value={settings.vol}onChange={e=>onChange({...settings,vol:parseInt(e.target.value)})}className="w-full"/></div><div><label className="font-bold block mb-1">節奏型態</label><select value={settings.count||4}onChange={e=>onChange({...settings,count:parseInt(e.target.value)})}className="w-full p-2 border rounded font-bold"><option value="8">標準 8-Beat (Rock/Pop)</option><option value="4">四分音符 (Kick/Snare)</option><option value="1">重拍提示 (僅 Kick)</option></select></div><div className="text-xs text-gray-500">使用合成鼓組 (Kick, Snare, Hi-Hat)</div></div><div className="mt-4 flex justify-end"><button onClick={onClose}className="px-4 py-2 bg-gray-200 rounded font-bold">關閉</button></div></div></div>)};
+        const RandomGenModal = ({ keys, onClose, onGenerate }) => {
+            const [bars, setBars] = useState(8);
+            const [genStyle, setGenStyle] = useState("Happy");
+            const [genKey, setGenKey] = useState(keys[0]);
+            
+            const STYLES_GEN = [
+                { id: "Happy", label: "歡樂 (Happy)" },
+                { id: "Sad", label: "悲傷 (Sad Ballad)" },
+                { id: "JPop", label: "日系 (J-Pop)" },
+                { id: "Ancient", label: "古風 (Pentatonic)" },
+                { id: "Jazz", label: "爵士 (Jazz)" },
+                { id: "Random", label: "隨機 (Random)" }
+            ];
+
+            return (
+                <div className="modal-overlay" onClick={onClose}>
+                    <div className="modal-content p-5 max-w-md" onClick={e => e.stopPropagation()}>
+                        <div className="flex justify-between items-center mb-4 border-b pb-2">
+                            <h3 className="font-bold text-lg">大師級自動編曲機 v20.9 (Paladin Style)</h3>
+                            <button onClick={onClose}><i className="fas fa-times text-gray-400"></i></button>
+                        </div>
+                        
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-bold text-gray-600 mb-1">風格策略</label>
+                                <select value={genStyle} onChange={e => setGenStyle(e.target.value)} className="w-full p-2 border rounded font-bold text-blue-700">
+                                    {STYLES_GEN.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+                                </select>
+                            </div>
+
+                            <div className="flex gap-4">
+                                <div className="flex-1">
+                                    <label className="block text-sm font-bold text-gray-600 mb-1">長度</label>
+                                    <div className="flex gap-2">
+                                        {[8, 16].map(n => (
+                                            <button key={n} onClick={() => setBars(n)} className={`flex-1 py-1 border rounded text-sm font-bold ${bars === n ? 'bg-blue-600 text-white' : 'bg-white text-gray-600'}`}>{n} 小節</button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="flex-1">
+                                    <label className="block text-sm font-bold text-gray-600 mb-1">調號</label>
+                                    <select value={genKey} onChange={e => setGenKey(e.target.value)} className="w-full p-1.5 border rounded font-mono text-sm">
+                                        {KEYS_CIRCLE.map(k => <option key={k.k} value={k.k}>{k.label || k.k}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div className="bg-purple-50 p-3 rounded text-xs text-purple-900 leading-relaxed">
+                                <strong>Paladin Logic：</strong><br/>
+                                • <strong>古風五聲：</strong>優先使用五聲音階 (12356) 生成旋律。<br/>
+                                • <strong>線性流動：</strong>模仿真樂器線條，減少機械感。<br/>
+                                • <strong>悲情敘事：</strong>強化 6m 小調與降級和弦的應用。<br/>
+                            </div>
+                        </div>
+
+                        <div className="mt-6 flex justify-end">
+                            <button onClick={() => { onGenerate(bars, genKey, genStyle); onClose(); }} className="btn-press bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded shadow-lg font-bold flex items-center gap-2">
+                                <i className="fas fa-wand-magic-sparkles"></i> 立即創作
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- Main App ---
+
+        const INITIAL_DATA = {
+            title: "請輸入歌名",
+            artists: ["歌手"],
+            keys: ["C"],
+            tempo: "80",
+            style: "Slow Soul",
+            timeSignature: "4/4",
+            beatsPerBar: 4,
+            barsPerLine: 4, 
+            viewMode: 'width',
+            visibility: { chord: true, melody: true, lyric: true, note: true },
+            sections: [
+                {
+                    id: 1, type: "Intro", suffix: "", pageBreak: false,
+                    bars: [
+                        { id: 101, note: "", cues: {}, chords: ["1", "", "6m", ""], beats: [{ type: 'q', notes: ['1'], cue: "" }, { type: 'e', notes: ['5', '3'], cue: "" }, { type: 's', notes: ['2', '3', '2', '1'], cue: "Dr fill" }, { type: 'q', notes: ['1.'], cue: "" }], lyric: "請輸入歌詞", lyricAlign: "left", repeatStart: true, repeatEnd: false },
+                        { id: 102, note: "", cues: {}, chords: ["", "", "", ""], beats: Array(4).fill({type: 'empty', notes:[]}), lyric: "", lyricAlign: "left", repeatStart: false, repeatEnd: true },
+                        { id: 103, note: "", cues: {}, chords: ["", "", "", ""], beats: Array(4).fill({type: 'empty', notes:[]}), lyric: "", lyricAlign: "left" },
+                        { id: 104, note: "", cues: {}, chords: ["", "", "", ""], beats: Array(4).fill({type: 'empty', notes:[]}), lyric: "", lyricAlign: "left" }
+                    ]
+                }
+            ]
+        };
+
+        const App = () => {
+            const [song, setSong] = useState(INITIAL_DATA);
+            const [editMode, setEditMode] = useState(true);
+            const [chordMode, setChordMode] = useState("nashville");
+            const [displayKey, setDisplayKey] = useState(song.keys[0]);
+            const [activeModal, setActiveModal] = useState(null); 
+            const containerRef = useRef(null);
+            const [visibility, setVisibility] = useState(song.visibility || { chord: true, melody: true, lyric: true, note: true });
+            
+            const [isPlaying, setIsPlaying] = useState(false);
+            const [isAudioLoaded, setIsAudioLoaded] = useState(false);
+            const [activeBarId, setActiveBarId] = useState(null);
+            const [loopRange, setLoopRange] = useState({ startId: null, endId: null, count: 0 }); 
+            const [metronome, setMetronome] = useState({ on: true, vol: -10, type: 'click', count: 8 });
+            const [instrumentType, setInstrumentType] = useState("piano"); 
+            
+            const [clipboard, setClipboard] = useState(null);
+            const [sectionClipboard, setSectionClipboard] = useState(null);
+
+            const synths = useRef(null);
+
+            // --- FUNCTION DEFINITIONS (Correctly Placed) ---
+            
+            const stopSong = () => { 
+                Tone.Transport.stop(); 
+                Tone.Transport.cancel(); 
+                setIsPlaying(false); 
+                setActiveBarId(null); 
+            };
+
+            const playSong = async (startBarId = null) => {
+                if (!isAudioLoaded) { alert("音效載入中，請稍候..."); return; }
+                if (Tone.Transport.state === 'started') { stopSong(); return; }
+                
+                await Tone.start();
+                Tone.Transport.cancel(0);
+                Tone.Transport.stop();
+                Tone.Transport.bpm.value = parseInt(song.tempo) || 80;
+
+                let currentTime = 0;
+                let currentKey = song.keys[0];
+                let loopStartTime = null;
+                let loopEndTime = null;
+                
+                synths.current.kick.volume.value = metronome.vol;
+                synths.current.snare.volume.value = metronome.vol;
+                synths.current.hihat.volume.value = metronome.vol - 10;
+
+                let flatBars = [];
+                song.sections.forEach(section => {
+                    let sectionBars = section.bars;
+                    let i = 0;
+                    let loopStart = -1;
+                    while(i < sectionBars.length) {
+                        let bar = sectionBars[i];
+                        if (bar.repeatStart) loopStart = i;
+                        flatBars.push({ ...bar, sectionKey: section.keyChange || null, sectionId: section.id });
+                        if (bar.repeatEnd && loopStart !== -1) {
+                            for(let k = loopStart; k <= i; k++) {
+                                flatBars.push({ ...sectionBars[k], sectionKey: section.keyChange || null, sectionId: section.id, isRepeat: true });
+                            }
+                            loopStart = -1;
+                        }
+                        i++;
+                    }
+                });
+
+                flatBars.forEach((bar, flatIdx) => {
+                    if (!bar.beats) return; 
+
+                    const scheduleTime = currentTime;
+                    if (bar.id === loopRange.startId) loopStartTime = currentTime;
+                    if(bar.sectionKey) currentKey = bar.sectionKey; 
+                    
+                    Tone.Transport.schedule((time) => {
+                        Tone.Draw.schedule(() => { setActiveBarId(bar.id); }, time);
+                    }, scheduleTime);
+
+                    // Drum Machine
+                    if (metronome.on) {
+                        const style = metronome.count || 8; 
+                        if (style === 8) {
+                            Tone.Transport.schedule(t => { synths.current.kick.triggerAttackRelease("C1", "8n", t); synths.current.hihat.triggerAttackRelease("32n", t); }, scheduleTime);
+                            Tone.Transport.schedule(t => { synths.current.hihat.triggerAttackRelease("32n", t); }, scheduleTime + Tone.Time("8n").toSeconds());
+                            Tone.Transport.schedule(t => { synths.current.snare.triggerAttackRelease("16n", t); synths.current.hihat.triggerAttackRelease("32n", t); }, scheduleTime + Tone.Time("4n").toSeconds());
+                            Tone.Transport.schedule(t => { synths.current.hihat.triggerAttackRelease("32n", t); }, scheduleTime + Tone.Time("4n").toSeconds() + Tone.Time("8n").toSeconds());
+                            Tone.Transport.schedule(t => { synths.current.kick.triggerAttackRelease("C1", "8n", t); synths.current.hihat.triggerAttackRelease("32n", t); }, scheduleTime + 2 * Tone.Time("4n").toSeconds());
+                            Tone.Transport.schedule(t => { synths.current.hihat.triggerAttackRelease("32n", t); }, scheduleTime + 2 * Tone.Time("4n").toSeconds() + Tone.Time("8n").toSeconds());
+                            Tone.Transport.schedule(t => { synths.current.snare.triggerAttackRelease("16n", t); synths.current.hihat.triggerAttackRelease("32n", t); }, scheduleTime + 3 * Tone.Time("4n").toSeconds());
+                            Tone.Transport.schedule(t => { synths.current.hihat.triggerAttackRelease("32n", t); }, scheduleTime + 3 * Tone.Time("4n").toSeconds() + Tone.Time("8n").toSeconds());
+                        } else if (style === 4) {
+                            for(let b=0; b<4; b++) {
+                                Tone.Transport.schedule(t => {
+                                    if(b%2===0) synths.current.kick.triggerAttackRelease("C1", "8n", t);
+                                    else synths.current.snare.triggerAttackRelease("16n", t);
+                                }, scheduleTime + b * Tone.Time("4n").toSeconds());
+                            }
+                        } else {
+                            Tone.Transport.schedule(t => synths.current.kick.triggerAttackRelease("C1", "8n", t), scheduleTime);
+                        }
+                    }
+
+                    let activeSynth = synths.current.piano;
+                    if (instrumentType === 'marimba') activeSynth = synths.current.marimba;
+                    if (instrumentType === 'musicbox') activeSynth = synths.current.musicbox;
+
+                    bar.beats.forEach((beat, bIdx) => {
+                        const beatTime = scheduleTime + (bIdx * Tone.Time("4n").toSeconds());
+
+                        if (bar.chords[bIdx]) {
+                            const chordNotes = getChordNotes(bar.chords[bIdx], currentKey);
+                            if (chordNotes.length > 0) {
+                                let durationBeats = song.beatsPerBar - bIdx;
+                                for (let k = bIdx + 1; k < song.beatsPerBar; k++) { if (bar.chords[k]) { durationBeats = k - bIdx; break; } }
+                                const durationTime = Math.max(0.1, durationBeats * Tone.Time("4n").toSeconds());
+                                
+                                if (activeSynth) {
+                                    Tone.Transport.schedule((time) => {
+                                        activeSynth.triggerAttackRelease(chordNotes, durationTime - 0.1, time, 0.6)
+                                    }, beatTime);
+                                }
+                            }
+                        }
+
+                        const scheduleMelodyTrack = (trackBeats) => {
+                            if (!trackBeats) return; 
+                            const currentBeat = trackBeats[bIdx];
+                            if (!currentBeat) return;
+                            const rhythmDef = RHYTHM_TYPES[currentBeat.type] || RHYTHM_TYPES['empty'];
+                            if (rhythmDef.audio) {
+                                rhythmDef.audio.forEach((noteEvent, nIdx) => {
+                                    const noteVal = currentBeat.notes[nIdx];
+                                    if (noteVal && noteVal !== "0" && noteVal !== "-") {
+                                        const freq = getNoteFromDegree(noteVal, currentKey);
+                                        if (freq) {
+                                            const noteTime = beatTime + (noteEvent.time * Tone.Time("4n").toSeconds());
+                                            const dur = Tone.Time(noteEvent.dur).toSeconds();
+                                            Tone.Transport.schedule((time) => {
+                                                activeSynth.triggerAttackRelease(freq, dur, time, 1.0);
+                                            }, noteTime);
+                                        }
+                                    }
+                                });
+                            }
+                        };
+
+                        scheduleMelodyTrack(bar.beats);
+                        if (bar.beats2) scheduleMelodyTrack(bar.beats2);
+                    });
+
+                    currentTime += Tone.Time("1m").toSeconds();
+                    if (bar.id === loopRange.endId) loopEndTime = currentTime;
+                });
+
+                if (loopRange.startId && loopRange.endId && loopStartTime !== null && loopEndTime !== null) {
+                    if (loopEndTime > loopStartTime) {
+                        Tone.Transport.setLoopPoints(loopStartTime, loopEndTime);
+                        Tone.Transport.loop = true;
+                    }
+                } else {
+                    Tone.Transport.loop = false;
+                }
+
+                let startOffset = Tone.Transport.loop ? loopStartTime : 0;
+                if (startBarId) {
+                    let tempTime = 0; let found = false;
+                    for(const b of flatBars) {
+                        if(b.id === startBarId && !b.isRepeat) { found = true; startOffset = tempTime; break; }
+                        tempTime += Tone.Time("1m").toSeconds();
+                    }
+                }
+                
+                if (Tone.Transport.loop && (startOffset < loopStartTime || startOffset >= loopEndTime)) startOffset = loopStartTime;
+
+                setIsPlaying(true);
+                Tone.Transport.start(Tone.now(), startOffset);
+            };
+
+            const generateRandomMusic = (barCount, key, style) => {
+                const progMap = {
+                    "Happy": [
+                        ["1", "5/7", "6m7", "1/5"], 
+                        ["4M7", "57", "3m7", "6m7"], 
+                        ["2m7", "57", "1M7", "1"],   
+                        ["1", "4", "1/3", "5sus4"]   
+                    ],
+                    "Sad": [
+                        ["6m", "2m7", "57", "1M7"],  
+                        ["4M7", "5/4", "3m7", "6m"], 
+                        ["1", "3m7", "4M7", "5"],    
+                        ["6m", "5", "4", "5"]        
+                    ],
+                    "JPop": [
+                        ["4M7", "57", "3m7", "6m7"], 
+                        ["2m7", "57", "3m7", "6m"],  
+                        ["b6", "b7", "1", "1"],      
+                        ["4M7", "37", "6m7", "17"]   
+                    ], 
+                    "Ancient": [
+                        ["1", "6m", "2m", "5"], 
+                        ["6m", "1", "5", "6m"], 
+                        ["4", "5", "1", "6m"],
+                        ["6m", "5", "4", "3m"] // Descending
+                    ], 
+                    "Jazz": [
+                        ["2m7", "57", "1M7", "67"],  
+                        ["1M7", "47", "3m7", "67"], 
+                        ["2m7", "b27", "1M7", "1M7"] 
+                    ],
+                    "Random": [["1","4","5","1"], ["6m","5","4","5"]]
+                };
+
+                const getChordTone = (chordStr) => {
+                    const rootStr = chordStr.replace(/[^1-7]/g, "").charAt(0) || "1";
+                    const root = parseInt(rootStr);
+                    const third = (root + 2) > 7 ? root + 2 - 7 : root + 2;
+                    const fifth = (root + 4) > 7 ? root + 4 - 7 : root + 4;
+                    return [root, third, fifth];
+                };
+                
+                // PENTATONIC SCALE HELPER
+                // Major Pentatonic: 1 2 3 5 6 (omit 4, 7)
+                const getPentatonicNote = (root) => {
+                    const scale = [1, 2, 3, 5, 6];
+                    // Pick note closest to current pitch or random from scale
+                    return scale[Math.floor(Math.random() * scale.length)];
+                }
+
+                const generateSection = (length, isChorus, startIdx) => {
+                    const pool = progMap[style] || progMap["Happy"];
+                    let chordSeq = [];
+                    
+                    if (length === 8) {
+                         chordSeq = [...pool[Math.floor(Math.random() * pool.length)], ...pool[Math.floor(Math.random() * pool.length)]];
+                         chordSeq[6] = style === "Ancient" ? "6m" : "57"; // Ancient ends on 6m often
+                         chordSeq[7] = style === "Ancient" ? "6m" : "1";
+                         if (style === "JPop" || style === "Jazz") chordSeq[3] = "37"; 
+                    } else {
+                         chordSeq = [...pool[0], ...pool[0]]; 
+                    }
+
+                    const newBars = [];
+                    let currentPitch = 4; 
+                    const minPitch = -3; 
+                    const maxPitch = 11; 
+
+                    for (let i = 0; i < length; i++) {
+                        const barId = Date.now() + startIdx + i + Math.floor(Math.random() * 10000);
+                        let density = isChorus ? 0.7 : 0.4;
+                        if (i % 4 === 3) density = 0.1; 
+
+                        const beats = [];
+                        const barChord = chordSeq[i];
+                        const chordTones = getChordTone(barChord);
+                        let beatCursor = 0; 
+
+                        while (beatCursor < 4) {
+                            let type = "q";
+                            const remainingBeats = 4 - beatCursor;
+
+                            if (i === length - 1 && beatCursor >= 2) {
+                                type = "off";
+                            } else {
+                                const r = Math.random();
+                                if (density > 0.6) {
+                                    if (r < 0.2) type = "e";
+                                    else if (r < 0.4) type = "e_s";
+                                    else if (r < 0.6) type = "s_e";
+                                    else if (r < 0.75) type = "q_dot"; 
+                                    else type = "q";
+                                } else {
+                                    if (r < 0.5) type = "q";
+                                    else if (r < 0.8) type = "e";
+                                    else if (r < 0.9) type = "q_dot";
+                                    else type = "dash";
+                                }
+                            }
+                            
+                            if (type === "q_dot") {
+                                if (remainingBeats < 2) type = "q"; 
+                            }
+                            
+                            const slotCount = RHYTHM_TYPES[type].slots;
+                            const notes = [];
+                            
+                            for(let n=0; n<slotCount; n++) {
+                                let note = "0";
+                                if (type !== "off" && type !== "dash" && type !== "empty") {
+                                    if (i === length - 1 && beatCursor === 0) {
+                                        note = style === "Ancient" ? "6" : "1"; // End on La for ancient
+                                    } else {
+                                        // PALADIN / ANCIENT LOGIC: Use Pentatonic Scale
+                                        let target = 1;
+                                        if (style === "Ancient") {
+                                            target = getPentatonicNote(); // Ignore chord tone constraint
+                                        } else {
+                                             if (beatCursor % 2 === 0 && n === 0) {
+                                                target = chordTones[Math.floor(Math.random() * chordTones.length)];
+                                            } else {
+                                                const dir = Math.random() > 0.5 ? 1 : -1;
+                                                target = currentPitch + dir;
+                                            }
+                                        }
+                                        
+                                        // Range Check
+                                        if (target > 7) target -= 7;
+                                        if (target < 1) target += 7;
+                                        
+                                        let deg = target;
+                                        let oct = "";
+                                        // Simple octave logic placeholder
+                                        note = `${deg}${oct}`;
+                                        currentPitch = target;
+                                    }
+                                } else if (type === "dash") {
+                                    note = "-";
+                                }
+                                notes.push(note);
+                            }
+                            beats.push({type, notes, cue: ""});
+                            
+                            if (type === "q_dot") {
+                                beatCursor += 1.5;
+                                beats.push({type: "e_tail", notes: ["0"], cue: ""}); 
+                                beatCursor += 0.5; 
+                            } else {
+                                beatCursor += 1;
+                            }
+                        }
+                        
+                        newBars.push({ id: barId, note: "", chords: [barChord, "", "", ""], beats, lyric: "", lyricAlign: "left" });
+                    }
+                    return newBars;
+                };
+
+                let finalBars = [];
+                const sectionA = generateSection(8, false, 0);
+                
+                if (barCount === 16) {
+                    const sectionB = generateSection(8, true, 8); 
+                    finalBars = [...sectionA, ...sectionB];
+                } else {
+                    finalBars = sectionA;
+                }
+                
+                const newSection = {
+                    id: Date.now() + Math.random(),
+                    type: "Practice",
+                    suffix: style,
+                    pageBreak: false,
+                    keyChange: key !== song.keys[0] ? key : null,
+                    bars: finalBars
+                };
+
+                setSong(prev => ({ ...prev, sections: [...prev.sections, newSection] }));
+                const startId = finalBars[0].id;
+                const endId = finalBars[finalBars.length-1].id;
+                setLoopRange({ startId, endId, count: 0 }); 
+                
+                setTimeout(() => alert(`v20.9 Paladin AI 編曲完成！\n已生成 ${barCount} 小節 (含五聲調式與呼吸氣口)。`), 100);
+            };
+
+            const toggleLoopPoint = (barId) => { if (!loopRange.startId) setLoopRange({ startId: barId, endId: null, count: 0 }); else if (!loopRange.endId) setLoopRange(prev => ({ ...prev, endId: barId })); else setLoopRange({ startId: barId, endId: null, count: 0 }); };
+            const copyBar = (bar) => { setClipboard(JSON.parse(JSON.stringify(bar))); };
+            const pasteBar = (targetSectionId, targetBarId) => {
+                if (!clipboard) return;
+                setSong(prev => ({ ...prev, sections: prev.sections.map(sec => sec.id === targetSectionId ? { ...sec, bars: sec.bars.map(b => b.id === targetBarId ? { ...b, note: clipboard.note, chords: [...clipboard.chords], beats: JSON.parse(JSON.stringify(clipboard.beats)), beats2: clipboard.beats2 ? JSON.parse(JSON.stringify(clipboard.beats2)) : undefined, lyric: clipboard.lyric, lyric2: clipboard.lyric2 } : b) } : sec) }));
+            };
+            const fillSection = (targetSectionId, sourceBar) => {
+                const sourceData = JSON.parse(JSON.stringify(sourceBar));
+                setSong(prev => ({
+                    ...prev,
+                    sections: prev.sections.map(sec => sec.id === targetSectionId ? {
+                        ...sec,
+                        bars: sec.bars.map(b => b.id >= sourceBar.id ? { 
+                            ...b,
+                            note: sourceData.note,
+                            chords: [...sourceData.chords],
+                            beats: JSON.parse(JSON.stringify(sourceData.beats)),
+                            beats2: sourceData.beats2 ? JSON.parse(JSON.stringify(sourceData.beats2)) : undefined,
+                            lyric: b.lyric,
+                            lyric2: b.lyric2
+                        } : b)
+                    } : sec)
+                }));
+            };
+            const updateBeat = (sid, bid, idx, newBeat, voice2, applyToSection = false) => {
+                setSong(s => ({
+                    ...s, 
+                    sections: s.sections.map(sec => {
+                        if (sec.id !== sid) return sec;
+                        if (applyToSection) {
+                            return {
+                                ...sec,
+                                bars: sec.bars.map(b => {
+                                    if (voice2) {
+                                        return { 
+                                            ...b, 
+                                            beats: b.id === bid ? b.beats.map((bt, i) => i === idx ? newBeat : bt) : b.beats, 
+                                            beats2: b.beats2 ? b.beats2 : Array(song.beatsPerBar).fill({type:'empty', notes:[]}) 
+                                        };
+                                    } else {
+                                        const { beats2, ...rest } = b;
+                                        return { 
+                                            ...rest,
+                                            beats: b.id === bid ? b.beats.map((bt, i) => i === idx ? newBeat : bt) : b.beats 
+                                        };
+                                    }
+                                })
+                            };
+                        } else {
+                            return {
+                                ...sec,
+                                bars: sec.bars.map(b => b.id === bid ? {
+                                    ...b, 
+                                    beats: b.beats.map((bt, i) => i === idx ? newBeat : bt),
+                                    beats2: voice2 ? (b.beats2 ? b.beats2.map((bt, i) => i === idx ? voice2 : bt) : b.beats.map((_, i) => i === idx ? voice2 : {type:'empty', notes:[]})) : (b.beats2 ? (voice2===null ? undefined : b.beats2) : undefined)
+                                } : b)
+                            };
+                        }
+                    })
+                }));
+            };
+            const applyVoice2ToSection = (sectionId, enabled) => {
+                setSong(prev => ({
+                    ...prev,
+                    sections: prev.sections.map(sec => sec.id === sectionId ? {
+                        ...sec,
+                        bars: sec.bars.map(b => {
+                            if (enabled) {
+                                return b.beats2 ? b : { ...b, beats2: Array(song.beatsPerBar).fill({type:'empty', notes:[]}) };
+                            } else {
+                                const { beats2, ...rest } = b;
+                                return rest;
+                            }
+                        })
+                    } : sec)
+                }));
+            };
+            const copySection = (section) => { setSectionClipboard(JSON.parse(JSON.stringify(section))); alert("段落已複製"); };
+            const pasteSection = () => {
+                if (!sectionClipboard) return;
+                const newSection = JSON.parse(JSON.stringify(sectionClipboard));
+                newSection.id = Date.now();
+                newSection.bars.forEach((b, i) => b.id = Date.now() + i + 100); 
+                setSong(prev => ({ ...prev, sections: [...prev.sections, newSection] }));
+            };
+            const handleSaveData = () => { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(song)); const downloadAnchorNode = document.createElement('a'); downloadAnchorNode.setAttribute("href", dataStr); downloadAnchorNode.setAttribute("download", `${song.title || "session-chart"}.json`); document.body.appendChild(downloadAnchorNode); downloadAnchorNode.click(); downloadAnchorNode.remove(); };
+            const handleLoadData = (event) => { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { try { const loadedSong = JSON.parse(e.target.result); setSong(loadedSong); alert("讀取成功！"); } catch (error) { alert("檔案格式錯誤！"); } }; reader.readAsText(file); event.target.value = null; };
+            const handleExportImage = () => { if (!containerRef.current) return; const originalTransform = containerRef.current.style.transform; containerRef.current.style.transform = 'none'; html2canvas(containerRef.current, { scale: 2, useCORS: true }).then(canvas => { const link = document.createElement('a'); link.download = `${song.title || "chart"}.jpg`; link.href = canvas.toDataURL('image/jpeg', 0.9); link.click(); containerRef.current.style.transform = originalTransform; }).catch(err => { console.error(err); alert("匯出圖片失敗"); containerRef.current.style.transform = originalTransform; }); };
+            const handlePrint = () => { setEditMode(false); setActiveModal(null); setTimeout(() => { window.print(); setEditMode(true); }, 500); };
+            const updateSong = (field, val) => setSong({...song, [field]: val});
+            const updateBarChord = (sid, bid, idx, val) => setSong(s => ({...s, sections: s.sections.map(sec => sec.id === sid ? {...sec, bars: sec.bars.map(b => b.id === bid ? {...b, chords: b.chords.map((c, i) => i === idx ? val : c)} : b)} : sec)}));
+            const updateBarText = (sid, bid, field, val) => setSong(s => ({...s, sections: s.sections.map(sec => sec.id === sid ? {...sec, bars: sec.bars.map(b => b.id === bid ? {...b, [field]: val} : b)} : sec)}));
+            const updateBarCue = (sid, bid, beatIdx, text) => setSong(s => ({...s, sections: s.sections.map(sec => sec.id === sid ? {...sec, bars: sec.bars.map(b => b.id === bid ? {...b, cues: {...(b.cues || {}), [beatIdx]: text}} : b)} : sec)}));
+            const updateSectionKeyChange = (sid, newKey) => setSong(s => ({...s, sections: s.sections.map(sec => sec.id === sid ? {...sec, keyChange: newKey} : sec)}));
+            const changeBarBeatCount = (sid, bid, change) => setSong(s => ({...s, sections: s.sections.map(sec => sec.id === sid ? {...sec, bars: sec.bars.map(b => b.id === bid ? { ...b, beats: change > 0 ? [...b.beats, { type: 'empty', notes: [], cue: "" }] : (b.beats.length > 1 ? b.beats.slice(0, -1) : b.beats) } : b)} : sec)}));
+            const updateBarRepeat = (sid, bid, start, end) => setSong(s => ({...s, sections: s.sections.map(sec => sec.id === sid ? {...sec, bars: sec.bars.map(b => b.id === bid ? {...b, repeatStart: start, repeatEnd: end} : b)} : sec)}));
+            const addKey = () => song.keys.length < 5 && setSong(s => ({...s, keys: [...s.keys, "C"]}));
+            const removeKey = (idx) => song.keys.length > 1 && setSong(s => ({...s, keys: s.keys.filter((_, i) => i !== idx)}));
+            const updateKey = (idx, val) => setSong(s => { const nk=[...s.keys]; nk[idx]=val; return {...s, keys: nk} });
+            const addArrayItem = (field, defaultVal) => { if (song[field].length >= 2) return alert("最多 2 位！"); setSong(prev => ({ ...prev, [field]: [...prev[field], defaultVal] })); };
+            const removeArrayItem = (field, index) => { if (song[field].length <= 1) return; setSong(prev => ({ ...prev, [field]: prev[field].filter((_, i) => i !== index) })); };
+            const updateTimeSignature = (beats, barsPerLine) => { const newSections = song.sections.map(sec => ({...sec, bars: sec.bars.map(bar => { let newBeats = [...bar.beats]; let newChords = [...bar.chords]; if (beats > newBeats.length) { const add = beats - newBeats.length; for(let i=0; i<add; i++) newBeats.push({type: 'empty', notes: [], cue: ""}); } else if (beats < newBeats.length) { newBeats = newBeats.slice(0, beats); } const targetChordCount = Math.max(4, beats); if (targetChordCount > newChords.length) { const add = targetChordCount - newChords.length; for(let i=0; i<add; i++) newChords.push(""); } return { ...bar, beats: newBeats, chords: newChords }; })})); setSong({ ...song, timeSignature: `${beats}/4`, beatsPerBar: beats, barsPerLine: barsPerLine, sections: newSections }); };
+            
+            const closeModal = () => setActiveModal(null);
+            const getActiveBeat = () => activeModal?.type === 'beat' ? song.sections.find(s=>s.id===activeModal.data.sectionId)?.bars.find(b=>b.id===activeModal.data.barId)?.beats[activeModal.data.beatIndex] : null;
+            const getActiveVoice2 = () => activeModal?.type === 'beat' ? (song.sections.find(s=>s.id===activeModal.data.sectionId)?.bars.find(b=>b.id===activeModal.data.barId)?.beats2?.[activeModal.data.beatIndex]) : null;
+            const getActiveBar = () => activeModal?.type === 'barNote' ? song.sections.find(s=>s.id===activeModal.data.sectionId)?.bars.find(b=>b.id===activeModal.data.barId) : null;
+
+            useEffect(() => { if(song.keys.length > 0) setDisplayKey(song.keys[0]); }, [song.keys]);
+            useEffect(() => { setSong(s => ({...s, visibility})); }, [visibility]);
+            
+            useEffect(() => {
+                // 1. Piano (Melody & Chords default)
+                const piano = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: "triangle" },
+                    envelope: { attack: 0.02, decay: 0.1, sustain: 0.3, release: 1 },
+                    maxPolyphony: 32
+                }).toDestination();
+
+                // 2. Marimba (Strings replacement, FM)
+                const marimba = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: "sine" },
+                    envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.1 },
+                    volume: -2
+                }).toDestination();
+
+                // 3. Music Box (New, Bell-like)
+                const musicBox = new Tone.PolySynth(Tone.FMSynth, {
+                    harmonicity: 3.01,
+                    modulationIndex: 10,
+                    oscillator: { type: "sine" },
+                    envelope: { attack: 0.001, decay: 1.5, sustain: 0, release: 1.5 },
+                    modulation: { type: "square" },
+                    modulationEnvelope: { attack: 0.002, decay: 0.2, sustain: 0, release: 0.2 },
+                    volume: -8
+                }).toDestination();
+
+                // --- DRUM MACHINE ---
+                const kick = new Tone.MembraneSynth({ pitchDecay: 0.05, octaves: 4, oscillator: { type: "sine" }, envelope: { attack: 0.001, decay: 0.2, sustain: 0, release: 0.5 }, volume: -2 }).toDestination();
+                const snare = new Tone.NoiseSynth({ noise: { type: "white" }, envelope: { attack: 0.001, decay: 0.15, sustain: 0 }, volume: -8 }).toDestination();
+                const hihat = new Tone.MetalSynth({ frequency: 200, envelope: { attack: 0.001, decay: 0.05, release: 0.05 }, harmonicity: 5.1, modulationIndex: 32, resonance: 4000, octaves: 1.5, volume: -15 }).toDestination();
+
+                synths.current = { 
+                    piano, marimba, musicbox: musicBox,
+                    kick, snare, hihat
+                };
+                
+                setIsAudioLoaded(true);
+                
+                return () => { Tone.Transport.stop(); Tone.Transport.cancel(); };
+            }, []);
+
+            useEffect(() => {
+                const handleKeyDown = (e) => {
+                    if (e.code === 'Space' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                        e.preventDefault(); 
+                        if (Tone.Transport.state === 'started') stopSong();
+                        else playSong();
+                    }
+                };
+                window.addEventListener('keydown', handleKeyDown);
+                return () => window.removeEventListener('keydown', handleKeyDown);
+            }, [song, metronome, loopRange, isAudioLoaded, instrumentType]); 
+
+            let currentRenderKey = song.keys[0];
+            let globalBarIndex = 1; 
+
+            return (
+                <div className="min-h-screen pb-20 bg-gray-100">
+                    {/* Modals */}
+                    {activeModal?.type === 'style' && <SelectionModal title="選擇風格" options={STYLES} current={song.style} onSelect={v=>updateSong('style', v)} onCustom={v=>updateSong('style', v)} onClose={closeModal} />}
+                    {activeModal?.type === 'time' && <TimeSignatureModal currentBeats={song.beatsPerBar} currentBarsPerLine={song.barsPerLine} onSave={updateTimeSignature} onClose={closeModal} />}
+                    {activeModal?.type === 'key' && <KeyManagerModal keys={song.keys} onUpdateKey={updateKey} onRemoveKey={removeKey} onAddKey={addKey} onClose={closeModal} />}
+                    {activeModal?.type === 'barNote' && (<BarNoteModal value={activeModal.data.value} cues={getActiveBar()?.cues || {}} beatCount={getActiveBar()?.beats.length || 4} keys={song.keys} currentKeyChange={getActiveBar()?.keyChange} repeatStart={getActiveBar()?.repeatStart} repeatEnd={getActiveBar()?.repeatEnd} onSaveText={(val)=>updateBarText(activeModal.data.sectionId, activeModal.data.barId, 'note', val)} onSaveCue={(beatIdx, val)=>updateBarCue(activeModal.data.sectionId, activeModal.data.barId, beatIdx, val)} onCountChange={(change)=>changeBarBeatCount(activeModal.data.sectionId, activeModal.data.barId, change)} onRepeatChange={(s,e)=>updateBarRepeat(activeModal.data.sectionId, activeModal.data.barId, s, e)} onClose={closeModal} />)}
+                    {activeModal?.type === 'beat' && <BeatModal beat={getActiveBeat()} voice2={getActiveVoice2()} onSave={(updates, voice2, applyToSection)=>updateBeat(activeModal.data.sectionId, activeModal.data.barId, activeModal.data.beatIndex, {...getActiveBeat(), ...updates}, voice2, applyToSection)} onClose={closeModal} onApplyToSection={(en)=>applyVoice2ToSection(activeModal.data.sectionId, en)} />}
+                    {activeModal?.type === 'chord' && <ChordModal value={activeModal.data.value} onSave={(val)=>updateBarChord(activeModal.data.sectionId, activeModal.data.barId, activeModal.data.chordIndex, val)} onClose={closeModal} chordMode={chordMode} displayKey={activeModal.data.displayKey} />}
+                    {activeModal?.type === 'metronome' && <MetronomeModal settings={metronome} onChange={setMetronome} onClose={closeModal} />}
+                    {activeModal?.type === 'randomGen' && <RandomGenModal keys={song.keys} onClose={closeModal} onGenerate={(bars, key, style) => generateRandomMusic(bars, key, style)} />}
+
+                    <div className="no-print bg-slate-800 text-white p-4 sticky top-0 z-40 shadow-xl">
+                        <div className="max-w-[210mm] mx-auto flex flex-col gap-3">
+                            <div className="flex justify-between items-center border-b border-slate-600 pb-2">
+                                <h1 className="font-bold text-xl flex items-center gap-2 text-blue-400">
+                                    <i className="fas fa-music"></i> 
+                                    <span>Session Helper v20.8 (Final Fix)</span>
+                                </h1>
+                                <div className="text-xs text-gray-400 hidden sm:block">空白鍵可播放/暫停</div>
+                            </div>
+                            
+                            <div className="flex flex-wrap justify-between items-center gap-2">
+                                {/* Group 1: Files */}
+                                <div className="flex gap-2 items-center">
+                                     <button onClick={handleSaveData} className="app-btn app-btn-secondary" title="儲存專案"><i className="fas fa-save"></i> 儲存</button>
+                                     <label className="app-btn app-btn-secondary cursor-pointer" title="讀取專案"><i className="fas fa-folder-open"></i> 讀取 <input type="file" accept=".json" className="hidden" onChange={handleLoadData} /></label>
+                                     <button onClick={handleExportImage} className="app-btn app-btn-secondary" title="匯出圖片"><i className="fas fa-image"></i> 圖片</button>
+                                     <button onClick={() => setActiveModal({type: 'randomGen'})} className="app-btn app-btn-secondary" title="自動生成樂譜"><i className="fas fa-magic"></i> 自動生成</button>
+                                </div>
+                                
+                                {/* Group 2: Playback */}
+                                <div className="flex gap-2 bg-slate-700/50 p-1 rounded-lg items-center">
+                                    <button onClick={() => isPlaying ? stopSong() : playSong()} disabled={!isAudioLoaded} className={`w-8 h-8 rounded-full flex items-center justify-center transition shadow-lg ${!isAudioLoaded ? 'bg-gray-500 cursor-not-allowed' : (isPlaying ? 'bg-red-500 hover:bg-red-400' : 'bg-green-500 hover:bg-green-400')}`}>
+                                        {isAudioLoaded ? <i className={`fas ${isPlaying ? 'fa-stop' : 'fa-play'} text-xs`}></i> : <i className="fas fa-spinner fa-spin text-xs"></i>}
+                                    </button>
+                                    <button onClick={() => setActiveModal({type: 'metronome'})} className={`text-xs px-2 ${metronome.on ? 'text-blue-300' : 'text-gray-500'}`}><i className="fas fa-stopwatch"></i></button>
+                                    
+                                    <div className="flex gap-1 bg-slate-800 rounded p-0.5 border border-slate-600">
+                                        <button onClick={() => setInstrumentType('piano')} className={`px-2 py-0.5 text-[10px] rounded ${instrumentType==='piano'?'bg-blue-600 text-white':'text-gray-400 hover:text-white'}`}>鋼琴</button>
+                                        <button onClick={() => setInstrumentType('marimba')} className={`px-2 py-0.5 text-[10px] rounded ${instrumentType==='marimba'?'bg-blue-600 text-white':'text-gray-400 hover:text-white'}`}>馬林巴</button>
+                                        <button onClick={() => setInstrumentType('musicbox')} className={`px-2 py-0.5 text-[10px] rounded ${instrumentType==='musicbox'?'bg-blue-600 text-white':'text-gray-400 hover:text-white'}`}>音樂盒</button>
+                                    </div>
+                                </div>
+
+                                {/* Group 3: View & Edit */}
+                                <div className="flex gap-2">
+                                    <div className="segmented-group">
+                                        <button onClick={() => updateSong('viewMode', 'width')} className={`segmented-btn ${song.viewMode==='width' ? 'active' : 'inactive'}`}>寬度</button>
+                                        <button onClick={() => updateSong('viewMode', 'page')} className={`segmented-btn ${song.viewMode==='page' ? 'active' : 'inactive'}`}>整頁</button>
+                                    </div>
+                                    
+                                    <div className="segmented-group">
+                                        <button onClick={() => setChordMode('nashville')} className={`segmented-btn ${chordMode==='nashville' ? 'active' : 'inactive'}`}>級數</button>
+                                        <button onClick={() => setChordMode('absolute')} className={`segmented-btn ${chordMode==='absolute' ? 'active' : 'inactive'}`}>和弦</button>
+                                    </div>
+
+                                    <div className="segmented-group relative group">
+                                        <button className="segmented-btn inactive">顯示 <i className="fas fa-chevron-down text-[10px]"></i></button>
+                                        <div className="absolute top-full right-0 mt-1 bg-white text-gray-800 rounded shadow-lg p-2 z-50 hidden group-hover:block min-w-[100px]">
+                                            {['note', 'chord', 'melody', 'lyric'].map(k => (
+                                                <label key={k} className="flex items-center gap-2 text-xs p-1 hover:bg-gray-100 cursor-pointer">
+                                                    <input type="checkbox" checked={visibility[k]} onChange={e => setVisibility({...visibility, [k]: e.target.checked})} />
+                                                    {k==='note'?'提示':(k==='chord'?'和弦':(k==='melody'?'旋律':'歌詞'))}
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <button onClick={() => setEditMode(!editMode)} className={`app-btn app-btn-secondary`}>{editMode ? '預覽' : '編輯'}</button>
+                                    <button onClick={handlePrint} className="app-btn app-btn-secondary"><i className="fas fa-print"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div 
+                        ref={containerRef}
+                        className={`print-container bg-white shadow-2xl text-gray-800 box-border text-sm relative transition-transform duration-300 origin-top mx-auto mt-6 ${song.viewMode === 'width' ? 'w-full md:w-[210mm]' : 'w-[210mm] min-h-[297mm]'}`}
+                        style={{ padding: '10mm', minHeight: '297mm' }}
+                    >
+                        <div className="border-b-2 border-black pb-4 mb-6">
+                            <div className="text-center mb-6">
+                                {editMode ? <input className="text-3xl font-bold text-center w-full placeholder-gray-300 focus:outline-none" value={song.title} onChange={e=>updateSong('title', e.target.value)} placeholder="歌名" /> : <h1 className="text-3xl font-bold">{song.title}</h1>}
+                            </div>
+                            <div className="flex justify-between items-start font-mono font-bold text-base">
+                                <div className="flex flex-col gap-1 items-start flex-1">
+                                    <div className="flex items-center gap-1"><span className="text-gray-500 text-xs font-sans font-bold w-10">風格:</span><button onClick={() => editMode && setActiveModal({type: 'style'})} className={`text-left hover:text-blue-600 ${editMode?'border-b border-dashed border-gray-300':''}`}>{song.style || "Style"}</button></div>
+                                    <div className="flex items-center gap-1"><span className="text-gray-500 text-xs font-sans font-bold w-10">拍號:</span><button onClick={() => editMode && setActiveModal({type: 'time'})} className={`text-left hover:text-blue-600 ${editMode?'border-b border-dashed border-gray-300':''}`}>{song.timeSignature}</button></div>
+                                    <div className="flex items-center gap-1"><span className="text-gray-500 text-xs font-sans font-bold w-10">調號:</span><button onClick={() => editMode && setActiveModal({type: 'key'})} className="flex items-center gap-1 hover:text-blue-600">{song.keys.map((k,i) => <span key={i}>{i>0&&"→"}<AccidentalText text={k} /></span>)}{editMode && <i className="fas fa-edit text-[10px] text-gray-300 ml-1"></i>}</button></div>
+                                </div>
+                                <div className="flex flex-col gap-1 items-end flex-1">
+                                    <div className="flex gap-2 justify-end w-full">
+                                        <span className="text-gray-500 text-xs font-sans font-bold whitespace-nowrap mt-1">歌手:</span>
+                                        <div className="flex flex-col items-end gap-1">
+                                            {song.artists.map((art, i) => (
+                                                <div key={i} className="flex items-center relative group justify-end">
+                                                    {editMode ? (
+                                                        <input className="text-right font-medium focus:outline-none border-b border-transparent focus:border-blue-300 w-auto min-w-[3rem] max-w-[8rem]" value={art} onChange={e => {const na=[...song.artists]; na[i]=e.target.value; updateSong('artists', na);}} placeholder="歌手" style={{width: `${Math.max(3, art.length + 1)}ch`}} />
+                                                    ) : (
+                                                        <span>{art}</span>
+                                                    )}
+                                                    {editMode && song.artists.length > 1 && (<button onClick={() => removeArrayItem('artists', i)} className="text-red-300 hover:text-red-500 text-[10px] ml-1"><i className="fas fa-times"></i></button>)}
+                                                </div>
+                                            ))}
+                                            {editMode && song.artists.length < 2 && (<button onClick={() => addArrayItem('artists', "")} className="text-blue-400 hover:text-blue-600 text-[10px] self-end btn-press mt-1"><i className="fas fa-plus"></i></button>)}
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2 mt-1"><span className="text-gray-500 text-xs font-sans font-bold">速度:</span>{editMode ? <input className="w-12 text-right focus:outline-none border-b border-transparent focus:border-blue-300" value={song.tempo} onChange={e=>updateSong('tempo', e.target.value)}/> : song.tempo}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {song.sections.map(section => (
+                            <div key={section.id} className={`mb-6 ${section.pageBreak ? 'page-break pt-8 border-t-4 border-double border-gray-200 relative' : ''}`}>
+                                {section.pageBreak && editMode && <div className="no-print absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white text-gray-400 text-xs px-2 border rounded shadow-sm">Page Break (A4)</div>}
+                                <div className="flex items-center gap-2 mb-2 group flex-wrap">
+                                    {editMode ? (
+                                        <div className="flex gap-1 no-print bg-gray-100 p-1 rounded-lg items-center">
+                                            <select className="bg-transparent text-xs font-bold outline-none" value={section.type} onChange={e => {const ns=song.sections.map(s=>s.id===section.id?{...s, type:e.target.value}:s); setSong({...song, sections:ns})}}>{SECTION_TYPES.map(t=><option key={t} value={t}>{t}</option>)}</select>
+                                            <select className="bg-transparent text-xs outline-none" value={section.suffix} onChange={e => {const ns=song.sections.map(s=>s.id===section.id?{...s, suffix:e.target.value}:s); setSong({...song, sections:ns})}}>{SECTION_SUFFIXES.map(s=><option key={s} value={s}>{s||"-"}</option>)}</select>
+                                            
+                                            {song.keys.length > 1 && (
+                                                <>
+                                                    <div className="w-px h-3 bg-gray-300 mx-1"></div>
+                                                    <span className="text-[10px] text-gray-400 font-bold">轉調:</span>
+                                                    <select className="bg-transparent text-xs outline-none font-bold text-indigo-600" value={section.keyChange || ""} onChange={e => updateSectionKeyChange(section.id, e.target.value || null)}>
+                                                        <option value="">(維持)</option>
+                                                        {song.keys.map((k, index) => <option key={`${k}-${index}`} value={k}>{k}</option>)}
+                                                    </select>
+                                                </>
+                                            )}
+                                            
+                                            <div className="w-px h-3 bg-gray-300 mx-1"></div>
+                                            <button onClick={()=>copySection(section)} className="text-gray-500 hover:text-blue-600 text-xs px-1" title="複製此段落"><i className="fas fa-copy"></i></button>
+                                            {sectionClipboard && <button onClick={pasteSection} className="text-gray-500 hover:text-blue-600 text-xs px-1" title="貼上段落"><i className="fas fa-paste"></i></button>}
+                                            <div className="w-px h-3 bg-gray-300 mx-1"></div>
+                                            <label className="flex items-center gap-1 text-[10px] text-gray-500 cursor-pointer hover:text-blue-600"><input type="checkbox" checked={section.pageBreak} onChange={e => {const ns=song.sections.map(s=>s.id===section.id?{...s, pageBreak:e.target.checked}:s); setSong({...song, sections:ns})}}/> 換頁</label>
+                                            <div className="w-px h-3 bg-gray-300 mx-1"></div>
+                                            <button onClick={() => setSong(s => ({...s, sections: s.sections.filter(x => x.id !== section.id)}))} className="text-red-400 hover:text-red-600 text-xs px-1"><i className="fas fa-trash"></i></button>
+                                        </div>
+                                    ) : null}
+                                    {section.type !== "Hidden" && <span className="bg-black text-white px-3 py-1 rounded-full text-sm font-bold shadow-md tracking-wide">{section.type} {section.suffix}</span>}
+                                </div>
+                                <div className="flex flex-wrap border-l-2 border-black">
+                                    {section.bars.map((bar, bIdx) => {
+                                        if (bIdx === 0 && section.keyChange) {
+                                            currentRenderKey = section.keyChange;
+                                        }
+                                        const barContextKey = currentRenderKey;
+                                        const isDense = bar.beats.some(b => b.type === 'sext' || b.type === 'quint' || (b.notes && b.notes.length > 4)) || bar.chords.some(c => c && c.length > 7) || (bar.lyric && bar.lyric.length > 10) || (bar.note && bar.note.length > 8) || Object.values(bar.cues || {}).some(c => c.length > 6);
+                                        let baseWidth = 'w-full md:w-1/4';
+                                        if (song.barsPerLine === 2) baseWidth = 'w-full md:w-1/2';
+                                        if (song.barsPerLine === 3) baseWidth = 'w-full md:w-1/3';
+                                        const widthClass = isDense ? 'w-full md:w-1/2' : baseWidth;
+                                        const isActive = isPlaying && activeBarId === bar.id;
+                                        
+                                        const isLoopStart = loopRange.startId === bar.id;
+                                        const isLoopEnd = loopRange.endId === bar.id;
+                                        const hasVoice2 = !!bar.beats2;
+                                        
+                                        const currentBarIndex = globalBarIndex++;
+
+                                        // Calculate Total Beats
+                                        const currentBarBeats = bar.beats.reduce((acc, b) => acc + (RHYTHM_TYPES[b.type]?.duration || 0), 0);
+                                        const isInvalid = currentBarBeats !== song.beatsPerBar;
+
+                                        return (
+                                            <div key={bar.id} className={`relative border-r-2 border-black p-1 ${widthClass} flex flex-col group/bar transition-all duration-200 overflow-hidden h-auto ${isActive ? 'active-playing-bar' : ''} ${isLoopStart ? 'loop-start-bar' : ''} ${isLoopEnd ? 'loop-end-bar' : ''} ${isLoopStart && isLoopEnd ? 'loop-range-active' : ''} ${bar.repeatStart ? 'repeat-start' : ''} ${bar.repeatEnd ? 'repeat-end' : ''} ${isInvalid ? 'bar-invalid' : ''}`}>
+                                                <div className="bar-number">{currentBarIndex}</div>
+                                                {isInvalid && <div className="invalid-badge validation-warning">⚠️ {currentBarBeats} / {song.beatsPerBar}</div>}
+                                                
+                                                {editMode && <div className="no-print absolute top-0 right-0 z-20 opacity-0 group-hover/bar:opacity-100 transition-opacity flex gap-1 bg-white/90 p-1 rounded-bl border border-gray-200 shadow-sm">
+                                                    <button className="text-gray-500 hover:text-blue-600 text-xs px-1" onClick={()=>copyBar(bar)} title="複製小節"><i className="fas fa-copy"></i></button>
+                                                    {clipboard && <button className="text-gray-500 hover:text-blue-600 text-xs px-1" onClick={()=>pasteBar(section.id, bar.id)} title="貼上小節"><i className="fas fa-paste"></i></button>}
+                                                    <button className="text-blue-500 hover:text-blue-700 text-xs px-1" onClick={()=>fillSection(section.id, bar)} title="填滿段落 (將此小節複製到段落剩餘部分)"><i className="fas fa-fill-drip"></i></button>
+                                                    <button className="text-red-300 hover:text-red-600 text-xs px-1" onClick={()=>{const ns=song.sections.map(s=>s.id===section.id?{...s, bars:s.bars.filter(b=>b.id!==bar.id)}:s); setSong({...song, sections:ns})}} title="刪除"><i className="fas fa-times"></i></button>
+                                                </div>}
+                                                
+                                                <div className="play-marker no-print absolute top-1 left-1 z-30 opacity-0 group-hover/bar:opacity-100 transition-opacity flex flex-col gap-1">
+                                                    <button onClick={(e) => { e.stopPropagation(); playSong(bar.id); }} className="w-5 h-5 bg-green-500 text-white rounded-full flex items-center justify-center shadow hover:bg-green-600" title="從此播放">
+                                                        <i className="fas fa-play text-[8px]"></i>
+                                                    </button>
+                                                    <div className="flex gap-0.5">
+                                                        <button onClick={(e) => { e.stopPropagation(); toggleLoopPoint(bar.id); }} className={`w-5 h-5 ${isLoopStart || isLoopEnd ? 'bg-yellow-500 text-white' : 'bg-gray-200 text-gray-500'} rounded-full flex items-center justify-center shadow hover:bg-yellow-400`} title="設定循環起點/終點">
+                                                            <span className="text-[8px] font-bold">{isLoopStart ? 'A' : (isLoopEnd ? 'B' : 'AB')}</span>
+                                                        </button>
+                                                        {(isLoopStart || isLoopEnd) && <select className="h-5 text-[8px] border rounded bg-white" value={loopRange.count} onClick={e=>e.stopPropagation()} onChange={(e) => setLoopRange(prev => ({...prev, count: parseInt(e.target.value)}))}>
+                                                            <option value="0">∞</option>
+                                                            <option value="2">2x</option>
+                                                            <option value="4">4x</option>
+                                                        </select>}
+                                                    </div>
+                                                </div>
+
+                                                {bIdx === 0 && section.keyChange && (
+                                                    <div className="absolute top-0 left-0 bg-black text-white text-[10px] font-bold px-1 rounded-br z-30 shadow-sm">
+                                                        Key: <AccidentalText text={section.keyChange} />
+                                                    </div>
+                                                )}
+                                                
+                                                {visibility.note && <div className={`h-6 mb-1 relative flex items-center pl-8 ${editMode ? 'cursor-pointer hover-trigger' : ''}`} onClick={() => editMode && setActiveModal({type: 'barNote', data: { sectionId: section.id, barId: bar.id, value: bar.note }})}>
+                                                    {bar.note ? <div className={`text-xs font-bold text-gray-600 italic px-1 truncate w-full text-left ${bIdx===0 && section.keyChange ? 'pl-12' : ''}`}>{bar.note}</div> : editMode && <div className={`text-[9px] text-gray-300 italic px-1 w-full text-left pl-1 ${bIdx===0 && section.keyChange ? 'pl-12' : ''}`}>Note</div>}
+                                                </div>}
+                                                
+                                                <div className="flex-1 flex flex-col justify-end relative z-10">
+                                                    <div className="w-full h-4 flex mb-1">
+                                                        {bar.beats.map((beat, i) => (
+                                                            <div key={i} className="flex-1 flex justify-start relative items-end pl-1">
+                                                                 {bar.cues?.[i] && <div className="text-[10px] text-red-600 font-bold whitespace-nowrap bg-white/90 px-1 rounded shadow-sm z-20">{bar.cues[i]}</div>}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                    {visibility.chord && <div className="flex h-8 mb-1 gap-0.5 pl-1">
+                                                        {bar.chords.map((c, cIdx) => (
+                                                            <div key={cIdx} className="flex-1 flex justify-start pl-1">
+                                                                <div className={`chord-cell rounded px-1 flex items-center cursor-pointer transition ${editMode ? 'hover-trigger' : ''} ${c ? 'border border-black bg-white has-chord' : 'border-none bg-transparent no-chord'}`} style={{ width: 'fit-content', minWidth: '1.5em' }} onClick={() => editMode && setActiveModal({ type: 'chord', data: { sectionId: section.id, barId: bar.id, chordIndex: cIdx, value: c, displayKey: barContextKey } })}>
+                                                                    <ChordInput value={c} mode={chordMode} displayKey={barContextKey} />
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>}
+                                                </div>
+                                                
+                                                {visibility.melody && <div className={`flex-1 melody-container flex items-end justify-between px-0.5 pb-1 gap-1 mt-1 ${hasVoice2 ? 'flex-col items-stretch h-32' : ''}`}>
+                                                    <div className="flex flex-1 items-end relative">
+                                                    {bar.beats.map((beat, beatIdx) => (
+                                                        <div key={beatIdx} className={`relative flex-1 h-16 flex items-end justify-start cursor-pointer border-b border-transparent ${editMode ? 'hover:bg-blue-50/50 hover:border-blue-200' : ''} transition`} onClick={(e) => {if(!editMode) return; e.stopPropagation(); setActiveModal({ type: 'beat', data: { sectionId: section.id, barId: bar.id, beatIndex: beatIdx } })}}>
+                                                            <RhythmRender type={beat.type} notes={beat.notes} />
+                                                        </div>
+                                                    ))}
+                                                    </div>
+                                                    {hasVoice2 && (
+                                                        <div className="flex flex-1 items-end border-t border-red-100 relative">
+                                                            {bar.beats2.map((beat, beatIdx) => (
+                                                                <div key={beatIdx} className={`relative flex-1 h-16 flex items-end justify-start cursor-pointer border-b border-transparent ${editMode ? 'hover:bg-red-50/50 hover:border-red-200' : ''} transition`} onClick={(e) => {if(!editMode) return; e.stopPropagation(); setActiveModal({ type: 'beat', data: { sectionId: section.id, barId: bar.id, beatIndex: beatIdx } })}}>
+                                                                    <RhythmRender type={beat.type} notes={beat.notes} isVoice2={true} />
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>}
+                                                
+                                                {visibility.lyric && <div className="mt-1 flex flex-col gap-0.5">
+                                                    {editMode ? (
+                                                        <>
+                                                            <input className="w-full text-base font-bold font-mono text-gray-800 bg-transparent text-left focus:bg-white focus:ring-1 focus:ring-blue-200 rounded px-1" value={bar.lyric} onChange={e=>updateBarText(section.id, bar.id, 'lyric', e.target.value)} placeholder="Lyric"/>
+                                                            {hasVoice2 && <input className="w-full text-sm font-bold font-mono text-red-500 bg-transparent text-left focus:bg-white focus:ring-1 focus:ring-red-200 rounded px-1" value={bar.lyric2 || ''} onChange={e=>updateBarText(section.id, bar.id, 'lyric2', e.target.value)} placeholder="Lyric 2"/>}
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <div className="text-base font-bold font-mono text-gray-800 truncate min-h-[1rem] text-left px-1">{bar.lyric}</div>
+                                                            {hasVoice2 && <div className="text-sm font-bold font-mono text-red-500 truncate min-h-[1rem] text-left px-1">{bar.lyric2}</div>}
+                                                        </>
+                                                    )}
+                                                </div>}
+                                            </div>
+                                        );
+                                    })}
+                                    {editMode && <button onClick={() => {
+                                        // Auto-detect if last bar had voice2
+                                        const lastBar = section.bars[section.bars.length - 1];
+                                        const useVoice2 = lastBar && !!lastBar.beats2;
+                                        
+                                        const newBar = { id: Date.now() + Math.random(), note:"", chords:Array(Math.max(4, song.beatsPerBar)).fill(""), beats: Array(song.beatsPerBar).fill({type:'empty', notes:[], cue:""}), lyric:"", lyricAlign: "left" }; 
+                                        if(useVoice2) newBar.beats2 = Array(song.beatsPerBar).fill({type:'empty', notes:[], cue:""});
+                                        
+                                        const newSecs = song.sections.map(s => s.id === section.id ? {...s, bars: [...s.bars, newBar]} : s); setSong({...song, sections: newSecs});
+                                    }} className="no-print w-8 flex items-center justify-center border-r-2 border-dashed border-gray-200 text-gray-300 hover:text-blue-500 hover:bg-blue-50 transition"><i className="fas fa-plus"></i></button>}
+                                </div>
+                            </div>
+                        ))}
+                        {editMode && <div className="no-print text-center py-8 border-t-2 border-dashed border-gray-200 mt-8"><button onClick={() => {const newSec = {id: Date.now(), type: "Verse", suffix: "", pageBreak: false, bars: [1,2,3,4].map(i => ({id: Date.now()+i, note: "", chords: Array(Math.max(4, song.beatsPerBar)).fill(""), beats: Array(song.beatsPerBar).fill({type: 'empty', notes:[], cue:""}), lyric: "", lyricAlign: "left"}))}; setSong({...song, sections: [...song.sections, newSec]});}} className="btn-press bg-blue-600 text-white px-6 py-2 rounded-full shadow hover:bg-blue-700 font-bold text-sm flex items-center justify-center gap-2 mx-auto"><i className="fas fa-plus-circle"></i> 新增段落</button></div>}
+                        <div className="mt-8 pt-4 border-t text-center text-xs text-gray-400 font-mono">Generated by Session Helper v20.8</div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

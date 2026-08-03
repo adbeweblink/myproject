@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adobe 設計價值與效能分析儀</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        adobe: {
+                            bg: '#1E1E1E',
+                            panel: '#323232',
+                            blue: '#0265DC',
+                            blueHover: '#0056b3',
+                            red: '#FF5555',
+                            green: '#2DCA72',
+                            yellow: '#FFD700'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e1e1e; }
+        ::-webkit-scrollbar-thumb { background: #454545; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555555; }
+        .light ::-webkit-scrollbar-track { background: #F0F2F5; }
+        .light ::-webkit-scrollbar-thumb { background: #D1D5DB; }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        
+        .shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900 dark:bg-[#1E1E1E] dark:text-[#f0f0f0] font-sans transition-colors duration-300 min-h-screen pb-10 selection:bg-adobe-blue selection:text-white">
+
+    <!-- Intro Modal -->
+    <div id="intro-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+        <div class="bg-white dark:bg-[#2b2b2b] rounded-2xl max-w-md w-full border border-gray-200 dark:border-[#555555] shadow-2xl overflow-hidden">
+            <div class="p-8 text-center">
+                <div class="w-20 h-20 bg-gradient-to-br from-[#FF0000] to-[#6018DC] rounded-2xl mx-auto flex items-center justify-center shadow-lg mb-6 transform hover:scale-105 transition-transform duration-300">
+                    <span class="text-white font-bold text-3xl">CC</span>
+                </div>
+                <h2 class="text-2xl font-bold mb-3">設計師職場生存檢測儀</h2>
+                <p class="text-base text-gray-500 dark:text-[#aaaaaa] mb-8 leading-relaxed">
+                    這份工作到底值不值得賣命？3 步驟算出你的真實時薪、身價行情，以及那些被忽略的隱形加班成本。
+                </p>
+                <div class="text-left space-y-4 mb-10">
+                    <!-- Steps -->
+                    <div class="flex items-start gap-4 p-4 rounded-xl bg-gray-50 dark:bg-[#181818] border border-gray-200 dark:border-[#555555]">
+                        <div class="bg-blue-500/20 text-blue-500 p-2 rounded-lg shrink-0">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        </div>
+                        <div>
+                            <h4 class="text-base font-bold mb-1">1. 先看市場行情</h4>
+                            <p class="text-sm text-gray-500 dark:text-[#aaaaaa]">根據你的技能包與年資，看看外面給多少。</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4 p-4 rounded-xl bg-gray-50 dark:bg-[#181818] border border-gray-200 dark:border-[#555555]">
+                        <div class="bg-orange-500/20 text-orange-500 p-2 rounded-lg shrink-0">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        </div>
+                        <div>
+                            <h4 class="text-base font-bold mb-1">2. 再算命值多少錢</h4>
+                            <p class="text-sm text-gray-500 dark:text-[#aaaaaa]">扣掉通勤、責任制加班，你的時薪還剩多少？</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4 p-4 rounded-xl bg-gray-50 dark:bg-[#181818] border border-gray-200 dark:border-[#555555]">
+                        <div class="bg-red-500/20 text-red-500 p-2 rounded-lg shrink-0">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+                        </div>
+                        <div>
+                            <h4 class="text-base font-bold mb-1">3. 揪出隱形虧損</h4>
+                            <p class="text-sm text-gray-500 dark:text-[#aaaaaa]">軟體難用、流程卡卡，其實都在偷走你的錢。</p>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="closeModal('intro-modal')" class="w-full bg-adobe-blue hover:bg-blue-700 text-white py-4 rounded-xl text-base font-bold transition-all shadow-lg hover:shadow-xl active:scale-95 flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
+                    開始檢測
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="bg-white dark:bg-[#2b2b2b] p-0 shadow-lg border-b border-gray-200 dark:border-[#383838] transition-colors duration-300 sticky top-0 z-40">
+        <div class="h-1.5 w-full bg-gradient-to-r from-[#FF0000] via-[#FF9A00] to-[#31A8FF]"></div>
+        <div class="p-5 max-w-lg mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold flex items-center gap-3 tracking-wide">
+                    <div class="bg-gradient-to-br from-[#FF0000] to-[#6018DC] text-white p-1.5 rounded-md font-bold text-sm w-9 h-9 flex items-center justify-center shadow-lg">CC</div>
+                    設計師生存檢測
+                </h1>
+                <p class="text-xs text-gray-500 dark:text-[#aaaaaa] mt-1 ml-12 font-medium">Adobe 商業效能評估工具</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="toggleTheme()" class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-[#3E3E3E] transition-colors border border-gray-200 dark:border-[#444444] text-gray-500 dark:text-[#888888]">
+                    <!-- Sun/Moon Icon -->
+                    <svg id="theme-icon" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"></svg>
+                </button>
+                <button onclick="openModal('source-modal')" class="flex items-center gap-2 bg-gray-100 dark:bg-[#3E3E3E] px-4 py-2 rounded-lg text-sm font-medium text-gray-600 dark:text-[#ffffff] hover:text-adobe-blue transition-colors border border-gray-200 dark:border-[#444444]">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    數據來源
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Source Modal -->
+    <div id="source-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+        <div class="bg-white dark:bg-[#2b2b2b] rounded-xl max-w-lg w-full border border-gray-200 dark:border-[#555555] shadow-2xl overflow-hidden">
+            <div class="p-5 border-b border-gray-200 dark:border-[#444444] flex justify-between items-center bg-white dark:bg-[#2b2b2b]">
+                <h3 class="font-bold flex items-center gap-2 text-lg"><svg class="w-5 h-5 text-adobe-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> 2025 數據說明</h3>
+                <button onclick="closeModal('source-modal')" class="text-gray-500 hover:text-gray-900 dark:hover:text-white"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+            </div>
+            <div class="p-6 text-sm text-gray-600 dark:text-[#cccccc] space-y-5 max-h-[60vh] overflow-y-auto leading-relaxed">
+                <div>
+                    <h4 class="text-adobe-blue font-bold mb-2 text-base uppercase tracking-wide">104 薪資情報 (中位數)</h4>
+                    <ul class="list-disc pl-5 space-y-2 text-sm text-gray-500 dark:text-[#aaaaaa]">
+                        <li><span class="dark:text-white">平面/美編</span>：平均月薪 3.8 萬</li>
+                        <li><span class="dark:text-white">UI 設計師</span>：平均月薪 5.6 萬</li>
+                        <li><span class="dark:text-white">多媒體動畫</span>：平均月薪 4.8 萬</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-adobe-red font-bold mb-2 text-base uppercase tracking-wide">風險評估聲明</h4>
+                    <p class="text-sm text-gray-500 dark:text-[#aaaaaa]">「隱形虧損」計算包含：通勤時間成本、責任制加班、以及因工具不相容造成的人力浪費。實際數值依個人狀況而定。</p>
+                </div>
+            </div>
+            <div class="p-5 text-center border-t border-gray-200 dark:border-[#444444]">
+                <button onclick="closeModal('source-modal')" class="w-full bg-adobe-blue hover:bg-blue-700 text-white py-3 rounded-lg text-sm font-medium">了解，關閉視窗</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stepper Tabs -->
+    <div class="max-w-lg mx-auto mt-8 px-4">
+        <div class="flex justify-between items-center bg-white dark:bg-[#2b2b2b] p-3 rounded-xl border border-gray-200 dark:border-[#444444] shadow-sm">
+            <!-- Step 1 -->
+            <div id="tab-1" class="flex items-center gap-2 px-3 py-2 rounded-lg transition-all border-b-2 border-adobe-blue bg-gray-100 dark:bg-[#3E3E3E] dark:text-white">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-adobe-blue text-white">1</div>
+                <span class="text-sm font-bold">市值</span>
+            </div>
+            <div class="h-[2px] w-6 bg-gray-300 dark:bg-[#555555]"></div>
+            <!-- Step 2 -->
+            <div id="tab-2" class="flex items-center gap-2 px-3 py-2 rounded-lg transition-all border-b-2 border-transparent text-gray-400 dark:text-[#888888]">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-gray-300 dark:bg-[#555555] text-white">2</div>
+                <span class="text-sm font-bold">時薪</span>
+            </div>
+            <div class="h-[2px] w-6 bg-gray-300 dark:bg-[#555555]"></div>
+            <!-- Step 3 -->
+            <div id="tab-3" class="flex items-center gap-2 px-3 py-2 rounded-lg transition-all border-b-2 border-transparent text-gray-400 dark:text-[#888888]">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-gray-300 dark:bg-[#555555] text-white">3</div>
+                <span class="text-sm font-bold">風險</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Container -->
+    <div class="max-w-lg mx-auto p-4 space-y-8 pb-20">
+        
+        <!-- Toast Notification -->
+        <div id="toast" class="hidden fixed top-6 left-1/2 transform -translate-x-1/2 bg-adobe-blue text-white px-6 py-4 rounded-xl shadow-2xl z-50 text-base flex items-center gap-3 animate-bounce font-medium border border-blue-400 w-max max-w-[90vw]">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span id="toast-msg">Notification</span>
+        </div>
+
+        <!-- STEP 1: MARKET VALUE -->
+        <section id="step-1" class="animate-fade-in space-y-6">
+            <div class="bg-white dark:bg-[#2b2b2b] p-6 rounded-xl border border-gray-200 dark:border-[#444444] shadow-lg">
+                <h3 class="text-gray-500 dark:text-[#dddddd] text-base font-bold mb-6 uppercase tracking-widest flex items-center gap-2 border-b border-gray-200 dark:border-[#444444] pb-4">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg> 
+                    參數設定面板
+                </h3>
+                
+                <div class="grid grid-cols-2 gap-5 mb-8">
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium text-gray-500 dark:text-[#aaaaaa] uppercase">職位類型</label>
+                        <select id="role" class="w-full bg-gray-50 dark:bg-[#181818] border border-gray-300 dark:border-[#555555] rounded-xl p-3 text-base text-gray-900 dark:text-[#f0f0f0] focus:border-adobe-blue outline-none transition-colors appearance-none">
+                            <option value="graphic">平面/視覺設計</option>
+                            <option value="ui">UI/UX 使用者介面</option>
+                            <option value="video">影音/動態設計</option>
+                            <option value="marketing_design">社群行銷設計</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium text-gray-500 dark:text-[#aaaaaa] uppercase">工作地點</label>
+                        <select id="city" class="w-full bg-gray-50 dark:bg-[#181818] border border-gray-300 dark:border-[#555555] rounded-xl p-3 text-base text-gray-900 dark:text-[#f0f0f0] focus:border-adobe-blue outline-none transition-colors appearance-none">
+                            <option value="taipei">雙北地區</option>
+                            <option value="other">其他縣市</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-10">
+                    <div class="flex justify-between mb-3">
+                        <label class="text-sm font-medium text-gray-500 dark:text-[#aaaaaa] uppercase">設計走跳資歷</label>
+                        <span id="exp-display" class="text-adobe-blue font-bold text-lg">2 年</span>
+                    </div>
+                    <input type="range" id="exp" min="0" max="15" step="1" value="2" class="w-full h-2 bg-gray-200 dark:bg-[#454545] rounded-full appearance-none cursor-pointer accent-[#0265DC]">
+                </div>
+
+                <div id="skills-section">
+                    <div class="flex justify-between items-end mb-4">
+                        <label class="text-sm font-medium text-gray-500 dark:text-[#aaaaaa] uppercase">靠什麼吃飯？(技能包)</label>
+                        <span class="text-xs text-orange-500 font-medium">* 請勾選已精通項目</span>
+                    </div>
+                    <div id="skills-grid" class="grid grid-cols-4 gap-4 p-3 rounded-2xl transition-all">
+                        <!-- Skills injected by JS -->
+                    </div>
+                </div>
+
+                <!-- Tips Containers -->
+                <div id="tips-container"></div>
+            </div>
+
+            <!-- Result Card -->
+            <div class="bg-white dark:bg-[#2b2b2b] rounded-xl border border-gray-200 dark:border-[#444444] overflow-hidden text-center relative shadow-xl">
+                <div class="p-10 bg-gradient-to-b from-white to-gray-50 dark:from-[#333333] dark:to-[#2b2b2b]">
+                    <div class="flex items-center justify-center gap-2 mb-4"><p class="text-gray-500 dark:text-[#aaaaaa] text-base uppercase tracking-widest font-medium">市場行情估算月薪</p></div>
+                    <div class="text-5xl font-bold tracking-tight mb-5 flex items-center justify-center gap-3 font-mono">
+                        <span class="text-xl text-gray-500 dark:text-[#aaaaaa] font-normal">NT$</span>
+                        <span id="val-market-low">0</span> 
+                        <span class="text-gray-400 dark:text-[#dddddd] text-3xl">-</span> 
+                        <span id="val-market-high">0</span>
+                    </div>
+                    <div id="crown-badge" class="hidden inline-flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 px-5 py-2 rounded-full text-sm font-bold mt-2">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg> 前 10% 頂尖設計人才
+                    </div>
+                </div>
+                <div class="p-6 border-t border-gray-200 dark:border-[#444444] bg-gray-50 dark:bg-[#222222]">
+                    <button onclick="goToStep(2)" class="w-full bg-adobe-blue hover:bg-blue-700 text-white py-4 rounded-xl text-base font-bold flex items-center justify-center gap-2 transition-all shadow-md active:scale-95">
+                        下一步：時薪分析 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 2: HOURLY RATE -->
+        <section id="step-2" class="hidden animate-fade-in space-y-6">
+            <div class="bg-white dark:bg-[#2b2b2b] p-6 rounded-xl border border-gray-200 dark:border-[#444444] shadow-md space-y-6">
+                <h3 class="text-gray-500 dark:text-[#dddddd] text-base font-bold flex items-center gap-2 uppercase tracking-widest border-b border-gray-200 dark:border-[#444444] pb-4">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> 成本與時薪分析
+                </h3>
+                
+                <div class="space-y-3">
+                    <label class="text-sm font-medium text-gray-500 dark:text-[#aaaaaa] uppercase">輸入想要參考的月薪 (含津貼)</label>
+                    <div id="salary-input-container" class="relative rounded-xl transition-all">
+                        <span class="absolute left-4 top-3.5 text-gray-500 dark:text-[#aaaaaa] font-mono text-lg">$</span>
+                        <input type="number" id="monthlySalary" value="38000" class="w-full bg-gray-50 dark:bg-[#181818] border border-gray-300 dark:border-[#555555] rounded-xl pl-10 pr-4 py-3.5 text-gray-900 dark:text-[#f0f0f0] focus:border-adobe-blue outline-none transition-colors font-mono text-lg" />
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-[#aaaaaa] mt-1 opacity-70">* 數據僅供本機計算，不會上傳或記錄</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-5">
+                    <div class="space-y-3">
+                        <label class="text-sm font-medium text-gray-500 dark:text-[#aaaaaa] uppercase">表定滯留 (小時)</label>
+                        <div id="hours-input-container" class="transition-all">
+                            <input type="number" id="workHours" value="8" class="w-full bg-gray-50 dark:bg-[#181818] border border-gray-300 dark:border-[#555555] rounded-xl p-3.5 text-gray-900 dark:text-[#f0f0f0] focus:border-adobe-blue outline-none transition-colors text-center font-mono text-lg" />
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <label class="text-sm font-medium text-gray-500 dark:text-[#aaaaaa] uppercase">責任制加班 (無薪)</label>
+                        <input type="number" id="otHours" value="0" class="w-full bg-gray-50 dark:bg-[#181818] border border-gray-300 dark:border-[#555555] rounded-xl p-3.5 text-gray-900 dark:text-[#f0f0f0] focus:border-adobe-blue outline-none transition-colors text-center font-mono text-lg" />
+                    </div>
+                </div>
+
+                <div class="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700/30">
+                    <div class="flex justify-between items-center">
+                        <label class="text-sm font-medium text-gray-500 dark:text-[#aaaaaa] uppercase flex items-center gap-2">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h.01"/><path d="M18 15h.01"/></svg> 通勤地獄 (每日來回)
+                        </label>
+                        <span id="commute-display" class="text-adobe-blue text-base font-bold">60 分鐘</span>
+                    </div>
+                    <input type="range" id="commuteMins" min="0" max="180" step="10" value="60" class="w-full h-2 bg-gray-200 dark:bg-[#454545] rounded-full appearance-none cursor-pointer accent-[#0265DC]">
+                    <p class="text-xs text-gray-500 dark:text-[#aaaaaa] opacity-70">通勤時間也是變相工時，會拉低真實時薪。</p>
+                </div>
+            </div>
+
+            <div id="hourly-card" class="rounded-xl border overflow-hidden text-center relative transition-all duration-500 bg-white dark:bg-[#2b2b2b] border-gray-200 dark:border-[#444444]">
+                <div class="p-10">
+                    <p class="text-gray-500 dark:text-[#aaaaaa] text-base uppercase tracking-widest mb-3 font-medium">真實時薪 (含通勤成本)</p>
+                    <div id="val-real-hourly-container" class="text-6xl font-bold tracking-tighter mb-6 font-mono text-gray-900 dark:text-white">
+                        <span class="text-3xl font-normal mr-3 opacity-60">$</span><span id="val-real-hourly">0</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-3">
+                        <div id="hourly-tier" class="text-xl font-bold text-gray-900 dark:text-white"></div>
+                        <p id="hourly-desc" class="text-base text-gray-500 dark:text-[#dddddd] max-w-[90%] mx-auto leading-relaxed"></p>
+                    </div>
+                </div>
+                <div class="p-6 border-t border-gray-200 dark:border-[#444444] bg-gray-50 dark:bg-[#222222] flex gap-4">
+                    <button onclick="goToStep(1)" class="flex-1 flex items-center justify-center gap-2 text-base text-gray-500 dark:text-[#aaaaaa] hover:text-gray-900 dark:hover:text-[#f0f0f0] font-medium transition-colors">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> 上一步
+                    </button>
+                    <button onclick="goToStep(3)" class="flex-1 bg-adobe-blue hover:bg-blue-700 text-white py-4 rounded-xl text-base font-bold flex items-center justify-center gap-2 transition-all shadow-md active:scale-95">
+                        下一步：風險評估 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 3: RISK & ROI -->
+        <section id="step-3" class="hidden animate-fade-in space-y-6">
+            <div class="bg-white dark:bg-[#2b2b2b] p-6 rounded-xl border border-gray-200 dark:border-[#444444] transition-colors duration-300">
+                <h3 class="text-gray-500 dark:text-[#dddddd] text-base font-bold mb-6 flex items-center gap-2 uppercase tracking-widest border-b border-gray-200 dark:border-[#444444] pb-4">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> 非 Adobe 替代方案風險評估
+                </h3>
+                
+                <div class="flex items-center gap-3 mb-8 p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-200 border border-blue-100 dark:border-blue-500/30 text-sm">
+                    <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+                    <span>依據真實時薪 (<span id="hourly-ref"></span>/hr)，計算採用替代軟體可能產生的「隱形虧損」。</span>
+                </div>
+
+                <p class="text-sm text-gray-500 dark:text-[#aaaaaa] mb-5">請勾選目前面臨的「非標準化」痛點：</p>
+                
+                <div id="risk-list" class="space-y-5">
+                    <!-- Risk items injected here -->
+                </div>
+            </div>
+
+            <!-- New Card: AI Credits Economy -->
+            <div class="mt-5 p-5 rounded-2xl border border-gray-200 dark:border-[#444444] bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 flex items-start gap-4 animate-fade-in shadow-md">
+                <div class="p-2.5 bg-gradient-to-br from-[#FF0000] to-[#6018DC] rounded-xl text-white shadow-sm mt-0.5 shrink-0">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></svg>
+                </div>
+                <div>
+                    <h4 class="text-base font-bold text-gray-900 dark:text-[#f0f0f0] mb-2 flex items-center gap-2">
+                        Adobe 點數經濟 (Generative Credits)
+                    </h4>
+                    <p class="text-sm text-gray-500 dark:text-[#aaaaaa] leading-relaxed">
+                        Adobe CC 商業版每月配發 <span class="font-bold text-adobe-red">生成式點數</span>，可直接調用 Firefly 與整合的第三方模型。
+                        <br/><span class="text-adobe-blue font-medium mt-1 block">💡 省錢洞察：無需額外訂閱多個 AI 工具，一組帳號搞定商用版權與創作需求！</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- ROI Result -->
+            <div class="bg-white dark:bg-[#2b2b2b] rounded-xl border border-gray-200 dark:border-[#444444] overflow-hidden relative shadow-xl">
+                <div class="p-10">
+                    <p class="text-gray-500 dark:text-[#aaaaaa] text-base uppercase tracking-widest mb-5 font-medium">每月潛在隱形虧損</p>
+                    <div class="flex flex-wrap items-baseline gap-3 mb-2 justify-center">
+                        <span id="loss-min" class="text-2xl sm:text-3xl font-bold font-mono tracking-tight whitespace-nowrap">NT$ 0</span>
+                        <span class="text-gray-500 dark:text-[#aaaaaa] text-lg">-</span>
+                        <span id="loss-max" class="text-2xl sm:text-3xl font-bold font-mono tracking-tight whitespace-nowrap">0</span>
+                    </div>
+                    <p class="text-sm text-gray-500 dark:text-[#888888] mb-8 text-center">(工時浪費 + 相容性風險 + 招募隱形成本)</p>
+
+                    <div class="space-y-6 mb-8">
+                        <div>
+                            <div class="flex justify-between text-sm mb-2"><span class="dark:text-[#f0f0f0]">隱形虧損 (低標)</span><span id="bar-val-loss" class="dark:text-[#f0f0f0]">$0</span></div>
+                            <div class="h-3 bg-gray-200 dark:bg-[#333333] rounded-full overflow-hidden">
+                                <div id="bar-loss" class="h-full bg-adobe-red transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-2"><span class="text-adobe-blue font-bold">Adobe Creative Cloud Pro 商業版 (經銷預估)</span><span class="text-adobe-blue font-bold">$4,000</span></div>
+                            <div class="h-3 bg-gray-200 dark:bg-[#333333] rounded-full overflow-hidden">
+                                <div id="bar-adobe" class="h-full bg-adobe-blue transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                            <p class="text-[10px] text-right mt-2 opacity-60 dark:text-[#888888]">* 實際價格以採購內容與經銷報價為準</p>
+                        </div>
+                    </div>
+
+                    <div id="boss-insight" class="p-5 rounded-xl border flex gap-4 transition-colors">
+                        <svg class="w-6 h-6 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                        <div>
+                            <h4 class="text-base font-bold mb-2">老闆決策洞察</h4>
+                            <p class="text-sm text-gray-500 dark:text-[#aaaaaa] leading-relaxed">
+                                人才會流向「標準化工具」。堅持替代方案將面臨<span class="dark:text-[#f0f0f0]">「上下游相容性風險」</span>與<span class="dark:text-[#f0f0f0]">「人才招募斷層」</span>。
+                                <span id="loss-conclusion" class="block mt-3 font-bold"></span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-6 border-t border-gray-200 dark:border-[#444444] bg-gray-50 dark:bg-[#222222]">
+                    <div class="flex gap-4 mb-6">
+                        <button onclick="goToStep(2)" class="flex-1 flex items-center justify-center gap-2 text-base text-gray-500 dark:text-[#aaaaaa] hover:text-gray-900 dark:hover:text-[#f0f0f0] font-medium transition-colors">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> 上一步
+                        </button>
+                        <button onclick="copyReport()" class="flex-[2] bg-gradient-to-r from-[#31A8FF] to-[#0265DC] hover:from-[#0265DC] hover:to-[#0056b3] text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg> 複製完整分析報告
+                        </button>
+                    </div>
+                    
+                    <!-- BOTTOM CTA -->
+                    <div class="grid grid-cols-2 gap-4 pt-6 border-t border-gray-200 dark:border-[#444444]">
+                        <a href="https://line.me/R/ti/p/@910kziej" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl border border-gray-200 dark:border-[#444444] bg-white dark:bg-[#2b2b2b] hover:border-adobe-blue transition-all group">
+                            <svg class="w-6 h-6 text-adobe-yellow mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            <span class="text-xs font-bold text-gray-900 dark:text-[#f0f0f0]">獲取最新產業消息</span>
+                            <span class="text-[10px] text-gray-500 dark:text-[#888888] group-hover:text-adobe-blue">加入 LINE OA</span>
+                        </a>
+                        
+                        <a href="https://adbeweblink.github.io/myproject/reseller.html" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl bg-adobe-blue hover:bg-blue-700 transition-all text-white shadow-lg shadow-blue-900/20">
+                            <svg class="w-6 h-6 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                            <span class="text-xs font-bold">聯繫全台經銷商</span>
+                            <span class="text-[10px] text-blue-100">企業採購諮詢</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="text-center text-xs text-gray-400 dark:text-[#666666] mt-8 font-mono">© 2025 Adobe Design Value Analyzer.</div>
+    </div>
+
+    <!-- Logic Script -->
+    <script>
+        // Constants & Data
+        const ROLES = {
+            graphic: { name: '平面/視覺設計', base: 33000, recommended: ['ps', 'ai', 'id', 'firefly'] },
+            ui: { name: 'UI/UX 使用者介面', base: 42000, recommended: ['ps', 'ai', 'xd', 'firefly'] },
+            video: { name: '影音/動態設計', base: 38000, recommended: ['pr', 'ae', 'ps', 'firefly', 'substance'] },
+            marketing_design: { name: '社群行銷設計', base: 32000, recommended: ['ps', 'ai', 'pr', 'firefly'] },
+        };
+
+        const SKILLS_VALUE = {
+            firefly: { name: 'Fi', fullName: 'Adobe Firefly (AI)', val: 3000, color: 'text-[#FF0000] border-[#FF0000]' },
+            ps: { name: 'Ps', fullName: 'Photoshop', val: 0, color: 'text-[#31A8FF] border-[#31A8FF]' },
+            ai: { name: 'Ai', fullName: 'Illustrator', val: 0, color: 'text-[#FF9A00] border-[#FF9A00]' },
+            id: { name: 'Id', fullName: 'InDesign', val: 1500, color: 'text-[#FF3366] border-[#FF3366]' },
+            pr: { name: 'Pr', fullName: 'Premiere Pro', val: 4000, color: 'text-[#9999FF] border-[#9999FF]' },
+            ae: { name: 'Ae', fullName: 'After Effects', val: 7000, color: 'text-[#CF96FD] border-[#CF96FD]' },
+            xd: { name: 'Xd', fullName: 'Adobe Xd', val: 6500, color: 'text-[#FF61F6] border-[#FF61F6]' },
+            substance: { name: '3D', fullName: 'Substance 3D', val: 9000, color: 'text-[#24E2B1] border-[#24E2B1]' },
+        };
+
+        const RISK_ITEMS = [
+            { id: 'ai_chaos', text: 'AI 訂閱費用大亂鬥', hoursPerWeek: 3, desc: '公司訂了一堆 MJ, GPT... 帳號管理混亂且費用分散', solution: 'Adobe 商業版內建點數，一站搞定主流 AI 模型' },
+            { id: 'compatibility', text: '檔案傳給廠商就跑版', hoursPerWeek: 3, desc: '印刷廠打不開、客戶看字型全亂，來回修正耗時', solution: '業界標準 PDF/AI/PSD 格式，無縫協作' },
+            { id: 'talent', text: '想找人幫忙沒人會用', hoursPerWeek: 5, desc: '主流人才皆用 Adobe，冷門軟體難找即戰力', solution: 'Adobe 為全球設計師共通語言' },
+            { id: 'no_ai', text: '還在徒手去背修圖？', hoursPerWeek: 4, desc: '沒用 AI 輔助，同樣的圖別人 5 分鐘你做 1 小時', solution: 'Firefly 生成式填色與向量功能' },
+            { id: 'collab', text: '檔案版本混亂失控', hoursPerWeek: 2, desc: '沒用雲端協作，檔案傳來傳去，不知道哪個才是最終版', solution: 'CC Libraries 與雲端文件協作' },
+            { id: 'fragmentation', text: '軟體開開關關心很累', hoursPerWeek: 4, desc: '工具不整合，切換軟體像在練指法，打斷工作心流', solution: 'Adobe Creative Cloud 完整整合生態系' },
+        ];
+
+        // State
+        const state = {
+            currentStep: 1,
+            role: 'graphic',
+            exp: 2,
+            skills: ['ps', 'ai'],
+            city: 'taipei',
+            monthlySalary: 38000,
+            workHours: 8,
+            otHours: 0,
+            commuteMins: 60,
+            efficiencyChecks: [],
+            isDarkMode: true
+        };
+
+        // DOM Elements
+        const els = {
+            skillGrid: document.getElementById('skills-grid'),
+            tipsContainer: document.getElementById('tips-container'),
+            riskList: document.getElementById('risk-list'),
+            step1: document.getElementById('step-1'),
+            step2: document.getElementById('step-2'),
+            step3: document.getElementById('step-3'),
+            tab1: document.getElementById('tab-1'),
+            tab2: document.getElementById('tab-2'),
+            tab3: document.getElementById('tab-3'),
+            valMarketLow: document.getElementById('val-market-low'),
+            valMarketHigh: document.getElementById('val-market-high'),
+            valRealHourly: document.getElementById('val-real-hourly'),
+            valRealHourlyContainer: document.getElementById('val-real-hourly-container'),
+            hourlyTier: document.getElementById('hourly-tier'),
+            hourlyDesc: document.getElementById('hourly-desc'),
+            lossMin: document.getElementById('loss-min'),
+            lossMax: document.getElementById('loss-max'),
+            barValLoss: document.getElementById('bar-val-loss'),
+            barLoss: document.getElementById('bar-loss'),
+            barAdobe: document.getElementById('bar-adobe'),
+            bossInsight: document.getElementById('boss-insight'),
+            lossConclusion: document.getElementById('loss-conclusion'),
+            hourlyRef: document.getElementById('hourly-ref'),
+            crownBadge: document.getElementById('crown-badge')
+        };
+
+        // Render Functions
+        function renderSkills() {
+            els.skillGrid.innerHTML = Object.entries(SKILLS_VALUE).map(([key, data]) => {
+                const isSelected = state.skills.includes(key);
+                const activeClass = isSelected 
+                    ? `bg-[#181818] ${data.color} shadow-md scale-105 dark:bg-[#181818] bg-white` 
+                    : 'bg-gray-50 text-gray-400 border-gray-200 dark:bg-[#292929] dark:text-[#909090] dark:border-[#3E3E3E]';
+                
+                return `
+                    <button onclick="toggleSkill('${key}')" class="relative aspect-square flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all group ${activeClass}">
+                        <span class="text-2xl font-bold leading-none ${isSelected ? '' : 'text-gray-400 dark:text-[#909090]'}">${data.name}</span>
+                        <span class="text-[10px] w-full px-1 font-medium text-center whitespace-normal leading-tight mt-1 opacity-80">${data.fullName}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function renderRisks() {
+            els.riskList.innerHTML = RISK_ITEMS.map(item => {
+                const isChecked = state.efficiencyChecks.includes(item.id);
+                const containerClass = isChecked 
+                    ? 'bg-blue-50 border-adobe-blue dark:bg-[#31A8FF]/10 dark:border-[#31A8FF]' 
+                    : 'bg-gray-50 border-gray-200 hover:text-gray-900 dark:bg-[#252525] dark:border-[#505050] dark:text-[#A0A0A0] dark:hover:text-[#F5F5F5]';
+                const textClass = isChecked ? 'text-adobe-blue' : '';
+                const icon = isChecked 
+                    ? '<svg class="w-6 h-6 text-adobe-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m9 12 2 2 4-4"/></svg>' 
+                    : '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/></svg>';
+                const solution = isChecked ? `<div class="mt-3 text-xs flex items-center gap-2 text-adobe-blue"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Adobe 對策：${item.solution}</div>` : '';
+
+                return `
+                   <div onclick="toggleRisk('${item.id}')" class="flex items-start gap-4 p-5 rounded-xl border cursor-pointer transition-all ${containerClass}">
+                     <div class="mt-0.5">${icon}</div>
+                     <div class="flex-1">
+                        <span class="text-base font-bold ${isChecked ? 'dark:text-[#f0f0f0]' : ''} ${textClass}">${item.text}</span>
+                        <span class="block text-sm opacity-70 mt-1">${item.desc}</span>
+                        ${solution}
+                     </div>
+                   </div>
+                `;
+            }).join('');
+        }
+
+        function renderTips() {
+            let html = '';
+            // Combo Tip
+            html += `
+                <div class="mt-8 p-5 rounded-2xl border border-green-500/30 bg-green-500/5 flex items-start gap-4">
+                     <div class="p-2.5 bg-[#2DCA72] rounded-xl text-black shadow-sm mt-0.5 shrink-0"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></div>
+                     <div>
+                       <h4 class="text-base font-bold dark:text-[#f0f0f0] mb-2">${ROLES[state.role].name} 必備軍火庫</h4>
+                       <p class="text-sm text-gray-500 dark:text-[#aaaaaa] leading-relaxed">
+                         提升行情的最佳組合：
+                         ${ROLES[state.role].recommended.map(r => `<span class="inline-block bg-[#2DCA72]/20 text-[#2DCA72] px-2 py-0.5 rounded mx-1 font-bold uppercase text-xs">${r}</span>`).join('')}
+                         。掌握這些，議價更有底氣。
+                       </p>
+                     </div>
+                </div>
+            `;
+            
+            // Specific Tips
+            if (state.skills.includes('firefly')) {
+                html += `
+                 <div class="mt-5 p-5 rounded-2xl border border-red-500/30 bg-gradient-to-r from-red-500/5 to-orange-500/5 flex items-start gap-4 animate-fade-in">
+                   <div class="p-2.5 bg-[#FF0000] rounded-xl text-white shadow-sm mt-0.5 shrink-0"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-2.072-2.143-3.175-3.175a.5.5 0 0 1 .63-.707c1.878 1.637 2.756 1.637 3.878 3.878H12a2.5 2.5 0 0 1 0 5Z"/><path d="M12 12V6a2.5 2.5 0 0 1 0-5 4.81 4.81 0 0 1 4.5 3.5"/><path d="M12 12v6a2.5 2.5 0 0 1 0 5 4.81 4.81 0 0 1 4.5-3.5"/></svg></div>
+                   <div>
+                     <h4 class="text-base font-bold dark:text-[#f0f0f0] mb-2 flex items-center gap-2">AI 職場優勢加乘</h4>
+                     <p class="text-sm text-gray-500 dark:text-[#aaaaaa] leading-relaxed">您選擇了 <span class="text-[#FF0000] font-bold">Firefly</span>！會用 AI 的設計師效率倍增，這是未來 3 年不被淘汰的關鍵。</p>
+                   </div>
+                 </div>`;
+            }
+            
+            const coreApps = state.skills.filter(s => s !== 'firefly' && s !== 'substance');
+            if (coreApps.length >= 3) {
+                html += `
+                 <div class="mt-5 p-5 rounded-2xl border border-purple-500/30 bg-gradient-to-r from-purple-900/5 to-blue-900/5 flex items-start gap-4 animate-fade-in">
+                   <div class="p-2.5 bg-gradient-to-br from-[#FF0000] to-[#6018DC] rounded-xl text-white shadow-sm mt-0.5 shrink-0"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M9 3v4"/><path d="M3 5h4"/><path d="M3 9h4"/></svg></div>
+                   <div>
+                     <h4 class="text-base font-bold dark:text-[#f0f0f0] mb-2 flex items-center gap-2">Adobe 訂閱最佳化建議</h4>
+                     <p class="text-sm text-gray-500 dark:text-[#aaaaaa] leading-relaxed">檢測到您使用了 3 套以上軟體，訂閱 <span class="text-adobe-blue font-bold">Creative Cloud 全系列</span> 成本相近，但能解鎖完整服務！</p>
+                   </div>
+                 </div>`;
+            }
+
+            if (state.skills.includes('substance')) {
+                 html += `
+                 <div class="mt-5 p-5 rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-emerald-900/5 to-teal-900/5 flex items-start gap-4 animate-fade-in">
+                   <div class="p-2.5 bg-[#24E2B1] rounded-xl text-black shadow-sm mt-0.5 shrink-0"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></div>
+                   <div>
+                     <h4 class="text-base font-bold dark:text-[#f0f0f0] mb-2 flex items-center gap-2">3D 數位資產優勢</h4>
+                     <p class="text-sm text-gray-500 dark:text-[#aaaaaa] leading-relaxed">使用 Substance 3D 可快速產出商品情境照，降低外包攝影成本。</p>
+                   </div>
+                 </div>`;
+            }
+
+            els.tipsContainer.innerHTML = html;
+        }
+
+        // Logic & Updates
+        function calculateAndRender() {
+            // Market Value
+            let base = ROLES[state.role].base;
+            let skillBonus = state.skills.reduce((acc, skill) => acc + (SKILLS_VALUE[skill]?.val || 0), 0);
+            
+            // Synergy
+            if (state.skills.includes('firefly') && (state.skills.includes('ps') || state.skills.includes('ai'))) skillBonus += 2000; 
+            if (state.skills.includes('ps') && state.skills.includes('pr') && state.skills.includes('ae')) skillBonus += 3000; 
+            if (state.skills.includes('ai') && state.skills.includes('xd')) skillBonus += 2000;
+
+            // Exp Multiplier
+            let skillMultiplier = 1;
+            if (state.exp < 1) skillMultiplier = 0.5; 
+            else if (state.exp < 3) skillMultiplier = 0.75; 
+            else if (state.exp < 5) skillMultiplier = 0.9; 
+            
+            let finalSkillBonus = skillBonus * skillMultiplier;
+            let expBonus = state.exp <= 3 ? state.exp * 2000 : (3 * 2000) + ((state.exp - 3) * 1500);
+            let cityBonus = state.city === 'taipei' ? 4000 : 0; 
+            
+            const marketVal = Math.round(base + finalSkillBonus + expBonus + cityBonus);
+            const low = Math.max(27470, marketVal - 4000);
+            
+            els.valMarketLow.innerText = low.toLocaleString();
+            els.valMarketHigh.innerText = marketVal.toLocaleString();
+            
+            if(marketVal > 60000) els.crownBadge.classList.remove('hidden');
+            else els.crownBadge.classList.add('hidden');
+
+            // Real Hourly
+            const dailyCommuteHours = state.commuteMins / 60;
+            const totalHours = ((state.workHours + dailyCommuteHours) * 22) + state.otHours;
+            const realHourly = Math.round(state.monthlySalary / totalHours);
+            
+            els.valRealHourly.innerText = realHourly;
+            
+            // Hourly Feedback
+            let tier = '', desc = '', colorClass = '', bgClass = '', borderClass = '';
+            if (realHourly < 190) {
+                tier = '慘！比工讀生還低';
+                desc = '這時薪連加油站打工都不如...你的專業與時間正在被嚴重低估。';
+                colorClass = 'text-[#FF5555]';
+                bgClass = 'bg-[#3A1515]';
+                borderClass = 'border-[#FF6666]/50';
+            } else if (realHourly < 280) {
+                tier = '窮忙社畜區';
+                desc = '扣掉房租便當錢，真的存得到錢嗎？導入 AI 讓自己早點下班吧。';
+                colorClass = 'text-[#FF9A00]';
+                bgClass = 'dark:bg-[#FF9A00]/10 bg-orange-50';
+                borderClass = 'dark:border-[#FF9A00]/30 border-orange-200';
+            } else if (realHourly < 450) {
+                tier = '專業職人區';
+                desc = '這才是設計師該有的尊嚴！持續精進動態或 3D 技能，往資深邁進。';
+                colorClass = 'text-[#2DCA72]';
+                bgClass = 'dark:bg-[#2DCA72]/10 bg-green-50';
+                borderClass = 'dark:border-[#2DCA72]/30 border-green-200';
+            } else {
+                tier = '設計大神區';
+                desc = '受我一拜！你的效率與價值已超越 90% 同行，請繼續保持優勢。';
+                colorClass = 'text-[#FFD700]';
+                bgClass = 'dark:bg-[#FFD700]/10 bg-yellow-50';
+                borderClass = 'dark:border-[#FFD700]/30 border-yellow-200';
+            }
+            
+            els.hourlyTier.innerText = tier;
+            els.hourlyTier.className = `text-xl font-bold ${colorClass}`;
+            els.hourlyDesc.innerText = desc;
+            els.valRealHourlyContainer.className = `text-6xl font-bold tracking-tighter mb-6 font-mono ${colorClass}`;
+            
+            // ROI
+            const weeklyWastedHours = state.efficiencyChecks.reduce((total, id) => {
+                const item = RISK_ITEMS.find(i => i.id === id);
+                return total + (item ? item.hoursPerWeek : 0);
+            }, 0);
+            const monthlyWastedHours = weeklyWastedHours * 4;
+            const minHiddenCost = Math.round(monthlyWastedHours * realHourly);
+            const maxHiddenCost = Math.round(minHiddenCost * 1.5);
+            const adobeCost = 4000;
+            const isLoss = minHiddenCost > adobeCost;
+
+            els.lossMin.innerText = `NT$ ${minHiddenCost.toLocaleString()}`;
+            els.lossMax.innerText = maxHiddenCost.toLocaleString();
+            els.lossMin.className = `text-2xl sm:text-3xl font-bold font-mono tracking-tight whitespace-nowrap ${isLoss ? 'text-[#FF5555]' : 'dark:text-[#f0f0f0]'}`;
+            els.lossMax.className = els.lossMin.className;
+            
+            els.barValLoss.innerText = `$${minHiddenCost.toLocaleString()}`;
+            els.barLoss.style.width = `${Math.min(100, (minHiddenCost / 10000) * 100)}%`;
+            els.barLoss.className = `h-full transition-all duration-500 ${isLoss ? 'bg-[#FF5555]' : 'bg-[#2DCA72]'}`;
+            
+            els.barAdobe.style.width = `${Math.min(100, (adobeCost / 10000) * 100)}%`;
+            
+            els.hourlyRef.innerText = realHourly;
+            
+            const bossBox = document.getElementById('boss-insight');
+            const bossTitle = bossBox.querySelector('h4');
+            const bossConclusion = document.getElementById('loss-conclusion');
+            
+            if (isLoss) {
+                bossBox.className = "p-5 rounded-xl border flex gap-4 transition-colors bg-[#3A1515] border-[#FF6666]/50";
+                bossTitle.className = "text-base font-bold mb-2 text-[#FF8888]";
+                bossConclusion.innerText = "結論：目前每月虧損已超過訂閱 Adobe CC 的費用。";
+                bossConclusion.className = "block mt-3 font-bold text-[#FF8888]";
+            } else {
+                bossBox.className = "p-5 rounded-xl border flex gap-4 transition-colors dark:border-[#444444]";
+                bossTitle.className = "text-base font-bold mb-2 dark:text-white";
+                bossConclusion.innerText = "";
+            }
+        }
+
+        // Actions
+        function toggleSkill(key) {
+            if (state.skills.includes(key)) {
+                state.skills = state.skills.filter(s => s !== key);
+            } else {
+                state.skills.push(key);
+            }
+            renderSkills();
+            renderTips();
+            calculateAndRender();
+        }
+
+        function toggleRisk(id) {
+            if (state.efficiencyChecks.includes(id)) {
+                state.efficiencyChecks = state.efficiencyChecks.filter(s => s !== id);
+            } else {
+                state.efficiencyChecks.push(id);
+            }
+            renderRisks();
+            calculateAndRender();
+        }
+
+        function goToStep(step) {
+            // Validation
+            if (step === 2 && state.currentStep === 1) {
+                if (state.skills.length === 0) {
+                    showToast('請至少勾選一項吃飯傢伙！', true);
+                    document.getElementById('skills-grid').classList.add('shake', 'border-2', 'border-red-500');
+                    setTimeout(() => document.getElementById('skills-grid').classList.remove('shake', 'border-2', 'border-red-500'), 500);
+                    return;
+                }
+                // Auto populate
+                const high = parseInt(els.valMarketHigh.innerText.replace(/,/g, ''));
+                const low = parseInt(els.valMarketLow.innerText.replace(/,/g, ''));
+                const avg = Math.ceil(Math.round((high + low) / 2) / 100) * 100;
+                document.getElementById('monthlySalary').value = avg;
+                state.monthlySalary = avg;
+            }
+            if (step === 3 && state.currentStep === 2) {
+                 if (state.monthlySalary <= 0 || state.workHours <= 0) {
+                     showToast('請輸入有效的薪資與工時！', true);
+                     return;
+                 }
+            }
+
+            state.currentStep = step;
+            
+            // UI Toggle
+            [1, 2, 3].forEach(i => {
+                const el = document.getElementById(`step-${i}`);
+                const tab = document.getElementById(`tab-${i}`);
+                if (i === step) {
+                    el.classList.remove('hidden');
+                    // Active Tab Style
+                    tab.className = `flex items-center gap-2 px-3 py-2 rounded-lg transition-all border-b-2 border-adobe-blue bg-gray-100 dark:bg-[#3E3E3E] dark:text-white`;
+                    tab.querySelector('div').className = "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-adobe-blue text-white";
+                    tab.querySelector('span').className = "text-sm font-bold";
+                } else {
+                    el.classList.add('hidden');
+                    // Inactive Tab Style
+                    tab.className = `flex items-center gap-2 px-3 py-2 rounded-lg transition-all border-b-2 border-transparent text-gray-400 dark:text-[#888888]`;
+                    tab.querySelector('div').className = "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold bg-gray-300 dark:bg-[#555555] text-white";
+                    tab.querySelector('span').className = "text-sm font-bold opacity-50";
+                }
+            });
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            calculateAndRender();
+        }
+
+        function copyReport() {
+            const report = `【Adobe 設計師身價健檢】
+------------------
+1️⃣ 身價估算
+職位：${ROLES[state.role].name} (${state.exp}年資歷)
+吃飯傢伙：${state.skills.map(s => SKILLS_VALUE[s].name).join('+')}
+市場行情：NT$${els.valMarketLow.innerText} - ${els.valMarketHigh.innerText}
+
+2️⃣ 真實時薪 (含通勤)
+時薪：$${els.valRealHourly.innerText} (${els.hourlyTier.innerText})
+${els.hourlyDesc.innerText}
+
+3️⃣ 隱形虧損風險
+每月隱形浪費：NT$${els.lossMin.innerText.replace('NT$ ', '')} - ${els.lossMax.innerText}
+${state.efficiencyChecks.length > 0 ? '⚠️ 警訊：替代方案與分散的訂閱正侵蝕公司利潤！' : '✅ 狀態：目前流程控制得宜，持續保持！'}
+------------------
+立即加入 LINE 獲取提升身價攻略 👉 ${LINE_OA_ID}`;
+            
+            // Legacy copy method for broader compatibility
+            const textArea = document.createElement("textarea");
+            textArea.value = report;
+            textArea.style.position = "fixed"; 
+            textArea.style.left = "-9999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                showToast(successful ? '報告已複製，快去社群分享討拍！' : '複製失敗');
+            } catch (err) {
+                showToast('無法執行複製');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        function toggleTheme() {
+            state.isDarkMode = !state.isDarkMode;
+            document.documentElement.classList.toggle('dark');
+            updateThemeIcon();
+            renderRisks(); // Re-render logic that depends on theme colors
+            calculateAndRender();
+        }
+
+        function updateThemeIcon() {
+            const icon = document.getElementById('theme-icon');
+            if (state.isDarkMode) {
+                icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>'; // Moon
+                icon.classList.remove('text-yellow-400');
+                icon.classList.add('text-adobe-blue');
+            } else {
+                icon.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>'; // Sun
+                icon.classList.add('text-yellow-400');
+                icon.classList.remove('text-adobe-blue');
+            }
+        }
+
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('hidden');
+            if(isError) {
+                toast.classList.remove('bg-adobe-blue');
+                toast.classList.add('bg-red-500');
+            } else {
+                toast.classList.add('bg-adobe-blue');
+                toast.classList.remove('bg-red-500');
+            }
+            setTimeout(() => toast.classList.add('hidden'), 3000);
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        // Event Listeners for Inputs
+        document.getElementById('role').addEventListener('change', (e) => { state.role = e.target.value; renderTips(); calculateAndRender(); });
+        document.getElementById('city').addEventListener('change', (e) => { state.city = e.target.value; calculateAndRender(); });
+        document.getElementById('exp').addEventListener('input', (e) => { 
+            state.exp = parseInt(e.target.value); 
+            document.getElementById('exp-display').innerText = state.exp + ' 年';
+            renderTips();
+            calculateAndRender(); 
+        });
+        document.getElementById('monthlySalary').addEventListener('input', (e) => { state.monthlySalary = parseInt(e.target.value) || 0; calculateAndRender(); });
+        document.getElementById('workHours').addEventListener('input', (e) => { state.workHours = parseFloat(e.target.value) || 0; calculateAndRender(); });
+        document.getElementById('otHours').addEventListener('input', (e) => { state.otHours = parseInt(e.target.value) || 0; calculateAndRender(); });
+        document.getElementById('commuteMins').addEventListener('input', (e) => { 
+            state.commuteMins = parseInt(e.target.value); 
+            document.getElementById('commute-display').innerText = state.commuteMins + ' 分鐘';
+            calculateAndRender(); 
+        });
+
+        // Initialize
+        renderSkills();
+        renderRisks();
+        renderTips();
+        calculateAndRender();
+        updateThemeIcon();
+    </script>
+</body>
+</html>
