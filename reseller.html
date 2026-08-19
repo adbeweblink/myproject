@@ -394,6 +394,56 @@
         .icon-sm { width: 14px; height: 14px; }
         .icon-lg { width: 20px; height: 20px; }
 
+        /* 經銷商分級徽章 */
+        .tier-badge {
+            display: inline-block;
+            vertical-align: 2px;
+            margin-left: 8px;
+            padding: 2px 10px;
+            border-radius: 99px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
+        .tier-platinum { background: #eef2ff; color: #3730a3; border: 1px solid #c7d2fe; }
+        .tier-gold { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+        .tier-certified { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+
+        /* 線上詢價表單 */
+        .form-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+        @media (min-width: 640px) {
+            .form-grid { grid-template-columns: 1fr 1fr; }
+            .form-span { grid-column: 1 / -1; }
+        }
+        .form-field { display: flex; flex-direction: column; gap: 6px; font-size: 0.875rem; font-weight: 700; color: #374151; }
+        .form-field input, .form-field textarea {
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 400;
+            outline: none;
+            transition: border 0.2s;
+        }
+        .form-field textarea { resize: vertical; }
+        .form-field input:focus, .form-field textarea:focus, .form-field select:focus {
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 2px rgba(235, 16, 0, 0.1);
+        }
+        .quote-submit {
+            margin-top: 1.25rem;
+            padding: 12px 28px;
+            background: var(--primary-red);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .quote-submit:hover { background: var(--dark-red); }
+
         footer {
             text-align: center;
             color: #9ca3af;
@@ -460,6 +510,10 @@
                 清除所有條件
             </button>
         </div>
+
+        <div class="filter-card" style="margin-top: 1rem;">
+            <p style="font-size: 0.9rem; color: #4b5563; line-height: 1.7;">不確定該找哪家？直接聯絡展碁業務 <a href="tel:+886223716000,733" style="color: var(--primary-red); font-weight: 700; text-decoration: none; white-space: nowrap;">(02)2371-6000 #733</a>，或使用下方<a href="#quote" style="color: var(--primary-red); font-weight: 700;">線上詢價表單</a>。</p>
+        </div>
     </aside>
 
     <!-- Results -->
@@ -478,6 +532,37 @@
     </div>
 </div>
 
+<!-- 線上詢價（Netlify Forms：本頁由主站 build 收進 /reseller/，表單於主站部署時被 Netlify 抓到） -->
+<section style="max-width: 1100px; margin: 0 auto; padding: 0 1rem;">
+    <div class="filter-card" id="quote">
+        <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">線上詢價</h2>
+        <p style="font-size: 0.875rem; color: var(--text-gray); margin-bottom: 1.5rem;">留下需求，展碁業務會盡快與您聯繫；急件請直撥業務諮詢專線 (02)2371-6000 #733。</p>
+        <form name="quote-inquiry" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" action="/thanks/">
+            <input type="hidden" name="form-name" value="quote-inquiry">
+            <p hidden aria-hidden="true"><label>請勿填寫此欄位：<input name="bot-field"></label></p>
+            <div class="form-grid">
+                <label class="form-field">公司名稱<input type="text" name="company" required autocomplete="organization"></label>
+                <label class="form-field">姓名<input type="text" name="name" required autocomplete="name"></label>
+                <label class="form-field">電話<input type="tel" name="phone" required autocomplete="tel"></label>
+                <label class="form-field">Email<input type="email" name="email" required autocomplete="email"></label>
+                <label class="form-field form-span">想詢問的產品
+                    <select name="product" required>
+                        <option value="" disabled selected>請選擇</option>
+                        <option>Creative Cloud</option>
+                        <option>Acrobat</option>
+                        <option>Firefly</option>
+                        <option>Substance 3D</option>
+                        <option>其他</option>
+                    </select>
+                </label>
+                <label class="form-field form-span">需求說明<textarea name="message" rows="4" placeholder="例：需要 10 套 Creative Cloud 企業版，想了解報價與導入流程"></textarea></label>
+            </div>
+            <button type="submit" class="quote-submit">送出詢價</button>
+            <p style="font-size: 0.75rem; color: #9ca3af; margin-top: 0.75rem;">送出即表示同意本站<a href="/privacy/" style="color: #6b7280;">『隱私權政策』</a>。</p>
+        </form>
+    </div>
+</section>
+
 <!-- Toast Notification -->
 <div id="toast">
     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -485,8 +570,8 @@
 </div>
 
 <footer>
-    <p>© 2025 Adobe Partner Finder System. 資料僅供內部參考。</p>
-    <p style="margin-top: 5px;">資料來源：Adobe Partner Connection Portal & 授權經銷體系 | 更新日期：2025/11/28</p>
+    <p>© 2026 展碁國際股份有限公司｜資料維護日 2026-08-19</p>
+    <p style="margin-top: 5px;">資料來源：Adobe Partner Connection Portal & 授權經銷體系</p>
 </footer>
 
 <!-- JS Logic -->
@@ -496,45 +581,48 @@
     // ==========================================
     const RESELLERS_DATA = [
         // Platinum
-        { id: 'p1', nameEn: 'Systex Software and Service Corporation', nameTw: '精誠軟體服務股份有限公司', region: 'Taipei,All', address: '台北市中正區羅斯福路二段100號17樓', phone: '(02) 2367-0188' },
-        { id: 'p2', nameEn: 'Acer E-Enabling Service Business', nameTw: '宏碁資訊服務股份有限公司', region: 'Taipei,All', address: '115臺北市南港區南港路三段9號18樓', phone: '(02) 2784-1000' },
+        { id: 'p1', nameEn: 'Systex Software and Service Corporation', nameTw: '精誠軟體服務股份有限公司', region: 'Taipei,All', address: '台北市中正區羅斯福路二段100號17樓', phone: '(02) 2367-0188', tier: 'Platinum' },
+        { id: 'p2', nameEn: 'Acer E-Enabling Service Business', nameTw: '宏碁資訊服務股份有限公司', region: 'Taipei,All', address: '115臺北市南港區南港路三段9號18樓', phone: '(02) 2784-1000', tier: 'Platinum' },
         // Gold
-        { id: 'n7', nameEn: 'Evertop Information', nameTw: '長峰資訊股份有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2788-2408' },
-        { id: 'n5', nameEn: 'Jen Hong International', nameTw: '朕宏國際實業有限公司', region: 'Taipei,North', address: '台北市北投區', phone: '(02) 2897-6878' },
-        { id: 'n4', nameEn: 'Shin Chi Cloud', nameTw: '昕奇雲端科技股份有限公司', region: 'Taipei,North', address: '台北市內湖區', phone: '(02) 8792-3677' },
-        { id: 'n8', nameEn: 'I-Planet International', nameTw: '智域國際股份有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2727-8077' },
-        { id: 'n2', nameEn: 'Tomorrow Info', nameTw: '明日資訊有限公司', region: 'Taipei,North', address: '台北市', phone: '(03) 317-3742' },
-        { id: 'g2', nameEn: 'Otsuka Information Technology', nameTw: '大塚資訊科技股份有限公司', region: 'NewTaipei,All', address: '新北市', phone: '(02) 8964-6668' },
-        { id: 'n1', nameEn: 'Quickly 3C', nameTw: '快克利有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2511-9098' },
-        { id: 'new1', nameEn: 'Liso Information Co., Ltd.', nameTw: '力梭資訊股份有限公司', region: 'NewTaipei,North', address: '新北市', phone: '(02) 8969-0901' },
-        { id: 'n3', nameEn: 'Keyi International', nameTw: '科益國際股份有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2585-8725' },
-        { id: 'n6', nameEn: 'Chuangjie International', nameTw: '創捷國際有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2570-3233' },
-        { id: 'new2', nameEn: 'Tyche Information Co., Ltd.', nameTw: '台奇資訊有限公司', region: 'NewTaipei,North', address: '新北市', phone: '(02) 8983-3989' },
+        { id: 'n7', nameEn: 'Evertop Information', nameTw: '長峰資訊股份有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2788-2408', tier: 'Gold' },
+        { id: 'n5', nameEn: 'Jen Hong International', nameTw: '朕宏國際實業有限公司', region: 'Taipei,North', address: '台北市北投區', phone: '(02) 2897-6878', tier: 'Gold' },
+        { id: 'n4', nameEn: 'Shin Chi Cloud', nameTw: '昕奇雲端科技股份有限公司', region: 'Taipei,North', address: '台北市內湖區', phone: '(02) 8792-3677', tier: 'Gold' },
+        { id: 'n8', nameEn: 'I-Planet International', nameTw: '智域國際股份有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2727-8077', tier: 'Gold' },
+        { id: 'n2', nameEn: 'Tomorrow Info', nameTw: '明日資訊有限公司', region: 'Taipei,North', address: '台北市', phone: '(03) 317-3742', tier: 'Gold' },
+        { id: 'g2', nameEn: 'Otsuka Information Technology', nameTw: '大塚資訊科技股份有限公司', region: 'NewTaipei,All', address: '新北市', phone: '(02) 8964-6668', tier: 'Gold' },
+        { id: 'n1', nameEn: 'Quickly 3C', nameTw: '快克利有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2511-9098', tier: 'Gold' },
+        { id: 'new1', nameEn: 'Liso Information Co., Ltd.', nameTw: '力梭資訊股份有限公司', region: 'NewTaipei,North', address: '新北市', phone: '(02) 8969-0901', tier: 'Gold' },
+        { id: 'n3', nameEn: 'Keyi International', nameTw: '科益國際股份有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2585-8725', tier: 'Gold' },
+        { id: 'n6', nameEn: 'Chuangjie International', nameTw: '創捷國際有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2570-3233', tier: 'Gold' },
+        { id: 'new2', nameEn: 'Tyche Information Co., Ltd.', nameTw: '台奇資訊有限公司', region: 'NewTaipei,North', address: '新北市', phone: '(02) 8983-3989', tier: 'Gold' },
         
         // Certified
-        { id: 'g3', nameEn: 'Yifan Technology', nameTw: '逸凡科技股份有限公司', region: 'Taipei,All', address: '台北市', phone: '0800-098-598' },
-        { id: 'g4', nameEn: 'BestCom Infotech Corp.', nameTw: '大綜電腦系統股份有限公司', region: 'Kaohsiung,All', address: '高雄市', phone: '(07) 345-8011' },
-        { id: 'g5', nameEn: 'Xunda Computer', nameTw: '訊達電腦股份有限公司', region: 'Taipei,All', address: '台北市', phone: '(02) 2501-5568 #2285' },
-        { id: 'n9', nameEn: 'Guanglian International', nameTw: '光聯國際股份有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 8768-1631' },
-        { id: 'n10', nameEn: 'Jinte Enterprise', nameTw: '勁特企業有限公司', region: 'NewTaipei,North', address: '新北市', phone: '(02) 8685-4166' },
-        { id: 'n11', nameEn: 'Zhenchuan Info', nameTw: '真傳資訊有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2754-8510' },
-        { id: 'n12', nameEn: 'Qiaoju Info', nameTw: '僑巨資訊企業有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2522-1212' },
-        { id: 'n13', nameEn: 'TeraSoft', nameTw: '台灣碩軟軟體有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2176-5186' },
-        { id: 'n14', nameEn: 'Ability International', nameTw: '佳能國際股份有限公司', region: 'Taipei,North', address: '台北市', phone: '0800-055-056' },
-        { id: 't1', nameEn: 'Youshuo Computer', nameTw: '又碩電腦科技股份有限公司', region: 'TaoZhuMiao,North', address: '桃園市', phone: '(03) 463-9119' },
-        { id: 't2', nameEn: 'Weice Computer', nameTw: '威策電腦股份有限公司', region: 'TaoZhuMiao,North', address: '桃園市', phone: '(03) 301-9789' },
-        { id: 't3', nameEn: 'Kaimo Technology', nameTw: '凱模科技有限公司', region: 'TaoZhuMiao,North', address: '桃園市', phone: '(03) 218-0011' },
-        { id: 'c1', nameEn: 'Se Mai Technology', nameTw: '瑟麥科技事業有限公司', region: 'Taichung,Central', address: '台中市', phone: '(04) 2475-0698' },
-        { id: 'c2', nameEn: 'Show Yi International', nameTw: '首羿國際股份有限公司', region: 'Taichung,Central', address: '台中市', phone: '(04) 2258-3355' },
-        { id: 'c3', nameEn: 'Quantai Info', nameTw: '銓太資訊有限公司', region: 'Taichung,Central', address: '台中市', phone: '(04) 2312-7008' },
-        { id: 'c4', nameEn: 'Xin-En Technology', nameTw: '昕恩科技有限公司', region: 'Taichung,Central', address: '台中市', phone: '(04) 2202-0158' },
-        { id: 's1', nameEn: 'Gao Jie Xin', nameTw: '高傑信股份有限公司', region: 'Kaohsiung,South', address: '高雄市', phone: '(07) 975-6888' },
-        { id: 's2', nameEn: 'Yunchuan Technology', nameTw: '允傳科技股份有限公司', region: 'Kaohsiung,South', address: '高雄市', phone: '(07) 348-5625' },
-        { id: 's3', nameEn: 'Diyiming Computer', nameTw: '帝易明電腦有限公司', region: 'Tainan,South', address: '台南市', phone: '(06) 222-4339' },
-        { id: 's4', nameEn: 'Deyuan Computer', nameTw: '德源電腦有限公司', region: 'Tainan,South', address: '台南市', phone: '(06) 228-4367' },
-        { id: 's5', nameEn: 'Song Yue International', nameTw: '淞鉞國際有限公司', region: 'Kaohsiung,South', address: '高雄市', phone: '(07) 588-5272' },
-        { id: 'e1', nameEn: 'Haoshi Tech Studio', nameTw: '好時科技工作室', region: 'East', address: '台東縣', phone: '089-311220' }
+        { id: 'g3', nameEn: 'Yifan Technology', nameTw: '逸凡科技股份有限公司', region: 'Taipei,All', address: '台北市', phone: '0800-098-598', tier: 'Certified' },
+        { id: 'g4', nameEn: 'BestCom Infotech Corp.', nameTw: '大綜電腦系統股份有限公司', region: 'Kaohsiung,All', address: '高雄市', phone: '(07) 345-8011', tier: 'Certified' },
+        { id: 'g5', nameEn: 'Xunda Computer', nameTw: '訊達電腦股份有限公司', region: 'Taipei,All', address: '台北市', phone: '(02) 2501-5568 #2285', tier: 'Certified' },
+        { id: 'n9', nameEn: 'Guanglian International', nameTw: '光聯國際股份有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 8768-1631', tier: 'Certified' },
+        { id: 'n10', nameEn: 'Jinte Enterprise', nameTw: '勁特企業有限公司', region: 'NewTaipei,North', address: '新北市', phone: '(02) 8685-4166', tier: 'Certified' },
+        { id: 'n11', nameEn: 'Zhenchuan Info', nameTw: '真傳資訊有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2754-8510', tier: 'Certified' },
+        { id: 'n12', nameEn: 'Qiaoju Info', nameTw: '僑巨資訊企業有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2522-1212', tier: 'Certified' },
+        { id: 'n13', nameEn: 'TeraSoft', nameTw: '台灣碩軟軟體有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2176-5186', tier: 'Certified' },
+        { id: 'n14', nameEn: 'Ability International', nameTw: '佳能國際股份有限公司', region: 'Taipei,North', address: '台北市', phone: '0800-055-056', tier: 'Certified' },
+        { id: 't1', nameEn: 'Youshuo Computer', nameTw: '又碩電腦科技股份有限公司', region: 'TaoZhuMiao,North', address: '桃園市', phone: '(03) 463-9119', tier: 'Certified' },
+        { id: 't2', nameEn: 'Weice Computer', nameTw: '威策電腦股份有限公司', region: 'TaoZhuMiao,North', address: '桃園市', phone: '(03) 301-9789', tier: 'Certified' },
+        { id: 't3', nameEn: 'Kaimo Technology', nameTw: '凱模科技有限公司', region: 'TaoZhuMiao,North', address: '桃園市', phone: '(03) 218-0011', tier: 'Certified' },
+        { id: 'c1', nameEn: 'Se Mai Technology', nameTw: '瑟麥科技事業有限公司', region: 'Taichung,Central', address: '台中市', phone: '(04) 2475-0698', tier: 'Certified' },
+        { id: 'c2', nameEn: 'Show Yi International', nameTw: '首羿國際股份有限公司', region: 'Taichung,Central', address: '台中市', phone: '(04) 2258-3355', tier: 'Certified' },
+        { id: 'c3', nameEn: 'Quantai Info', nameTw: '銓太資訊有限公司', region: 'Taichung,Central', address: '台中市', phone: '(04) 2312-7008', tier: 'Certified' },
+        { id: 'c4', nameEn: 'Xin-En Technology', nameTw: '昕恩科技有限公司', region: 'Taichung,Central', address: '台中市', phone: '(04) 2202-0158', tier: 'Certified' },
+        { id: 's1', nameEn: 'Gao Jie Xin', nameTw: '高傑信股份有限公司', region: 'Kaohsiung,South', address: '高雄市', phone: '(07) 975-6888', tier: 'Certified' },
+        { id: 's2', nameEn: 'Yunchuan Technology', nameTw: '允傳科技股份有限公司', region: 'Kaohsiung,South', address: '高雄市', phone: '(07) 348-5625', tier: 'Certified' },
+        { id: 's3', nameEn: 'Diyiming Computer', nameTw: '帝易明電腦有限公司', region: 'Tainan,South', address: '台南市', phone: '(06) 222-4339', tier: 'Certified' },
+        { id: 's4', nameEn: 'Deyuan Computer', nameTw: '德源電腦有限公司', region: 'Tainan,South', address: '台南市', phone: '(06) 228-4367', tier: 'Certified' },
+        { id: 's5', nameEn: 'Song Yue International', nameTw: '淞鉞國際有限公司', region: 'Kaohsiung,South', address: '高雄市', phone: '(07) 588-5272', tier: 'Certified' },
+        { id: 'e1', nameEn: 'Haoshi Tech Studio', nameTw: '好時科技工作室', region: 'East', address: '台東縣', phone: '089-311220', tier: 'Certified' }
     ];
+
+    // 分級徽章文字（tier 欄位 → 卡片顯示）
+    const TIER_LABEL = { Platinum: '白金級 Platinum', Gold: '金級 Gold', Certified: '認證級 Certified' };
 
     // --- 2. 狀態管理 ---
     let state = {
@@ -621,7 +709,7 @@
                 <div class="reseller-card">
                     
                     <div>
-                        <h2 class="reseller-name-tw">${item.nameTw}</h2>
+                        <h2 class="reseller-name-tw">${item.nameTw}${item.tier ? `<span class="tier-badge tier-${item.tier.toLowerCase()}">${TIER_LABEL[item.tier] || item.tier}</span>` : ''}</h2>
                         <p class="reseller-name-en">${item.nameEn}</p>
 
                         <div class="contact-grid">
