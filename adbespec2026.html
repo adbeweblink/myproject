@@ -7,7 +7,11 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- 鎖版＋SRI：原本是 lucide@latest，等於把「本站執行什麼程式碼」的決定權交給 lucide 每一次發版（含被投毒的發版）。
+         改版時要同時更新 integrity（sha384 自行下載該檔計算，不可憑印象填，填錯腳本會直接不載入）。 -->
+    <script src="https://unpkg.com/lucide@1.33.0/dist/umd/lucide.min.js"
+            integrity="sha384-tCQ4YYVYKuOFYH+pnSIPOS3PaT3+5AmX2okMauzDJlLLxkQfJfSwmgpZPceZWs1F"
+            crossorigin="anonymous"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
 

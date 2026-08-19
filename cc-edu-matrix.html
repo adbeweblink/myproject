@@ -255,7 +255,8 @@
                     送出 採購方案諮詢 我們將盡快與您聯繫
                 </button>
                 <p class="text-[10px] text-gray-400 text-center mt-2 leading-tight">
-                    * 我們重視您的隱私，您的資料僅用於本次方案諮詢聯繫，不會提供給第三方。
+                    * 我們重視您的隱私。您提供的資料由展碁國際股份有限公司蒐集，僅用於方案諮詢與聯繫用途；我們委託的雲端服務（Google）僅作為代為儲存之受託處理者，不會提供給無關第三方。<br>
+                    送出即表示您同意本站<a href="/privacy/" target="_blank" rel="noopener" class="underline hover:text-gray-600">『隱私權政策』</a>。
                 </p>
             </form>
         </div>
@@ -673,7 +674,7 @@
                         <div class="h-1 w-10 bg-adobeRed mb-4 mx-auto rounded-full"></div>
                         <p class="text-sm text-gray-600 mb-4 whitespace-pre-line leading-relaxed text-center">${col.description}</p>
                         ${col.key === 'substance' ? `<div class="mb-4 bg-green-50 border-l-4 border-adobeGreen p-3 rounded-r"><p class="text-adobeGreen text-xs font-bold">*Substance 3D 包含於高等教育 (Higher Ed) 全校授權與部分 K-12 方案，個人單購版可能不包含。</p></div>` : ''}
-                        ${col.url ? `<a href="${col.url}" target="_blank" class="block w-full text-center bg-adobeRed text-white py-3 rounded-xl font-bold shadow-lg shadow-red-500/20 hover:bg-adobeDarkRed transition-colors">了解更多 (Adobe 官方說明)</a>` : '<button onclick="App.closeModal()" class="block w-full text-center bg-adobeBlack text-white py-3 rounded-xl font-bold">關閉</button>'}
+                        ${col.url ? `<a href="${col.url}" target="_blank" rel="noopener" class="block w-full text-center bg-adobeRed text-white py-3 rounded-xl font-bold shadow-lg shadow-red-500/20 hover:bg-adobeDarkRed transition-colors">了解更多 (Adobe 官方說明)</a>` : '<button onclick="App.closeModal()" class="block w-full text-center bg-adobeBlack text-white py-3 rounded-xl font-bold">關閉</button>'}
                     </div>`;
                 
                 // Show Container
@@ -715,7 +716,7 @@
                 if (honeypot) {
                     // Silently fail or simulate success for bots
                     console.log('Bot detected via honeypot');
-                    alert('感謝您的諮詢！\n我們已收到您的採購需求，專員將盡快與您聯繫。');
+                    alert('已送出。\n若一個工作天內未收到回覆，請直接來電 (02) 2371-6000 #733（業務諮詢）。');
                     App.closeContactModal();
                     form.reset();
                     return;
@@ -756,7 +757,7 @@
                     mode: 'no-cors' // 重要：避免跨域錯誤
                 })
                 .then(() => {
-                    alert('感謝您的諮詢！\n我們已收到您的採購需求，專員將盡快與您聯繫。');
+                    alert('已送出。\n若一個工作天內未收到回覆，請直接來電 (02) 2371-6000 #733（業務諮詢）。');
                     App.closeContactModal();
                     form.reset();
                 })
