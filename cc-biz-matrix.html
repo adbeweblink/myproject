@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Adobe 企業方案比較表</title>
-    <!-- 引入 Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Tailwind CSS。自架同源（Tailwind 官方 CDN 不回 CORS 標頭，跨網域 SRI 無法生效、實測整支會被擋掉）：鎖定 3.4.17 -->
+    <script src="vendor/tailwind-3.4.17.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -224,8 +224,9 @@
             <button onclick="App.closeContactModal()" class="absolute top-4 right-4 text-gray-400 hover:text-black transition-colors p-2 rounded-full hover:bg-gray-200"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg></button>
             <h3 class="text-xl font-black text-adobeBlack mb-2 text-center">商業方案諮詢</h3>
             <p class="text-gray-500 text-sm text-center mb-6">感謝您的興趣！請填寫以下資訊，我們將協助評估適合您的企業方案。</p>
-            <form id="contact-form" class="space-y-4" onsubmit="App.submitForm(event)">
-                
+            <form id="contact-form" name="cc-biz-inquiry" method="POST" data-netlify="true" data-netlify-honeypot="website" class="space-y-4" onsubmit="App.submitForm(event)">
+                <input type="hidden" name="form-name" value="cc-biz-inquiry">
+
                 <!-- 資安：蜜罐欄位 (Honeypot) - 正常使用者看不到，機器人會填 -->
                 <div class="hp-field">
                     <label for="c_website">Website</label>
@@ -268,7 +269,7 @@
                     </button>
                     <!-- 隱私權聲明 -->
                     <p class="text-[10px] text-gray-400 text-center mt-3 leading-tight px-2">
-                        我們重視您的隱私權。您提供的資料由展碁國際股份有限公司蒐集，僅用於方案諮詢與聯繫用途；我們委託的雲端服務（Google）僅作為代為儲存之受託處理者，不會提供給無關第三方。<br>
+                        我們重視您的隱私權。您提供的資料由展碁國際股份有限公司蒐集，僅用於方案諮詢與聯繫用途；本站託管服務商僅作為代為儲存之受託處理者，不會提供給無關第三方。<br>
                         送出即表示您同意本站<a href="/privacy/" target="_blank" rel="noopener" class="underline hover:text-gray-600">『隱私權政策』</a>。
                     </p>
                 </div>
@@ -277,24 +278,9 @@
     </div>
 
     <script>
-        // ★★★ 請在此處貼上您的 Google Apps Script 網頁應用程式網址 ★★★
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzx9tChedIqjxttwM3zZsLuGyV74Gj4pExIfF5qnoIl10Lydh-R2IXRlbwXVTMNb7BL/exec'; 
-        // 例如: 'https://script.google.com/macros/s/AKfycbx.../exec'
-
-        /* ★★★ Google 試算表設定說明 (請依照此順序建立第一列標題) ★★★
-           
-           因為程式是依照「欄位順序」寫入資料，請確保您的試算表欄位順序如下：
-           
-           - A 欄 (Column A): 時間 (或 Timestamp)
-           - B 欄 (Column B): 姓名
-           - C 欄 (Column C): 公司名稱
-           - D 欄 (Column D): 職務
-           - E 欄 (Column E): Email
-           - F 欄 (Column F): 電話/手機
-           - G 欄 (Column G): 諮詢方案
-           
-           標題文字可以是任何語言 (中文/英文皆可)，只要順序對了，資料就會準確進入對應格子。
-        */
+        // 2026-08-20：表單改走本站的 Netlify Forms（原本送 Google Apps Script）。
+        // 原寫法是不帶認證的跨域請求，回應被瀏覽器遮成 opaque——status 永遠 0、HTTP 4xx/5xx 也不會 reject，
+        // 所以「成功」與「端點被停用／配額用盡」在程式上完全無法區分，個資消失而畫面照樣說已送出。
 
         // --- Logic ---
         const AppData = {
@@ -760,100 +746,47 @@
                 document.getElementById('contact-modal').classList.remove('flex');
             },
             
-            // --- 新增：提交表單至 Google Sheets 邏輯 ---
-            submitForm(e) {
+            async submitForm(e) {
                 e.preventDefault();
                 const form = document.getElementById('contact-form');
                 const btn = document.getElementById('submit-btn');
                 const originalBtnText = btn.innerHTML;
 
-                // 資安檢查 1: 蜜罐欄位 (Honeypot) 檢查
-                // 如果 website 欄位有值，表示是機器人填寫的，直接假裝成功並返回
-                const honeypot = document.getElementById('c_website').value;
-                if (honeypot) {
-                    console.warn('Bot detected via honeypot.');
-                    // 假裝送出成功
-                    setTimeout(() => {
-                        form.reset();
-                        App.closeContactModal();
-                    }, 500);
+                // 蜜罐欄位有值＝機器人，假裝成功後靜靜丟掉
+                if (document.getElementById('c_website').value) {
+                    setTimeout(() => { form.reset(); App.closeContactModal(); }, 500);
                     return;
                 }
 
-                // --- 手機號碼驗證邏輯 ---
-                // 1. 取得輸入值
                 const phoneInput = document.getElementById('c_phone');
-                let phoneVal = phoneInput.value;
-                
-                // 2. 自動過濾掉連字號 (-) 或空格 ( )
-                const cleanPhone = phoneVal.replace(/[\-\s]/g, '');
-
-                // 3. 嚴格檢查是否為 10 碼數字 且以 09 開頭
-                // Regex 說明: ^09 代表以09開頭, \d{8}$ 代表後面接8個數字並結束
-                const phoneRegex = /^09\d{8}$/;
-
-                if (!phoneRegex.test(cleanPhone)) {
+                const cleanPhone = phoneInput.value.replace(/[\-\s]/g, '');
+                if (!/^09\d{8}$/.test(cleanPhone)) {
                     alert('請輸入有效的台灣手機號碼格式！\n\n範例：0912-345-678 或 0912345678\n(必須為 09 開頭，共 10 碼數字)');
-                    phoneInput.focus(); // 將焦點移回手機欄位
-                    return; // 阻止表單送出
-                }
-
-                // 檢查是否已設定 Google Script URL
-                if (!GOOGLE_SCRIPT_URL) {
-                    alert('注意：此表格尚未連結至 Google Sheets。\n請在程式碼中填入您的 Google Apps Script 網址。\n(目前僅為演示模式)');
-                    // 模擬送出成功
-                    btn.disabled = true;
-                    btn.innerHTML = '處理中...';
-                    setTimeout(() => {
-                        alert('已送出！(演示模式：資料未實際儲存)');
-                        form.reset();
-                        btn.disabled = false;
-                        btn.innerHTML = originalBtnText;
-                        App.closeContactModal();
-                    }, 1500);
+                    phoneInput.focus();
                     return;
                 }
 
-                // 收集表單資料
-                const formData = new FormData(form);
-                const data = {};
-                formData.forEach((value, key) => { data[key] = value; });
-                
-                // 移除蜜罐欄位資料，不傳送給後端
-                delete data['website'];
-                
-                // 更新 data 中的 phone 為清洗過的乾淨號碼 (不含 -)
-                data['phone'] = cleanPhone;
+                const body = new URLSearchParams(new FormData(form));
+                body.set('phone', cleanPhone);
+                // 目前比較表的檢視狀態一起送，否則業務收到名單卻不知道對方在看哪幾個方案
+                body.set('summary', `比較中方案：${this.getActivePlans().map(p => p.name).join(' / ') || '（未選擇）'}｜檢視：${this.state.hideCommon ? '只看差異' : '顯示全部'}`);
 
-                data['timestamp'] = new Date().toISOString();
-
-                // UI Loading 狀態
                 btn.disabled = true;
                 btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> 資料傳送中...`;
 
-                // 使用 fetch 送出 POST 請求
-                fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', // 重要：避免跨域錯誤 (CORS)
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                })
-                .then(() => {
-                    // Google Apps Script 回傳成功 (在 no-cors 模式下無法讀取內容，但沒報錯即成功)
+                try {
+                    const res = await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body });
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
                     alert('已送出。\n若一個工作天內未收到回覆，請直接來電 (02) 2371-6000 #733（業務諮詢）。');
                     form.reset();
                     App.closeContactModal();
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('抱歉，送出時發生錯誤，請稍後再試，或直接聯繫我們的客服。');
-                })
-                .finally(() => {
+                } catch (err) {
+                    // 失敗不清空欄位：讓填表人可以直接重送，不用整份重打
+                    alert(`送出失敗（${err.message}），您填的內容已保留。\n請重試，或直接來電 (02) 2371-6000 #733（業務諮詢）。`);
+                } finally {
                     btn.disabled = false;
                     btn.innerHTML = originalBtnText;
-                });
+                }
             }
         };
 

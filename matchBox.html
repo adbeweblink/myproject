@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>奧多比消消樂</title>
-    <script src="https://cdn.tailwindcss.com"></script> 
+    <!-- 自架同源（Tailwind 官方 CDN 不回 CORS 標頭，跨網域 SRI 無法生效、實測整支會被擋掉）：鎖定 3.4.17 -->
+    <script src="vendor/tailwind-3.4.17.js"></script>
     
     <!-- LIFF SDK -->
     <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>

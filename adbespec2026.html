@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adobe CC 2026 硬體採購規格輔助系統</title>
     
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 自架同源（Tailwind 官方 CDN 不回 CORS 標頭，跨網域 SRI 無法生效、實測整支會被擋掉）：鎖定 3.4.17 -->
+    <script src="vendor/tailwind-3.4.17.js"></script>
     
     <!-- 鎖版＋SRI：原本是 lucide@latest，等於把「本站執行什麼程式碼」的決定權交給 lucide 每一次發版（含被投毒的發版）。
          改版時要同時更新 integrity（sha384 自行下載該檔計算，不可憑印象填，填錯腳本會直接不載入）。 -->

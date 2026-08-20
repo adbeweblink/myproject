@@ -4,8 +4,8 @@
     <meta charset="UTF-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Adobe 教育機構方案比較表</title>
-    <!-- 引入 Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Tailwind CSS。自架同源（Tailwind 官方 CDN 不回 CORS 標頭，跨網域 SRI 無法生效、實測整支會被擋掉）：鎖定 3.4.17 -->
+    <script src="vendor/tailwind-3.4.17.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -214,8 +214,9 @@
             <h3 class="text-xl font-black text-adobeBlack mb-2 text-center">教育方案諮詢</h3>
             <p class="text-gray-500 text-sm text-center mb-6">感謝您的興趣！請填寫以下資訊，我們將協助安排專人聯繫。</p>
             <!-- Form -->
-            <form id="contact-form" class="space-y-4" onsubmit="App.submitForm(event)">
-                
+            <form id="contact-form" name="cc-edu-inquiry" method="POST" data-netlify="true" data-netlify-honeypot="_honey" class="space-y-4" onsubmit="App.submitForm(event)">
+                <input type="hidden" name="form-name" value="cc-edu-inquiry">
+
                 <!-- Honeypot -->
                 <div class="hidden" aria-hidden="true">
                     <label for="honeypot_field">請勿填寫此欄位</label>
@@ -255,7 +256,7 @@
                     送出 採購方案諮詢 我們將盡快與您聯繫
                 </button>
                 <p class="text-[10px] text-gray-400 text-center mt-2 leading-tight">
-                    * 我們重視您的隱私。您提供的資料由展碁國際股份有限公司蒐集，僅用於方案諮詢與聯繫用途；我們委託的雲端服務（Google）僅作為代為儲存之受託處理者，不會提供給無關第三方。<br>
+                    * 我們重視您的隱私。您提供的資料由展碁國際股份有限公司蒐集，僅用於方案諮詢與聯繫用途；本站託管服務商僅作為代為儲存之受託處理者，不會提供給無關第三方。<br>
                     送出即表示您同意本站<a href="/privacy/" target="_blank" rel="noopener" class="underline hover:text-gray-600">『隱私權政策』</a>。
                 </p>
             </form>
@@ -702,46 +703,35 @@
                 document.getElementById('contact-modal').classList.add('hidden');
                 document.getElementById('contact-modal').classList.remove('flex');
             },
-            submitForm(e) {
+            // 2026-08-20：表單改走本站的 Netlify Forms（原本送 Google Apps Script）。
+            // 舊端點對匿名請求回 403（實測），而不帶認證的跨域請求回應被遮成 opaque——status 永遠 0、
+            // HTTP 4xx/5xx 不會 reject，所以每一筆教育方案詢問都在畫面說「已送出」的同時消失。
+            async submitForm(e) {
                 e.preventDefault();
                 const btn = e.target.querySelector('button[type="submit"]');
                 const originalText = btn.innerHTML;
-                
-                // 收集表單資料
                 const form = document.getElementById('contact-form');
                 const formData = new FormData(form);
-                
-                // Honeypot check
-                const honeypot = formData.get('_honey');
-                if (honeypot) {
-                    // Silently fail or simulate success for bots
-                    console.log('Bot detected via honeypot');
+
+                // 蜜罐欄位有值＝機器人，假裝成功後靜靜丟掉
+                if (formData.get('_honey')) {
                     alert('已送出。\n若一個工作天內未收到回覆，請直接來電 (02) 2371-6000 #733（業務諮詢）。');
                     App.closeContactModal();
                     form.reset();
                     return;
                 }
 
-                // Basic Phone Validation
-                const phone = formData.get('phone');
-                const cleanPhone = phone.replace(/[- ]/g, '');
+                const cleanPhone = (formData.get('phone') || '').replace(/[- ]/g, '');
                 if (!/^09\d{8}$/.test(cleanPhone)) {
                      alert('請輸入有效的台灣手機號碼 (例如：0912-345-678)');
                      return;
                 }
 
-                // 額外增加時間戳記
-                formData.append('timestamp', new Date().toLocaleString());
+                const body = new URLSearchParams(formData);
+                body.set('phone', cleanPhone);
+                // 目前比較表的檢視狀態一起送，否則業務收到名單卻不知道對方在看哪幾個方案
+                body.set('summary', `比較中方案：${this.getActivePlans().map(p => p.name).join(' / ') || '（未選擇）'}｜檢視：${this.state.hideCommon ? '只看差異' : '顯示全部'}`);
 
-                // Google Apps Script Web App URL
-                const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxo2DkLDQNk_Q9s_b_HUhEer0W654KO7rLpNJV54ce1lhm40-qfQtA746wx8u67vt3T/exec'; 
-
-                if (!SCRIPT_URL) {
-                    alert('系統提示：\n尚未設定 Google 試算表串接網址 (Web App URL)。\n\n請參考附帶的說明文件建立 Google Apps Script，並將網址填入程式碼中的 "SCRIPT_URL" 變數。');
-                    return;
-                }
-
-                // UI Loading State
                 btn.disabled = true;
                 btn.innerHTML = `
                     <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -751,24 +741,19 @@
                     資料傳送中...
                 `;
 
-                fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: formData,
-                    mode: 'no-cors' // 重要：避免跨域錯誤
-                })
-                .then(() => {
+                try {
+                    const res = await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body });
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
                     alert('已送出。\n若一個工作天內未收到回覆，請直接來電 (02) 2371-6000 #733（業務諮詢）。');
                     App.closeContactModal();
                     form.reset();
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('傳送失敗，請稍後再試，或直接聯繫客服。');
-                })
-                .finally(() => {
+                } catch (err) {
+                    // 失敗不清空欄位：讓填表人可以直接重送，不用整份重打
+                    alert(`送出失敗（${err.message}），您填的內容已保留。\n請重試，或直接來電 (02) 2371-6000 #733（業務諮詢）。`);
+                } finally {
                     btn.disabled = false;
                     btn.innerHTML = originalText;
-                });
+                }
             }
         };
 
