@@ -537,7 +537,7 @@
     <div class="filter-card" id="quote">
         <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">線上詢價</h2>
         <p style="font-size: 0.875rem; color: var(--text-gray); margin-bottom: 1.5rem;">留下需求，展碁業務會盡快與您聯繫；急件請直撥業務諮詢專線 (02)2371-6000 #733。</p>
-        <form name="quote-inquiry" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" action="/thanks/">
+        <form name="quote-inquiry" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" netlify-honeypot="bot-field" action="/thanks/">
             <input type="hidden" name="form-name" value="quote-inquiry">
             <p hidden aria-hidden="true"><label>請勿填寫此欄位：<input name="bot-field"></label></p>
             <div class="form-grid">
@@ -630,6 +630,10 @@
         search: '',
     };
 
+    // 使用者輸入回填進 innerHTML 前必須逸出。這頁的 CSP 含 'unsafe-inline'，
+    // 所以未逸出的搜尋字串真的會執行（例如貼一段 <img onerror=...> 進搜尋框）。
+    const escHtml = (s) => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
     // --- 3. 初始化 ---
     function init() {
         renderFilters();
@@ -682,7 +686,7 @@
 
         // 標籤顯示
         let tagsHtml = '';
-        if (state.search) tagsHtml += `<span class="filter-tag">搜尋: ${state.search} <svg class="icon icon-sm" style="cursor:pointer" onclick="updateState('search', '')" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>`;
+        if (state.search) tagsHtml += `<span class="filter-tag">搜尋: ${escHtml(state.search)} <svg class="icon icon-sm" style="cursor:pointer" onclick="updateState('search', '')" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>`;
         if (state.region !== 'All') {
             const regionMap = { 'North': '北區', 'TaoZhuMiao': '桃竹苗', 'Central': '中區', 'South': '南區', 'East': '東區' };
             tagsHtml += `<span class="filter-tag" style="background:#dbeafe; color:#1e40af">區域: ${regionMap[state.region] || state.region} <svg class="icon icon-sm" style="cursor:pointer" onclick="updateState('region', 'All')" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>`;
