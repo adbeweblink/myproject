@@ -777,7 +777,7 @@
                 try {
                     const res = await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body });
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                    alert('已送出。\n若一個工作天內未收到回覆，請直接來電 (02) 2371-6000 #733（業務諮詢）。');
+                    alert('已送出。\n若想直接詢問，請來電 (02) 2371-6000 #733（業務諮詢）。');
                     form.reset();
                     App.closeContactModal();
                 } catch (err) {

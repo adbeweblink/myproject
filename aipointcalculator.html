@@ -185,7 +185,7 @@
             </button>
             <div class="text-center mb-8">
                 <h3 class="text-2xl font-black text-slate-900 mb-2 leading-tight">我有興趣請與我聯繫</h3>
-                <p class="text-slate-500 text-sm leading-relaxed">請提供基本資訊，我們將在 24 小時內指派專家為您提供專屬導入報價。</p>
+                <p class="text-slate-500 text-sm leading-relaxed">請提供基本資訊，我們會指派專家為您提供專屬導入報價。</p>
             </div>
             <div id="form-summary-card" class="bg-slate-50 rounded-2xl p-5 mb-8 border border-slate-100 shadow-inner">
                 <div class="flex justify-between items-center mb-2">
@@ -491,7 +491,7 @@
                 try {
                     const res = await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body });
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                    alert("已送出，感謝您的聯繫！\n我們會在一個工作天內與您聯繫；若未收到回覆，請直接來電 (02) 2371-6000 #733（業務諮詢）。");
+                    alert("已送出，感謝您的聯繫！\n我們會盡快與您聯繫。若想直接詢問，請來電 (02) 2371-6000 #733（業務諮詢）。");
                     form.reset(); restore(); this.closeInquiryModal(); this.toggleCart(false);
                 } catch (err) {
                     alert(`送出失敗（${err.message}），您填的內容已保留。\n請重試，或直接來電 (02) 2371-6000 #733（業務諮詢）。`);
