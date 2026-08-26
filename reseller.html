@@ -544,8 +544,11 @@
 <!-- 線上詢價（Netlify Forms：本頁由主站 build 收進 /reseller/，表單於主站部署時被 Netlify 抓到） -->
 <section style="max-width: 1100px; margin: 0 auto; padding: 0 1rem;">
     <div class="filter-card" id="quote">
-        <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">線上詢價</h2>
-        <p style="font-size: 0.875rem; color: var(--text-gray); margin-bottom: 1.5rem;">留下需求，展碁業務會在 1-2 個工作天內與您聯繫；急件請直撥業務諮詢專線 (02)2371-6000 #733。</p>
+        <!-- 🔴 不要在這裡承諾回覆時效（Mark 2026-08-20：「不要亂承諾 什麼一個工作天」）。
+     時效不是我們能決定的，跳票的是業務。替代寫法＝不承諾時間但給出路（電話）。
+     8/20 移除過一次，8/25 又被加回來成「1-2 個工作天」，8/26 再次移除——所以把理由寫在這裡。 -->
+            <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">線上詢價</h2>
+        <p style="font-size: 0.875rem; color: var(--text-gray); margin-bottom: 1.5rem;">留下需求，展碁業務會盡快與您聯繫；急件請直撥業務諮詢專線 (02)2371-6000 #733。</p>
         <form name="quote-inquiry" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" netlify-honeypot="bot-field" action="/thanks/">
             <input type="hidden" name="form-name" value="quote-inquiry">
             <p hidden aria-hidden="true"><label>請勿填寫此欄位：<input name="bot-field"></label></p>
