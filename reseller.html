@@ -405,9 +405,13 @@
             font-weight: 700;
             letter-spacing: 0.03em;
         }
+        /* tier-platinum 保留：Adobe 分級制度本身有 Platinum，只是 2026-08-26 查證台灣 0 家。
+           台灣哪天真的出現白金級時，沒有這條會退化成無樣式的裸標籤——所以不隨資料一起刪。 */
         .tier-platinum { background: #eef2ff; color: #3730a3; border: 1px solid #c7d2fe; }
         .tier-gold { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
         .tier-certified { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+        /* 中性灰：刻意不用金／綠，才不會被誤讀成 Adobe 分級 */
+        .tier-partner { background: #f3f4f6; color: #4b5563; border: 1px solid #d1d5db; }
 
         /* 線上詢價表單 */
         .form-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
@@ -524,6 +528,11 @@
                 <span id="result-count" style="font-size: 0.875rem; font-weight: normal; background: #f3f4f6; padding: 2px 8px; border-radius: 99px; margin-left: 8px;">...</span>
             </h3>
             <div id="active-tags" class="tag-container"></div>
+            <!-- 等級徽章的說明：金級／認證級是 Adobe 官方分級，灰色那顆不是。
+                 不寫這行的話，讀者會把兩種顏色一起當成 Adobe 給的等級。 -->
+            <p style="font-size: 0.8rem; color: #6b7280; line-height: 1.7; margin-top: 0.75rem;">
+                「金級 Gold」「認證級 Certified」為 Adobe 官方合作夥伴等級，依據 Adobe Partner Directory 公開資料標示。標示「展碁授權經銷夥伴」者為展碁自有經銷名單，非 Adobe 分級。
+            </p>
         </div>
 
         <div id="reseller-list">
@@ -536,7 +545,7 @@
 <section style="max-width: 1100px; margin: 0 auto; padding: 0 1rem;">
     <div class="filter-card" id="quote">
         <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">線上詢價</h2>
-        <p style="font-size: 0.875rem; color: var(--text-gray); margin-bottom: 1.5rem;">留下需求，展碁業務會盡快與您聯繫；急件請直撥業務諮詢專線 (02)2371-6000 #733。</p>
+        <p style="font-size: 0.875rem; color: var(--text-gray); margin-bottom: 1.5rem;">留下需求，展碁業務會在 1-2 個工作天內與您聯繫；急件請直撥業務諮詢專線 (02)2371-6000 #733。</p>
         <form name="quote-inquiry" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" netlify-honeypot="bot-field" action="/thanks/">
             <input type="hidden" name="form-name" value="quote-inquiry">
             <p hidden aria-hidden="true"><label>請勿填寫此欄位：<input name="bot-field"></label></p>
@@ -570,8 +579,8 @@
 </div>
 
 <footer>
-    <p>© 2026 展碁國際股份有限公司｜資料維護日 2026-08-19</p>
-    <p style="margin-top: 5px;">資料來源：Adobe Partner Connection Portal & 授權經銷體系</p>
+    <p>© 2026 展碁國際股份有限公司｜資料維護日 2026-08-26</p>
+    <p style="margin-top: 5px;">資料來源：Adobe Partner Directory 公開資料及展碁授權經銷體系</p>
 </footer>
 
 <!-- JS Logic -->
@@ -579,50 +588,100 @@
     // ==========================================
     // 經銷商資料庫 (RESELLERS_DATA) - 已移除 Email, 標籤與描述 (展碁國際資訊已移除)
     // ==========================================
+    // ── tier 欄位怎麼來的（2026-08-26 校正，動它之前先讀完這段） ──
+    // 這 35 家的 tier 是拿 Adobe 官方 Partner Directory 逐家比對出來的，不是我們自己給的：
+    //   GET https://partner-directory.adobe.io/v1/apc/partner-directory/public?page=0&size=50&country=TW
+    //       （header: x-api-key: partner_directory，免登入）
+    // 該次查證的台灣全量是 284 家：Platinum 0 ／ Gold 13 ／ Certified 270 ／ Distributor 1（展碁自己）。
+    // 校正後本陣列為：Platinum 0 ／ Gold 13 ／ Certified 16 ／ Partner 6 ＝ 35。
+    //
+    // 🔴 台灣目前官方 0 家 Platinum，所以本陣列刻意一家 Platinum 都沒有——這是正確結果，不是漏資料。
+    //    校正前站上把精誠(p1)、宏碁(p2) 標成 Platinum（官方是 Gold，標高了），
+    //    逸凡(g3) 標成 Certified（官方是 Gold，標低了）。TIER_LABEL 與 .tier-platinum 樣式仍保留，
+    //    是為了台灣哪天真的出現白金級時不必重寫，不代表現在有人是白金。
+    //
+    // 🔴 對鍵方式（下次重做比對的人請照這個順序，不要自己想別的）：
+    //    站上的 nameEn 是展碁自己的翻譯／拼音（真傳→'Zhenchuan Info'），**不是**該公司的登錄英文名，
+    //    所以拿 nameEn 或憑印象猜的英文關鍵字去搜官方目錄，一定會漏——而且漏掉的樣子跟「真的不存在」
+    //    一模一樣，分不出來。2026-08-26 就是這樣先漏掉 7 家。正確做法是兩把獨立的鑰匙都跑：
+    //      鑰匙一：中文全名 → 比對官方 tradingName（該欄位含中文全名）。盲區＝284 筆裡有 114 筆
+    //              名稱純英文不含中文，這把鑰匙照不到。
+    //      鑰匙二：完整電話（切掉分機、不可截碼——台北市話 02+8 碼共 10 碼，截 9 碼會把
+    //              2788-2408 和 2788-2400 併成同一家）→ 比對官方 contactInfo.phone，再核對城市。
+    //    兩把都撈不到，才算真的查無。
+    //
+    // tier: 'Certified' 之中有 7 家是靠上面的方法才對到的，官方登錄名與站上中英文名完全不同：
+    //    光聯國際=Condata International（tradingName 直接含中文全名）／大綜電腦=Jetwell Computer／
+    //    勁特企業=Gold Star Forever／真傳資訊=Real Data Corp／首羿國際=Soeasy International／
+    //    銓太資訊=Chaintek Information／好時科技工作室=Hersheytech Studio。
+    //    後 6 家是用電話對到的（電話在 284 筆中唯一 ＋ 城市一致），證據強度略低於前一家，
+    //    若要推翻請拿官方目錄原始資料來推，不要憑名字不像就改回去。
+    //
+    // tier: 'Partner' = 兩把鑰匙都查無，只能確定是展碁自有經銷名單，因此不掛 Adobe 等級徽章。
+    //    查無不等於沒有合作關係，常見原因是該公司未登錄 Partner Finder 或以另一法人名稱登錄。
+    //
+    // ✅ 2026-08-26 已自動化：tier 欄位改由 Adobe 官方快照對帳，不再靠人工維護。
+    //    weblink-adbecsp/scripts/ 底下三支：
+    //      fetch-partner-directory.mjs   手動跑，抓官方 API 存快照 data/adobe-partner-directory.json
+    //      sync-reseller-tiers.mjs       對帳（預設只預覽；--write 寫回本檔；--check 給建置用）
+    //      lib/match-partners.mjs        對鍵邏輯，測試在 scripts/tests/match-partners.test.mjs
+    //    建置時 build-publish.ps1 step 0a 會擋兩件事：快照超過 30 天沒更新、本檔 tier 與快照不一致。
+    //
+    // 🔴 只有 tier 一欄是同步來的。region / address / phone / nameTw / nameEn 的權威來源仍是展碁自己——
+    //    官方的 city 欄位格式與語義都不同（'Taipei city' vs 'Taipei,North'），
+    //    順手一起同步會讓篩選器靜默壞掉。要改對鍵邏輯前先跑那支測試。
+    //
+    // 🔴 對鍵有第三把鑰匙（比上面那段多的）：官方 tradingName 常把中英文塞在同一欄，例如
+    //    'Condata International Co., Ltd. 光聯國際股份有限公司'——精確比對會整家漏掉，要用「包含」。
     const RESELLERS_DATA = [
-        // Platinum
-        { id: 'p1', nameEn: 'Systex Software and Service Corporation', nameTw: '精誠軟體服務股份有限公司', region: 'Taipei,All', address: '台北市中正區羅斯福路二段100號17樓', phone: '(02) 2367-0188', tier: 'Platinum' },
-        { id: 'p2', nameEn: 'Acer E-Enabling Service Business', nameTw: '宏碁資訊服務股份有限公司', region: 'Taipei,All', address: '115臺北市南港區南港路三段9號18樓', phone: '(02) 2784-1000', tier: 'Platinum' },
-        // Gold
+        // ── Gold：官方 partnerLevel = Gold（台灣官方共 13 家，正好全部在此名單內）──
+        { id: 'p1', nameEn: 'Systex Software and Service Corporation', nameTw: '精誠軟體服務股份有限公司', region: 'Taipei,All', address: '台北市中正區羅斯福路二段100號17樓', phone: '(02) 2367-0188', tier: 'Gold' },
+        { id: 'p2', nameEn: 'Acer E-Enabling Service Business', nameTw: '宏碁資訊服務股份有限公司', region: 'Taipei,All', address: '115臺北市南港區南港路三段9號18樓', phone: '(02) 2784-1000', tier: 'Gold' },
         { id: 'n7', nameEn: 'Evertop Information', nameTw: '長峰資訊股份有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2788-2408', tier: 'Gold' },
         { id: 'n5', nameEn: 'Jen Hong International', nameTw: '朕宏國際實業有限公司', region: 'Taipei,North', address: '台北市北投區', phone: '(02) 2897-6878', tier: 'Gold' },
         { id: 'n4', nameEn: 'Shin Chi Cloud', nameTw: '昕奇雲端科技股份有限公司', region: 'Taipei,North', address: '台北市內湖區', phone: '(02) 8792-3677', tier: 'Gold' },
         { id: 'n8', nameEn: 'I-Planet International', nameTw: '智域國際股份有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2727-8077', tier: 'Gold' },
         { id: 'n2', nameEn: 'Tomorrow Info', nameTw: '明日資訊有限公司', region: 'Taipei,North', address: '台北市', phone: '(03) 317-3742', tier: 'Gold' },
-        { id: 'g2', nameEn: 'Otsuka Information Technology', nameTw: '大塚資訊科技股份有限公司', region: 'NewTaipei,All', address: '新北市', phone: '(02) 8964-6668', tier: 'Gold' },
         { id: 'n1', nameEn: 'Quickly 3C', nameTw: '快克利有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2511-9098', tier: 'Gold' },
         { id: 'new1', nameEn: 'Liso Information Co., Ltd.', nameTw: '力梭資訊股份有限公司', region: 'NewTaipei,North', address: '新北市', phone: '(02) 8969-0901', tier: 'Gold' },
         { id: 'n3', nameEn: 'Keyi International', nameTw: '科益國際股份有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2585-8725', tier: 'Gold' },
         { id: 'n6', nameEn: 'Chuangjie International', nameTw: '創捷國際有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2570-3233', tier: 'Gold' },
         { id: 'new2', nameEn: 'Tyche Information Co., Ltd.', nameTw: '台奇資訊有限公司', region: 'NewTaipei,North', address: '新北市', phone: '(02) 8983-3989', tier: 'Gold' },
-        
-        // Certified
-        { id: 'g3', nameEn: 'Yifan Technology', nameTw: '逸凡科技股份有限公司', region: 'Taipei,All', address: '台北市', phone: '0800-098-598', tier: 'Certified' },
-        { id: 'g4', nameEn: 'BestCom Infotech Corp.', nameTw: '大綜電腦系統股份有限公司', region: 'Kaohsiung,All', address: '高雄市', phone: '(07) 345-8011', tier: 'Certified' },
+        { id: 'g3', nameEn: 'Yifan Technology', nameTw: '逸凡科技股份有限公司', region: 'Taipei,All', address: '台北市', phone: '0800-098-598', tier: 'Gold' },
+
+        // ── Certified：官方 partnerLevel = Certified（16 家，北→南→東）──
+        //    行末註記官方登錄名者＝站上名稱與官方登錄名對不起來、靠中文 tradingName 或電話才對到的，
+        //    沒有註記者＝英文名本來就對得上。
         { id: 'g5', nameEn: 'Xunda Computer', nameTw: '訊達電腦股份有限公司', region: 'Taipei,All', address: '台北市', phone: '(02) 2501-5568 #2285', tier: 'Certified' },
-        { id: 'n9', nameEn: 'Guanglian International', nameTw: '光聯國際股份有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 8768-1631', tier: 'Certified' },
-        { id: 'n10', nameEn: 'Jinte Enterprise', nameTw: '勁特企業有限公司', region: 'NewTaipei,North', address: '新北市', phone: '(02) 8685-4166', tier: 'Certified' },
-        { id: 'n11', nameEn: 'Zhenchuan Info', nameTw: '真傳資訊有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2754-8510', tier: 'Certified' },
-        { id: 'n12', nameEn: 'Qiaoju Info', nameTw: '僑巨資訊企業有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2522-1212', tier: 'Certified' },
+        { id: 'n9', nameEn: 'Guanglian International', nameTw: '光聯國際股份有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 8768-1631', tier: 'Certified' },   // 官方 Condata International（tradingName 含中文全名）
+        { id: 'n11', nameEn: 'Zhenchuan Info', nameTw: '真傳資訊有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2754-8510', tier: 'Certified' },   // 官方 Real Data Corp（電話對到）
         { id: 'n13', nameEn: 'TeraSoft', nameTw: '台灣碩軟軟體有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2176-5186', tier: 'Certified' },
         { id: 'n14', nameEn: 'Ability International', nameTw: '佳能國際股份有限公司', region: 'Taipei,North', address: '台北市', phone: '0800-055-056', tier: 'Certified' },
+        { id: 'n10', nameEn: 'Jinte Enterprise', nameTw: '勁特企業有限公司', region: 'NewTaipei,North', address: '新北市', phone: '(02) 8685-4166', tier: 'Certified' },   // 官方 Gold Star Forever（電話對到）
         { id: 't1', nameEn: 'Youshuo Computer', nameTw: '又碩電腦科技股份有限公司', region: 'TaoZhuMiao,North', address: '桃園市', phone: '(03) 463-9119', tier: 'Certified' },
         { id: 't2', nameEn: 'Weice Computer', nameTw: '威策電腦股份有限公司', region: 'TaoZhuMiao,North', address: '桃園市', phone: '(03) 301-9789', tier: 'Certified' },
-        { id: 't3', nameEn: 'Kaimo Technology', nameTw: '凱模科技有限公司', region: 'TaoZhuMiao,North', address: '桃園市', phone: '(03) 218-0011', tier: 'Certified' },
         { id: 'c1', nameEn: 'Se Mai Technology', nameTw: '瑟麥科技事業有限公司', region: 'Taichung,Central', address: '台中市', phone: '(04) 2475-0698', tier: 'Certified' },
-        { id: 'c2', nameEn: 'Show Yi International', nameTw: '首羿國際股份有限公司', region: 'Taichung,Central', address: '台中市', phone: '(04) 2258-3355', tier: 'Certified' },
-        { id: 'c3', nameEn: 'Quantai Info', nameTw: '銓太資訊有限公司', region: 'Taichung,Central', address: '台中市', phone: '(04) 2312-7008', tier: 'Certified' },
+        { id: 'c2', nameEn: 'Show Yi International', nameTw: '首羿國際股份有限公司', region: 'Taichung,Central', address: '台中市', phone: '(04) 2258-3355', tier: 'Certified' },   // 官方 Soeasy International（電話對到）
+        { id: 'c3', nameEn: 'Quantai Info', nameTw: '銓太資訊有限公司', region: 'Taichung,Central', address: '台中市', phone: '(04) 2312-7008', tier: 'Certified' },   // 官方 Chaintek Information（電話對到）
         { id: 'c4', nameEn: 'Xin-En Technology', nameTw: '昕恩科技有限公司', region: 'Taichung,Central', address: '台中市', phone: '(04) 2202-0158', tier: 'Certified' },
-        { id: 's1', nameEn: 'Gao Jie Xin', nameTw: '高傑信股份有限公司', region: 'Kaohsiung,South', address: '高雄市', phone: '(07) 975-6888', tier: 'Certified' },
-        { id: 's2', nameEn: 'Yunchuan Technology', nameTw: '允傳科技股份有限公司', region: 'Kaohsiung,South', address: '高雄市', phone: '(07) 348-5625', tier: 'Certified' },
         { id: 's3', nameEn: 'Diyiming Computer', nameTw: '帝易明電腦有限公司', region: 'Tainan,South', address: '台南市', phone: '(06) 222-4339', tier: 'Certified' },
         { id: 's4', nameEn: 'Deyuan Computer', nameTw: '德源電腦有限公司', region: 'Tainan,South', address: '台南市', phone: '(06) 228-4367', tier: 'Certified' },
-        { id: 's5', nameEn: 'Song Yue International', nameTw: '淞鉞國際有限公司', region: 'Kaohsiung,South', address: '高雄市', phone: '(07) 588-5272', tier: 'Certified' },
-        { id: 'e1', nameEn: 'Haoshi Tech Studio', nameTw: '好時科技工作室', region: 'East', address: '台東縣', phone: '089-311220', tier: 'Certified' }
+        { id: 'g4', nameEn: 'BestCom Infotech Corp.', nameTw: '大綜電腦系統股份有限公司', region: 'Kaohsiung,All', address: '高雄市', phone: '(07) 345-8011', tier: 'Certified' },   // 官方 Jetwell Computer（電話對到）
+        { id: 'e1', nameEn: 'Haoshi Tech Studio', nameTw: '好時科技工作室', region: 'East', address: '台東縣', phone: '089-311220', tier: 'Certified' },   // 官方 Hersheytech Studio（電話對到）
+
+        // ── 展碁授權經銷夥伴：中文名與電話兩把鑰匙都查無，不標 Adobe 等級（6 家）──
+        { id: 'n12', nameEn: 'Qiaoju Info', nameTw: '僑巨資訊企業有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2522-1212', tier: 'Partner' },
+        { id: 'g2', nameEn: 'Otsuka Information Technology', nameTw: '大塚資訊科技股份有限公司', region: 'NewTaipei,All', address: '新北市', phone: '(02) 8964-6668', tier: 'Partner' },
+        { id: 't3', nameEn: 'Kaimo Technology', nameTw: '凱模科技有限公司', region: 'TaoZhuMiao,North', address: '桃園市', phone: '(03) 218-0011', tier: 'Partner' },
+        { id: 's1', nameEn: 'Gao Jie Xin', nameTw: '高傑信股份有限公司', region: 'Kaohsiung,South', address: '高雄市', phone: '(07) 975-6888', tier: 'Partner' },
+        { id: 's2', nameEn: 'Yunchuan Technology', nameTw: '允傳科技股份有限公司', region: 'Kaohsiung,South', address: '高雄市', phone: '(07) 348-5625', tier: 'Partner' },
+        { id: 's5', nameEn: 'Song Yue International', nameTw: '淞鉞國際有限公司', region: 'Kaohsiung,South', address: '高雄市', phone: '(07) 588-5272', tier: 'Partner' }
     ];
 
     // 分級徽章文字（tier 欄位 → 卡片顯示）
-    const TIER_LABEL = { Platinum: '白金級 Platinum', Gold: '金級 Gold', Certified: '認證級 Certified' };
+    // Platinum 目前台灣 0 家（見上方註解），這一條是留給未來的定義，不是有人在用。
+    // Partner 不是 Adobe 分級，措辭要看得出是展碁自己的名單。
+    const TIER_LABEL = { Platinum: '白金級 Platinum', Gold: '金級 Gold', Certified: '認證級 Certified', Partner: '展碁授權經銷夥伴' };
 
     // --- 2. 狀態管理 ---
     let state = {
