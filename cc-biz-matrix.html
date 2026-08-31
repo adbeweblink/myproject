@@ -53,7 +53,6 @@
         }
         .modal-active { display: flex !important; }
 
-        /* 蜜罐欄位樣式：完全隱藏，避免影響排版，但機器人仍可能掃描到 */
         .hp-field {
             opacity: 0;
             position: absolute;
@@ -227,7 +226,6 @@
             <form id="contact-form" name="cc-biz-inquiry" method="POST" data-netlify="true" data-netlify-honeypot="website" netlify-honeypot="website" class="space-y-4" onsubmit="App.submitForm(event)">
                 <input type="hidden" name="form-name" value="cc-biz-inquiry">
 
-                <!-- 資安：蜜罐欄位 (Honeypot) - 正常使用者看不到，機器人會填 -->
                 <div class="hp-field">
                     <label for="c_website">Website</label>
                     <input type="text" id="c_website" name="website" autocomplete="off" tabindex="-1">
@@ -755,7 +753,6 @@
                 const btn = document.getElementById('submit-btn');
                 const originalBtnText = btn.innerHTML;
 
-                // 蜜罐欄位有值＝機器人，假裝成功後靜靜丟掉
                 if (document.getElementById('c_website').value) {
                     setTimeout(() => { form.reset(); App.closeContactModal(); }, 500);
                     return;
@@ -780,6 +777,15 @@
                 try {
                     const res = await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body });
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    // GA4 商機事件：記在「伺服器確定收下」這一步，不記在按下送出的當下——
+                    // 那時還不知道會不會失敗。先檢查再呼叫是因為這份 HTML 單獨開時沒有 GA4，
+                    // gtag 不存在屬正常情況，直接呼叫會拋錯並讓下面的收尾動作全部不執行。
+                    // 刻意用 typeof 而不是 ?.：那是 ES2020 語法，會讓舊瀏覽器解析整段 script 就失敗，
+                    // 症狀是整個比較表打不開而不只是少一個事件（同型說明見 firefly-biz-matrix.html）。
+                    if (typeof window.gtag === 'function') window.gtag('event', 'generate_lead', {
+                        form_name: 'cc-biz-inquiry',
+                        form_location: '/tools/cc-biz-matrix/',
+                    });
                     alert('已送出。\n若想直接詢問，請來電 (02) 2371-6000 #733（業務諮詢）。');
                     form.reset();
                     App.closeContactModal();

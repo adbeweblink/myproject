@@ -812,7 +812,6 @@
                 const btn = document.getElementById('submit-btn');
                 const originalBtnText = btn.innerHTML;
 
-                // 蜜罐欄位有值＝機器人，假裝成功後靜靜丟掉
                 if (document.getElementById('c_website').value) {
                     setTimeout(() => { form.reset(); App.closeContactModal(); }, 500);
                     return;
@@ -837,6 +836,18 @@
                 try {
                     const res = await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body });
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    // GA4 商機事件。這頁沒有感謝頁可以記，所以記在「伺服器確定收下」這個分支，
+                    // 不記在按下送出的當下——那時還不知道會不會失敗，記下去的是虛胖的數字。
+                    // ⚠️ 先檢查再呼叫：這份 HTML 單獨開（本 repo 的正本頁面）時沒有 GA4，
+                    //    gtag 不存在是正常情況；直接呼叫會拋錯並連帶讓下面的 form.reset() 不執行。
+                    // ⚠️ 刻意用 typeof 而不是 ?. 語法：這段 inline script 原本的語法上限是 ES2017，
+                    //    引入 ES2020 的 ?. 會讓舊瀏覽器在解析整個 <script> 時就 SyntaxError，
+                    //    症狀不是「少一個分析事件」，是整個比較表工具打不開——代價不對稱。
+                    //    站內既有前例：partials/site-header.js 對 __ckClearAnalyticsCookies 的判斷。
+                    if (typeof window.gtag === 'function') window.gtag('event', 'generate_lead', {
+                        form_name: 'firefly-inquiry',
+                        form_location: '/tools/firefly-biz-matrix/',
+                    });
                     alert('已送出。若想直接詢問，請來電 (02) 2371-6000 #733（業務諮詢）。');
                     form.reset();
                     App.closeContactModal();

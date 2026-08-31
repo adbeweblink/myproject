@@ -575,6 +575,19 @@
     </div>
 </section>
 
+<!-- 通路業者招募入口（2026-08-27）：這頁的訪客是「在找經銷商」的終端客戶，
+     但其中天然混著想自己當經銷商的通路業者——脈絡上最對的招募落點。
+     刻意放在詢價表單「之後」：主動線是客戶找人買東西，這條不該插在中間搶注意力，
+     只接住一路捲到底、而且其實在找別件事的那一小群人。
+     ⚠️ 這裡是正本。weblink-adbecsp/reseller/index.html 是 import-tools.mjs 的整檔覆寫產物，
+        改那邊下次建置就被洗掉（2026-08-27 實際踩過一次，改完 build 完當場消失）。 -->
+<section style="max-width: 1100px; margin: 3rem auto 0; padding: 0 1rem;">
+    <div style="border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.25rem 1.5rem; text-align: center; background: #fafafa;">
+        <p style="margin: 0 0 0.5rem; font-size: 0.95rem; color: #374151;">你是通路業者，想成為 Adobe 授權經銷商嗎？</p>
+        <a href="/partners/" style="font-weight: 700; color: #fa0f00;">看 APC 認證資格與申請流程 →</a>
+    </div>
+</section>
+
 <!-- Toast Notification -->
 <div id="toast">
     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -874,6 +887,17 @@
     }
 
     init();
+
+    // 詢價表單送出時留一個記號給 /thanks/ 讀。那一頁同時接這裡與 /adobe-day/ 的規劃器，
+    // 而傳統 POST 轉址過去之後拿不到任何表單欄位，不留記號就分不出商機從哪一頁來。
+    // ⚠️ 這裡不直接送 GA4 事件：按下送出不等於成立（可能被 honeypot 判成機器人），
+    //    真正記帳在 /thanks/ ——走得到那一頁才代表 Netlify 收下了。
+    var quoteForm = document.querySelector('form[name="quote-inquiry"]');
+    if (quoteForm) {
+        quoteForm.addEventListener('submit', function () {
+            try { sessionStorage.setItem('lead-form', 'quote-inquiry'); } catch (e) {}
+        });
+    }
 </script>
 </body>
 </html>

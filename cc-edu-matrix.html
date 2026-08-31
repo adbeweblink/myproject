@@ -217,7 +217,6 @@
             <form id="contact-form" name="cc-edu-inquiry" method="POST" data-netlify="true" data-netlify-honeypot="_honey" netlify-honeypot="_honey" class="space-y-4" onsubmit="App.submitForm(event)">
                 <input type="hidden" name="form-name" value="cc-edu-inquiry">
 
-                <!-- Honeypot -->
                 <div class="hidden" aria-hidden="true">
                     <label for="honeypot_field">請勿填寫此欄位</label>
                     <input type="text" name="_honey" id="honeypot_field" tabindex="-1" autocomplete="off">
@@ -716,7 +715,6 @@
                 const form = document.getElementById('contact-form');
                 const formData = new FormData(form);
 
-                // 蜜罐欄位有值＝機器人，假裝成功後靜靜丟掉
                 if (formData.get('_honey')) {
                     alert('已送出。\n若想直接詢問，請來電 (02) 2371-6000 #733（業務諮詢）。');
                     App.closeContactModal();
@@ -747,6 +745,15 @@
                 try {
                     const res = await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body });
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    // GA4 商機事件：記在「伺服器確定收下」這一步，不記在按下送出的當下——
+                    // 那時還不知道會不會失敗。先檢查再呼叫是因為這份 HTML 單獨開時沒有 GA4，
+                    // gtag 不存在屬正常情況，直接呼叫會拋錯並讓下面的收尾動作全部不執行。
+                    // 刻意用 typeof 而不是 ?.：那是 ES2020 語法，會讓舊瀏覽器解析整段 script 就失敗，
+                    // 症狀是整個比較表打不開而不只是少一個事件（同型說明見 firefly-biz-matrix.html）。
+                    if (typeof window.gtag === 'function') window.gtag('event', 'generate_lead', {
+                        form_name: 'cc-edu-inquiry',
+                        form_location: '/tools/cc-edu-matrix/',
+                    });
                     alert('已送出。\n若想直接詢問，請來電 (02) 2371-6000 #733（業務諮詢）。');
                     App.closeContactModal();
                     form.reset();

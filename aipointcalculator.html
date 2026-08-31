@@ -492,6 +492,15 @@
                 const btn = this.$el('submit-btn'), form = this.$el('contact-form');
                 const phone = this.$el('c_phone').value.replace(/[\-\s]/g, '');
                 if (!/^09\d{8}$/.test(phone)) { this.showToast("手機格式錯誤"); return; }
+                // 蜜罐命中＝機器人填的。表單早就宣告了這個欄位（:202 netlify-honeypot="website"），
+                // 但 JS 這一側漏了檢查——四支同型工具裡唯一的例外（2026-09-01 資安審查抓到）。
+                // 為什麼非補不可：Netlify 對蜜罐命中的提交是回 2xx 然後靜靜丟棄，所以 res.ok 為真、
+                // 下面的商機事件照樣記一筆——名單被丟掉、數字卻加一，而且沒有任何地方看得出來。
+                // 延遲 500ms 再關窗是照另外三支的做法：讓機器人以為送成功了，不要回饋失敗訊號。
+                if (this.$el('c_website').value) {
+                    setTimeout(() => { form.reset(); this.closeInquiryModal(); }, 500);
+                    return;
+                }
                 const restore = () => { btn.disabled = false; btn.innerHTML = "立即聯繫專家報價"; };
                 btn.disabled = true; btn.innerHTML = "傳送中...";
                 // 規劃摘要一起送，否則業務收到名單卻不知道他估了什麼
@@ -500,6 +509,15 @@
                 try {
                     const res = await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body });
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    // GA4 商機事件：記在「伺服器確定收下」這一步，不記在按下送出的當下——
+                    // 那時還不知道會不會失敗。先檢查再呼叫是因為這份 HTML 單獨開時沒有 GA4，
+                    // gtag 不存在屬正常情況，直接呼叫會拋錯並讓下面的收尾動作全部不執行。
+                    // 刻意用 typeof 而不是 ?.：那是 ES2020 語法，會讓舊瀏覽器解析整段 script 就失敗，
+                    // 症狀是整個計算機打不開而不只是少一個事件（同型說明見 firefly-biz-matrix.html）。
+                    if (typeof window.gtag === 'function') window.gtag('event', 'generate_lead', {
+                        form_name: 'aipoint-inquiry',
+                        form_location: '/tools/aipointcalculator/',
+                    });
                     // 🔴 不要在這裡承諾回覆時效（Mark 2026-08-20：「不要亂承諾 什麼一個工作天」）。8/20 移除、8/25 復活、8/26 再移除。
                     alert("已送出，感謝您的聯繫！\n我們會盡快與您聯繫。若想直接詢問，請來電 (02) 2371-6000 #733（業務諮詢）。");
                     form.reset(); restore(); this.closeInquiryModal(); this.toggleCart(false);
