@@ -184,9 +184,8 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 6 6 18M6 6l12 12"/></svg>
             </button>
             <div class="text-center mb-8">
-                <!-- 🔴 不要在這裡承諾回覆時效（Mark 2026-08-20：「不要亂承諾 什麼一個工作天」）。
-     時效不是我們能決定的，跳票的是業務。替代寫法＝不承諾時間但給出路（電話）。
-     8/20 移除過一次，8/25 又被加回來成「1-2 個工作天」，8/26 再次移除——所以把理由寫在這裡。 -->
+                <!-- ⚠️ 這裡不要寫回覆時效承諾。理由與替代寫法見
+     weblink-adbecsp/docs/internal-notes/tools-reply-sla.md -->
             <h3 class="text-2xl font-black text-slate-900 mb-2 leading-tight">我有興趣請與我聯繫</h3>
                 <p class="text-slate-500 text-sm leading-relaxed">請提供基本資訊，我們會指派專家為您提供專屬導入報價。</p>
             </div>
@@ -435,7 +434,7 @@
                 const m = this.data.sel.model, body = this.$el('modal-body'), unit = m.unit || (this.data.cat.type === 'video' ? '支(5秒)' : '張');
                 this.renderBackButton(this.data.cat.type === 'image' ? 3 : 2);
                 const card = document.createElement('div'); card.className = "bg-white p-8 rounded-3xl border border-slate-100 shadow-sm animate-reveal";
-                card.innerHTML = `<h4 class="font-black text-2xl text-slate-900 leading-tight">${m.name}</h4><p class="text-sm text-slate-400 mt-2 pb-6 border-b border-slate-50 leading-relaxed">${m.desc}</p>${m.rates ? `<div class="mt-8"><label class="text-[10px] font-black uppercase tracking-widest text-slate-400">解析度規格 (每支 5 秒消耗)</label><div id="res-grid" class="grid grid-cols-2 gap-2 mt-3"></div></div>` : ''}<div class="mt-8"><label class="text-[10px] font-black uppercase tracking-widest text-slate-400">預估產量 (${unit})</label><input type="number" id="qty-in" value="1" class="w-full text-5xl font-black p-4 text-center bg-transparent border-b-2 border-slate-100 outline-none focus:border-blue-500 transition-colors font-mono"><input type="range" id="qty-sl" min="1" max="1000" value="1" class="w-full mt-7 custom-range"></div>`;
+                card.innerHTML = `<h4 class="font-black text-2xl text-slate-900 leading-tight">${m.name}</h4><p class="text-sm text-slate-400 mt-2 pb-6 border-b border-slate-50 leading-relaxed">${m.desc}</p>${m.rates ? `<div class="mt-8"><label class="text-[10px] font-black uppercase tracking-widest text-slate-400">解析度規格 (每支 5 秒消耗)</label><div id="res-grid" class="grid grid-cols-2 gap-2 mt-3"></div></div>` : ''}<div class="mt-8"><label class="text-[10px] font-black uppercase tracking-widest text-slate-400">預估產量 (${unit})</label><input type="number" id="qty-in" value="1" min="1" max="1000" step="1" inputmode="numeric" class="w-full text-5xl font-black p-4 text-center bg-transparent border-b-2 border-slate-100 outline-none focus:border-blue-500 transition-colors font-mono"><p id="qty-hint" class="text-center text-xs font-bold text-amber-600 mt-2 h-4" role="status"></p><input type="range" id="qty-sl" min="1" max="1000" value="1" class="w-full mt-5 custom-range"></div>`;
                 body.appendChild(card);
                 if(m.rates) {
                     const rg = card.querySelector('#res-grid');
@@ -447,9 +446,26 @@
                 const bar = document.createElement('div'); bar.className = "mt-8 bg-slate-900 rounded-3xl p-6 flex justify-between items-center text-white shadow-2xl animate-reveal";
                 bar.innerHTML = `<div><span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">預估消耗</span><div id="cost-v" class="text-4xl font-black text-yellow-400 font-mono leading-none mt-1.5">0</div></div><button onclick="App.confirmAdd()" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-2xl font-black text-lg shadow-lg click-shrink transition-all">確認加入</button>`;
                 body.appendChild(bar);
-                const qin = this.$el('qty-in'), qsl = this.$el('qty-sl'), cv = this.$el('cost-v');
-                const upd = () => { const q = parseInt(qin.value) || 0; this.data.sel.qty = q; const r = (this.data.plan === 'pro' && m.type_std) ? 0 : (m.rates ? m.rates[this.data.sel.res] : m.cost); cv.innerText = (r * q).toLocaleString(); };
-                qin.oninput = () => { qsl.value = qin.value; upd(); }; qsl.oninput = () => { qin.value = qsl.value; upd(); }; upd();
+                const qin = this.$el('qty-in'), qsl = this.$el('qty-sl'), cv = this.$el('cost-v'), qhint = this.$el('qty-hint');
+                // 數量必須夾在滑桿的範圍內。原本只有 parseInt(...)||0，負數是有效數字所以直接通過
+                // ——打 -5 會算出負的點數、打 999999 會算出五百萬點，而滑桿卡在 1000 完全不動，
+                // 畫面上沒有任何提示。這頁的數字是經銷商拿去跟客戶談的報價，不能讓它算出不可能的值。
+                const QMIN = 1, QMAX = 1000;
+                const clamp = (v) => Math.min(QMAX, Math.max(QMIN, v));
+                const upd = () => {
+                    const raw = parseInt(qin.value, 10);
+                    const q = Number.isFinite(raw) ? clamp(raw) : QMIN;
+                    // 打字中不強制改寫輸入框（會讓人打不完整），只提示；離開欄位時才拉回範圍內
+                    qhint.innerText = (Number.isFinite(raw) && raw !== q) ? `可輸入範圍 ${QMIN}–${QMAX.toLocaleString()}，已以 ${q.toLocaleString()} 計算` : '';
+                    qsl.value = q;
+                    this.data.sel.qty = q;
+                    const r = (this.data.plan === 'pro' && m.type_std) ? 0 : (m.rates ? m.rates[this.data.sel.res] : m.cost);
+                    cv.innerText = (r * q).toLocaleString();
+                };
+                qin.oninput = upd;
+                qin.onblur = () => { qin.value = this.data.sel.qty; qhint.innerText = ''; };
+                qsl.oninput = () => { qin.value = qsl.value; upd(); };
+                upd();
             },
 
             confirmAdd() {
@@ -470,8 +486,8 @@
                     div.innerHTML = `<div class="absolute left-0 top-0 bottom-0 w-1.5 ${item.name.includes('圖像')?'bg-orange-500':'bg-blue-600'}"></div><div class="flex justify-between items-start pl-2"><div><div class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">${item.name}</div><div class="font-bold text-slate-900 leading-tight text-sm">${item.subname}</div></div><button onclick="App.removeFromCart(${item.id})" class="text-slate-300 hover:text-red-500 transition-all"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div><div class="mt-4 pt-3 border-t border-slate-50 flex justify-between items-end pl-2"><div class="text-[10px] font-mono text-slate-400 uppercase leading-none tracking-tight">${item.formula}</div><div class="font-black text-slate-800 leading-none">${item.total.toLocaleString()} pt</div></div>`;
                     list.appendChild(div);
                 });
-                /* 🔴 2026-08-31 修正（Mark 授權：「先修會算錯錢的兩個」）。
-                   原本只有三段：≤25 → 單一應用程式／≤4,000 → Firefly Pro／其餘一律 Premium 50,000。
+                /* 🔴 方案級距四段，不是三段。
+                   若寫成三段（≤25 → 單一應用程式／≤4,000 → Firefly Pro／其餘一律 Premium 50,000），
                    4,001～10,000 這整段（最常見的中型團隊用量）全部被推去 Premium 50,000pt，貴一個量級。
                    VIPMP 上有 Firefly Pro Plus（10,000 點/月/人）這一層，見展碁站 /licensing/ §03。
                    ⚠️ 同一份判斷在下方 openInquiryModal() 還有一份副本，兩處必須一起改，
@@ -484,14 +500,13 @@
             toggleCart(s) { if(s) { this.data.showGuide = false; this.refreshGuide(); } this.$el('cart-drawer').classList.toggle('translate-x-0', s); this.$el('cart-drawer').classList.toggle('translate-x-full', !s); this.$el('cart-drawer-backdrop').classList.toggle('hidden', !s); setTimeout(() => this.$el('cart-drawer-backdrop').classList.toggle('opacity-100', s), 10); if(!s) setTimeout(() => this.$el('cart-drawer-backdrop').classList.add('hidden'), 300); },
             openInquiryModal() { if (this.data.cart[this.data.plan].length === 0) { this.showToast("請先規劃至少一個項目"); return; } const cart = this.data.cart[this.data.plan], total = cart.reduce((s, i) => s + i.total, 0), /* 🔴 2026-08-31：與 renderCart() 的 rec 是同一份規則的第二份副本，改動必須同步（理由見上方註解） */ rec = total <= 25 ? "單一應用程式 (25pt)" : (total <= 4000 ? "Firefly Pro" : (total <= 10000 ? "Firefly Pro Plus" : "Firefly Premium")); this.$el('form-total-pt').innerText = total.toLocaleString() + " pt"; this.$el('form-rec-plan').innerText = "建議方案：" + rec; this.$el('inquiry-modal').classList.remove('hidden'); },
             closeInquiryModal() { this.$el('inquiry-modal').classList.add('hidden'); },
-            // 2026-08-20：原本沒有任何網路請求——setTimeout 1.2 秒後直接 alert「已收到」，
-            // 填表人的資料進了瀏覽器就被丟掉，卻對他承諾 24 小時內聯繫。改走站上既有的 Netlify Forms，
-            // 並且只有真的成功才說成功；失敗保留已填內容，給電話當退路。
+            // 走 Netlify Forms 送出。只有真的成功才說成功；失敗保留已填內容，給電話當退路。
+            // （不要改成不帶認證的跨域請求：回應會被遮成 opaque，成功與失敗無法區分。）
             async handleInquirySubmit(e) {
                 e.preventDefault();
                 const btn = this.$el('submit-btn'), form = this.$el('contact-form');
                 const phone = this.$el('c_phone').value.replace(/[\-\s]/g, '');
-                if (!/^09\d{8}$/.test(phone)) { this.showToast("手機格式錯誤"); return; }
+                if (phone.replace(/\D/g, '').length < 8) { this.showToast("請留下聯絡電話，手機或市話都可以"); return; }
                 // 蜜罐命中＝機器人填的。表單早就宣告了這個欄位（:202 netlify-honeypot="website"），
                 // 但 JS 這一側漏了檢查——四支同型工具裡唯一的例外（2026-09-01 資安審查抓到）。
                 // 為什麼非補不可：Netlify 對蜜罐命中的提交是回 2xx 然後靜靜丟棄，所以 res.ok 為真、
@@ -518,7 +533,7 @@
                         form_name: 'aipoint-inquiry',
                         form_location: '/tools/aipointcalculator/',
                     });
-                    // 🔴 不要在這裡承諾回覆時效（Mark 2026-08-20：「不要亂承諾 什麼一個工作天」）。8/20 移除、8/25 復活、8/26 再移除。
+                    // ⚠️ 訊息裡不要寫回覆時效承諾（理由見 internal-notes/tools-reply-sla.md）。
                     alert("已送出，感謝您的聯繫！\n我們會盡快與您聯繫。若想直接詢問，請來電 (02) 2371-6000 #733（業務諮詢）。");
                     form.reset(); restore(); this.closeInquiryModal(); this.toggleCart(false);
                 } catch (err) {
