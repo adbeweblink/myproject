@@ -394,7 +394,7 @@
         .icon-sm { width: 14px; height: 14px; }
         .icon-lg { width: 20px; height: 20px; }
 
-        /* 經銷商分級徽章 */
+        /* Tier badges */
         .tier-badge {
             display: inline-block;
             vertical-align: 2px;
@@ -405,15 +405,15 @@
             font-weight: 700;
             letter-spacing: 0.03em;
         }
-        /* tier-platinum 保留：Adobe 分級制度本身有 Platinum，只是 2026-08-26 查證台灣 0 家。
-           台灣哪天真的出現白金級時，沒有這條會退化成無樣式的裸標籤——所以不隨資料一起刪。 */
+        /* Keep .tier-platinum even with zero TW partners at that level.
+           See weblink-adbecsp/docs/internal-notes/reseller-page-decisions.md */
         .tier-platinum { background: #eef2ff; color: #3730a3; border: 1px solid #c7d2fe; }
         .tier-gold { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
         .tier-certified { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
-        /* 中性灰：刻意不用金／綠，才不會被誤讀成 Adobe 分級 */
+        /* Neutral grey on purpose: must not read as an Adobe level */
         .tier-partner { background: #f3f4f6; color: #4b5563; border: 1px solid #d1d5db; }
 
-        /* 線上詢價表單 */
+        /* Quote inquiry form */
         .form-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
         @media (min-width: 640px) {
             .form-grid { grid-template-columns: 1fr 1fr; }
@@ -528,8 +528,6 @@
                 <span id="result-count" style="font-size: 0.875rem; font-weight: normal; background: #f3f4f6; padding: 2px 8px; border-radius: 99px; margin-left: 8px;">...</span>
             </h3>
             <div id="active-tags" class="tag-container"></div>
-            <!-- 等級徽章的說明：金級／認證級是 Adobe 官方分級，灰色那顆不是。
-                 不寫這行的話，讀者會把兩種顏色一起當成 Adobe 給的等級。 -->
             <p style="font-size: 0.8rem; color: #6b7280; line-height: 1.7; margin-top: 0.75rem;">
                 「金級 Gold」「認證級 Certified」為 Adobe 官方合作夥伴等級，依據 Adobe Partner Directory 公開資料標示。標示「展碁授權經銷夥伴」者為展碁自有經銷名單，非 Adobe 分級。
             </p>
@@ -541,12 +539,10 @@
     </div>
 </div>
 
-<!-- 線上詢價（Netlify Forms：本頁由主站 build 收進 /reseller/，表單於主站部署時被 Netlify 抓到） -->
+<!-- Quote inquiry (Netlify Forms) -->
 <section style="max-width: 1100px; margin: 0 auto; padding: 0 1rem;">
     <div class="filter-card" id="quote">
-        <!-- 🔴 不要在這裡承諾回覆時效（Mark 2026-08-20：「不要亂承諾 什麼一個工作天」）。
-     時效不是我們能決定的，跳票的是業務。替代寫法＝不承諾時間但給出路（電話）。
-     8/20 移除過一次，8/25 又被加回來成「1-2 個工作天」，8/26 再次移除——所以把理由寫在這裡。 -->
+        <!-- No response-time promise here. See docs/internal-notes/tools-reply-sla.md -->
             <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">線上詢價</h2>
         <p style="font-size: 0.875rem; color: var(--text-gray); margin-bottom: 1.5rem;">留下需求，展碁業務會盡快與您聯繫；急件請直撥業務諮詢專線 (02)2371-6000 #733。</p>
         <form name="quote-inquiry" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" netlify-honeypot="bot-field" action="/thanks/">
@@ -575,12 +571,8 @@
     </div>
 </section>
 
-<!-- 通路業者招募入口（2026-08-27）：這頁的訪客是「在找經銷商」的終端客戶，
-     但其中天然混著想自己當經銷商的通路業者——脈絡上最對的招募落點。
-     刻意放在詢價表單「之後」：主動線是客戶找人買東西，這條不該插在中間搶注意力，
-     只接住一路捲到底、而且其實在找別件事的那一小群人。
-     ⚠️ 這裡是正本。weblink-adbecsp/reseller/index.html 是 import-tools.mjs 的整檔覆寫產物，
-        改那邊下次建置就被洗掉（2026-08-27 實際踩過一次，改完 build 完當場消失）。 -->
+<!-- Reseller recruitment entry. Placement rationale:
+     weblink-adbecsp/docs/internal-notes/reseller-page-decisions.md -->
 <section style="max-width: 1100px; margin: 3rem auto 0; padding: 0 1rem;">
     <div style="border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.25rem 1.5rem; text-align: center; background: #fafafa;">
         <p style="margin: 0 0 0.5rem; font-size: 0.95rem; color: #374151;">你是通路業者，想成為 Adobe 授權經銷商嗎？</p>
@@ -601,56 +593,11 @@
 
 <!-- JS Logic -->
 <script>
-    // ==========================================
-    // 經銷商資料庫 (RESELLERS_DATA) - 已移除 Email, 標籤與描述 (展碁國際資訊已移除)
-    // ==========================================
-    // ── tier 欄位怎麼來的（2026-08-26 校正，動它之前先讀完這段） ──
-    // 這 35 家的 tier 是拿 Adobe 官方 Partner Directory 逐家比對出來的，不是我們自己給的：
-    //   GET https://partner-directory.adobe.io/v1/apc/partner-directory/public?page=0&size=50&country=TW
-    //       （header: x-api-key: partner_directory，免登入）
-    // 該次查證的台灣全量是 284 家：Platinum 0 ／ Gold 13 ／ Certified 270 ／ Distributor 1（展碁自己）。
-    // 校正後本陣列為：Platinum 0 ／ Gold 13 ／ Certified 16 ／ Partner 6 ＝ 35。
-    //
-    // 🔴 台灣目前官方 0 家 Platinum，所以本陣列刻意一家 Platinum 都沒有——這是正確結果，不是漏資料。
-    //    校正前站上把精誠(p1)、宏碁(p2) 標成 Platinum（官方是 Gold，標高了），
-    //    逸凡(g3) 標成 Certified（官方是 Gold，標低了）。TIER_LABEL 與 .tier-platinum 樣式仍保留，
-    //    是為了台灣哪天真的出現白金級時不必重寫，不代表現在有人是白金。
-    //
-    // 🔴 對鍵方式（下次重做比對的人請照這個順序，不要自己想別的）：
-    //    站上的 nameEn 是展碁自己的翻譯／拼音（真傳→'Zhenchuan Info'），**不是**該公司的登錄英文名，
-    //    所以拿 nameEn 或憑印象猜的英文關鍵字去搜官方目錄，一定會漏——而且漏掉的樣子跟「真的不存在」
-    //    一模一樣，分不出來。2026-08-26 就是這樣先漏掉 7 家。正確做法是兩把獨立的鑰匙都跑：
-    //      鑰匙一：中文全名 → 比對官方 tradingName（該欄位含中文全名）。盲區＝284 筆裡有 114 筆
-    //              名稱純英文不含中文，這把鑰匙照不到。
-    //      鑰匙二：完整電話（切掉分機、不可截碼——台北市話 02+8 碼共 10 碼，截 9 碼會把
-    //              2788-2408 和 2788-2400 併成同一家）→ 比對官方 contactInfo.phone，再核對城市。
-    //    兩把都撈不到，才算真的查無。
-    //
-    // tier: 'Certified' 之中有 7 家是靠上面的方法才對到的，官方登錄名與站上中英文名完全不同：
-    //    光聯國際=Condata International（tradingName 直接含中文全名）／大綜電腦=Jetwell Computer／
-    //    勁特企業=Gold Star Forever／真傳資訊=Real Data Corp／首羿國際=Soeasy International／
-    //    銓太資訊=Chaintek Information／好時科技工作室=Hersheytech Studio。
-    //    後 6 家是用電話對到的（電話在 284 筆中唯一 ＋ 城市一致），證據強度略低於前一家，
-    //    若要推翻請拿官方目錄原始資料來推，不要憑名字不像就改回去。
-    //
-    // tier: 'Partner' = 兩把鑰匙都查無，只能確定是展碁自有經銷名單，因此不掛 Adobe 等級徽章。
-    //    查無不等於沒有合作關係，常見原因是該公司未登錄 Partner Finder 或以另一法人名稱登錄。
-    //
-    // ✅ 2026-08-26 已自動化：tier 欄位改由 Adobe 官方快照對帳，不再靠人工維護。
-    //    weblink-adbecsp/scripts/ 底下三支：
-    //      fetch-partner-directory.mjs   手動跑，抓官方 API 存快照 data/adobe-partner-directory.json
-    //      sync-reseller-tiers.mjs       對帳（預設只預覽；--write 寫回本檔；--check 給建置用）
-    //      lib/match-partners.mjs        對鍵邏輯，測試在 scripts/tests/match-partners.test.mjs
-    //    建置時 build-publish.ps1 step 0a 會擋兩件事：快照超過 30 天沒更新、本檔 tier 與快照不一致。
-    //
-    // 🔴 只有 tier 一欄是同步來的。region / address / phone / nameTw / nameEn 的權威來源仍是展碁自己——
-    //    官方的 city 欄位格式與語義都不同（'Taipei city' vs 'Taipei,North'），
-    //    順手一起同步會讓篩選器靜默壞掉。要改對鍵邏輯前先跑那支測試。
-    //
-    // 🔴 對鍵有第三把鑰匙（比上面那段多的）：官方 tradingName 常把中英文塞在同一欄，例如
-    //    'Condata International Co., Ltd. 光聯國際股份有限公司'——精確比對會整家漏掉，要用「包含」。
+    // Provenance, tier reconciliation method and maintenance notes:
+    //   weblink-adbecsp/docs/internal-notes/reseller-tier-provenance.md
+    //   Only `tier` is synced; every other field is maintained locally.
     const RESELLERS_DATA = [
-        // ── Gold：官方 partnerLevel = Gold（台灣官方共 13 家，正好全部在此名單內）──
+        // Gold
         { id: 'p1', nameEn: 'Systex Software and Service Corporation', nameTw: '精誠軟體服務股份有限公司', region: 'Taipei,All', address: '台北市中正區羅斯福路二段100號17樓', phone: '(02) 2367-0188', tier: 'Gold' },
         { id: 'p2', nameEn: 'Acer E-Enabling Service Business', nameTw: '宏碁資訊服務股份有限公司', region: 'Taipei,All', address: '115臺北市南港區南港路三段9號18樓', phone: '(02) 2784-1000', tier: 'Gold' },
         { id: 'n7', nameEn: 'Evertop Information', nameTw: '長峰資訊股份有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2788-2408', tier: 'Gold' },
@@ -665,9 +612,7 @@
         { id: 'new2', nameEn: 'Tyche Information Co., Ltd.', nameTw: '台奇資訊有限公司', region: 'NewTaipei,North', address: '新北市', phone: '(02) 8983-3989', tier: 'Gold' },
         { id: 'g3', nameEn: 'Yifan Technology', nameTw: '逸凡科技股份有限公司', region: 'Taipei,All', address: '台北市', phone: '0800-098-598', tier: 'Gold' },
 
-        // ── Certified：官方 partnerLevel = Certified（16 家，北→南→東）──
-        //    行末註記官方登錄名者＝站上名稱與官方登錄名對不起來、靠中文 tradingName 或電話才對到的，
-        //    沒有註記者＝英文名本來就對得上。
+        // Certified
         { id: 'g5', nameEn: 'Xunda Computer', nameTw: '訊達電腦股份有限公司', region: 'Taipei,All', address: '台北市', phone: '(02) 2501-5568 #2285', tier: 'Certified' },
         { id: 'n9', nameEn: 'Guanglian International', nameTw: '光聯國際股份有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 8768-1631', tier: 'Certified' },   // 官方 Condata International（tradingName 含中文全名）
         { id: 'n11', nameEn: 'Zhenchuan Info', nameTw: '真傳資訊有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2754-8510', tier: 'Certified' },   // 官方 Real Data Corp（電話對到）
@@ -685,7 +630,7 @@
         { id: 'g4', nameEn: 'BestCom Infotech Corp.', nameTw: '大綜電腦系統股份有限公司', region: 'Kaohsiung,All', address: '高雄市', phone: '(07) 345-8011', tier: 'Certified' },   // 官方 Jetwell Computer（電話對到）
         { id: 'e1', nameEn: 'Haoshi Tech Studio', nameTw: '好時科技工作室', region: 'East', address: '台東縣', phone: '089-311220', tier: 'Certified' },   // 官方 Hersheytech Studio（電話對到）
 
-        // ── 展碁授權經銷夥伴：中文名與電話兩把鑰匙都查無，不標 Adobe 等級（6 家）──
+        // Partner
         { id: 'n12', nameEn: 'Qiaoju Info', nameTw: '僑巨資訊企業有限公司', region: 'Taipei,North', address: '台北市', phone: '(02) 2522-1212', tier: 'Partner' },
         { id: 'g2', nameEn: 'Otsuka Information Technology', nameTw: '大塚資訊科技股份有限公司', region: 'NewTaipei,All', address: '新北市', phone: '(02) 8964-6668', tier: 'Partner' },
         { id: 't3', nameEn: 'Kaimo Technology', nameTw: '凱模科技有限公司', region: 'TaoZhuMiao,North', address: '桃園市', phone: '(03) 218-0011', tier: 'Partner' },
@@ -694,35 +639,31 @@
         { id: 's5', nameEn: 'Song Yue International', nameTw: '淞鉞國際有限公司', region: 'Kaohsiung,South', address: '高雄市', phone: '(07) 588-5272', tier: 'Partner' }
     ];
 
-    // 分級徽章文字（tier 欄位 → 卡片顯示）
-    // Platinum 目前台灣 0 家（見上方註解），這一條是留給未來的定義，不是有人在用。
-    // Partner 不是 Adobe 分級，措辭要看得出是展碁自己的名單。
+    // Tier label wording rationale: see docs/internal-notes/reseller-page-decisions.md
     const TIER_LABEL = { Platinum: '白金級 Platinum', Gold: '金級 Gold', Certified: '認證級 Certified', Partner: '展碁授權經銷夥伴' };
 
-    // --- 2. 狀態管理 ---
+    // --- 2. State ---
     let state = {
         region: 'All',
         search: '',
     };
 
-    // 使用者輸入回填進 innerHTML 前必須逸出。這頁的 CSP 含 'unsafe-inline'，
-    // 所以未逸出的搜尋字串真的會執行（例如貼一段 <img onerror=...> 進搜尋框）。
     const escHtml = (s) => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-    // --- 3. 初始化 ---
+    // --- 3. Init ---
     function init() {
         renderFilters();
         renderResellers();
         setupEventListeners();
     }
 
-    // --- 4. 渲染函式 ---
+    // --- 4. Render ---
 
     function renderFilters() {
-        // 更新地區選擇器
+        // Refresh region selector
         document.getElementById('region-select').value = state.region;
         
-        // 檢查是否有篩選條件被啟用
+        // Any active filter?
         const hasFilter = state.region !== 'All' || state.search !== '';
         const resetBtns = document.querySelectorAll('#global-reset-btn, #reset-btn-main');
         resetBtns.forEach(btn => {
@@ -739,7 +680,7 @@
         const term = state.search.toLowerCase().trim();
         const termNumeric = term.replace(/\D/g, '');
 
-        // 資料過濾邏輯
+        // Filtering
         const filtered = RESELLERS_DATA.filter(item => {
             const matchRegion = state.region === 'All' || item.region.includes(state.region) || item.region.includes('All');
             
@@ -759,7 +700,7 @@
 
         countEl.innerText = `${filtered.length} 家`;
 
-        // 標籤顯示
+        // Active tag chips
         let tagsHtml = '';
         if (state.search) tagsHtml += `<span class="filter-tag">搜尋: ${escHtml(state.search)} <svg class="icon icon-sm" style="cursor:pointer" onclick="updateState('search', '')" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>`;
         if (state.region !== 'All') {
@@ -781,7 +722,6 @@
         }
 
         listContainer.innerHTML = filtered.map(item => {
-            // 依指示：只有展碁國際(d1)顯示網站按鈕 (已移除 d1，故此邏輯已無作用)
             const showWebsite = item.id === 'd1' && item.website; 
 
             return `
@@ -820,7 +760,7 @@
         }).join('');
     }
 
-    // --- 5. 互動邏輯 ---
+    // --- 5. Interactions ---
 
     window.updateState = function(key, value) {
         state[key] = value;
@@ -888,15 +828,31 @@
 
     init();
 
-    // 詢價表單送出時留一個記號給 /thanks/ 讀。那一頁同時接這裡與 /adobe-day/ 的規劃器，
-    // 而傳統 POST 轉址過去之後拿不到任何表單欄位，不留記號就分不出商機從哪一頁來。
-    // ⚠️ 這裡不直接送 GA4 事件：按下送出不等於成立（可能被 honeypot 判成機器人），
-    //    真正記帳在 /thanks/ ——走得到那一頁才代表 Netlify 收下了。
+    // Lead attribution rationale: weblink-adbecsp/docs/internal-notes/reseller-tier-provenance.md
     var quoteForm = document.querySelector('form[name="quote-inquiry"]');
     if (quoteForm) {
         quoteForm.addEventListener('submit', function () {
             try { sessionStorage.setItem('lead-form', 'quote-inquiry'); } catch (e) {}
         });
+
+        var qBtn = quoteForm.querySelector('button[type="submit"], input[type="submit"], button:not([type])');
+        if (qBtn) {
+            var qLabel = qBtn.textContent;
+            quoteForm.addEventListener('submit', function () {
+                setTimeout(function () {
+                    qBtn.style.minWidth = qBtn.offsetWidth + 'px';
+                    qBtn.disabled = true;
+                    qBtn.setAttribute('aria-busy', 'true');
+                    qBtn.textContent = '送出中…';
+                }, 0);
+            });
+            window.addEventListener('pageshow', function (e) {
+                if (!e.persisted) return;
+                qBtn.disabled = false;
+                qBtn.removeAttribute('aria-busy');
+                qBtn.textContent = qLabel;
+            });
+        }
     }
 </script>
 </body>
