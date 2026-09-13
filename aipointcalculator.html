@@ -184,8 +184,8 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 6 6 18M6 6l12 12"/></svg>
             </button>
             <div class="text-center mb-8">
-                <!-- ⚠️ 這裡不要寫回覆時效承諾。理由與替代寫法見
-     weblink-adbecsp/docs/internal-notes/tools-reply-sla.md -->
+                <!-- ⚠️ 這裡不要寫回覆時效承諾（如「24 小時內回覆」）。
+     理由與替代寫法記在內部文件，不隨產物上線。 -->
             <h3 class="text-2xl font-black text-slate-900 mb-2 leading-tight">我有興趣請與我聯繫</h3>
                 <p class="text-slate-500 text-sm leading-relaxed">請提供基本資訊，我們會指派專家為您提供專屬導入報價。</p>
             </div>
@@ -533,7 +533,7 @@
                         form_name: 'aipoint-inquiry',
                         form_location: '/tools/aipointcalculator/',
                     });
-                    // ⚠️ 訊息裡不要寫回覆時效承諾（理由見 internal-notes/tools-reply-sla.md）。
+                    // ⚠️ 訊息裡不要寫回覆時效承諾（理由記在內部文件，不隨產物上線）。
                     alert("已送出，感謝您的聯繫！\n我們會盡快與您聯繫。若想直接詢問，請來電 (02) 2371-6000 #733（業務諮詢）。");
                     form.reset(); restore(); this.closeInquiryModal(); this.toggleCart(false);
                 } catch (err) {
