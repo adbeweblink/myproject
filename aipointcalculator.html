@@ -198,6 +198,7 @@
             </div>
             <form id="contact-form" name="aipoint-inquiry" method="POST" data-netlify="true" data-netlify-honeypot="website" netlify-honeypot="website" class="space-y-5" onsubmit="App.handleInquirySubmit(event)">
                 <input type="hidden" name="form-name" value="aipoint-inquiry">
+                <input type="hidden" name="subject" value="【展碁官網詢價】AI 生成點數試算頁">
                 <div class="hp-field"><label for="c_website">Website</label><input type="text" id="c_website" name="website" autocomplete="off" tabindex="-1"></div>
                 <div class="grid grid-cols-2 gap-4">
                     <div><label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5" for="c_name">姓名 *</label><input type="text" id="c_name" name="name" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm" required></div>
@@ -206,6 +207,11 @@
                 <div><label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5" for="c_company">公司全名 *</label><input type="text" id="c_company" name="company" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm" required></div>
                 <div><label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5" for="c_email">商務 Email *</label><input type="email" id="c_email" name="email" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm" required placeholder="work@company.com"></div>
                 <div><label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5" for="c_phone">手機號碼 *</label><input type="tel" id="c_phone" name="phone" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm" required placeholder="09xxxxxxxx"></div>
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="col-span-2"><label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5" for="c_office_phone">公司電話 *</label><input type="tel" id="c_office_phone" name="office_phone" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm" required placeholder="02-1234-5678" autocomplete="tel"></div>
+                    <div><label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5" for="c_ext">分機（如有）</label><input type="text" id="c_ext" name="ext" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm" placeholder="例：733" maxlength="10" inputmode="numeric"></div>
+                </div>
+                <div><label class="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5" for="c_company_size">公司規模 *</label><select id="c_company_size" name="company_size" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm" required><option value="" disabled selected>請選擇</option><option value="1–9 人">1–9 人</option><option value="10–49 人">10–49 人</option><option value="50–99 人">50–99 人</option><option value="100 人以上">100 人以上</option></select></div>
                 <button type="submit" id="submit-btn" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-xl hover:bg-blue-700 transition-all click-shrink flex items-center justify-center gap-2">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> 立即聯繫專家報價
                 </button>

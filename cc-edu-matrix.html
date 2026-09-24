@@ -216,6 +216,7 @@
             <!-- Form -->
             <form id="contact-form" name="cc-edu-inquiry" method="POST" data-netlify="true" data-netlify-honeypot="_honey" netlify-honeypot="_honey" class="space-y-4" onsubmit="App.submitForm(event)">
                 <input type="hidden" name="form-name" value="cc-edu-inquiry">
+                <input type="hidden" name="subject" value="【展碁官網詢價】Creative Cloud 教育方案比較頁">
 
                 <div class="hidden" aria-hidden="true">
                     <label for="honeypot_field">請勿填寫此欄位</label>
@@ -231,8 +232,8 @@
                     <input type="text" id="c_school" name="school" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required placeholder="學校全名">
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1" for="c_title">職務</label>
-                    <input type="text" id="c_title" name="title" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" placeholder="例如：資訊組長、系辦人員">
+                    <label class="block text-sm font-bold text-gray-700 mb-1" for="c_job">職務</label>
+                    <input type="text" id="c_job" name="job" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required placeholder="例如：資訊組長、系辦人員">
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1" for="c_email">學校 Email</label>
@@ -241,6 +242,26 @@
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1" for="c_phone">手機</label>
                     <input type="tel" id="c_phone" name="phone" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required placeholder="0912-345-678">
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="col-span-2">
+                        <label class="block text-sm font-bold text-gray-700 mb-1" for="c_office_phone">公司電話</label>
+                        <input type="tel" id="c_office_phone" name="office_phone" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required placeholder="02-1234-5678" autocomplete="tel">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1" for="c_ext">分機（如有）</label>
+                        <input type="text" id="c_ext" name="ext" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" placeholder="例：733" maxlength="10" inputmode="numeric">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1" for="c_company_size">學校規模</label>
+                    <select id="c_company_size" name="company_size" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-adobeRed outline-none" required>
+                        <option value="" disabled selected>請選擇</option>
+                        <option value="1–9 人">1–9 人</option>
+                        <option value="10–49 人">10–49 人</option>
+                        <option value="50–99 人">50–99 人</option>
+                        <option value="100 人以上">100 人以上</option>
+                    </select>
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1" for="c_plan">感興趣的方案</label>

@@ -65,6 +65,15 @@
             .header-subtitle { display: block; }
         }
 
+        /* 頁首下方的業務諮詢橫幅：放在名錄之前，讓不知道找誰的人第一眼就看到 */
+        .ask-weblink { max-width: 1100px; margin: 2rem auto 0; padding: 0 1rem; }
+        .ask-weblink-inner { background: white; border-radius: 12px; box-shadow: var(--card-shadow); padding: 1.25rem 1.5rem; }
+        .ask-weblink-q { font-size: 1.1rem; font-weight: 700; color: #111827; margin: 0; }
+        .ask-weblink-a { font-size: 1rem; color: #4b5563; margin: 0.35rem 0 0; }
+        .ask-weblink-a a { font-size: 1.5rem; font-weight: 800; color: var(--primary-red); text-decoration: none; white-space: nowrap; }
+        .ask-weblink-sub { font-size: 0.85rem; color: #6b7280; margin: 0.35rem 0 0; }
+        .ask-weblink-sub a { color: var(--primary-red); font-weight: 700; }
+
         /* Main Layout */
         .container {
             max-width: 1100px;
@@ -470,6 +479,14 @@
     </div>
 </header>
 
+<section class="ask-weblink" aria-label="業務諮詢">
+    <div class="ask-weblink-inner">
+        <p class="ask-weblink-q">不確定該找哪一家？直接找展碁</p>
+        <p class="ask-weblink-a">業務諮詢 <a href="tel:+886223716000,733">(02) 2371-6000 分機 733</a></p>
+        <p class="ask-weblink-sub">也可以填寫下方<a href="#quote">線上詢價表單</a>，展碁業務會與您聯繫。</p>
+    </div>
+</section>
+
 <div class="container">
     <!-- Sidebar -->
     <aside class="sidebar">
@@ -516,9 +533,6 @@
             </button>
         </div>
 
-        <div class="filter-card" style="margin-top: 1rem;">
-            <p style="font-size: 0.9rem; color: #4b5563; line-height: 1.7;">不確定該找哪家？直接聯絡展碁業務 <a href="tel:+886223716000,733" style="color: var(--primary-red); font-weight: 700; text-decoration: none; white-space: nowrap;">(02)2371-6000 #733</a>，或使用下方<a href="#quote" style="color: var(--primary-red); font-weight: 700;">線上詢價表單</a>。</p>
-        </div>
     </aside>
 
     <!-- Results -->
@@ -1218,12 +1232,27 @@
         <p style="font-size: 0.875rem; color: var(--text-gray); margin-bottom: 1.5rem;">留下需求，展碁業務會盡快與您聯繫；急件請直撥業務諮詢專線 (02)2371-6000 #733。</p>
         <form name="quote-inquiry" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" netlify-honeypot="bot-field" action="/thanks/">
             <input type="hidden" name="form-name" value="quote-inquiry">
+            <input type="hidden" name="subject" value="【展碁官網詢價】經銷商查詢頁 線上詢價">
             <p hidden aria-hidden="true"><label>請勿填寫此欄位：<input name="bot-field"></label></p>
             <div class="form-grid">
                 <label class="form-field">公司名稱<input type="text" name="company" required autocomplete="organization"></label>
                 <label class="form-field">姓名<input type="text" name="name" required autocomplete="name"></label>
-                <label class="form-field">電話<input type="tel" name="phone" required autocomplete="tel"></label>
+                <label class="form-field">手機<input type="tel" name="phone" required autocomplete="tel"></label>
                 <label class="form-field">Email<input type="email" name="email" required autocomplete="email"></label>
+                <label class="form-field">職務<input type="text" name="job" required autocomplete="organization-title" placeholder="例：IT 經理、設計總監"></label>
+                <label class="form-field">公司規模
+                    <select name="company_size" required>
+                        <option value="" disabled selected>請選擇</option>
+                        <option value="1–9 人">1–9 人</option>
+                        <option value="10–49 人">10–49 人</option>
+                        <option value="50–99 人">50–99 人</option>
+                        <option value="100 人以上">100 人以上</option>
+                    </select>
+                </label>
+                <div class="form-span" style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+                    <label class="form-field">公司電話<input type="tel" name="office_phone" required autocomplete="tel" placeholder="02-1234-5678"></label>
+                    <label class="form-field">分機（如有）<input type="text" name="ext" placeholder="例：733" maxlength="10" inputmode="numeric"></label>
+                </div>
                 <label class="form-field form-span">想詢問的產品
                     <select name="product" required>
                         <option value="" disabled selected>請選擇</option>
